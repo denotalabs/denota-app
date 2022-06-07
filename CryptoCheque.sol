@@ -20,15 +20,23 @@ contract CryptoCheque {
     function deposit() payable external {
         balances[msg.sender] += msg.value;
     }
-    function writeCheck(uint256 amount, uint256 duration, address reviewer) external{
+    function writeCheque(uint256 amount, uint256 duration, address reviewer) public{
         require(reviewerDurations[reviewer][duration], "Reviewer doesn't allow this duration");
         require(signerReviewer[msg.sender][reviewer], "Reviewer must approve this account");
         balances[msg.sender] -= amount;
         totalSupply += 1;
         cheques[totalSupply+1] = Cheque({drawer: msg.sender, bearer: msg.sender, expiry: block.timestamp+duration, 
-                                       reviewer: reviewer, amount:amount, voided:false, transferable:true});
+                                         reviewer: reviewer, amount: amount, voided: false, transferable: true});
     }
-    function cashCheck(uint256 chequeID) external{  // Only allow withdraws via cheque writing
+    function writeCheque(uint256 amount, uint256 duration, address reviewer, address to) external{
+        require(reviewerDurations[reviewer][duration], "Reviewer doesn't allow this duration");
+        require(signerReviewer[msg.sender][reviewer], "Reviewer must approve this account");
+        balances[msg.sender] -= amount;
+        totalSupply += 1;
+        cheques[totalSupply+1] = Cheque({drawer: msg.sender, bearer: to, expiry: block.timestamp+duration, 
+                                         reviewer: reviewer, amount:amount, voided:false, transferable:true});
+    }
+    function cashCheque(uint256 chequeID) external{  // Only allow withdraws via cheque writing
         Cheque storage cheque = cheques[chequeID];
         require(cheque.bearer==msg.sender, "Must own cheque to cash");
         require(cheque.expiry>block.timestamp, "Cheque not cashable yet");
@@ -36,7 +44,7 @@ contract CryptoCheque {
         cheque.voided = true;
         this.transfer(cheque.bearer, cheque.amount);
     }
-    function voidCheck(uint256 chequeID) external{
+    function voidCheque(uint256 chequeID) external{
         Cheque storage cheque = cheques[chequeID];
         require(cheque.reviewer==msg.sender, "Must be reviewer");
         require(cheque.expiry<block.timestamp, "Cheque already matured");
