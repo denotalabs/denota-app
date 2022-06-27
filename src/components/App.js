@@ -2,9 +2,8 @@ import { Tabs, Tab } from 'react-bootstrap'
 import dCheque from '../abis/dCheque.json'
 import React, { Component } from 'react';
 import dcheque from '../dcheque.png';
-import Web3 from 'web3';
+import { ethers } from 'ethers';
 import './App.css';
-
 
 class App extends Component {
 
@@ -12,32 +11,30 @@ class App extends Component {
     await this.loadBlockchainData(this.props.dispatch)
   }
 
+  async connectWallet() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);// console.log(provider) //, window.ethereum, 5777 'http://localhost:8545'
+    await provider.send("eth_requestAccounts", []);
+    provider.on("network", (newNetwork, oldNetwork) => {if (oldNetwork) {window.location.reload();}});  // Reload on network change
+    const signer = provider.getSigner(); //console.log(provider)
+    let account = await signer.getAddress(); //console.log(account)
+    let netId = 5777
+    return [provider, signer, account, netId]
+  }
+
   async loadBlockchainData(dispatch) {
     if(typeof window.ethereum !== 'undefined'){
-      // Assign to values to variables: web3, netId, accounts
-      const web3 = new Web3(window.ethereum)
-      let netId = await web3.eth.net.getId()//; netId = parseInt(netId);
-      const accounts = await web3.eth.getAccounts()
-      
-
-      if (typeof accounts[0]!=='undefined'){ //check if account is detected, then load balance&setStates, else push alert
-        const balance = await web3.eth.getBalance(accounts[0])
-        this.setState({account: accounts[0], balance: balance, web3: web3})
-      }else{
-        window.alert('Please sign in with MetaMask')
-      }
-      
+      let [provider, signer, account, netId] = await this.connectWallet(); //console.log(provider, signer, account, netId)
       try { // Load contracts
-        const dChequeAddress = await dCheque.networks[netId].address; console.log(dChequeAddress)
-        const dcheque = new web3.eth.Contract(dCheque.abi, dChequeAddress)
+        const dChequeAddress = await dCheque.networks[netId].address;
+        let dcheque = new ethers.Contract(dChequeAddress, dCheque.abi, signer);
         window.dCheque = dcheque
-        const dChequeBalance = await web3.eth.getBalance(dChequeAddress); console.log(dChequeBalance)
-        // let userBalance = await dcheque.methods.deposits(accounts[0]).call()
-        this.setState({dcheque: dcheque, dChequeAddress: dChequeAddress,
-          dChequeBalance: web3.utils.fromWei(dChequeBalance), 
-          // userBalance:web3.utils.fromWei(userBalance)
-        }) 
-
+        const dChequeBalance = await provider.getBalance(dChequeAddress);
+        let userBalance = await dcheque.deposits(account)
+        this.setState({signer:signer, account: account, 
+                       dcheque: dcheque, dChequeAddress: dChequeAddress,
+                       dChequeBalance: ethers.utils.formatEther(dChequeBalance), 
+                       userBalance:ethers.utils.formatEther(userBalance)
+                      }) 
       } catch (e){
         console.log('error', e)
         window.alert('Contracts not deployed to the current network')
@@ -47,43 +44,14 @@ class App extends Component {
     }
   }
 
-  async deposit(amount) {
-    if (this.state.dcheque !== 'undefined') { 
-      const w3 = this.state.web3
-      try{
-        w3.eth.sendTransaction({from: this.state.account, to: this.state.dChequeAddress, 
-                                value: w3.utils.toHex(amount)})
-      } catch (e){
-        console.log('Error, deposit: ', e)
-      }
-    }
-  }
-  async writeCheque(amount, duration, reviewer, bearer) {
-    if(this.state.dcheque !=='undefined'){  // check if this.state.dcheque is ok
-      try{ 
-        await this.state.dcheque.methods.writeCheque(amount, duration, reviewer, bearer).call()
-      } catch(e) {
-        console.log('Error, withdraw: ', e)
-      }
-    }
-  }
-  async cashCheque(chequeID) {
-    if (this.state.dcheque !== 'undefined') {  
-      try{
-        await this.state.dcheque.methods.cashCheque(chequeID).call()
-      } catch (e){
-        console.log('Error, deposit: ', e)
-      }
-    }
-  }
   constructor(props) {
     super(props)
     this.state = {
       web3: 'undefined',
       account: '',
       dcheque: null,
-      balance: 0,
       dChequeAddress: null,
+      dChequeBalance: 0,
       userBalance: 0
     }
   }
@@ -100,12 +68,12 @@ class App extends Component {
         <img src={dcheque} className="App-logo" alt="logo" height="32"/>
           <b>dCheque</b>
         </a>
+        <h6 style={{color: "rgb(255, 255, 255)", marginRight:'20px'}}>Balance: {this.state.userBalance} ETH</h6>
         </nav>
         <div className="container-fluid mt-5 text-center">
         <br></br>
           <h1>Welcome to dCheque</h1>
           <h6>Total deposited: {this.state.dChequeBalance} ETH</h6>
-          <h6>Account balance: {this.state.userBalance} ETH</h6>
           
           <br></br>
           <div className="row">
@@ -120,8 +88,8 @@ class App extends Component {
                     <form onSubmit={(e) => {
                       e.preventDefault()
                       let amount = this.depositAmount.value
-                      amount = Web3.utils.toWei(amount) //convert to wei
-                      this.deposit(amount)
+                      amount = ethers.utils.parseEther(amount.toString(), 'wei') //convert to wei
+                      this.state.signer.sendTransaction({to: this.state.dChequeAddress, value: amount});
                     }}>
                       <div className='form-group mr-sm-2'>
                       <br></br>
@@ -145,15 +113,14 @@ class App extends Component {
                     Write your cheque
                     <form onSubmit={(e) => {
                       e.preventDefault()
-                      let amount = this.depositAmount.value
-                      amount = Web3.utils.toWei(amount) //convert to wei
-                      let [duration, reviewer, bearer] = [this.duration.value, this.reviewer.value, this.bearer.value]
-                      this.writeCheque(amount, duration, reviewer, bearer)
+                      let amount = this.amount.value; 
+                      amount = ethers.utils.formatEther(amount) // convert to wei
+                      let [duration, auditor, bearer] = [this.duration.value, this.reviewer.value, this.bearer.value]
+                      this.state.dcheque.writeCheque(amount, duration, auditor, bearer)
                     }}>
                       <div className='form-group mr-sm-2'>
                         <br></br>
                           <input
-                            // address bearer
                             id='bearer'
                             type='text'
                             className="form-control form-control-md"
@@ -165,7 +132,6 @@ class App extends Component {
                       <div className='form-group mr-sm-2'>
                         <br></br>
                           <input
-                            // address reviewer;
                             id='reviewer'
                             type='text'
                             className="form-control form-control-md"
@@ -177,7 +143,6 @@ class App extends Component {
                       <div className='form-group mr-sm-2'>
                         <br></br>
                           <input
-                            // uint256 expiry;
                             id='expiry'
                             type='number'
                             className="form-control form-control-md"
@@ -189,7 +154,6 @@ class App extends Component {
                       <div className='form-group mr-sm-2'>
                         <br></br>
                           <input
-                            // uint256 amount;
                             id='amount'
                             type='number'
                             className="form-control form-control-md"
@@ -204,16 +168,15 @@ class App extends Component {
                     </form>
                   </div>
                 </Tab>
-                {/* TODO add iteration over cheques in the user's possesion */}
                 <Tab eventKey="cash" title="Cash">  
                   <div>
                     <br></br>
                     Your Cheques
                     <br></br>
-                    {/* <form onSubmit={(e) => {
+                    <form onSubmit={(e) => {
                       e.preventDefault()
                       let chequeID = this.chequeID.value
-                      this.cashCheque(chequeID)
+                      this.state.dcheque.cashCheque(chequeID)
                     }}>
                       <div className='form-group mr-sm-2'>
                       <br></br>
@@ -222,13 +185,13 @@ class App extends Component {
                           step="0.01"
                           type='number'
                           className="form-control form-control-md"
-                          placeholder='Amount...'
+                          placeholder='Cheque Identifier'
                           required
                           ref={(input) => { this.chequeID = input}}
                         />
                       </div>
                       <button type='submit' className='btn btn-primary'>Deposit</button>
-                    </form> */}
+                    </form>
                   </div>
                 </Tab>
                 <Tab eventKey="auditors" title="Auditors">
