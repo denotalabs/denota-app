@@ -1,7 +1,7 @@
-import { Tabs, Tab } from 'react-bootstrap'
+import { Tabs, Tab, Form } from 'react-bootstrap'
 import dCheque from '../abis/dCheque.json'
 import React, { Component } from 'react';
-import dcheque from '../dcheque.png';
+import dchequeImage from '../dcheque.png';
 import { ethers } from 'ethers';
 import './App.css';
 
@@ -65,7 +65,7 @@ class App extends Component {
             target="_blank"
             rel="noopener noreferrer"
           >
-        <img src={dcheque} className="App-logo" alt="logo" height="32"/>
+        <img src={dchequeImage} className="App-logo" alt="logo" height="32"/>
           <b>dCheque</b>
         </a>
         <h6 style={{color: "rgb(255, 255, 255)", marginRight:'20px'}}>Balance: {this.state.userBalance} ETH</h6>
@@ -110,15 +110,16 @@ class App extends Component {
                 <Tab eventKey="write" title="Write">
                   <div>
                     <br></br>
-                    Write your cheque
-                    <form onSubmit={(e) => {
+                    <form className='form-group mr-sm-2' onSubmit={(e) => {
                       e.preventDefault()
                       let amount = this.amount.value; 
-                      amount = ethers.utils.formatEther(amount) // convert to wei
-                      let [duration, auditor, bearer] = [this.duration.value, this.reviewer.value, this.bearer.value]
-                      this.state.dcheque.writeCheque(amount, duration, auditor, bearer)
+                      amount = ethers.utils.parseEther(amount); //console.log(amount)
+                      let [duration, auditor, bearer] = [this.expiry.value, this.reviewer.value, this.bearer.value]; console.log(duration, auditor, bearer)
+                      if (this.state.dcheque!==null){
+                        this.state.dcheque.functions['writeCheque(uint256,uint256,address,address)'](amount, duration, auditor, bearer)
+                      }
                     }}>
-                      <div className='form-group mr-sm-2'>
+                      <div>
                         <br></br>
                           <input
                             id='bearer'
@@ -129,7 +130,7 @@ class App extends Component {
                             ref={(input) => { this.bearer = input}}
                           />
                       </div>
-                      <div className='form-group mr-sm-2'>
+                      <div>
                         <br></br>
                           <input
                             id='reviewer'
@@ -140,7 +141,7 @@ class App extends Component {
                             ref={(input) => { this.reviewer = input}}
                           />
                       </div>
-                      <div className='form-group mr-sm-2'>
+                      <div>
                         <br></br>
                           <input
                             id='expiry'
@@ -151,7 +152,7 @@ class App extends Component {
                             ref={(input) => { this.expiry = input}}
                           />
                       </div>
-                      <div className='form-group mr-sm-2'>
+                      <div>
                         <br></br>
                           <input
                             id='amount'
@@ -162,8 +163,8 @@ class App extends Component {
                             ref={(input) => { this.amount = input}}
                           />
                       </div>
-                      <div>
-                        <button type='submit' className='btn btn-primary'>Sign</button>
+                      <div className='form-group mt-5'>
+                        <button type='submit' className='btn btn-primary'>Sign Cheque</button>
                       </div>
                     </form>
                   </div>
@@ -182,7 +183,7 @@ class App extends Component {
                       <br></br>
                         <input
                           id='depositAmount'
-                          step="0.01"
+                          step="1"
                           type='number'
                           className="form-control form-control-md"
                           placeholder='Cheque Identifier'
@@ -190,18 +191,56 @@ class App extends Component {
                           ref={(input) => { this.chequeID = input}}
                         />
                       </div>
-                      <button type='submit' className='btn btn-primary'>Deposit</button>
+                      <button type='submit' className='btn btn-primary'>Cash Cheque</button>
                     </form>
                   </div>
                 </Tab>
-                <Tab eventKey="auditors" title="Auditors">
+                <Tab eventKey="acceptedUsers" title="AcceptedUsers">
                   <br></br>
-                    Reviewers
-                    <br></br>
-                    <br></br>
-                  <div>
-                    <button type='submit' className='btn btn-primary' onClick={(e) => this.setReviewer(e)}>Update</button>
-                  </div>
+                  You are a(n) __ accepting cheques from...
+                  <br></br>
+                  <br></br>
+                  <Form onSubmit={(e) => {
+                    e.preventDefault()
+                    let acceptedAddress = this.acceptedAddress.value
+                    if (this.userType2.checked){  // merchant accepts this auditor
+                      this.state.dcheque.setAcceptedAuditor(acceptedAddress)
+                    } else{  // auditor accepts this user
+                      this.state.dcheque.setAcceptedDrawers(acceptedAddress)
+                      this.state.dcheque.setAllowedDuration(60*60*24*7)
+                    }
+                    }}>
+                    <div key={`inline-${'radio'}`} className="mb-3">
+                        <Form.Check ref={(input) => { this.userType2 = input}}
+                          defaultChecked={true}
+                          inline
+                          label="Merchant"
+                          value='1'
+                          name="group1"
+                          type={'radio'}
+                          id={`inline-${'radio'}-2`}
+                        />
+                        <Form.Check ref={(input) => { this.userType3 = input}}
+                          inline
+                          label="Auditor"
+                          value='2'
+                          name="group1"
+                          type={'radio'}
+                          id={`inline-${'radio'}-3`}
+                        />
+                      </div>
+                      <input
+                          id='acceptedAddress'
+                          type='text'
+                          className="form-control form-control-md mt-2"
+                          placeholder='Address...'
+                          required
+                          ref={(input) => { this.acceptedAddress = input}}
+                        />
+                        <div>
+                          <button type='submit' className='btn btn-primary mt-3'>Add Address</button>
+                        </div>
+                  </Form>
                 </Tab>
               </Tabs>
               </div>
