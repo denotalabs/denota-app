@@ -133,8 +133,8 @@ function App() {
                           className='form-control form-control-md'
                           placeholder='Amount...'
                           required
-                          ref={(input) => {
-                            setDepositAmount(input.value);
+                          onChange={(e) => {
+                            setDepositAmount(e.target.value);
                           }}
                         />
                       </div>
@@ -167,8 +167,8 @@ function App() {
                           className='form-control form-control-md'
                           placeholder='Recieving Account...'
                           required
-                          ref={(input) => {
-                            setBearer(input.value);
+                          onChange={(e) => {
+                            setBearer(e.target.value);
                           }}
                         />
                       </div>
@@ -180,8 +180,8 @@ function App() {
                           className='form-control form-control-md'
                           placeholder='Reviewing Account...'
                           required
-                          ref={(input) => {
-                            setReviewer(input.value);
+                          onChange={(e) => {
+                            setReviewer(e.target.value);
                           }}
                         />
                       </div>
@@ -193,8 +193,8 @@ function App() {
                           className='form-control form-control-md'
                           placeholder='To Expire In...'
                           required
-                          ref={(input) => {
-                            setExpiry(input.value);
+                          onChange={(e) => {
+                            setExpiry(e.target.value);
                           }}
                         />
                       </div>
@@ -206,8 +206,8 @@ function App() {
                           className='form-control form-control-md'
                           placeholder='Amount...'
                           required
-                          ref={(input) => {
-                            setAmount(input.value);
+                          onChange={(e) => {
+                            setAmount(e.target.value);
                           }}
                         />
                       </div>
@@ -239,8 +239,8 @@ function App() {
                           className='form-control form-control-md'
                           placeholder='Cheque Identifier'
                           required
-                          ref={(input) => {
-                            setChequeID(input.value);
+                          onChange={(e) => {
+                            setChequeID(e.target.value);
                           }}
                         />
                       </div>
@@ -299,8 +299,8 @@ function App() {
                       className='form-control form-control-md mt-2'
                       placeholder='Address...'
                       required
-                      ref={(input) => {
-                        setAcceptedAddress(input.value);
+                      onChange={(e) => {
+                        setAcceptedAddress(e.target.value);
                       }}
                     />
                     <div>
