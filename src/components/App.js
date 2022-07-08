@@ -5,7 +5,7 @@ import dchequeImage from '../dcheque.png';
 import { ethers } from 'ethers';
 import './App.css';
 
-export const App = () => {
+function App() {
   // TODO: split up
   const [state, setState] = useState({
     web3: 'undefined',
@@ -252,9 +252,6 @@ export const App = () => {
                 </Tab>
                 <Tab eventKey='acceptedUsers' title='AcceptedUsers'>
                   <br></br>
-                  Reviewers
-                  <br></br>
-                  <br></br>
                   You are a(n) __ accepting cheques from...
                   <br></br>
                   <br></br>
@@ -320,6 +317,6 @@ export const App = () => {
       </div>
     </div>
   );
-};
+}
 
 export default App;
