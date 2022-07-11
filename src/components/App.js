@@ -1,253 +1,269 @@
-import { Tabs, Tab } from 'react-bootstrap'
-import dCheque from '../abis/dCheque.json'
-import React, { Component } from 'react';
-import dcheque from '../dcheque.png';
-import Web3 from 'web3';
+import { Tabs, Tab, Form } from 'react-bootstrap';
+import dCheque from '../abis/dCheque.json';
+import React, { useCallback, useEffect } from 'react';
+import dchequeImage from '../dcheque.png';
+import { ethers } from 'ethers';
 import './App.css';
+import useBlockchainData from './hooks/useBlockchainData';
 
+function App() {
+  const [depositAmount, setDepositAmount] = useState('');
 
-class App extends Component {
+  const [amount, setAmount] = useState('');
 
-  async componentWillMount() {
-    await this.loadBlockchainData(this.props.dispatch)
-  }
+  const [reviewer, setReviewer] = useState('');
+  const [bearer, setBearer] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [chequeID, setChequeID] = useState('');
+  const [duration] = useState('');
+  const [userType2, setUserType2] = useState('');
+  const [userType3, setUserType3] = useState('');
+  const [acceptedAddress, setAcceptedAddress] = useState('');
 
-  async loadBlockchainData(dispatch) {
-    if(typeof window.ethereum !== 'undefined'){
-      // Assign to values to variables: web3, netId, accounts
-      const web3 = new Web3(window.ethereum)
-      let netId = await web3.eth.net.getId()//; netId = parseInt(netId);
-      const accounts = await web3.eth.getAccounts()
-      
+  const { state, loadBlockchainData } = useBlockchainData();
 
-      if (typeof accounts[0]!=='undefined'){ //check if account is detected, then load balance&setStates, else push alert
-        const balance = await web3.eth.getBalance(accounts[0])
-        this.setState({account: accounts[0], balance: balance, web3: web3})
-      }else{
-        window.alert('Please sign in with MetaMask')
-      }
-      
-      try { // Load contracts
-        const dChequeAddress = await dCheque.networks[netId].address; console.log(dChequeAddress)
-        const dcheque = new web3.eth.Contract(dCheque.abi, dChequeAddress)
-        window.dCheque = dcheque
-        const dChequeBalance = await web3.eth.getBalance(dChequeAddress); console.log(dChequeBalance)
-        // let userBalance = await dcheque.methods.deposits(accounts[0]).call()
-        this.setState({dcheque: dcheque, dChequeAddress: dChequeAddress,
-          dChequeBalance: web3.utils.fromWei(dChequeBalance), 
-          // userBalance:web3.utils.fromWei(userBalance)
-        }) 
+  useEffect(() => {
+    loadBlockchainData();
+  }, [loadBlockchainData]);
 
-      } catch (e){
-        console.log('error', e)
-        window.alert('Contracts not deployed to the current network')
-      }
-    } else{  //if MetaMask not exists push alert
-      window.alert('Please install MetaMask')
-    }
-  }
-
-  async deposit(amount) {
-    if (this.state.dcheque !== 'undefined') { 
-      const w3 = this.state.web3
-      try{
-        w3.eth.sendTransaction({from: this.state.account, to: this.state.dChequeAddress, 
-                                value: w3.utils.toHex(amount)})
-      } catch (e){
-        console.log('Error, deposit: ', e)
-      }
-    }
-  }
-  async writeCheque(amount, duration, reviewer, bearer) {
-    if(this.state.dcheque !=='undefined'){  // check if this.state.dcheque is ok
-      try{ 
-        await this.state.dcheque.methods.writeCheque(amount, duration, reviewer, bearer).call()
-      } catch(e) {
-        console.log('Error, withdraw: ', e)
-      }
-    }
-  }
-  async cashCheque(chequeID) {
-    if (this.state.dcheque !== 'undefined') {  
-      try{
-        await this.state.dcheque.methods.cashCheque(chequeID).call()
-      } catch (e){
-        console.log('Error, deposit: ', e)
-      }
-    }
-  }
-  constructor(props) {
-    super(props)
-    this.state = {
-      web3: 'undefined',
-      account: '',
-      dcheque: null,
-      balance: 0,
-      dChequeAddress: null,
-      userBalance: 0
-    }
-  }
-
-  render() {
-    return (
-      <div className='text-monospace'>
-        <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-          <a
-            className="navbar-brand col-sm-3 col-md-2 mr-0"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-        <img src={dcheque} className="App-logo" alt="logo" height="32"/>
+  return (
+    <div className='text-monospace'>
+      <nav className='navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow'>
+        <a
+          className='navbar-brand col-sm-3 col-md-2 mr-0'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          <img src={dchequeImage} className='App-logo' alt='logo' height='32' />
           <b>dCheque</b>
         </a>
-        </nav>
-        <div className="container-fluid mt-5 text-center">
+        <h6 style={{ color: 'rgb(255, 255, 255)', marginRight: '20px' }}>
+          Balance: {state.userBalance} ETH
+        </h6>
+      </nav>
+
+      <div className='container-fluid mt-5 text-center'>
         <br></br>
-          <h1>Welcome to dCheque</h1>
-          <h6>Total deposited: {this.state.dChequeBalance} ETH</h6>
-          <h6>Account balance: {this.state.userBalance} ETH</h6>
-          
-          <br></br>
-          <div className="row">
-            <main role="main" className="col-lg-12 d-flex text-center">
-              <div className="content mr-auto ml-auto">
-              <Tabs defaultActiveKey="deposit" id="uncontrolled-tab-example">
-                <Tab eventKey="deposit" title="Deposit">
+        <h1>Welcome to dCheque</h1>
+        <h6>Total deposited: {state.dChequeBalance} ETH</h6>
+
+        <br></br>
+        <div className='row'>
+          <main role='main' className='col-lg-12 d-flex text-center'>
+            <div className='content mr-auto ml-auto'>
+              <Tabs defaultActiveKey='deposit' id='uncontrolled-tab-example'>
+                <Tab eventKey='deposit' title='Deposit'>
                   <div>
                     <br></br>
                     How much do you want to deposit?
                     <br></br>
-                    <form onSubmit={(e) => {
-                      e.preventDefault()
-                      let amount = this.depositAmount.value
-                      amount = Web3.utils.toWei(amount) //convert to wei
-                      this.deposit(amount)
-                    }}>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        let amount = depositAmount;
+                        amount = ethers.utils.parseEther(
+                          amount.toString(),
+                          'wei'
+                        ); //convert to wei
+                        state.signer.sendTransaction({
+                          to: state.dChequeAddress,
+                          value: amount,
+                        });
+                      }}
+                    >
                       <div className='form-group mr-sm-2'>
-                      <br></br>
+                        <br></br>
                         <input
                           id='depositAmount'
-                          step="0.01"
+                          step='0.01'
                           type='number'
-                          className="form-control form-control-md"
+                          className='form-control form-control-md'
                           placeholder='Amount...'
                           required
-                          ref={(input) => { this.depositAmount = input}}
+                          onChange={(e) => {
+                            setDepositAmount(e.target.value);
+                          }}
                         />
                       </div>
-                      <button type='submit' className='btn btn-primary'>Deposit</button>
+                      <button type='submit' className='btn btn-primary'>
+                        Deposit
+                      </button>
                     </form>
                   </div>
                 </Tab>
-                <Tab eventKey="write" title="Write">
+                <Tab eventKey='write' title='Write'>
                   <div>
                     <br></br>
-                    Write your cheque
-                    <form onSubmit={(e) => {
-                      e.preventDefault()
-                      let amount = this.depositAmount.value
-                      amount = Web3.utils.toWei(amount) //convert to wei
-                      let [duration, reviewer, bearer] = [this.duration.value, this.reviewer.value, this.bearer.value]
-                      this.writeCheque(amount, duration, reviewer, bearer)
-                    }}>
-                      <div className='form-group mr-sm-2'>
+                    <form
+                      className='form-group mr-sm-2'
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        state.dcheque.writeCheque(
+                          ethers.utils.formatEther(amount),
+                          duration,
+                          reviewer,
+                          bearer
+                        );
+                      }}
+                    >
+                      <div>
                         <br></br>
-                          <input
-                            // address bearer
-                            id='bearer'
-                            type='text'
-                            className="form-control form-control-md"
-                            placeholder='Recieving Account...'
-                            required
-                            ref={(input) => { this.bearer = input}}
-                          />
-                      </div>
-                      <div className='form-group mr-sm-2'>
-                        <br></br>
-                          <input
-                            // address reviewer;
-                            id='reviewer'
-                            type='text'
-                            className="form-control form-control-md"
-                            placeholder='Reviewing Account...'
-                            required
-                            ref={(input) => { this.reviewer = input}}
-                          />
-                      </div>
-                      <div className='form-group mr-sm-2'>
-                        <br></br>
-                          <input
-                            // uint256 expiry;
-                            id='expiry'
-                            type='number'
-                            className="form-control form-control-md"
-                            placeholder='To Expire In...'
-                            required
-                            ref={(input) => { this.expiry = input}}
-                          />
-                      </div>
-                      <div className='form-group mr-sm-2'>
-                        <br></br>
-                          <input
-                            // uint256 amount;
-                            id='amount'
-                            type='number'
-                            className="form-control form-control-md"
-                            placeholder='Amount...'
-                            required
-                            ref={(input) => { this.amount = input}}
-                          />
+                        <input
+                          id='bearer'
+                          type='text'
+                          className='form-control form-control-md'
+                          placeholder='Recieving Account...'
+                          required
+                          onChange={(e) => {
+                            setBearer(e.target.value);
+                          }}
+                        />
                       </div>
                       <div>
-                        <button type='submit' className='btn btn-primary'>Sign</button>
+                        <br></br>
+                        <input
+                          id='reviewer'
+                          type='text'
+                          className='form-control form-control-md'
+                          placeholder='Reviewing Account...'
+                          required
+                          onChange={(e) => {
+                            setReviewer(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <br></br>
+                        <input
+                          id='expiry'
+                          type='number'
+                          className='form-control form-control-md'
+                          placeholder='To Expire In...'
+                          required
+                          onChange={(e) => {
+                            setExpiry(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <br></br>
+                        <input
+                          id='amount'
+                          type='number'
+                          className='form-control form-control-md'
+                          placeholder='Amount...'
+                          required
+                          onChange={(e) => {
+                            setAmount(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div className='form-group mt-5'>
+                        <button type='submit' className='btn btn-primary'>
+                          Sign
+                        </button>
                       </div>
                     </form>
                   </div>
                 </Tab>
-                {/* TODO add iteration over cheques in the user's possesion */}
-                <Tab eventKey="cash" title="Cash">  
+                <Tab eventKey='cash' title='Cash'>
                   <div>
                     <br></br>
                     Your Cheques
                     <br></br>
-                    {/* <form onSubmit={(e) => {
-                      e.preventDefault()
-                      let chequeID = this.chequeID.value
-                      this.cashCheque(chequeID)
-                    }}>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        state.dcheque.cashCheque(chequeID);
+                      }}
+                    >
                       <div className='form-group mr-sm-2'>
-                      <br></br>
+                        <br></br>
                         <input
                           id='depositAmount'
-                          step="0.01"
+                          step='1'
                           type='number'
-                          className="form-control form-control-md"
-                          placeholder='Amount...'
+                          className='form-control form-control-md'
+                          placeholder='Cheque Identifier'
                           required
-                          ref={(input) => { this.chequeID = input}}
+                          onChange={(e) => {
+                            setChequeID(e.target.value);
+                          }}
                         />
                       </div>
-                      <button type='submit' className='btn btn-primary'>Deposit</button>
-                    </form> */}
+                      <button type='submit' className='btn btn-primary'>
+                        Cash Cheque
+                      </button>
+                    </form>
                   </div>
                 </Tab>
-                <Tab eventKey="auditors" title="Auditors">
+                <Tab eventKey='acceptedUsers' title='AcceptedUsers'>
                   <br></br>
-                    Reviewers
-                    <br></br>
-                    <br></br>
-                  <div>
-                    <button type='submit' className='btn btn-primary' onClick={(e) => this.setReviewer(e)}>Update</button>
-                  </div>
+                  You are a(n) __ accepting cheques from...
+                  <br></br>
+                  <br></br>
+                  <Form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (userType2.checked) {
+                        // merchant accepts this auditor
+                        state.dcheque.setAcceptedAuditor(acceptedAddress);
+                      } else {
+                        // auditor accepts this user
+                        state.dcheque.setAcceptedDrawers(acceptedAddress);
+                        state.dcheque.setAllowedDuration(60 * 60 * 24 * 7);
+                      }
+                    }}
+                  >
+                    <div key={`inline-${'radio'}`} className='mb-3'>
+                      <Form.Check
+                        ref={(input) => {
+                          setUserType2(input);
+                        }}
+                        defaultChecked={true}
+                        inline
+                        label='Merchant'
+                        value='1'
+                        name='group1'
+                        type={'radio'}
+                        id={`inline-${'radio'}-2`}
+                      />
+                      <Form.Check
+                        ref={(input) => {
+                          setUserType3(input);
+                        }}
+                        inline
+                        label='Auditor'
+                        value='2'
+                        name='group1'
+                        type={'radio'}
+                        id={`inline-${'radio'}-3`}
+                      />
+                    </div>
+                    <input
+                      id='acceptedAddress'
+                      type='text'
+                      className='form-control form-control-md mt-2'
+                      placeholder='Address...'
+                      required
+                      onChange={(e) => {
+                        setAcceptedAddress(e.target.value);
+                      }}
+                    />
+                    <div>
+                      <button type='submit' className='btn btn-primary mt-3'>
+                        Add Address
+                      </button>
+                    </div>
+                  </Form>
                 </Tab>
               </Tabs>
-              </div>
-            </main>
-          </div>
+            </div>
+          </main>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 export default App;
