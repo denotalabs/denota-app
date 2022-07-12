@@ -1,6 +1,5 @@
 import { Tabs, Tab, Form } from 'react-bootstrap';
-import dCheque from '../abis/dCheque.json';
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import dchequeImage from '../dcheque.png';
 import { ethers } from 'ethers';
 import './App.css';
