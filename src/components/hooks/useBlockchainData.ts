@@ -48,7 +48,7 @@ const useBlockchainData = () => {
 
       try {
         // Load contracts
-        const dChequeAddress: string = await dCheque.networks[netId].address;
+        const dChequeAddress: string = await dCheque.networks['5777'].address;
         const dcheque = new ethers.Contract(
           dChequeAddress,
           dCheque.abi,
