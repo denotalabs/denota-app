@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { ethers } from 'ethers';
-import dCheque from '../abis/dCheque.json';
+import dCheque from '../../abis/dCheque.json';
 
 const useBlockchainData = () => {
   const [state, setState] = useState({
