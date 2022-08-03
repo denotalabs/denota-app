@@ -14,9 +14,9 @@ contract dCheque {
         bool transferable;
     }
     mapping(address=>mapping(address=>bool)) public userAuditor;  // Whether User accepts Auditor
-    mapping(address=>address[]) public acceptedUserAuditors;  // Auditor addresses that users accept
+    mapping(address=>address[]) public acceptedUserAuditors;  // Auditor addresses that user accepts
     mapping(address=>mapping(address=>bool)) public auditorUser;  // Whether Auditor accepts User
-    mapping(address=>address[]) public acceptedAuditorUsers;  // User addresses that auditors accept
+    mapping(address=>address[]) public acceptedAuditorUsers;  // User addresses that auditor accepts
     mapping(address=>mapping(uint256=>bool)) public auditorDurations;  // Auditor voiding periods
 
     mapping(uint256=>Cheque) public cheques;
@@ -57,7 +57,7 @@ contract dCheque {
         require(auditorUser[auditor][recipient],  "Auditor must approve this recipient");
         require(userAuditor[recipient][auditor], "Recipient must approve this auditor");
         cheque.recipient = recipient;
-        transfer(recipient, chequeID); 
+        transfer(recipient, chequeID);
     }
     function writeCheque(uint256 amount, uint256 duration, address auditor, address recipient) public {
         require(deposits[msg.sender]>=amount, "Writing more than available");
@@ -114,29 +114,24 @@ contract dCheque {
         emit Transfer(msg.sender, to, chequeID);
     }
 
-    function acceptAuditor(address auditor) public returns (bool){  // Initiate handshake: User will set this
+    function acceptAuditor(address auditor) public returns (bool){  // User will set this
         userAuditor[msg.sender][auditor] = true;
+        if (auditorUser[auditor][msg.sender]){
+            acceptedAuditorUsers[auditor].push(msg.sender);
+            acceptedUserAuditors[msg.sender].push(auditor);
+        }
         emit AcceptAuditor(msg.sender, auditor);
         return true;
     }
-    function acceptUser(address drawer) public returns (bool){  // Initiate handshake: Auditor will set this
+    function acceptUser(address drawer) public returns (bool){  // Auditor will set this
         auditorUser[msg.sender][drawer] = true;
+        if (userAuditor[drawer][msg.sender]){
+            acceptedUserAuditors[drawer].push(msg.sender);
+            acceptedAuditorUsers[msg.sender].push(drawer);
+        }
         emit AcceptUser(msg.sender, drawer);
         return true;
     }
-    function acceptAddAuditor(address auditor) external{  // Finish handshake: add the auditor to the user's list
-        require(userAuditor[msg.sender][auditor], "Auditor must accept you to be added to your auditor list");
-        require(acceptAuditor(auditor), "");
-        acceptedUserAuditors[msg.sender].push(auditor);
-        acceptedAuditorUsers[auditor].push(msg.sender);
-    }
-    function acceptAddUser(address user) external{ // Finish handshake: add the user to the auditor's list
-        require(auditorUser[msg.sender][user], "User must accept you to be added to your user list");
-        require(acceptUser(user), "");
-        acceptedAuditorUsers[msg.sender].push(user);
-        acceptedUserAuditors[user].push(msg.sender);
-    }
-
     function setAllowedDuration(uint256 duration) external {  // Auditor will set this
         auditorDurations[msg.sender][duration] = true;
     }
