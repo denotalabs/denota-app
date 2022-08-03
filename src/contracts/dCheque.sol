@@ -5,6 +5,7 @@ pragma solidity >=0.8.14;
 contract dCheque {
     struct Cheque{
         address drawer;
+        address recipient;
         address bearer;
         address auditor;
         uint256 amount;
@@ -46,21 +47,31 @@ contract dCheque {
         deposits[msg.sender] -= amount;
         totalSupply += 1;
         chequeCount[msg.sender]+=1;
-        cheques[totalSupply] = Cheque({drawer: msg.sender, bearer: msg.sender, expiry: block.timestamp+duration, 
+        cheques[totalSupply] = Cheque({drawer: msg.sender, recipient:msg.sender, bearer: msg.sender, expiry: block.timestamp+duration, 
                                          auditor: auditor, amount: amount, voided: false, transferable: true});
         emit Transfer(address(0), msg.sender, totalSupply);
     }
-    function writeCheque(uint256 amount, uint256 duration, address auditor, address to) public {
+    function addPayRecipient(address auditor, address recipient, uint256 chequeID) external{
+        Cheque storage cheque = cheques[chequeID];
+        require((cheque.drawer==msg.sender)&&(cheque.bearer==msg.sender), "Must be drawer and owner to change recipient");
+        require(auditorUser[auditor][recipient],  "Auditor must approve this recipient");
+        require(userAuditor[recipient][auditor], "Recipient must approve this auditor");
+        cheque.recipient = recipient;
+        transfer(recipient, chequeID); 
+    }
+    function writeCheque(uint256 amount, uint256 duration, address auditor, address recipient) public {
         require(deposits[msg.sender]>=amount, "Writing more than available");
-        require(userAuditor[msg.sender][auditor], "User must approve this auditor");
-        require(auditorUser[auditor][msg.sender],  "Auditor must approve this account");
+        require(userAuditor[msg.sender][auditor], "You must approve this auditor");
+        require(userAuditor[recipient][auditor], "Recipient must approve this auditor");
+        require(auditorUser[auditor][msg.sender],  "Auditor must approve you");
+        require(auditorUser[auditor][recipient],  "Auditor must approve this recipient");
         require(auditorDurations[auditor][duration], "Auditor doesn't allow this duration");
         deposits[msg.sender] -= amount;
         totalSupply += 1;
-        chequeCount[to]+=1;
-        cheques[totalSupply] = Cheque({drawer: msg.sender, bearer: to, expiry: block.timestamp+duration, 
+        chequeCount[recipient]+=1;
+        cheques[totalSupply] = Cheque({drawer: msg.sender, recipient:recipient, bearer: recipient, expiry: block.timestamp+duration, 
                                          auditor: auditor, amount: amount, voided: false, transferable: true});
-        emit Transfer(msg.sender, to, totalSupply);
+        emit Transfer(msg.sender, recipient, totalSupply);
     }
     function cashCheque(uint256 chequeID) external {  // Only allow withdraws via cheque writing
         Cheque storage cheque = cheques[chequeID];
@@ -95,7 +106,7 @@ contract dCheque {
         emit Void(cheque.drawer, cheque.auditor, chequeID);
         emit Transfer(cheque.bearer, fallbackAccount, chequeID);
     }
-    function transfer(address to, uint256 chequeID) external {
+    function transfer(address to, uint256 chequeID) public {
         Cheque storage cheque = cheques[chequeID];
         require(cheque.bearer==msg.sender, "Only cheque owner can transfer");
         require(cheque.transferable, "Cheque not transferable");
@@ -138,6 +149,9 @@ contract dCheque {
 
     function chequeDrawer(uint256 chequeId) external view returns (address) {
         return cheques[chequeId].drawer;
+    }
+    function chequeRecipient(uint256 chequeId) external view returns (address) {
+        return cheques[chequeId].recipient;
     }
     function ownerOf(uint256 chequeId) external view returns(address) {
         return cheques[chequeId].bearer;
