@@ -15,7 +15,7 @@ function App() {
   const [expiry, setExpiry] = useState('');
   const [chequeID, setChequeID] = useState('');
   const [duration] = useState('');
-  const [userType2, setUserType2] = useState('');
+  const [userType2, setUserType2] = useState<any>('');
   const [userType3, setUserType3] = useState('');
   const [acceptedAddress, setAcceptedAddress] = useState('');
 
@@ -59,14 +59,12 @@ function App() {
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
-                        let amount = depositAmount;
-                        amount = ethers.utils.parseEther(
-                          amount.toString(),
-                          'wei'
+                        const weiAmount = ethers.utils.parseEther(
+                          depositAmount.toString()
                         ); //convert to wei
-                        state.signer.sendTransaction({
+                        state.signer?.sendTransaction({
                           to: state.dChequeAddress,
-                          value: amount,
+                          value: weiAmount,
                         });
                       }}
                     >
@@ -97,7 +95,7 @@ function App() {
                       className='form-group mr-sm-2'
                       onSubmit={(e) => {
                         e.preventDefault();
-                        state.dcheque.writeCheque(
+                        state.dcheque?.writeCheque(
                           ethers.utils.formatEther(amount),
                           duration,
                           reviewer,
@@ -173,7 +171,7 @@ function App() {
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
-                        state.dcheque.cashCheque(chequeID);
+                        state.dcheque?.cashCheque(chequeID);
                       }}
                     >
                       <div className='form-group mr-sm-2'>
@@ -206,17 +204,17 @@ function App() {
                       e.preventDefault();
                       if (userType2.checked) {
                         // merchant accepts this auditor
-                        state.dcheque.setAcceptedAuditor(acceptedAddress);
+                        state.dcheque?.setAcceptedAuditor(acceptedAddress);
                       } else {
                         // auditor accepts this user
-                        state.dcheque.setAcceptedDrawers(acceptedAddress);
-                        state.dcheque.setAllowedDuration(60 * 60 * 24 * 7);
+                        state.dcheque?.setAcceptedDrawers(acceptedAddress);
+                        state.dcheque?.setAllowedDuration(60 * 60 * 24 * 7);
                       }
                     }}
                   >
                     <div key={`inline-${'radio'}`} className='mb-3'>
                       <Form.Check
-                        ref={(input) => {
+                        ref={(input: any) => {
                           setUserType2(input);
                         }}
                         defaultChecked={true}
@@ -228,7 +226,7 @@ function App() {
                         id={`inline-${'radio'}-2`}
                       />
                       <Form.Check
-                        ref={(input) => {
+                        ref={(input: any) => {
                           setUserType3(input);
                         }}
                         inline
