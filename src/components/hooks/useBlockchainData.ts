@@ -8,6 +8,12 @@ type BlockchainData = {
   dChequeAddress: string;
   dChequeBalance: string;
   userBalance: string;
+  userChequeCount: string;
+  dChequeTotalSupply: string;
+  userCheques: Array<any>;
+  acceptedUserAuditors:Array<any>;
+  acceptedAuditorUsers:Array<any>;
+  
   signer: null | ethers.providers.JsonRpcSigner;
 };
 
@@ -18,6 +24,11 @@ const useBlockchainData = () => {
     dChequeAddress: '',
     dChequeBalance: '',
     userBalance: '',
+    userChequeCount: '',
+    dChequeTotalSupply: '',
+    userCheques: [],
+    acceptedUserAuditors: [],
+    acceptedAuditorUsers: [],
     signer: null,
   });
 
@@ -42,6 +53,19 @@ const useBlockchainData = () => {
     ];
   }, []);
 
+  const getUserCheques = useCallback(async (dCheqContract: ethers.Contract, account: string, userChequeCount: number) => {
+    const userCheques = [];
+    let cheque;
+    for (let i=0; userCheques.length<userChequeCount; i++){
+      cheque = dCheqContract.cheques(i)
+      if (cheque.bearer==account){
+        userCheques.push(cheque)
+      }
+    }
+    return userCheques;
+  }, []);
+
+    
   const loadBlockchainData = useCallback(async () => {
     if (typeof (window as any).ethereum !== 'undefined') {
       const [provider, signer, account, netId] = await connectWallet(); //console.log(provider, signer, account, netId)
@@ -57,6 +81,11 @@ const useBlockchainData = () => {
         (window as any).dCheque = dcheque;
         const dChequeBalance = await provider.getBalance(dChequeAddress);
         const userBalance = await dcheque.deposits(account);
+        const userChequeCount = await dcheque.chequeCount(account);
+        const userCheques = await getUserCheques(dcheque, account, userChequeCount);
+        const acceptedUserAuditors = await dcheque.getAcceptedUserAuditors(account);
+        const acceptedAuditorUsers = await dcheque.getAcceptedAuditorUsers(account);
+        const dChequeTotalSupply = await dcheque.totalSupply;
         setState({
           signer: signer,
           account: account,
@@ -64,6 +93,11 @@ const useBlockchainData = () => {
           dChequeAddress: dChequeAddress,
           dChequeBalance: ethers.utils.formatEther(dChequeBalance),
           userBalance: ethers.utils.formatEther(userBalance),
+          userChequeCount: String(userChequeCount),
+          dChequeTotalSupply: String(dChequeTotalSupply),
+          userCheques: userCheques,
+          acceptedUserAuditors:acceptedUserAuditors,
+          acceptedAuditorUsers:acceptedAuditorUsers,
         });
         return true;
       } catch (e) {

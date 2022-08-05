@@ -13,7 +13,7 @@ function App() {
   const [reviewer, setReviewer] = useState('');
   const [bearer, setBearer] = useState('');
   const [expiry, setExpiry] = useState('');
-  const [chequeID, setChequeID] = useState('');
+  const [chequeID, setChequeID] = useState('');  // Depositing doesn't yield a chequeID
   const [duration] = useState('');
   const [userType2, setUserType2] = useState<any>('');
   const [userType3, setUserType3] = useState('');
@@ -25,6 +25,12 @@ function App() {
     loadBlockchainData();
   }, [loadBlockchainData]);
 
+  const listItems = state.acceptedUserAuditors.map((auditor) =>
+  <li key={auditor}>
+    {auditor}
+  </li>
+);
+
   return (
     <div className='text-monospace'>
       <nav className='navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow'>
@@ -34,7 +40,7 @@ function App() {
           rel='noopener noreferrer'
         >
           <img src={dchequeImage} className='App-logo' alt='logo' height='32' />
-          <b>dCheque</b>
+          <b> dCheque</b>
         </a>
         <h6 style={{ color: 'rgb(255, 255, 255)', marginRight: '20px' }}>
           Balance: {state.userBalance} ETH
@@ -45,7 +51,7 @@ function App() {
         <br></br>
         <h1>Welcome to dCheque</h1>
         <h6>Total deposited: {state.dChequeBalance} ETH</h6>
-
+        
         <br></br>
         <div className='row'>
           <main role='main' className='col-lg-12 d-flex text-center'>
@@ -95,11 +101,12 @@ function App() {
                       className='form-group mr-sm-2'
                       onSubmit={(e) => {
                         e.preventDefault();
-                        state.dcheque?.writeCheque(
-                          ethers.utils.formatEther(amount),
+                        const amountWei = ethers.utils.parseEther(amount).toString(); console.log(amountWei, typeof amountWei);
+                        console.log(duration, reviewer, bearer)
+                        state.dcheque?.functions['writeCheque(uint256,uint256,address,address)'](
                           duration,
-                          reviewer,
-                          bearer
+                          reviewer.toString(),
+                          bearer.toString()
                         );
                       }}
                     >
@@ -166,9 +173,10 @@ function App() {
                 <Tab eventKey='cash' title='Cash'>
                   <div>
                     <br></br>
-                    Your Cheques
+                    You have {state.userChequeCount} Cheque(s):
                     <br></br>
-                    <form
+                    {state.userCheques}
+                    {/* <form
                       onSubmit={(e) => {
                         e.preventDefault();
                         state.dcheque?.cashCheque(chequeID);
@@ -191,23 +199,23 @@ function App() {
                       <button type='submit' className='btn btn-primary'>
                         Cash Cheque
                       </button>
-                    </form>
+                    </form> */}
                   </div>
                 </Tab>
-                <Tab eventKey='acceptedUsers' title='AcceptedUsers'>
+                <Tab eventKey='Auditors' title='Auditors'>
                   <br></br>
-                  You are a(n) __ accepting cheques from...
+                  You are a(n) _ and adding account for...
                   <br></br>
                   <br></br>
                   <Form
                     onSubmit={(e) => {
                       e.preventDefault();
                       if (userType2.checked) {
-                        // merchant accepts this auditor
-                        state.dcheque?.setAcceptedAuditor(acceptedAddress);
+                        // user accepts this auditor
+                        state.dcheque?.acceptAuditor(acceptedAddress);
                       } else {
                         // auditor accepts this user
-                        state.dcheque?.setAcceptedDrawers(acceptedAddress);
+                        state.dcheque?.acceptUser(acceptedAddress);
                         state.dcheque?.setAllowedDuration(60 * 60 * 24 * 7);
                       }
                     }}
@@ -219,7 +227,7 @@ function App() {
                         }}
                         defaultChecked={true}
                         inline
-                        label='Merchant'
+                        label='User'
                         value='1'
                         name='group1'
                         type={'radio'}
@@ -253,6 +261,10 @@ function App() {
                       </button>
                     </div>
                   </Form>
+                  <br></br>
+                  Your Auditors: {listItems}
+                  <br></br>
+                  Your Users: {state.acceptedAuditorUsers}
                 </Tab>
               </Tabs>
             </div>
