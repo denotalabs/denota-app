@@ -22,11 +22,13 @@ contract dCheque {
     mapping(uint256=>Cheque) public cheques;
     mapping(address=>uint256) public chequeCount;  // User's balance of cheques
     mapping(address=>uint256) public deposits;  // Total user deposits
-    uint256 private totalSupply;  // Total cheques created
+    uint256 public totalSupply;  // Total cheques created
 
     mapping(address=>address) public trustedAccount;  // User's trusted account
     mapping(address=>uint256) public lastTrustedChange;
-    uint256 private trustedAccountCooldown = 180 days;
+    uint256 public trustedAccountCooldown = 180 days;
+    uint256 public protocolFee;
+    uint256 public protocolReserve;
 
     event Deposit(address indexed from, uint256 amount);
     event Transfer(address indexed from, address indexed to, uint256 indexed chequeID);
@@ -34,10 +36,22 @@ contract dCheque {
     event Cash(address indexed bearer, uint256 indexed chequeID);
     event AcceptAuditor(address indexed user, address indexed auditor);
     event AcceptUser(address indexed auditor, address indexed user);
+    event Withdraw(address indexed _address, uint256 amount);
+    event SetProtocolFee(uint256 amount);
 
-    receive() external payable{
-        emit Deposit(msg.sender, msg.value);
-        deposits[msg.sender] += msg.value;
+    function _deposit(address _address, uint256 _amount) private {
+        deposits[_address] += _amount;
+        emit Deposit(_address, _amount);
+    }
+    receive() external payable {
+        _deposit(msg.sender, msg.value);
+    }
+    function depositTo(address _address) external payable {
+        _deposit(_address, msg.value);
+    }
+    function setProtocolFee(uint256 _protocolFee) external {
+        protocolFee = _protocolFee;
+        emit SetProtocolFee(_protocolFee);
     }
     function writeCheque(uint256 amount, uint256 duration, address auditor) public {
         require(deposits[msg.sender]>=amount, "Writing more than available");
@@ -110,11 +124,23 @@ contract dCheque {
         Cheque storage cheque = cheques[chequeID];
         require(cheque.bearer==msg.sender, "Only cheque owner can transfer");
         require(cheque.transferable, "Cheque not transferable");
+        cheque.amount -= protocolFee;
+        protocolReserve += protocolFee;
         cheque.bearer = to;
         emit Transfer(msg.sender, to, chequeID);
     }
+    function withdraw(uint256 _amount) external{ // ONLY OWNER
+        require(protocolReserve>=_amount, "Can't withdraw more than available");
+        protocolReserve -= _amount;
+        (bool success, ) = msg.sender.call{value:_amount}("");
+        require(success, "Transfer failed.");
+        emit Withdraw(msg.sender, _amount);
+    }
 
-    function acceptAuditor(address auditor) public returns (bool){  // User will set this
+    function acceptAuditor(address auditor) public returns (bool){  // User will set this 
+        if (userAuditor[msg.sender][auditor]){
+            return true;
+        }
         userAuditor[msg.sender][auditor] = true;
         if (auditorUser[auditor][msg.sender]){
             acceptedAuditorUsers[auditor].push(msg.sender);
@@ -123,7 +149,10 @@ contract dCheque {
         emit AcceptAuditor(msg.sender, auditor);
         return true;
     }
-    function acceptUser(address drawer) public returns (bool){  // Auditor will set this
+    function acceptUser(address drawer) public returns (bool){  // Auditor will set this 
+        if (auditorUser[msg.sender][drawer]){
+            return true;
+        }
         auditorUser[msg.sender][drawer] = true;
         if (userAuditor[drawer][msg.sender]){
             acceptedUserAuditors[drawer].push(msg.sender);
@@ -135,7 +164,7 @@ contract dCheque {
     function setAllowedDuration(uint256 duration) external {  // Auditor will set this
         auditorDurations[msg.sender][duration] = true;
     }
-    function setTrustedAccount(address account) external {
+    function setTrustedAccount(address account) external {  // User will set this
         require((lastTrustedChange[msg.sender] + trustedAccountCooldown)<block.timestamp, "Can only change trusted account once every 180 days");
         trustedAccount[msg.sender] = account;
         lastTrustedChange[msg.sender] = block.timestamp;
@@ -165,5 +194,11 @@ contract dCheque {
     }
     function chequeTransferable(uint256 chequeId) external view returns (bool) {
         return cheques[chequeId].transferable;
+    }
+    function getAcceptedUserAuditors(address _address) external view returns (address[] memory){
+        return acceptedUserAuditors[_address];
+    }
+    function getAcceptedAuditorUsers(address _address) external view returns (address[] memory){
+        return acceptedAuditorUsers[_address];
     }
 }
