@@ -1,4 +1,4 @@
-import { Tabs, Tab, Form } from 'react-bootstrap';
+import { Tabs, Tab, Form, Card } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import dchequeImage from '../dcheque.png';
 import { ethers } from 'ethers';
@@ -6,15 +6,19 @@ import './App.css';
 import useBlockchainData from './hooks/useBlockchainData';
 
 function App() {
+  // User Deposit
   const [depositAmount, setDepositAmount] = useState('');
 
+  // User Writing Cheque
   const [amount, setAmount] = useState('');
-
   const [reviewer, setReviewer] = useState('');
   const [bearer, setBearer] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [chequeID, setChequeID] = useState('');  // Depositing doesn't yield a chequeID
-  const [duration] = useState('');
+  const [duration, setDuration] = useState('');
+
+  // User Cashing Cheque
+  // const [chequeID, setChequeID] = useState('');  // Depositing doesn't yield a chequeID
+
+  // User/Auditor Accepting Each Other
   const [userType2, setUserType2] = useState<any>('');
   const [userType3, setUserType3] = useState('');
   const [acceptedAddress, setAcceptedAddress] = useState('');
@@ -25,10 +29,49 @@ function App() {
     loadBlockchainData();
   }, [loadBlockchainData]);
 
-  const listItems = state.acceptedUserAuditors.map((auditor) =>
+  const userAuditors = state.acceptedUserAuditors.map((auditor) =>
   <li key={auditor}>
-    {auditor}
+    {auditor.slice(2, 10)}...
   </li>
+);
+const auditorUsers = state.acceptedAuditorUsers.map((user) =>
+<li key={user}>
+  {user.slice(2, 10)}...
+</li>
+);
+// Cheque States: Mature: green, Pending: yellow, Voided: red
+const userCheques = state.userCheques.map((chequeArray) =>
+<form
+  onSubmit={(e) => {
+    e.preventDefault();
+    state.dcheque?.cashCheque(chequeArray[0])}}>
+  <div className='form-group'>
+    <Card key={chequeArray[0]} className='mt-3' bg={chequeArray[2]} text={'white'} >
+      <Card.Header className='py-1'>
+        <div className='float-left'>Cheque ID: #{chequeArray[0]}</div>
+        <div className='float-right' color='grey'>{chequeArray[3]}</div>
+      </Card.Header>
+      <Card.Body className='py-1'>
+          Signer: {chequeArray[1].drawer.slice(2, 10)}...<br></br>
+          Recipient: {chequeArray[1].recipient.slice(2, 10)}...<br></br>
+          Owner: {chequeArray[1].bearer.slice(2, 10)}...<br></br>
+          Auditor: {chequeArray[1].auditor.slice(2, 10)}...<br></br>
+          Amount: {ethers.utils.formatEther(chequeArray[1].amount).toString()} Ether<br></br>
+          {/* Maturation Date: {chequeArray[1].expiry.toNumber()}<br></br> */}
+      </Card.Body>
+      <Card.Header className='p-0 m-0'>  
+        <div className=''>
+          <button type='submit' className='btn btn-dark float-left col-6'>
+            Cash Cheque
+          </button>
+          <button className='btn btn-danger float-right col-6'>
+            Dispute
+          </button>
+        </div>
+      </Card.Header>
+    </Card>
+  </div>
+</form>
 );
 
   return (
@@ -42,8 +85,11 @@ function App() {
           <img src={dchequeImage} className='App-logo' alt='logo' height='32' />
           <b> dCheque</b>
         </a>
+        <h6 style={{ color: 'rgb(255, 255, 255)'}}>
+          {state.account}
+        </h6>
         <h6 style={{ color: 'rgb(255, 255, 255)', marginRight: '20px' }}>
-          Balance: {state.userBalance} ETH
+          dCheq Balance: {state.userBalance} ETH
         </h6>
       </nav>
 
@@ -101,9 +147,10 @@ function App() {
                       className='form-group mr-sm-2'
                       onSubmit={(e) => {
                         e.preventDefault();
+                        console.log(amount, duration, reviewer, bearer)
                         const amountWei = ethers.utils.parseEther(amount).toString(); console.log(amountWei, typeof amountWei);
-                        console.log(duration, reviewer, bearer)
                         state.dcheque?.functions['writeCheque(uint256,uint256,address,address)'](
+                          amountWei, 
                           duration,
                           reviewer.toString(),
                           bearer.toString()
@@ -139,13 +186,14 @@ function App() {
                       <div>
                         <br></br>
                         <input
-                          id='expiry'
+                          id='duration'
                           type='number'
+                          step='1'
                           className='form-control form-control-md'
-                          placeholder='To Expire In...'
+                          placeholder='To Expire In _ Seconds'
                           required
                           onChange={(e) => {
-                            setExpiry(e.target.value);
+                            setDuration(e.target.value);
                           }}
                         />
                       </div>
@@ -154,6 +202,7 @@ function App() {
                         <input
                           id='amount'
                           type='number'
+                          step='0.01'
                           className='form-control form-control-md'
                           placeholder='Amount...'
                           required
@@ -164,42 +213,18 @@ function App() {
                       </div>
                       <div className='form-group mt-5'>
                         <button type='submit' className='btn btn-primary'>
-                          Sign
+                          Send Cheque
                         </button>
                       </div>
                     </form>
                   </div>
                 </Tab>
-                <Tab eventKey='cash' title='Cash'>
+                 <Tab eventKey='cash' title='Cash'>
                   <div>
                     <br></br>
                     You have {state.userChequeCount} Cheque(s):
                     <br></br>
-                    {state.userCheques}
-                    {/* <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        state.dcheque?.cashCheque(chequeID);
-                      }}
-                    >
-                      <div className='form-group mr-sm-2'>
-                        <br></br>
-                        <input
-                          id='depositAmount'
-                          step='1'
-                          type='number'
-                          className='form-control form-control-md'
-                          placeholder='Cheque Identifier'
-                          required
-                          onChange={(e) => {
-                            setChequeID(e.target.value);
-                          }}
-                        />
-                      </div>
-                      <button type='submit' className='btn btn-primary'>
-                        Cash Cheque
-                      </button>
-                    </form> */}
+                    {userCheques}
                   </div>
                 </Tab>
                 <Tab eventKey='Auditors' title='Auditors'>
@@ -262,9 +287,9 @@ function App() {
                     </div>
                   </Form>
                   <br></br>
-                  Your Auditors: {listItems}
+                  Your Auditors: {userAuditors}
                   <br></br>
-                  Your Users: {state.acceptedAuditorUsers}
+                  Your Users: {auditorUsers}
                 </Tab>
               </Tabs>
             </div>

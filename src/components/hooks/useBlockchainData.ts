@@ -8,7 +8,7 @@ type BlockchainData = {
   dChequeAddress: string;
   dChequeBalance: string;
   userBalance: string;
-  userChequeCount: string;
+  userChequeCount: number;
   dChequeTotalSupply: string;
   userCheques: Array<any>;
   acceptedUserAuditors:Array<any>;
@@ -24,7 +24,7 @@ const useBlockchainData = () => {
     dChequeAddress: '',
     dChequeBalance: '',
     userBalance: '',
-    userChequeCount: '',
+    userChequeCount: 0,
     dChequeTotalSupply: '',
     userCheques: [],
     acceptedUserAuditors: [],
@@ -55,11 +55,26 @@ const useBlockchainData = () => {
 
   const getUserCheques = useCallback(async (dCheqContract: ethers.Contract, account: string, userChequeCount: number) => {
     const userCheques = [];
-    let cheque;
-    for (let i=0; userCheques.length<userChequeCount; i++){
-      cheque = dCheqContract.cheques(i)
-      if (cheque.bearer==account){
-        userCheques.push(cheque)
+    let cheque, state, description;
+    for (let i=1; userCheques.length<userChequeCount; i++){
+      cheque = await dCheqContract.cheques(i)
+      console.log(cheque.expiry.toNumber()>(Date.now()/1000))
+      if (cheque.bearer==account){  // Cheques In User's Possesion
+        if (cheque.voided===true){  // Auditor Voided Cheque
+          state = 'danger'
+          description = 'Voided'
+        } else if (cheque.expiry<=(Date.now()/1000)) {  // Cheque Ready to Cash
+          state = 'success'
+          description = 'Cashable'
+        } else {  // Cheque Pending
+          state = 'warning'
+          description = 'Pending'
+        }
+        userCheques.push([i, cheque, state, description])
+      } else if (cheque.drawer==account){  // User Sent this Cheque
+        state = 'secondary'
+        description = 'Sent'
+        userCheques.push([i, cheque, state, description])
       }
     }
     return userCheques;
@@ -68,7 +83,7 @@ const useBlockchainData = () => {
     
   const loadBlockchainData = useCallback(async () => {
     if (typeof (window as any).ethereum !== 'undefined') {
-      const [provider, signer, account, netId] = await connectWallet(); //console.log(provider, signer, account, netId)
+      const [provider, signer, account, ] = await connectWallet(); //console.log(provider, signer, account, netId)
 
       try {
         // Load contracts
@@ -81,7 +96,7 @@ const useBlockchainData = () => {
         (window as any).dCheque = dcheque;
         const dChequeBalance = await provider.getBalance(dChequeAddress);
         const userBalance = await dcheque.deposits(account);
-        const userChequeCount = await dcheque.chequeCount(account);
+        const userChequeCount = (await dcheque.chequeCount(account)).toNumber();
         const userCheques = await getUserCheques(dcheque, account, userChequeCount);
         const acceptedUserAuditors = await dcheque.getAcceptedUserAuditors(account);
         const acceptedAuditorUsers = await dcheque.getAcceptedAuditorUsers(account);
@@ -93,11 +108,11 @@ const useBlockchainData = () => {
           dChequeAddress: dChequeAddress,
           dChequeBalance: ethers.utils.formatEther(dChequeBalance),
           userBalance: ethers.utils.formatEther(userBalance),
-          userChequeCount: String(userChequeCount),
+          userChequeCount: userChequeCount,
           dChequeTotalSupply: String(dChequeTotalSupply),
           userCheques: userCheques,
-          acceptedUserAuditors:acceptedUserAuditors,
-          acceptedAuditorUsers:acceptedAuditorUsers,
+          acceptedUserAuditors: acceptedUserAuditors,
+          acceptedAuditorUsers: acceptedAuditorUsers,
         });
         return true;
       } catch (e) {
