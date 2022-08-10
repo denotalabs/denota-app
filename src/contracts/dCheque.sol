@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.14;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-// address public immutable WETH_ADDRESS = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619';
-// address public immutable USDC_ADDRESS = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
+// address public immutable POLYGON_WETH_ADDRESS = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619';
+// address public immutable POLYGON_USDC_ADDRESS = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
 
 contract dCheque{
     struct Cheque{
@@ -38,11 +38,11 @@ contract dCheque{
 
     event Deposit(IERC20 _token, address indexed from, uint256 amount);
     event Transfer(address indexed from, address indexed to, uint256 indexed chequeID);
-    event Void(address indexed drawer, address indexed auditor, uint256 indexed chequeID);
+    event Withdraw(address indexed _address, uint256 amount);
     event Cash(address indexed bearer, uint256 indexed chequeID);
+    event Void(address indexed drawer, address indexed auditor, uint256 indexed chequeID);
     event AcceptAuditor(address indexed user, address indexed auditor);
     event AcceptUser(address indexed auditor, address indexed user);
-    event Withdraw(address indexed _address, uint256 amount);
     event SetProtocolFee(IERC20 _token, uint256 amount);
 
     function _deposit(IERC20 _token, address _address, uint256 _amount) private {
@@ -51,7 +51,11 @@ contract dCheque{
         deposits[_address][_token] += _amount;
         emit Deposit(_token, _address, _amount);
     }
-    function depositTo(IERC20 _token, address _address, uint256 _amount) external returns (bool){
+    function deposit(IERC20 _token, uint256 _amount) external returns (bool){
+        _deposit(_token, msg.sender, _amount);
+        return true;
+    }
+    function deposit(IERC20 _token, uint256 _amount, address _address) external returns (bool){
         _deposit(_token, _address, _amount);
         return true;
     }
@@ -77,7 +81,7 @@ contract dCheque{
         require(auditorUser[auditor][recipient],  "Auditor must approve this recipient");
         require(userAuditor[recipient][auditor], "Recipient must approve this auditor");
         cheque.recipient = recipient;
-        transfer(cheque.token, recipient, chequeID);
+        transfer(recipient, chequeID);
     }
     function writeCheque(IERC20 _token, uint256 amount, uint256 duration, address auditor, address recipient, string calldata _memo) public {
         require(deposits[msg.sender][_token]>=amount, "Writing more than available");
@@ -90,7 +94,7 @@ contract dCheque{
         totalSupply += 1;
         chequeCount[recipient]+=1;
         cheques[totalSupply] = Cheque({drawer:msg.sender, recipient:recipient, bearer:recipient, created:block.timestamp, expiry:block.timestamp+duration, 
-                                         auditor:auditor, token:_token, amount:amount, voided:false, transferable:true, memo:_memo});
+                                       auditor:auditor, token:_token, amount:amount, voided:false, transferable:true, memo:_memo});
         emit Transfer(msg.sender, recipient, totalSupply);
     }
     function cashCheque(uint256 chequeID) external {  // Only allow withdraws via cheque writing
@@ -131,10 +135,11 @@ contract dCheque{
         deposits[msg.sender][_token] -= _amount;
         deposits[_to][_token] += _amount;
     }
-    function transfer(IERC20 _token, address to, uint256 chequeID) public {
+    function transfer(address to, uint256 chequeID) public {
         Cheque storage cheque = cheques[chequeID];
         require(cheque.bearer==msg.sender, "Only cheque owner can transfer");
         require(cheque.transferable, "Cheque not transferable");
+        IERC20 _token = cheque.token;
         cheque.amount -= protocolFee[_token];
         protocolReserve[_token] += protocolFee[_token];
         cheque.bearer = to;
