@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.14;
-// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+// address public immutable WETH_ADDRESS = '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619';
+// address public immutable USDC_ADDRESS = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
 
 contract dCheque{
     struct Cheque{
         uint256 amount;
         uint256 created;
         uint256 expiry;
+        IERC20 token;
         address drawer;
         address recipient;
         address bearer;
@@ -22,50 +24,51 @@ contract dCheque{
     mapping(address=>address[]) public acceptedAuditorUsers;  // User addresses that auditor accepts
     mapping(address=>mapping(uint256=>bool)) public auditorDurations;  // Auditor voiding periods
 
-    mapping(uint256=>Cheque) public cheques;
-    mapping(address=>uint256) public chequeCount;  // User's balance of cheques
-    mapping(address=>uint256) public deposits;  // Total user deposits
-    uint256 public totalSupply;  // Total cheques created
-
     mapping(address=>address) public trustedAccount;  // User's trusted account
     mapping(address=>uint256) public lastTrustedChange;
     uint256 public trustedAccountCooldown = 180 days;
-    uint256 public protocolFee;
-    uint256 public protocolReserve;
 
-    event Deposit(address indexed from, uint256 amount);
+    mapping(uint256=>Cheque) public cheques;
+    mapping(address=>uint256) public chequeCount;  // User's balance of cheques
+    mapping(address=>mapping(IERC20=>uint256)) public deposits;  // Total user deposits
+    uint256 public totalSupply;  // Total cheques created
+
+    mapping(IERC20=>uint256) public protocolFee;
+    mapping(IERC20=>uint256) public protocolReserve;
+
+    event Deposit(IERC20 _token, address indexed from, uint256 amount);
     event Transfer(address indexed from, address indexed to, uint256 indexed chequeID);
     event Void(address indexed drawer, address indexed auditor, uint256 indexed chequeID);
     event Cash(address indexed bearer, uint256 indexed chequeID);
     event AcceptAuditor(address indexed user, address indexed auditor);
     event AcceptUser(address indexed auditor, address indexed user);
     event Withdraw(address indexed _address, uint256 amount);
-    event SetProtocolFee(uint256 amount);
+    event SetProtocolFee(IERC20 _token, uint256 amount);
 
-    function _deposit(address _address, uint256 _amount) private {
-        deposits[_address] += _amount;
-        emit Deposit(_address, _amount);
+    function _deposit(IERC20 _token, address _address, uint256 _amount) private {
+        bool success = _token.transferFrom(msg.sender, address(this), _amount);
+        require(success, "Token transfer failed");
+        deposits[_address][_token] += _amount;
+        emit Deposit(_token, _address, _amount);
     }
-    receive() external payable {
-        _deposit(msg.sender, msg.value);
+    function depositTo(IERC20 _token, address _address, uint256 _amount) external returns (bool){
+        _deposit(_token, _address, _amount);
+        return true;
     }
-    function depositTo(address _address) external payable {
-        _deposit(_address, msg.value);
+    function setProtocolFee(IERC20 _token, uint256 _protocolFee) external {
+        protocolFee[_token] = _protocolFee;
+        emit SetProtocolFee(_token, _protocolFee);
     }
-    function setProtocolFee(uint256 _protocolFee) external {
-        protocolFee = _protocolFee;
-        emit SetProtocolFee(_protocolFee);
-    }
-    function writeCheque(uint256 amount, uint256 duration, address auditor, string calldata _memo) public {
-        require(deposits[msg.sender]>=amount, "Writing more than available");
+    function writeCheque(IERC20 _token, uint256 amount, uint256 duration, address auditor, string calldata _memo) public {
+        require(deposits[msg.sender][_token]>=amount, "Writing more than available");
         require(userAuditor[msg.sender][auditor], "User must approve this auditor");
         require(auditorUser[auditor][msg.sender],  "Auditor must approve this account");
         require(auditorDurations[auditor][duration], "Auditor doesn't allow this duration");
-        deposits[msg.sender] -= amount;
+        deposits[msg.sender][_token] -= amount;
         totalSupply += 1;
         chequeCount[msg.sender]+=1;
         cheques[totalSupply] = Cheque({drawer:msg.sender, recipient:msg.sender, bearer:msg.sender, created:block.timestamp, expiry:block.timestamp+duration, 
-                                       auditor:auditor, amount:amount, voided:false, transferable:true, memo:_memo});
+                                       auditor:auditor, token:_token, amount:amount, voided:false, transferable:true, memo:_memo});
         emit Transfer(address(0), msg.sender, totalSupply);
     }
     function addPayRecipient(address auditor, address recipient, uint256 chequeID) external{
@@ -74,20 +77,20 @@ contract dCheque{
         require(auditorUser[auditor][recipient],  "Auditor must approve this recipient");
         require(userAuditor[recipient][auditor], "Recipient must approve this auditor");
         cheque.recipient = recipient;
-        transfer(recipient, chequeID);
+        transfer(cheque.token, recipient, chequeID);
     }
-    function writeCheque(uint256 amount, uint256 duration, address auditor, address recipient, string calldata _memo) public {
-        require(deposits[msg.sender]>=amount, "Writing more than available");
+    function writeCheque(IERC20 _token, uint256 amount, uint256 duration, address auditor, address recipient, string calldata _memo) public {
+        require(deposits[msg.sender][_token]>=amount, "Writing more than available");
         require(userAuditor[msg.sender][auditor], "You must approve this auditor");
         require(userAuditor[recipient][auditor], "Recipient must approve this auditor");
         require(auditorUser[auditor][msg.sender],  "Auditor must approve you");
         require(auditorUser[auditor][recipient],  "Auditor must approve this recipient");
         require(auditorDurations[auditor][duration], "Auditor doesn't allow this duration");
-        deposits[msg.sender] -= amount;
+        deposits[msg.sender][_token] -= amount;
         totalSupply += 1;
         chequeCount[recipient]+=1;
         cheques[totalSupply] = Cheque({drawer:msg.sender, recipient:recipient, bearer:recipient, created:block.timestamp, expiry:block.timestamp+duration, 
-                                         auditor:auditor, amount:amount, voided:false, transferable:true, memo:_memo});
+                                         auditor:auditor, token:_token, amount:amount, voided:false, transferable:true, memo:_memo});
         emit Transfer(msg.sender, recipient, totalSupply);
     }
     function cashCheque(uint256 chequeID) external {  // Only allow withdraws via cheque writing
@@ -96,7 +99,8 @@ contract dCheque{
         require(cheque.expiry>block.timestamp, "Cheque not cashable yet");
         require(!cheque.voided, "Cheque voided");
         cheque.voided = true;
-        (bool success, ) = msg.sender.call{value:cheque.amount}("");
+        // (bool success, ) = msg.sender.call{value:cheque.amount}("");
+        bool success = cheque.token.transferFrom(address(this), msg.sender, cheque.amount);
         require(success, "Transfer failed.");
         chequeCount[cheque.bearer]-=1;
         emit Cash(cheque.bearer, chequeID);
@@ -108,7 +112,7 @@ contract dCheque{
         cheque.voided = true;
         cheque.transferable = false;
         chequeCount[cheque.bearer]-=1;
-        deposits[cheque.drawer] += cheque.amount;  // Add balance back to signer
+        deposits[cheque.drawer][cheque.token] += cheque.amount;  // Add balance back to signer
         emit Void(cheque.drawer, cheque.auditor, chequeID);
     }
     function voidRescueCheque(uint256 chequeID) external {  // Reentrency?
@@ -119,27 +123,27 @@ contract dCheque{
         cheque.transferable = false;
         chequeCount[cheque.bearer]-=1;
         address fallbackAccount = trustedAccount[cheque.drawer];
-        deposits[fallbackAccount] += cheque.amount;  // Add cheque amount to trusted account deposit balance
+        deposits[fallbackAccount][cheque.token] += cheque.amount;  // Add cheque amount to trusted account deposit balance
         emit Void(cheque.drawer, cheque.auditor, chequeID);
         emit Transfer(cheque.bearer, fallbackAccount, chequeID);
     }
-    function directTransfer(address _to, uint256 _amount) external{
-        deposits[msg.sender] -= _amount;
-        deposits[_to] += _amount;
+    function directTransfer(IERC20 _token, address _to, uint256 _amount) external{
+        deposits[msg.sender][_token] -= _amount;
+        deposits[_to][_token] += _amount;
     }
-    function transfer(address to, uint256 chequeID) public {
+    function transfer(IERC20 _token, address to, uint256 chequeID) public {
         Cheque storage cheque = cheques[chequeID];
         require(cheque.bearer==msg.sender, "Only cheque owner can transfer");
         require(cheque.transferable, "Cheque not transferable");
-        cheque.amount -= protocolFee;
-        protocolReserve += protocolFee;
+        cheque.amount -= protocolFee[_token];
+        protocolReserve[_token] += protocolFee[_token];
         cheque.bearer = to;
         emit Transfer(msg.sender, to, chequeID);
     }
-    function withdraw(uint256 _amount) external{ // ONLY OWNER
-        require(protocolReserve>=_amount, "Can't withdraw more than available");
-        protocolReserve -= _amount;
-        (bool success, ) = msg.sender.call{value:_amount}("");
+    function withdraw(IERC20 _token, uint256 _amount) external{ // PROTOCOL FEES (ONLY OWNER)
+        require(protocolReserve[_token]>=_amount, "Can't withdraw more than available");
+        protocolReserve[_token]-= _amount;
+        bool success = _token.transferFrom(address(this), msg.sender, _amount);
         require(success, "Transfer failed.");
         emit Withdraw(msg.sender, _amount);
     }
@@ -176,7 +180,6 @@ contract dCheque{
         trustedAccount[msg.sender] = account;
         lastTrustedChange[msg.sender] = block.timestamp;
     }
-
 
     function chequeDrawer(uint256 chequeId) external view returns (address) {
         return cheques[chequeId].drawer;
