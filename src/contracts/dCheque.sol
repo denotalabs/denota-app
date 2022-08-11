@@ -4,7 +4,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-abstract contract dCheque is ERC721, Ownable {
+contract dCheque is ERC721, Ownable {
     struct Cheque{
         uint256 amount;
         uint256 created;
@@ -13,7 +13,6 @@ abstract contract dCheque is ERC721, Ownable {
         address drawer;
         address recipient;
         address auditor;
-        string memo;  // Possible attack vector?
     }
 
     mapping(address=>mapping(address=>bool)) public userAuditor;  // Whether User accepts Auditor
@@ -33,7 +32,7 @@ abstract contract dCheque is ERC721, Ownable {
     mapping(IERC20=>uint256) public protocolFee;
     mapping(IERC20=>uint256) public protocolReserve;
 
-    event Deposit(IERC20 _token, address indexed from, uint256 amount);
+    event Deposit(IERC20 _token, address indexed to, uint256 amount);
     event Cash(address indexed bearer, uint256 indexed chequeID);
     event Void(address indexed drawer, address indexed auditor, uint256 indexed chequeID);
     
@@ -44,26 +43,36 @@ abstract contract dCheque is ERC721, Ownable {
     event Withdraw(address indexed _address, uint256 amount);
 
     modifier UserAuditorUserHandshake(IERC20 _token, uint256 amount, address auditor, uint256 duration, address recipient){
-        require(deposits[_msgSender()][_token]>=amount, "Writing more than available");
-        require(userAuditor[_msgSender()][auditor], "You must approve this auditor");
+        require(deposits[_msgSender()][_token]>=amount, "Insufficient balance");
+        require(userAuditor[_msgSender()][auditor], "Unapproved auditor");
         require(auditorUser[auditor][_msgSender()],  "Auditor must approve you");
-        require(auditorUser[auditor][recipient],  "Auditor must approve this recipient");
-        require(userAuditor[recipient][auditor], "Recipient must approve this auditor");
-        require(auditorDurations[auditor][duration], "Auditor doesn't allow this duration");
+        require(auditorUser[auditor][recipient],  "Auditor must approve recipient");
+        require(userAuditor[recipient][auditor], "Recipient must approve auditor");
+        require(auditorDurations[auditor][duration], "Duration not allowed");
         _;
     }
 
-    constructor(uint256 _trustedAccountCooldown){
+    // Only Owner Functions //
+    constructor(uint256 _trustedAccountCooldown) ERC721("dCheque", "dCHQ"){  // Does this also set inherited constructor variables?
         trustedAccountCooldown = _trustedAccountCooldown;
     }
     function setProtocolFee(IERC20 _token, uint256 _protocolFee) external onlyOwner{  
         protocolFee[_token] = _protocolFee;
         emit SetProtocolFee(_token, _protocolFee);
     }
+    function withdraw(IERC20 _token, uint256 _amount) external onlyOwner{
+        require(protocolReserve[_token]>=_amount, "More than available");
+        protocolReserve[_token]-= _amount;
+        bool success = _token.transferFrom(address(this), _msgSender(), _amount);
+        require(success, "Transfer failed.");
+        emit Withdraw(_msgSender(), _amount);
+    }
+    // Only Owner Functions //
 
+    // User Deposits //
     function _deposit(IERC20 _token, address _address, uint256 _amount) private {
         bool success = _token.transferFrom(_msgSender(), address(this), _amount); 
-        require(success, "Token transfer failed");
+        require(success, "Transfer failed");
         deposits[_address][_token] += _amount;
         emit Deposit(_token, _address, _amount);
     }
@@ -75,46 +84,46 @@ abstract contract dCheque is ERC721, Ownable {
         _deposit(_token, _address, _amount);
         return true;
     }
+    function directTransfer(IERC20 _token, address _to, uint256 _amount) external{  // Need to add limiter
+        uint256 fromBalance = deposits[_msgSender()][_token];
+        require(fromBalance >= _amount, "transfer amount exceeds balance");
+        unchecked {deposits[_msgSender()][_token] = fromBalance - _amount;}
+        deposits[_to][_token] += _amount;
+    }
+    // User Deposits //
 
-    // Inherited function use //
-    function writeCheque(
-        IERC20 _token, 
-        uint256 amount, 
-        uint256 duration, 
-        address auditor, 
-        address recipient, string calldata _memo) 
-        external UserAuditorUserHandshake(_token, amount, auditor, duration, recipient) {
+    // ERC721 Inherited Function Use //
+    function writeCheque(IERC20 _token, uint256 amount, uint256 duration, address auditor, address recipient) 
+        external 
+        UserAuditorUserHandshake(_token, amount, auditor, duration, recipient) {
         deposits[_msgSender()][_token] -= amount;
-        _safeMint(_msgSender(), totalSupply);  // chequeCount[recipient]+=1;
+        _safeMint(_msgSender(), totalSupply);
         chequeData[totalSupply] = Cheque({drawer:_msgSender(), recipient:recipient, created:block.timestamp, expiry:block.timestamp+duration, 
-                                       auditor:auditor, token:_token, amount:amount, memo:_memo});
+                                       auditor:auditor, token:_token, amount:amount});
         totalSupply += 1;
     }
-    function cashCheque(uint256 chequeID) external {  // Only allow withdraws via cheque writing
+    function cashCheque(uint256 chequeID) external {
         Cheque storage cheque = chequeData[chequeID];
-        require(_isApprovedOrOwner(_msgSender(), chequeID), "Must own cheque to cash");
-        require(cheque.expiry>block.timestamp, "Cheque not cashable yet");
+        require(_isApprovedOrOwner(_msgSender(), chequeID), "Must own cheque");
+        require(cheque.expiry>block.timestamp, "Cashable yet");
         bool success = cheque.token.transferFrom(address(this), _msgSender(), cheque.amount);
         require(success, "Transfer failed.");
         _burn(chequeID); 
         emit Cash(_msgSender(), chequeID);
     }
-    function voidCheque(uint256 chequeID) external {
+    function _voidCheque(uint256 chequeID, address depositTo) private {
         Cheque memory cheque = chequeData[chequeID];
-        require(cheque.auditor==_msgSender(), "Must be auditor");
-        require(cheque.expiry<block.timestamp, "Cheque already matured");
+        require(cheque.auditor==_msgSender(), "Not auditor");
+        require(cheque.expiry<block.timestamp, "Cheque matured");
         _burn(chequeID); 
-        deposits[cheque.drawer][cheque.token] += cheque.amount;  // Add balance back to signer
+        deposits[depositTo][cheque.token] += cheque.amount;  // Add balance back to drawer
         emit Void(cheque.drawer, cheque.auditor, chequeID);
     }
-    function voidRescueCheque(uint256 chequeID) external {  // Reentrency?
-        Cheque memory cheque = chequeData[chequeID];
-        require(cheque.auditor==_msgSender(), "Must be auditor");
-        require(cheque.expiry<block.timestamp, "Cheque already matured");
-        _burn(chequeID);
-        address fallbackAccount = trustedAccount[cheque.drawer];
-        deposits[fallbackAccount][cheque.token] += cheque.amount;  // Add cheque amount to trusted account deposit balance
-        emit Void(cheque.drawer, cheque.auditor, chequeID);
+    function voidCheque(uint256 chequeID) external {
+        _voidCheque(chequeID, _msgSender());
+    }
+    function voidRescueCheque(uint256 chequeID) external {
+        _voidCheque(chequeID, trustedAccount[chequeData[chequeID].drawer]);
     }
     function transfer(address to, uint256 chequeID) external {
         safeTransferFrom(_msgSender(), to, chequeID);
@@ -123,20 +132,9 @@ abstract contract dCheque is ERC721, Ownable {
         cheque.amount -= protocolFee[_token];
         protocolReserve[_token] += protocolFee[_token];
     }
-    function directTransfer(IERC20 _token, address _to, uint256 _amount) external{
-        require(deposits[_msgSender()][_token]>=_amount, "Cannot send more than available");
-        deposits[_msgSender()][_token] -= _amount;
-        deposits[_to][_token] += _amount;
-    }
+    // Inherited function use //
 
-    function withdraw(IERC20 _token, uint256 _amount) external onlyOwner{
-        require(protocolReserve[_token]>=_amount, "Can't withdraw more than available");
-        protocolReserve[_token]-= _amount;
-        bool success = _token.transferFrom(address(this), _msgSender(), _amount);
-        require(success, "Transfer failed.");
-        emit Withdraw(_msgSender(), _amount);
-    }
-    function acceptAuditor(address auditor) public returns (bool){  // User will set this 
+    function acceptAuditor(address auditor) external returns (bool){  // User will set this 
         if (userAuditor[_msgSender()][auditor]){
             return true;
         }
@@ -148,7 +146,7 @@ abstract contract dCheque is ERC721, Ownable {
         emit AcceptAuditor(_msgSender(), auditor);
         return true;
     }
-    function acceptUser(address drawer) public returns (bool){  // Auditor will set this 
+    function acceptUser(address drawer) external returns (bool){  // Auditor will set this 
         if (auditorUser[_msgSender()][drawer]){
             return true;
         }
@@ -164,7 +162,7 @@ abstract contract dCheque is ERC721, Ownable {
         auditorDurations[_msgSender()][duration] = true;
     }
     function setTrustedAccount(address account) external {  // User will set this
-        require((lastTrustedChange[_msgSender()] + trustedAccountCooldown)<block.timestamp, "Can only change trusted account once every 180 days");
+        require((lastTrustedChange[_msgSender()] + trustedAccountCooldown)<block.timestamp, "Trusted account cooldown");
         trustedAccount[_msgSender()] = account;
         lastTrustedChange[_msgSender()] = block.timestamp;
     }
