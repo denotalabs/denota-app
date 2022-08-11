@@ -15,6 +15,9 @@ contract dCheque is ERC721, Ownable {
         address auditor;
     }
 
+    /*//////////////////////////////////////////////////////////////
+                         METADATA STORAGE/LOGIC
+    //////////////////////////////////////////////////////////////*/
     mapping(address=>mapping(address=>bool)) public userAuditor;  // Whether User accepts Auditor
     mapping(address=>address[]) public acceptedUserAuditors;  // Auditor addresses that user accepts
     mapping(address=>mapping(address=>bool)) public auditorUser;  // Whether Auditor accepts User
@@ -32,6 +35,9 @@ contract dCheque is ERC721, Ownable {
     mapping(IERC20=>uint256) public protocolFee;
     mapping(IERC20=>uint256) public protocolReserve;
 
+    /*//////////////////////////////////////////////////////////////
+                           EVENTS/MODIFIERS
+    //////////////////////////////////////////////////////////////*/
     event Deposit(IERC20 _token, address indexed to, uint256 amount);
     event Cash(address indexed bearer, uint256 indexed chequeID);
     event Void(address indexed drawer, address indexed auditor, uint256 indexed chequeID);
@@ -52,7 +58,9 @@ contract dCheque is ERC721, Ownable {
         _;
     }
 
-    // Only Owner Functions //
+    /*//////////////////////////////////////////////////////////////
+                        ONLY OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
     constructor(uint256 _trustedAccountCooldown) ERC721("dCheque", "dCHQ"){  // Does this also set inherited constructor variables?
         trustedAccountCooldown = _trustedAccountCooldown;
     }
@@ -67,9 +75,10 @@ contract dCheque is ERC721, Ownable {
         require(success, "Transfer failed.");
         emit Withdraw(_msgSender(), _amount);
     }
-    // Only Owner Functions //
 
-    // User Deposits //
+    /*//////////////////////////////////////////////////////////////
+                            USER DEPOSITS
+    //////////////////////////////////////////////////////////////*/
     function _deposit(IERC20 _token, address _address, uint256 _amount) private {
         bool success = _token.transferFrom(_msgSender(), address(this), _amount); 
         require(success, "Transfer failed");
@@ -90,9 +99,10 @@ contract dCheque is ERC721, Ownable {
         unchecked {deposits[_msgSender()][_token] = fromBalance - _amount;}
         deposits[_to][_token] += _amount;
     }
-    // User Deposits //
 
-    // ERC721 Inherited Function Use //
+    /*//////////////////////////////////////////////////////////////
+                        INHERITED ERC-721 USAGE
+    //////////////////////////////////////////////////////////////*/
     function writeCheque(IERC20 _token, uint256 amount, uint256 duration, address auditor, address recipient) 
         external 
         UserAuditorUserHandshake(_token, amount, auditor, duration, recipient) {
@@ -132,8 +142,10 @@ contract dCheque is ERC721, Ownable {
         cheque.amount -= protocolFee[_token];
         protocolReserve[_token] += protocolFee[_token];
     }
-    // Inherited function use //
 
+    /*//////////////////////////////////////////////////////////////
+                          AUDITOR FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
     function acceptAuditor(address auditor) external returns (bool){  // User will set this 
         if (userAuditor[_msgSender()][auditor]){
             return true;
@@ -161,11 +173,20 @@ contract dCheque is ERC721, Ownable {
     function setAllowedDuration(uint256 duration) external {  // Auditor will set this
         auditorDurations[_msgSender()][duration] = true;
     }
+    function getAcceptedUserAuditors(address _address) external view returns (address[] memory){
+        return acceptedUserAuditors[_address];
+    }
+    function getAcceptedAuditorUsers(address _address) external view returns (address[] memory){
+        return acceptedAuditorUsers[_address];
+    }
     function setTrustedAccount(address account) external {  // User will set this
         require((lastTrustedChange[_msgSender()] + trustedAccountCooldown)<block.timestamp, "Trusted account cooldown");
         trustedAccount[_msgSender()] = account;
         lastTrustedChange[_msgSender()] = block.timestamp;
     }
+    /*//////////////////////////////////////////////////////////////
+                       CHEQUE DATA READ FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
     function chequeDrawer(uint256 chequeId) external view returns (address) {
         return chequeData[chequeId].drawer;
     }
@@ -183,11 +204,5 @@ contract dCheque is ERC721, Ownable {
     }
     function chequeCreated(uint256 chequeId) external view returns (uint256) {
         return chequeData[chequeId].created;
-    }
-    function getAcceptedUserAuditors(address _address) external view returns (address[] memory){
-        return acceptedUserAuditors[_address];
-    }
-    function getAcceptedAuditorUsers(address _address) external view returns (address[] memory){
-        return acceptedAuditorUsers[_address];
     }
 }
