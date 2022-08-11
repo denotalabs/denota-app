@@ -15,19 +15,19 @@ contract dCheque is ERC721, Ownable {
         address auditor;
     }
     /*//////////////////////////////////////////////////////////////
-                         METADATA STORAGE/LOGIC
+                           STORAGE VARIABLES
     //////////////////////////////////////////////////////////////*/
     mapping(address=>mapping(address=>bool)) public userAuditor;  // Whether User accepts Auditor
-    mapping(address=>address[]) public acceptedUserAuditors;  // Auditor addresses that user accepts
     mapping(address=>mapping(address=>bool)) public auditorUser;  // Whether Auditor accepts User
-    mapping(address=>address[]) public acceptedAuditorUsers;  // User addresses that auditor accepts
     mapping(address=>mapping(uint256=>bool)) public auditorDurations;  // Auditor voiding periods
+    mapping(address=>address[]) public acceptedUserAuditors;  // Auditor addresses that user accepts
+    mapping(address=>address[]) public acceptedAuditorUsers;  // User addresses that auditor accepts
 
     mapping(address=>address) public trustedAccount;  // User's trusted account
     mapping(address=>uint256) public lastTrustedChange;  // Last time user updated changed account
     uint256 public trustedAccountCooldown;  // Cooldown before user can change trusted account again
 
-    mapping(uint256=>Cheque) public chequeInfo;  // Cheque metadata
+    mapping(uint256=>Cheque) public chequeInfo;  // Cheque information
     mapping(address=>mapping(IERC20=>uint256)) public deposits;  // Total user deposits
     uint256 private totalSupply;  // Total cheques created
 
