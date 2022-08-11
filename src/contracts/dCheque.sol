@@ -25,15 +25,15 @@ contract dCheque is ERC721, Ownable {
     mapping(address=>mapping(uint256=>bool)) public auditorDurations;  // Auditor voiding periods
 
     mapping(address=>address) public trustedAccount;  // User's trusted account
-    mapping(address=>uint256) public lastTrustedChange;
-    uint256 public trustedAccountCooldown;
+    mapping(address=>uint256) public lastTrustedChange;  // Last time user updated changed account
+    uint256 public trustedAccountCooldown;  // Cooldown before user can change trusted account again
 
-    mapping(uint256=>Cheque) public chequeData;
+    mapping(uint256=>Cheque) public chequeInfo;  // Cheque metadata
     mapping(address=>mapping(IERC20=>uint256)) public deposits;  // Total user deposits
     uint256 private totalSupply;  // Total cheques created
 
-    mapping(IERC20=>uint256) public protocolFee;
-    mapping(IERC20=>uint256) public protocolReserve;
+    mapping(IERC20=>uint256) public protocolFee;  // Fee in ERC20 token taken from each cheque transfer
+    mapping(IERC20=>uint256) public protocolReserve;  // Token balances not needed for cheque collateralization
 
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
@@ -61,7 +61,7 @@ contract dCheque is ERC721, Ownable {
     /*//////////////////////////////////////////////////////////////
                         ONLY OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    constructor(uint256 _trustedAccountCooldown) ERC721("dCheque", "dCHQ"){  // Does this also set inherited constructor variables?
+    constructor(uint256 _trustedAccountCooldown) ERC721("dCheque", "dCHQ"){
         trustedAccountCooldown = _trustedAccountCooldown;
     }
     function setProtocolFee(IERC20 _token, uint256 _protocolFee) external onlyOwner{  
@@ -93,7 +93,7 @@ contract dCheque is ERC721, Ownable {
         _deposit(_token, _address, _amount);
         return true;
     }
-    function directTransfer(IERC20 _token, address _to, uint256 _amount) external{  // Need to add limiter
+    function directTransfer(IERC20 _token, address _to, uint256 _amount) external{
         uint256 fromBalance = deposits[_msgSender()][_token];
         require(fromBalance >= _amount, "transfer amount exceeds balance");
         unchecked {deposits[_msgSender()][_token] = fromBalance - _amount;}
@@ -101,19 +101,39 @@ contract dCheque is ERC721, Ownable {
     }
 
     /*//////////////////////////////////////////////////////////////
-                        INHERITED ERC-721 USAGE
+                          ERC-721 OVERRIDES
+    //////////////////////////////////////////////////////////////*/
+    function _feeOnTransfer(uint256 chequeID) private{
+        Cheque storage cheque = chequeInfo[chequeID];
+        IERC20 _token = cheque.token;
+        require(cheque.amount >= protocolFee[_token]);
+        unchecked {cheque.amount = cheque.amount  - protocolFee[_token];}
+        protocolReserve[_token] += protocolFee[_token];
+    }
+    function transferFrom(address from, address to, uint256 chequeID) public virtual override {
+        require(_isApprovedOrOwner(_msgSender(), chequeID), "Transfer disallowed");
+        _feeOnTransfer(chequeID);
+        _transfer(from, to, chequeID);
+    }
+    function safeTransferFrom(address from, address to, uint256 chequeID, bytes memory data) public virtual override {
+        require(_isApprovedOrOwner(_msgSender(), chequeID), "Transfer disallowed");
+        _feeOnTransfer(chequeID);
+        _safeTransfer(from, to, chequeID, data);
+    }
+    /*//////////////////////////////////////////////////////////////
+                        ERC-721 FUNCTION USAGE
     //////////////////////////////////////////////////////////////*/
     function writeCheque(IERC20 _token, uint256 amount, uint256 duration, address auditor, address recipient) 
         external 
         UserAuditorUserHandshake(_token, amount, auditor, duration, recipient) {
         deposits[_msgSender()][_token] -= amount;
         _safeMint(_msgSender(), totalSupply);
-        chequeData[totalSupply] = Cheque({drawer:_msgSender(), recipient:recipient, created:block.timestamp, expiry:block.timestamp+duration, 
+        chequeInfo[totalSupply] = Cheque({drawer:_msgSender(), recipient:recipient, created:block.timestamp, expiry:block.timestamp+duration, 
                                        auditor:auditor, token:_token, amount:amount});
         totalSupply += 1;
     }
     function cashCheque(uint256 chequeID) external {
-        Cheque storage cheque = chequeData[chequeID];
+        Cheque storage cheque = chequeInfo[chequeID];
         require(_isApprovedOrOwner(_msgSender(), chequeID), "Must own cheque");
         require(cheque.expiry>block.timestamp, "Cashable yet");
         bool success = cheque.token.transferFrom(address(this), _msgSender(), cheque.amount);
@@ -122,7 +142,7 @@ contract dCheque is ERC721, Ownable {
         emit Cash(_msgSender(), chequeID);
     }
     function _voidCheque(uint256 chequeID, address depositTo) private {
-        Cheque memory cheque = chequeData[chequeID];
+        Cheque memory cheque = chequeInfo[chequeID];
         require(cheque.auditor==_msgSender(), "Not auditor");
         require(cheque.expiry<block.timestamp, "Cheque matured");
         _burn(chequeID); 
@@ -133,14 +153,7 @@ contract dCheque is ERC721, Ownable {
         _voidCheque(chequeID, _msgSender());
     }
     function voidRescueCheque(uint256 chequeID) external {
-        _voidCheque(chequeID, trustedAccount[chequeData[chequeID].drawer]);
-    }
-    function transfer(address to, uint256 chequeID) external {
-        safeTransferFrom(_msgSender(), to, chequeID);
-        Cheque storage cheque = chequeData[chequeID];
-        IERC20 _token = cheque.token;
-        cheque.amount -= protocolFee[_token];
-        protocolReserve[_token] += protocolFee[_token];
+        _voidCheque(chequeID, trustedAccount[chequeInfo[chequeID].drawer]);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -188,21 +201,21 @@ contract dCheque is ERC721, Ownable {
                        CHEQUE DATA READ FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     function chequeDrawer(uint256 chequeId) external view returns (address) {
-        return chequeData[chequeId].drawer;
+        return chequeInfo[chequeId].drawer;
     }
     function chequeRecipient(uint256 chequeId) external view returns (address) {
-        return chequeData[chequeId].recipient;
+        return chequeInfo[chequeId].recipient;
     }
     function chequeAuditor(uint256 chequeId) external view returns (address) {
-        return chequeData[chequeId].auditor;
+        return chequeInfo[chequeId].auditor;
     } 
     function chequeAmount(uint256 chequeId) external view returns (uint256) {
-        return chequeData[chequeId].amount;
+        return chequeInfo[chequeId].amount;
     }
     function chequeExpiry(uint256 chequeId) external view returns (uint256) {
-        return chequeData[chequeId].expiry;
+        return chequeInfo[chequeId].expiry;
     }
     function chequeCreated(uint256 chequeId) external view returns (uint256) {
-        return chequeData[chequeId].created;
+        return chequeInfo[chequeId].created;
     }
 }
