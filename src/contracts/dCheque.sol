@@ -14,7 +14,6 @@ contract dCheque is ERC721, Ownable {
         address recipient;
         address auditor;
     }
-
     /*//////////////////////////////////////////////////////////////
                          METADATA STORAGE/LOGIC
     //////////////////////////////////////////////////////////////*/
@@ -34,7 +33,6 @@ contract dCheque is ERC721, Ownable {
 
     mapping(IERC20=>uint256) public protocolFee;  // Fee in ERC20 token taken from each cheque transfer
     mapping(IERC20=>uint256) public protocolReserve;  // Token balances not needed for cheque collateralization
-
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
     //////////////////////////////////////////////////////////////*/
@@ -57,7 +55,6 @@ contract dCheque is ERC721, Ownable {
         require(auditorDurations[auditor][duration], "Duration not allowed");
         _;
     }
-
     /*//////////////////////////////////////////////////////////////
                         ONLY OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -75,7 +72,6 @@ contract dCheque is ERC721, Ownable {
         require(success, "Transfer failed.");
         emit Withdraw(_msgSender(), _amount);
     }
-
     /*//////////////////////////////////////////////////////////////
                             USER DEPOSITS
     //////////////////////////////////////////////////////////////*/
@@ -99,7 +95,6 @@ contract dCheque is ERC721, Ownable {
         unchecked {deposits[_msgSender()][_token] = fromBalance - _amount;}
         deposits[_to][_token] += _amount;
     }
-
     /*//////////////////////////////////////////////////////////////
                           ERC-721 OVERRIDES
     //////////////////////////////////////////////////////////////*/
@@ -155,7 +150,6 @@ contract dCheque is ERC721, Ownable {
     function voidRescueCheque(uint256 chequeID) external {
         _voidCheque(chequeID, trustedAccount[chequeInfo[chequeID].drawer]);
     }
-
     /*//////////////////////////////////////////////////////////////
                           AUDITOR FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -198,7 +192,7 @@ contract dCheque is ERC721, Ownable {
         lastTrustedChange[_msgSender()] = block.timestamp;
     }
     /*//////////////////////////////////////////////////////////////
-                       CHEQUE DATA READ FUNCTIONS
+                         CHEQUE READ FUNCTIONS
     //////////////////////////////////////////////////////////////*/
     function chequeDrawer(uint256 chequeId) external view returns (address) {
         return chequeInfo[chequeId].drawer;
