@@ -119,8 +119,7 @@ contract dCheque is ERC721, Ownable {
                         ERC-721 FUNCTION USAGE
     //////////////////////////////////////////////////////////////*/
     function writeCheque(IERC20 _token, uint256 amount, uint256 duration, address auditor, address recipient) 
-        external 
-        UserAuditorUserHandshake(_token, amount, auditor, duration, recipient) {
+        external UserAuditorUserHandshake(_token, amount, auditor, duration, recipient) {
         deposits[_msgSender()][_token] -= amount;
         _safeMint(_msgSender(), totalSupply);
         chequeInfo[totalSupply] = Cheque({drawer:_msgSender(), recipient:recipient, created:block.timestamp, expiry:block.timestamp+duration, 
@@ -192,8 +191,20 @@ contract dCheque is ERC721, Ownable {
         lastTrustedChange[_msgSender()] = block.timestamp;
     }
     /*//////////////////////////////////////////////////////////////
-                         CHEQUE READ FUNCTIONS
+                   CHEQUE READ FUNCTIONS (NECESSARY?)
     //////////////////////////////////////////////////////////////*/
+    function chequeAmount(uint256 chequeId) external view returns (uint256) {
+        return chequeInfo[chequeId].amount;
+    }
+    function chequeCreated(uint256 chequeId) external view returns (uint256) {
+        return chequeInfo[chequeId].created;
+    }
+    function chequeExpiry(uint256 chequeId) external view returns (uint256) {
+        return chequeInfo[chequeId].expiry;
+    }
+    function chequeToken(uint256 chequeId) external view returns (IERC20) {
+        return chequeInfo[chequeId].token;
+    }
     function chequeDrawer(uint256 chequeId) external view returns (address) {
         return chequeInfo[chequeId].drawer;
     }
@@ -203,13 +214,4 @@ contract dCheque is ERC721, Ownable {
     function chequeAuditor(uint256 chequeId) external view returns (address) {
         return chequeInfo[chequeId].auditor;
     } 
-    function chequeAmount(uint256 chequeId) external view returns (uint256) {
-        return chequeInfo[chequeId].amount;
-    }
-    function chequeExpiry(uint256 chequeId) external view returns (uint256) {
-        return chequeInfo[chequeId].expiry;
-    }
-    function chequeCreated(uint256 chequeId) external view returns (uint256) {
-        return chequeInfo[chequeId].created;
-    }
 }
