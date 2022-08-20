@@ -67,7 +67,7 @@ contract dCheque is ERC721, Ownable {
     }
     function withdraw(IERC20 _token, uint256 _amount) external onlyOwner{
         require(protocolReserve[_token]>=_amount, "More than available");
-        protocolReserve[_token]-= _amount;
+        unchecked { protocolReserve[_token]-= _amount; }
         bool success = _token.transferFrom(address(this), _msgSender(), _amount);
         require(success, "Transfer failed.");
         emit Withdraw(_msgSender(), _amount);
@@ -139,8 +139,7 @@ contract dCheque is ERC721, Ownable {
         _burn(chequeID);
         emit Cash(_msgSender(), chequeID);
     }
-    function _voidCheque(uint256 chequeID, address depositTo) private {
-        Cheque memory cheque = chequeInfo[chequeID];
+    function _voidCheque(Cheque memory cheque, uint256 chequeID, address depositTo) private {
         require(cheque.auditor==_msgSender(), "Not auditor");
         require(cheque.expiry>=block.timestamp, "Cheque matured");
         _burn(chequeID); 
@@ -148,10 +147,14 @@ contract dCheque is ERC721, Ownable {
         emit Void(cheque.drawer, cheque.auditor, chequeID);
     }
     function voidCheque(uint256 chequeID) external {
-        _voidCheque(chequeID, _msgSender());
+        Cheque memory cheque = chequeInfo[chequeID];
+        _voidCheque(cheque, chequeID, cheque.drawer);
     }
     function voidRescueCheque(uint256 chequeID) external {
-        _voidCheque(chequeID, trustedAccount[chequeInfo[chequeID].drawer]);
+        Cheque memory cheque = chequeInfo[chequeID];
+        address fallbackAccount = trustedAccount[cheque.drawer];
+        require(fallbackAccount != address(0), 'No Fallback');
+        _voidCheque(cheque, chequeID, fallbackAccount);
     }
     /*//////////////////////////////////////////////////////////////
                           AUDITOR FUNCTIONS

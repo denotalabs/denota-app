@@ -12,7 +12,7 @@ contract ContractTest is Test {
     TestERC20 public usdc;
 
     function setUp() public { // Test contract has amount in DAI
-        dcheque = new dCheque(180);  // trusted account cooldown days
+        dcheque = new dCheque(180);  // trusted account cooldown seconds
         dai = new TestERC20(100e18, 'DAI', 'DAI'); //
         usdc = new TestERC20(0, 'USDC', 'USDC');
     }
@@ -26,17 +26,12 @@ contract ContractTest is Test {
         assertTrue(dai.balanceOf(address(dcheque))==_amount);
     }
     function userAuditorUser(address user1, address user2, address auditor, uint256 duration) public {
-        uint256 _amount = 10e18;
-        // User1 add auditor
-        hoax(user1, _amount);
+        vm.prank(user1);
         dcheque.acceptAuditor(auditor);
-        // User2 add auditor
-        hoax(user2, _amount);
+        vm.prank(user2);
         dcheque.acceptAuditor(auditor);
-        // Auditor add user1
-        startHoax(auditor, _amount);
+        vm.startPrank(auditor);
         dcheque.acceptUser(user1);
-        // Auditor add user2
         dcheque.acceptUser(user2);
         dcheque.setAllowedDuration(duration);
         vm.stopPrank();
@@ -44,9 +39,27 @@ contract ContractTest is Test {
     function writeCheque(uint256 _amount, address auditor, address recipient, uint256 duration) public returns (uint256){
         // Set up params and state 
         deposit(_amount, msg.sender);
-        userAuditorUser(msg.sender, recipient, auditor, duration);
+        userAuditorUser(msg.sender, recipient, auditor, duration);  // Drawer-Auditor-Recipient all accept
+        assertTrue(dcheque.balanceOf(recipient)==0);  // writing cheque should reduce balance
         vm.prank(msg.sender);
-        return dcheque.writeCheque(dai, _amount, duration, auditor, recipient);
+        uint256 chequeID = dcheque.writeCheque(dai, _amount, duration, auditor, recipient);
+        assertTrue(dcheque.deposits(msg.sender, dai)==0);  // writing cheque should reduce balance
+        assertTrue(dcheque.balanceOf(recipient)==1);  // recipient cheque balance increased
+        assertTrue(dcheque.ownerOf(chequeID)==recipient);  // recipient owns cheque
+        return chequeID;
+    }
+    function voidCheque(address drawer, address auditor, uint256 chequeID, address owner) public{
+        uint256 drawerDeposit = dcheque.deposits(drawer, dai);  // Drawers deposit amount
+        assertTrue(dcheque.balanceOf(owner)==1);  // recipient owns cheque
+        vm.prank(auditor);
+        dcheque.voidCheque(chequeID);  // Auditor calls voidCheque
+        assertTrue(dcheque.balanceOf(owner)==0);  // recipient owns 1 less cheque
+        assertTrue(dcheque.deposits(drawer, dai)==drawerDeposit+dcheque.chequeAmount(chequeID));  // drawer's collateral is returned
+        drawerDeposit = dcheque.deposits(drawer, dai);  // Drawers deposit amount
+        vm.expectRevert('ERC721: invalid token ID');
+        dcheque.ownerOf(chequeID); // FAILS SINCE _burn() REMOVES OWNERSHIP
+    }
+    function transferCheque() public {
     }
     /*//////////////////////////////////////////////////////////////
                            TESTING FUNCTIONS
@@ -97,15 +110,15 @@ contract ContractTest is Test {
         dcheque.acceptAuditor(auditor);
         // Can't write cheques without auditor handshake
         dcheque.writeCheque(dai, _amount, duration, auditor, recipient);
-        hoax(auditor, _amount);
+        vm.prank(auditor);
         dcheque.acceptUser(msg.sender); 
         // Can't write cheques without recipient approving auditor
         dcheque.writeCheque(dai, _amount, duration, auditor, recipient);
-        hoax(recipient, _amount);
+        vm.prank(recipient);
         dcheque.acceptAuditor(auditor);
         // Can't write cheques without auditor approving recipient
         dcheque.writeCheque(dai, _amount, duration, auditor, recipient);
-        hoax(auditor, _amount);
+        vm.prank(auditor);
         dcheque.acceptUser(recipient); 
         // Can't write cheques without auditor approved duration
         dcheque.writeCheque(dai, _amount, duration, auditor, recipient);
@@ -124,6 +137,7 @@ contract ContractTest is Test {
         // Write cheque
         vm.prank(msg.sender);
         uint256 chequeID = dcheque.writeCheque(dai, _amount, duration, auditor, recipient);
+
         (uint256 amount,uint256 created,uint256 expiry, IERC20 token,address drawer,address recipient1,address auditor1) = dcheque.chequeInfo(chequeID);
         assertTrue(amount==_amount, "amount");
         assertTrue(created==block.timestamp, "created");
@@ -136,7 +150,7 @@ contract ContractTest is Test {
         assertTrue(dcheque.balanceOf(recipient)==1, "recipient");
         assertTrue(dcheque.ownerOf(chequeID)==recipient, "owner");
     }
-    function testTransferFrom() public { //address from, address to, uint256 chequeID  //address recipient, address auditor, uint256 duration
+    function testTransferFrom() public {
         uint256 _amount = 100e18;
         address auditor = vm.addr(1);
         address recipient =  vm.addr(2);
@@ -194,7 +208,7 @@ contract ContractTest is Test {
         address auditor = vm.addr(1);
         address recipient =  vm.addr(2);
         uint256 duration = 60*60*24*7;
-        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);
+        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);  // Deposits, handshakes, and writes cheque
 
         assertTrue(dcheque.deposits(recipient, dai)==0);
         assertTrue(dai.balanceOf(recipient)==0);
@@ -204,56 +218,132 @@ contract ContractTest is Test {
         dcheque.cashCheque(chequeID);  // recipient asks dcheque to transfer them the erc20 'locked' in the cheque
         assertTrue(dai.balanceOf(recipient)==_amount);
     }
-    // function testTransferCashCheque() public { // the degen cashes the cheque}
+    function testTransferCashCheque() public { 
+        // the degen cashes the cheque
+        uint256 _amount = 100e18;
+        address auditor = vm.addr(1);
+        address recipient =  vm.addr(2);
+        address degen = vm.addr(3);
+        uint256 duration = 60*60*24*7;
+        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);  // msg.sender writes this to the recipient
 
-    // function testVoidCheque() public {
-    //     uint256 _amount = 100e18;
-    //     address auditor = vm.addr(1);
-    //     address recipient =  vm.addr(2);
-    //     uint256 duration = 60*60*24*7;
-    //     uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);
+        // Transfer cheque to degen account
+        assertTrue(dcheque.balanceOf(degen)==0);  // degen owns no cheques
+        assertTrue(dcheque.protocolReserve(dai)==0);  // protocol fee has not been taken
+        // Transfer
+        uint256 chequeAmount = dcheque.chequeAmount(chequeID);
+        assertTrue(chequeAmount==_amount);
+        vm.prank(recipient);
+        dcheque.transferFrom(recipient, degen, chequeID);  // owner (recipient) asks Cheq to transfer to degen
+        assertTrue(dcheque.balanceOf(recipient)==0);
+        assertTrue(dcheque.balanceOf(degen)==1);
+        // Fee on transfer
+        uint256 protocolFee = dcheque.protocolFee(dai);
+        chequeAmount = dcheque.chequeAmount(chequeID);
+        assertTrue(chequeAmount==_amount-protocolFee);  // cheque worth less
+        assertTrue(dcheque.protocolReserve(dai)==protocolFee);  // reserve worth more
 
-    //     assertTrue(dcheque.deposits(recipient, dai)==0);
-    //     assertTrue(dai.balanceOf(recipient)==0);
+        // Degen cashing
+        assertTrue(dcheque.deposits(degen, dai)==0);
+        assertTrue(dai.balanceOf(degen)==0);
+        vm.warp(block.timestamp+duration+1);
+        vm.prank(degen);
+        dcheque.cashCheque(chequeID);  // degen asks dcheque to transfer them the erc20 'locked' in the cheque
+        assertTrue(dai.balanceOf(degen)==_amount);
+    }
+    function testVoidCheque() public {
+        uint256 _amount = 100e18;
+        address auditor = vm.addr(1);
+        address recipient =  vm.addr(2);
+        uint256 duration = 60*60*24*7;
+        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);
+        voidCheque(msg.sender, auditor, chequeID, recipient);
+        
+        // Ensure cheque can't be cashed
+        vm.warp(block.timestamp+duration+1);
+        vm.prank(recipient);
+        assertTrue(dai.balanceOf(recipient)==0);
+        vm.expectRevert('ERC721: invalid token ID');
+        dcheque.cashCheque(chequeID);  // recipient asks dcheque to transfer them the erc20 'locked' in the cheque
+        assertTrue(dai.balanceOf(recipient)==0);
 
-    //     console.log(dcheque.ownerOf(chequeID));
-    //     vm.prank(auditor);
-    //     dcheque.voidCheque(chequeID);
-        // console.log(dcheque.ownerOf(chequeID));
-        // assertTrue(dcheque);
+        // Ensure cheque can't be transfered
+        vm.prank(recipient);
+        vm.expectRevert('ERC721: invalid token ID');
+        dcheque.transferFrom(recipient, msg.sender, chequeID);
+    }
+    function testVoidRescueCheque() public {
+        uint256 _amount = 100e18;
+        address auditor = vm.addr(1);
+        address recipient =  vm.addr(2);
+        address trusted = vm.addr(3);
+        uint256 duration = 60*60*24*7;
+        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);
 
-        // vm.warp(block.timestamp+duration+1);
-        // vm.prank(recipient);
-        // dcheque.cashCheque(chequeID);
-        // assertTrue(dai.balanceOf(recipient)==_amount);
-    // }
+        // Set drawer's trusted account
+        vm.warp(dcheque.trustedAccountCooldown()+1);
+        vm.prank(msg.sender);
+        dcheque.setTrustedAccount(trusted);
 
-    // function testVoidRescueCheque() public {
-    //     dcheque.voidRescueCheque(0);
-    // }
+        // Void cheque
+        assertTrue(dcheque.deposits(trusted, dai)==0);
+        assertTrue(dcheque.balanceOf(recipient)==1);  // recipient owns cheque
+        vm.prank(auditor);
+        dcheque.voidRescueCheque(chequeID);  // Auditor calls voidCheque
+        assertTrue(dcheque.balanceOf(recipient)==0, "recipient has balance of");  // recipient owns 1 less cheque
+        vm.expectRevert('ERC721: invalid token ID');
+        dcheque.ownerOf(chequeID);
+        // Trusted account gets deposit
+        assertTrue(dcheque.deposits(trusted, dai)==_amount, "trusted didn't get collateral");
+    }
+    function testSetTrustedAccount(address trusted) public {
+        vm.warp(dcheque.trustedAccountCooldown()+1);
+        vm.prank(msg.sender);
+        dcheque.setTrustedAccount(trusted);
+    }
+    function TestAcceptUser(address auditor, address user) public {
+        vm.prank(auditor);
+        dcheque.acceptUser(user);
+    }
+    function testAcceptAuditor(address user, address auditor) public{
+        vm.prank(user);
+        dcheque.acceptAuditor(auditor);
+    }
+    function testSetAllowedDuration(address auditor, uint256 duration) public {
+        vm.prank(auditor);
+        dcheque.setAllowedDuration(duration);
+    }
+    function testGetAccepted() public{
+        address auditor = vm.addr(1);
+        address recipient =  vm.addr(2);
+        uint256 duration = 60*60*24*7;
+        userAuditorUser(msg.sender, recipient, auditor, duration);
+        address[] memory auditorsUsers = dcheque.getAcceptedAuditorUsers(auditor);
+        assertTrue(auditorsUsers.length==2);
+        assertTrue(auditorsUsers[0]==msg.sender);
+        assertTrue(auditorsUsers[1]==recipient);
 
-    // function TestAcceptAuditor() public {
-    // }
-    // function testAcceptUser() public{
-    // }
-    // function testSetAllowedDuration() public{
-    // }
-    // function testGetAcceptedUserAuditors() public{
-    // }
-    // function testGetAcceptedAuditorUsers() public {
-    // }
-    // function testSetTrustedAccount() public {
-    // }
+        address[] memory userAuditors = dcheque.getAcceptedUserAuditors(msg.sender);
+        assertTrue(userAuditors.length==1);
+        assertTrue(userAuditors[0]==auditor);
+    }
+    function testFailWithdraw(uint256 _amount) public {  // Withdraw protocol fees to dev account
+        testTransferFrom();  // deposits, hadshakes, writes, transfers
 
-    // function testFailWithdraw(uint256 _amount) public {  // Withdraw protocol fees to dev account
-    //     dcheque.withdraw(dai, _amount);
-    //     // dcheque.withdraw(usdc, _amount);
-    //     // usdc.approve(address(dcheque), _amount);
-    //     // dcheque.withdraw(usdc, _amount);
-    // }
-    // function testWithdraw(uint256 _amount) public {  // Withdraw protocol fees to dev account
-    //     dai.approve(address(dcheque), _amount);
-    //     dcheque.deposit(dai, _amount);
-    //     dcheque.withdraw(dai, _amount);
-    // }
+        uint256 daiReserve = dcheque.protocolReserve(dai);
+        if (_amount>daiReserve) {  // withdrawing more than unused collateral reserve allows
+            dcheque.withdraw(dai, _amount);
+        } else {  // Non-owner withdrawing funds
+            vm.prank(msg.sender);
+            dcheque.withdraw(dai, _amount);
+        }
+    }
+    function testWithdraw() public {  // Withdraw protocol fees to dev account
+        testTransferFrom();  // deposits, hadshakes, writes, transfers
+        assertTrue(dai.balanceOf(msg.sender)==0);
+        uint256 daiReserve = dcheque.protocolReserve(dai);
+        assertTrue(dai.balanceOf(address(this))==0);
+        dcheque.withdraw(dai, daiReserve);
+        assertTrue(dai.balanceOf(address(this))==daiReserve);
+    }
 }
