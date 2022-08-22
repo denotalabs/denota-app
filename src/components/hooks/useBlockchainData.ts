@@ -1,15 +1,15 @@
 import { useCallback, useState } from 'react';
 import { ethers } from 'ethers';
-import dCheque from '../../abis/dCheque.json';
+import Cheq from '../../out/Cheq.sol/Cheq.json';
 
 type BlockchainData = {
   account: string;
-  dcheque: null | ethers.Contract;
-  dChequeAddress: string;
-  dChequeBalance: string;
+  cheq: null | ethers.Contract;
+  cheqAddress: string;
+  cheqBalance: string;
   userBalance: string;
   userChequeCount: number;
-  dChequeTotalSupply: string;
+  cheqTotalSupply: string;
   userCheques: Array<any>;
   acceptedUserAuditors:Array<any>;
   acceptedAuditorUsers:Array<any>;
@@ -20,12 +20,12 @@ type BlockchainData = {
 const useBlockchainData = () => {
   const [state, setState] = useState<BlockchainData>({
     account: '',
-    dcheque: null,
-    dChequeAddress: '',
-    dChequeBalance: '',
+    cheq: null,
+    cheqAddress: '',
+    cheqBalance: '',
     userBalance: '',
     userChequeCount: 0,
-    dChequeTotalSupply: '',
+    cheqTotalSupply: '',
     userCheques: [],
     acceptedUserAuditors: [],
     acceptedAuditorUsers: [],
@@ -84,32 +84,32 @@ const useBlockchainData = () => {
   const loadBlockchainData = useCallback(async () => {
     if (typeof (window as any).ethereum !== 'undefined') {
       const [provider, signer, account, ] = await connectWallet(); //console.log(provider, signer, account, netId)
-
+      console.log(account);
       try {
         // Load contracts
-        const dChequeAddress: string = await dCheque.networks['5777'].address;
-        const dcheque = new ethers.Contract(
-          dChequeAddress,
-          dCheque.abi,
+        const cheqAddress: string = await Cheq.networks['5777'].address;
+        const cheq = new ethers.Contract(
+          cheqAddress,
+          Cheq.abi,
           signer
         );
-        (window as any).dCheque = dcheque;
-        const dChequeBalance = await provider.getBalance(dChequeAddress);
-        const userBalance = await dcheque.deposits(account);
-        const userChequeCount = (await dcheque.chequeCount(account)).toNumber();
-        const userCheques = await getUserCheques(dcheque, account, userChequeCount);
-        const acceptedUserAuditors = await dcheque.getAcceptedUserAuditors(account);
-        const acceptedAuditorUsers = await dcheque.getAcceptedAuditorUsers(account);
-        const dChequeTotalSupply = await dcheque.totalSupply;
+        (window as any).Cheq = cheq;
+        const cheqBalance = await provider.getBalance(cheqAddress);
+        // const userBalance = await cheq.deposits(account);  // TODO NEED BALANCE OF EACH TOKEN FORUSER
+        const userChequeCount = (await cheq.balanceOf(account)).toNumber();
+        const userCheques = await getUserCheques(cheq, account, userChequeCount);
+        const acceptedUserAuditors = await cheq.getAcceptedUserAuditors(account);
+        const acceptedAuditorUsers = await cheq.getAcceptedAuditorUsers(account);
+        const cheqTotalSupply = await cheq.totalSupply;
         setState({
           signer: signer,
           account: account,
-          dcheque: dcheque,
-          dChequeAddress: dChequeAddress,
-          dChequeBalance: ethers.utils.formatEther(dChequeBalance),
-          userBalance: ethers.utils.formatEther(userBalance),
+          cheq: cheq,
+          cheqAddress: cheqAddress,
+          cheqBalance: ethers.utils.formatEther(cheqBalance),
+          userBalance: '0',//ethers.utils.formatEther(userBalance),
           userChequeCount: userChequeCount,
-          dChequeTotalSupply: String(dChequeTotalSupply),
+          cheqTotalSupply: String(cheqTotalSupply),
           userCheques: userCheques,
           acceptedUserAuditors: acceptedUserAuditors,
           acceptedAuditorUsers: acceptedAuditorUsers,
