@@ -9,7 +9,7 @@ import { DiagnosticCategory } from 'typescript';
 function App() {
   // User Deposit
   const [depositAmount, setDepositAmount] = useState('');
-  const [depositToken, setDepositToken] = useState('');
+  const [depositToken, setDepositToken] = useState('dai');
 
   // User Writing Cheque
   const [amount, setAmount] = useState('');
@@ -121,13 +121,9 @@ const userCheques = state.userCheques.map((chequeArray) =>
                         if (state.cheq!==null && state.dai!==null && state.weth!==null){
                           console.log(depositToken)
                           const token = (depositToken=='dai') ? state.dai: state.weth;
-                          // token.approve(state.cheq.address, weiAmount)
+                          token.approve(state.cheq.address, weiAmount)
                           // state.cheq.deposit(token, weiAmount);
                         }
-                        // state.signer?.sendTransaction({
-                        //   to: state.cheqAddress,
-                        //   value: weiAmount,
-                        // });
                       }}
                     >
                       <div className='form-group mr-sm-2'>
@@ -136,8 +132,8 @@ const userCheques = state.userCheques.map((chequeArray) =>
                             id='token'
                             className='form-control form-control-md'
                             placeholder='dai'
+                            defaultValue={'dai'}
                             onChange={(e) => {
-                              console.log(e.target.value);
                               setDepositToken(e.target.value);
                             }}
                           >
