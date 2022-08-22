@@ -1,13 +1,15 @@
 import { Tabs, Tab, Form, Card } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
-import cheqImage from '../dcheque.png';
+import cheqImage from '../cheq.png';
 import { ethers } from 'ethers';
 import './App.css';
 import useBlockchainData from './hooks/useBlockchainData';
+import { DiagnosticCategory } from 'typescript';
 
 function App() {
   // User Deposit
   const [depositAmount, setDepositAmount] = useState('');
+  const [depositToken, setDepositToken] = useState('');
 
   // User Writing Cheque
   const [amount, setAmount] = useState('');
@@ -90,14 +92,17 @@ const userCheques = state.userCheques.map((chequeArray) =>
           {state.account}
         </h6>
         <h6 style={{ color: 'rgb(255, 255, 255)', marginRight: '20px' }}>
-          dCheq Balance: {state.userBalance} ETH
+          qWETH Balance: {state.qDAI}<br></br>
+          qDAI Balance: {state.qWETH}
         </h6>
       </nav>
 
       <div className='container-fluid mt-5 text-center'>
         <br></br>
         <h1>Welcome to Cheq</h1>
-        <h6>Total deposited: {state.cheqBalance} ETH</h6>
+        <h6>Total cheqs written: {state.cheqBalance}</h6>
+        <h6>Total weth deposited: {state.wethBalance}</h6>
+        <h6>Total dai deposited: {state.daiBalance}</h6>
         
         <br></br>
         <div className='row'>
@@ -112,16 +117,33 @@ const userCheques = state.userCheques.map((chequeArray) =>
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
-                        const weiAmount = ethers.utils.parseEther(
-                          depositAmount.toString()
-                        ); //convert to wei
-                        state.signer?.sendTransaction({
-                          to: state.cheqAddress,
-                          value: weiAmount,
-                        });
+                        const weiAmount = ethers.utils.parseEther(depositAmount.toString()); // convert to wei
+                        if (state.cheq!==null && state.dai!==null && state.weth!==null){
+                          console.log(depositToken)
+                          const token = (depositToken=='dai') ? state.dai: state.weth;
+                          // token.approve(state.cheq.address, weiAmount)
+                          // state.cheq.deposit(token, weiAmount);
+                        }
+                        // state.signer?.sendTransaction({
+                        //   to: state.cheqAddress,
+                        //   value: weiAmount,
+                        // });
                       }}
                     >
                       <div className='form-group mr-sm-2'>
+                      <br></br>
+                        <select
+                            id='token'
+                            className='form-control form-control-md'
+                            placeholder='dai'
+                            onChange={(e) => {
+                              console.log(e.target.value);
+                              setDepositToken(e.target.value);
+                            }}
+                          >
+                          <option value="dai">DAI</option>
+                          <option value="weth">WETH</option>
+                        </select>
                         <br></br>
                         <input
                           id='depositAmount'

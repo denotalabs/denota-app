@@ -32,4 +32,14 @@ node:
 
 deploy:
 	forge create Cheq --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545
-	
+	forge create src/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 100000000000000000000 dai DAI
+	forge create src/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 100000000000000000000 weth WETH
+
+# "networks": {
+#     "5777": {
+#       "events": {},
+#       "links": {},
+#       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+#       "transactionHash": "0xed82fb5f64d29ebb5bce14c51bb97be9882449913219663ca4a7004ab87e228f"
+#     }
+#   },
