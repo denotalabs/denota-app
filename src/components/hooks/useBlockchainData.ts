@@ -70,7 +70,7 @@ const useBlockchainData = () => {
     for (let i=1; userCheques.length<userChequeCount; i++){
       cheque = await dCheqContract.cheques(i)
       console.log(cheque.expiry.toNumber()>(Date.now()/1000))
-      if (cheque.bearer==account){  // Cheques In User's Possesion
+      if (cheque.bearer==account) {  // Cheques In User's Possesion
         if (cheque.voided===true){  // Auditor Voided Cheque
           state = 'danger'
           description = 'Voided'
@@ -115,8 +115,8 @@ const useBlockchainData = () => {
           signer
         );
 
-        const qDAI = (await dai.balanceOf(account)).toNumber().toString();
-        const qWETH = (await weth.balanceOf(account)).toNumber().toString();
+        const qDAI = ethers.utils.formatUnits((await dai.balanceOf(account)).toString()).toString();
+        const qWETH =ethers.utils.formatUnits((await weth.balanceOf(account)).toString()).toString();
         (window as any).Cheq = cheq;
         const cheqBalance = await provider.getBalance(cheqAddress);
         const daiBalance = (await dai.balanceOf(cheqAddress)).toNumber().toString();

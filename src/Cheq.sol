@@ -21,6 +21,7 @@ contract Cheq is ERC721, Ownable {
     mapping(address=>mapping(address=>bool)) public userAuditor;  // Whether User accepts Auditor
     mapping(address=>mapping(address=>bool)) public auditorUser;  // Whether Auditor accepts User
     mapping(address=>mapping(uint256=>bool)) public auditorDurations;  // Auditor voiding periods
+    mapping(address=>mapping(address=>uint256)) public newAuditorWait;
     mapping(address=>address[]) public acceptedUserAuditors;  // Auditor addresses that user accepts
     mapping(address=>address[]) public acceptedAuditorUsers;  // User addresses that auditor accepts
 
@@ -123,6 +124,7 @@ contract Cheq is ERC721, Ownable {
     function writeCheque(IERC20 _token, uint256 amount, uint256 duration, address auditor, address recipient) 
         external UserAuditorUserHandshake(_token, amount, auditor, duration, recipient) returns(uint256){
         require(deposits[_msgSender()][_token]>=amount, "Insufficient balance");
+        require(newAuditorWait[_msgSender()][auditor]+7 days<= block.timestamp, "New Auditor");
         deposits[_msgSender()][_token] -= amount;
         _safeMint(recipient, totalSupply);
         chequeInfo[totalSupply] = Cheque({drawer:_msgSender(), recipient:recipient, created:block.timestamp, expiry:block.timestamp+duration, 
@@ -168,6 +170,7 @@ contract Cheq is ERC721, Ownable {
             acceptedAuditorUsers[auditor].push(_msgSender());
             acceptedUserAuditors[_msgSender()].push(auditor);
         }
+        newAuditorWait[_msgSender()][auditor] = block.timestamp;
         emit AcceptAuditor(_msgSender(), auditor);
         return true;
     }

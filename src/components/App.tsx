@@ -10,6 +10,7 @@ function App() {
   // User Deposit
   const [depositAmount, setDepositAmount] = useState('');
   const [depositToken, setDepositToken] = useState('dai');
+  const [writeToken, setWriteToken] = useState('dai');
 
   // User Writing Cheque
   const [amount, setAmount] = useState('');
@@ -119,12 +120,12 @@ const userCheques = state.userCheques.map((chequeArray) =>
                         e.preventDefault();
                         const weiAmount = ethers.utils.parseEther(depositAmount.toString()); // convert to wei
                         if (state.cheq!==null && state.dai!==null && state.weth!==null){
-                          console.log(depositToken)
                           const token = (depositToken=='dai') ? state.dai: state.weth;
                           token.approve(state.cheq.address, weiAmount)
-                          // state.cheq.deposit(token, weiAmount);
+                          state.cheq.deposit(token, weiAmount)
                         }
-                      }}
+                      }
+                    }
                     >
                       <div className='form-group mr-sm-2'>
                       <br></br>
@@ -166,14 +167,18 @@ const userCheques = state.userCheques.map((chequeArray) =>
                       className='form-group mr-sm-2'
                       onSubmit={(e) => {
                         e.preventDefault();
-                        console.log(amount, duration, reviewer, bearer)
-                        const amountWei = ethers.utils.parseEther(amount).toString(); console.log(amountWei, typeof amountWei);
-                        state.cheq?.functions['writeCheque(uint256,uint256,address,address)'](
-                          amountWei, 
-                          duration,
-                          reviewer.toString(),
-                          bearer.toString()
-                        );
+                        if (state.cheq!==null && state.dai!==null && state.weth!==null){
+                          const token = (depositToken=='dai') ? state.dai: state.weth;
+                          // console.log(amount, duration, reviewer, bearer)
+                          const amountWei = ethers.utils.parseEther(amount).toString(); console.log(amountWei, typeof amountWei);
+                          state.cheq?.functions['writeCheque(address,uint256,uint256,address,address)'](
+                            token,
+                            amountWei,
+                            duration,
+                            reviewer.toString(),
+                            bearer.toString()
+                          );
+                        }
                       }}
                     >
                       <div>
@@ -217,6 +222,19 @@ const userCheques = state.userCheques.map((chequeArray) =>
                         />
                       </div>
                       <div>
+                      <br></br>
+                        <select
+                            id='token'
+                            className='form-control form-control-md'
+                            placeholder='dai'
+                            defaultValue={'dai'}
+                            onChange={(e) => {
+                              setWriteToken(e.target.value);
+                            }}
+                          >
+                          <option value="dai">DAI</option>
+                          <option value="weth">WETH</option>
+                        </select>
                         <br></br>
                         <input
                           id='amount'

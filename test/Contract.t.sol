@@ -26,6 +26,7 @@ contract ContractTest is Test {
         assertTrue(dai.balanceOf(address(cheq))==_amount);
     }
     function userAuditorUser(address user1, address user2, address auditor, uint256 duration) public {
+        // TODO add assertions
         vm.prank(user1);
         cheq.acceptAuditor(auditor);
         vm.prank(user2);
@@ -96,6 +97,7 @@ contract ContractTest is Test {
         assertTrue(cheq.deposits(_to, dai)==_amount);
     }
     function testFailWriteCheque(uint256 duration) public {
+        // TODO add failure when writing cheq right after adding the auditor
         uint256 _amount = 100e18;
         address auditor = vm.addr(1);
         address recipient =  vm.addr(2);
