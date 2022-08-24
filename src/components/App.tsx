@@ -1,13 +1,16 @@
 import { Tabs, Tab, Form, Card } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
-import dchequeImage from '../dcheque.png';
+import cheqImage from '../cheq.png';
 import { ethers } from 'ethers';
 import './App.css';
 import useBlockchainData from './hooks/useBlockchainData';
+import { DiagnosticCategory } from 'typescript';
 
 function App() {
   // User Deposit
   const [depositAmount, setDepositAmount] = useState('');
+  const [depositToken, setDepositToken] = useState('dai');
+  const [writeToken, setWriteToken] = useState('dai');
 
   // User Writing Cheque
   const [amount, setAmount] = useState('');
@@ -44,7 +47,7 @@ const userCheques = state.userCheques.map((chequeArray) =>
 <form
   onSubmit={(e) => {
     e.preventDefault();
-    state.dcheque?.cashCheque(chequeArray[0])}}>
+    state.cheq?.cashCheque(chequeArray[0])}}>
   <div className='form-group'>
     <Card key={chequeArray[0]} className='mt-3' bg={chequeArray[2]} text={'white'} >
       <Card.Header className='py-1'>
@@ -74,6 +77,7 @@ const userCheques = state.userCheques.map((chequeArray) =>
 </form>
 );
 
+
   return (
     <div className='text-monospace'>
       <nav className='navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow'>
@@ -82,21 +86,24 @@ const userCheques = state.userCheques.map((chequeArray) =>
           target='_blank'
           rel='noopener noreferrer'
         >
-          <img src={dchequeImage} className='App-logo' alt='logo' height='32' />
-          <b> dCheque</b>
+          <img src={cheqImage} className='App-logo' alt='logo' height='32' />
+          <b> Cheq</b>
         </a>
         <h6 style={{ color: 'rgb(255, 255, 255)'}}>
           {state.account}
         </h6>
         <h6 style={{ color: 'rgb(255, 255, 255)', marginRight: '20px' }}>
-          dCheq Balance: {state.userBalance} ETH
+          qWETH Balance: {state.qDAI}<br></br>
+          qDAI Balance: {state.qWETH}
         </h6>
       </nav>
 
       <div className='container-fluid mt-5 text-center'>
         <br></br>
-        <h1>Welcome to dCheque</h1>
-        <h6>Total deposited: {state.dChequeBalance} ETH</h6>
+        <h1>Welcome to Cheq</h1>
+        <h6>Total cheqs written: {state.cheqBalance}</h6>
+        <h6>Total weth deposited: {state.wethBalance}</h6>
+        <h6>Total dai deposited: {state.daiBalance}</h6>
         
         <br></br>
         <div className='row'>
@@ -111,16 +118,29 @@ const userCheques = state.userCheques.map((chequeArray) =>
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
-                        const weiAmount = ethers.utils.parseEther(
-                          depositAmount.toString()
-                        ); //convert to wei
-                        state.signer?.sendTransaction({
-                          to: state.dChequeAddress,
-                          value: weiAmount,
-                        });
-                      }}
+                        const weiAmount = ethers.utils.parseEther(depositAmount.toString()); // convert to wei
+                        if (state.cheq!==null && state.dai!==null && state.weth!==null){
+                          const token = (depositToken=='dai') ? state.dai: state.weth;
+                          token.approve(state.cheq.address, weiAmount)
+                          state.cheq.deposit(token, weiAmount)
+                        }
+                      }
+                    }
                     >
                       <div className='form-group mr-sm-2'>
+                      <br></br>
+                        <select
+                            id='token'
+                            className='form-control form-control-md'
+                            placeholder='dai'
+                            defaultValue={'dai'}
+                            onChange={(e) => {
+                              setDepositToken(e.target.value);
+                            }}
+                          >
+                          <option value="dai">DAI</option>
+                          <option value="weth">WETH</option>
+                        </select>
                         <br></br>
                         <input
                           id='depositAmount'
@@ -147,14 +167,18 @@ const userCheques = state.userCheques.map((chequeArray) =>
                       className='form-group mr-sm-2'
                       onSubmit={(e) => {
                         e.preventDefault();
-                        console.log(amount, duration, reviewer, bearer)
-                        const amountWei = ethers.utils.parseEther(amount).toString(); console.log(amountWei, typeof amountWei);
-                        state.dcheque?.functions['writeCheque(uint256,uint256,address,address)'](
-                          amountWei, 
-                          duration,
-                          reviewer.toString(),
-                          bearer.toString()
-                        );
+                        if (state.cheq!==null && state.dai!==null && state.weth!==null){
+                          const token = (depositToken=='dai') ? state.dai: state.weth;
+                          // console.log(amount, duration, reviewer, bearer)
+                          const amountWei = ethers.utils.parseEther(amount).toString(); console.log(amountWei, typeof amountWei);
+                          state.cheq?.functions['writeCheque(address,uint256,uint256,address,address)'](
+                            token,
+                            amountWei,
+                            duration,
+                            reviewer.toString(),
+                            bearer.toString()
+                          );
+                        }
                       }}
                     >
                       <div>
@@ -198,6 +222,19 @@ const userCheques = state.userCheques.map((chequeArray) =>
                         />
                       </div>
                       <div>
+                      <br></br>
+                        <select
+                            id='token'
+                            className='form-control form-control-md'
+                            placeholder='dai'
+                            defaultValue={'dai'}
+                            onChange={(e) => {
+                              setWriteToken(e.target.value);
+                            }}
+                          >
+                          <option value="dai">DAI</option>
+                          <option value="weth">WETH</option>
+                        </select>
                         <br></br>
                         <input
                           id='amount'
@@ -237,11 +274,11 @@ const userCheques = state.userCheques.map((chequeArray) =>
                       e.preventDefault();
                       if (userType2.checked) {
                         // user accepts this auditor
-                        state.dcheque?.acceptAuditor(acceptedAddress);
+                        state.cheq?.acceptAuditor(acceptedAddress);
                       } else {
                         // auditor accepts this user
-                        state.dcheque?.acceptUser(acceptedAddress);
-                        state.dcheque?.setAllowedDuration(60 * 60 * 24 * 7);
+                        state.cheq?.acceptUser(acceptedAddress);
+                        state.cheq?.setAllowedDuration(60 * 60 * 24 * 7);
                       }
                     }}
                   >
