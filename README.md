@@ -1,4 +1,4 @@
-# CryptoCheque
+# Cheq v0.0
 Deposit ETH and write cheques to others that are time locked and can be reversed
 
 1. Deposit ETH into the dApp
