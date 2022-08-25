@@ -26,7 +26,6 @@ contract ContractTest is Test {
         assertTrue(dai.balanceOf(address(cheq))==_amount);
     }
     function userAuditorUser(address user1, address user2, address auditor, uint256 duration) public {
-        // TODO add assertions
         vm.prank(user1);
         cheq.acceptAuditor(auditor);
         vm.prank(user2);
@@ -36,6 +35,7 @@ contract ContractTest is Test {
         cheq.acceptUser(user2);
         cheq.setAllowedDuration(duration);
         vm.stopPrank();
+        vm.warp(7 days + 100);
     }
     function writeCheque(uint256 _amount, address auditor, address recipient, uint256 duration) public returns (uint256){
         // Set up params and state 
@@ -280,12 +280,13 @@ contract ContractTest is Test {
         address recipient =  vm.addr(2);
         address trusted = vm.addr(3);
         uint256 duration = 60*60*24*7;
-        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);
 
         // Set drawer's trusted account
         vm.warp(cheq.trustedAccountCooldown()+1);
         vm.prank(msg.sender);
         cheq.setTrustedAccount(trusted);
+
+        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);
 
         // Void cheque
         assertTrue(cheq.deposits(trusted, dai)==0);
