@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { ethers } from 'ethers';
 import Cheq from '../../out/Cheq.sol/Cheq.json';
+import CheqAddress from '../../out/Cheq.sol/CheqAddress.json';
 import erc20 from '../../out/ERC20.sol/TestERC20.json';
 
 type BlockchainData = {
@@ -97,7 +98,7 @@ const useBlockchainData = () => {
       const [provider, signer, account, ] = await connectWallet(); //console.log(provider, signer, account, netId)
       try {
         // Load contracts
-        const cheqAddress: string = Cheq.networks['5777'].address;
+        const cheqAddress: string = CheqAddress['deployedTo'];
         console.log(cheqAddress);
         const cheq = new ethers.Contract(
           cheqAddress,
