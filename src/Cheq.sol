@@ -144,7 +144,7 @@ contract Cheq is ERC721, Ownable {
         uint256 _amount
     ) external {
         uint256 fromBalance = deposits[_msgSender()][_token];
-        require(fromBalance >= _amount, "transfer amount exceeds balance");
+        require(fromBalance < _amount, "transfer amount exceeds balance");
         unchecked {
             deposits[_msgSender()][_token] = fromBalance - _amount;
         }
@@ -207,11 +207,11 @@ contract Cheq is ERC721, Ownable {
         returns (uint256)
     {
         require(
-            deposits[_msgSender()][_token] >= amount,
+            deposits[_msgSender()][_token] <= amount,
             "Insufficient balance"
         );
         require(
-            newAuditorWait[_msgSender()][auditor] + 7 days <= block.timestamp,
+            newAuditorWait[_msgSender()][auditor] + 7 days < block.timestamp,
             "New Auditor"
         );
         deposits[_msgSender()][_token] -= amount;
