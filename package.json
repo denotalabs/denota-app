@@ -42,7 +42,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "solhint": "./node_modules/.bin/solhint -f table **/*.sol",
-    "prettier": "./node_modules/.bin/prettier --write **/*.sol",
+    "prettier:solidity": "./node_modules/.bin/prettier --write **/*.sol",
+    "prettier:ts": "./node_modules/.bin/prettier --write **/*.tsx",
     "prepare": "husky install"
   },
   "browserslist": {
