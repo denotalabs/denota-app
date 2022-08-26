@@ -1,30 +1,30 @@
-import { Tabs, Tab, Form, Card } from 'react-bootstrap';
-import React, { useEffect, useState } from 'react';
-import cheqImage from '../cheq.png';
-import { ethers } from 'ethers';
-import './App.css';
-import useBlockchainData from './hooks/useBlockchainData';
-import { DiagnosticCategory } from 'typescript';
+import { Tabs, Tab, Form, Card } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import cheqImage from "../cheq.png";
+import { ethers } from "ethers";
+import "./App.css";
+import useBlockchainData from "./hooks/useBlockchainData";
+import { DiagnosticCategory } from "typescript";
 
 function App() {
   // User Deposit
-  const [depositAmount, setDepositAmount] = useState('');
-  const [depositToken, setDepositToken] = useState('dai');
-  const [writeToken, setWriteToken] = useState('dai');
+  const [depositAmount, setDepositAmount] = useState("");
+  const [depositToken, setDepositToken] = useState("dai");
+  const [writeToken, setWriteToken] = useState("dai");
 
   // User Writing Cheque
-  const [amount, setAmount] = useState('');
-  const [reviewer, setReviewer] = useState('');
-  const [bearer, setBearer] = useState('');
-  const [duration, setDuration] = useState('');
+  const [amount, setAmount] = useState("");
+  const [reviewer, setReviewer] = useState("");
+  const [bearer, setBearer] = useState("");
+  const [duration, setDuration] = useState("");
 
   // User Cashing Cheque
   // const [chequeID, setChequeID] = useState('');  // Depositing doesn't yield a chequeID
 
   // User/Auditor Accepting Each Other
-  const [userType2, setUserType2] = useState<any>('');
-  const [userType3, setUserType3] = useState('');
-  const [acceptedAddress, setAcceptedAddress] = useState('');
+  const [userType2, setUserType2] = useState<any>("");
+  const [userType3, setUserType3] = useState("");
+  const [acceptedAddress, setAcceptedAddress] = useState("");
 
   const { state, loadBlockchainData } = useBlockchainData();
 
@@ -32,85 +32,91 @@ function App() {
     loadBlockchainData();
   }, [loadBlockchainData]);
 
-  const userAuditors = state.acceptedUserAuditors.map((auditor) =>
-  <li key={auditor}>
-    {auditor.slice(2, 10)}...
-  </li>
-);
-const auditorUsers = state.acceptedAuditorUsers.map((user) =>
-<li key={user}>
-  {user.slice(2, 10)}...
-</li>
-);
-// Cheque States: Mature: green, Pending: yellow, Voided: red
-const userCheques = state.userCheques.map((chequeArray) =>
-<form
-  onSubmit={(e) => {
-    e.preventDefault();
-    state.cheq?.cashCheque(chequeArray[0])}}>
-  <div className='form-group'>
-    <Card key={chequeArray[0]} className='mt-3' bg={chequeArray[2]} text={'white'} >
-      <Card.Header className='py-1'>
-        <div className='float-left'>Cheque ID: #{chequeArray[0]}</div>
-        <div className='float-right' color='grey'>{chequeArray[3]}</div>
-      </Card.Header>
-      <Card.Body className='py-1'>
-          Signer: {chequeArray[1].drawer.slice(2, 10)}...<br></br>
-          Recipient: {chequeArray[1].recipient.slice(2, 10)}...<br></br>
-          Owner: {chequeArray[1].bearer.slice(2, 10)}...<br></br>
-          Auditor: {chequeArray[1].auditor.slice(2, 10)}...<br></br>
-          Amount: {ethers.utils.formatEther(chequeArray[1].amount).toString()} Ether<br></br>
-          {/* Maturation Date: {chequeArray[1].expiry.toNumber()}<br></br> */}
-      </Card.Body>
-      <Card.Header className='p-0 m-0'>  
-        <div className=''>
-          <button type='submit' className='btn btn-dark float-left col-6'>
-            Cash Cheque
-          </button>
-          <button className='btn btn-danger float-right col-6'>
-            Dispute
-          </button>
-        </div>
-      </Card.Header>
-    </Card>
-  </div>
-</form>
-);
-
+  const userAuditors = state.acceptedUserAuditors.map((auditor) => (
+    <li key={auditor}>{auditor.slice(2, 10)}...</li>
+  ));
+  const auditorUsers = state.acceptedAuditorUsers.map((user) => (
+    <li key={user}>{user.slice(2, 10)}...</li>
+  ));
+  // Cheque States: Mature: green, Pending: yellow, Voided: red
+  const userCheques = state.userCheques.map((chequeArray) => (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        state.cheq?.cashCheque(chequeArray[0]);
+      }}
+    >
+      <div className="form-group">
+        <Card
+          key={chequeArray[0]}
+          className="mt-3"
+          bg={chequeArray[2]}
+          text={"white"}
+        >
+          <Card.Header className="py-1">
+            <div className="float-left">Cheque ID: #{chequeArray[0]}</div>
+            <div className="float-right" color="grey">
+              {chequeArray[3]}
+            </div>
+          </Card.Header>
+          <Card.Body className="py-1">
+            Signer: {chequeArray[1].drawer.slice(2, 10)}...<br></br>
+            Recipient: {chequeArray[1].recipient.slice(2, 10)}...<br></br>
+            Owner: {chequeArray[1].bearer.slice(2, 10)}...<br></br>
+            Auditor: {chequeArray[1].auditor.slice(2, 10)}...<br></br>
+            Amount: {ethers.utils
+              .formatEther(chequeArray[1].amount)
+              .toString()}{" "}
+            Ether<br></br>
+            {/* Maturation Date: {chequeArray[1].expiry.toNumber()}<br></br> */}
+          </Card.Body>
+          <Card.Header className="p-0 m-0">
+            <div className="">
+              <button type="submit" className="btn btn-dark float-left col-6">
+                Cash Cheque
+              </button>
+              <button className="btn btn-danger float-right col-6">
+                Dispute
+              </button>
+            </div>
+          </Card.Header>
+        </Card>
+      </div>
+    </form>
+  ));
 
   return (
-    <div className='text-monospace'>
-      <nav className='navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow'>
+    <div className="text-monospace">
+      <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <a
-          className='navbar-brand col-sm-3 col-md-2 mr-0'
-          target='_blank'
-          rel='noopener noreferrer'
+          className="navbar-brand col-sm-3 col-md-2 mr-0"
+          target="_blank"
+          rel="noopener noreferrer"
         >
-          <img src={cheqImage} className='App-logo' alt='logo' height='32' />
+          <img src={cheqImage} className="App-logo" alt="logo" height="32" />
           <b> Cheq</b>
         </a>
-        <h6 style={{ color: 'rgb(255, 255, 255)'}}>
-          {state.account}
-        </h6>
-        <h6 style={{ color: 'rgb(255, 255, 255)', marginRight: '20px' }}>
-          qWETH Balance: {state.qDAI}<br></br>
+        <h6 style={{ color: "rgb(255, 255, 255)" }}>{state.account}</h6>
+        <h6 style={{ color: "rgb(255, 255, 255)", marginRight: "20px" }}>
+          qWETH Balance: {state.qDAI}
+          <br></br>
           qDAI Balance: {state.qWETH}
         </h6>
       </nav>
 
-      <div className='container-fluid mt-5 text-center'>
+      <div className="container-fluid mt-5 text-center">
         <br></br>
         <h1>Welcome to Cheq</h1>
         <h6>Total cheqs written: {state.cheqBalance}</h6>
         <h6>Total weth deposited: {state.wethBalance}</h6>
         <h6>Total dai deposited: {state.daiBalance}</h6>
-        
+
         <br></br>
-        <div className='row'>
-          <main role='main' className='col-lg-12 d-flex text-center'>
-            <div className='content mr-auto ml-auto'>
-              <Tabs defaultActiveKey='deposit' id='uncontrolled-tab-example'>
-                <Tab eventKey='deposit' title='Deposit'>
+        <div className="row">
+          <main role="main" className="col-lg-12 d-flex text-center">
+            <div className="content mr-auto ml-auto">
+              <Tabs defaultActiveKey="deposit" id="uncontrolled-tab-example">
+                <Tab eventKey="deposit" title="Deposit">
                   <div>
                     <br></br>
                     How much do you want to deposit?
@@ -118,60 +124,76 @@ const userCheques = state.userCheques.map((chequeArray) =>
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
-                        const weiAmount = ethers.utils.parseEther(depositAmount.toString()); // convert to wei
-                        if (state.cheq!==null && state.dai!==null && state.weth!==null){
-                          const token = (depositToken=='dai') ? state.dai: state.weth;
-                          token.approve(state.cheq.address, weiAmount)
-                          state.cheq.deposit(token, weiAmount)
+                        const weiAmount = ethers.utils.parseEther(
+                          depositAmount.toString()
+                        ); // convert to wei
+                        if (
+                          state.cheq !== null &&
+                          state.dai !== null &&
+                          state.weth !== null
+                        ) {
+                          const token =
+                            depositToken == "dai" ? state.dai : state.weth;
+                          token.approve(state.cheq.address, weiAmount);
+                          state.cheq.deposit(token, weiAmount);
                         }
-                      }
-                    }
+                      }}
                     >
-                      <div className='form-group mr-sm-2'>
-                      <br></br>
+                      <div className="form-group mr-sm-2">
+                        <br></br>
                         <select
-                            id='token'
-                            className='form-control form-control-md'
-                            placeholder='dai'
-                            defaultValue={'dai'}
-                            onChange={(e) => {
-                              setDepositToken(e.target.value);
-                            }}
-                          >
+                          id="token"
+                          className="form-control form-control-md"
+                          placeholder="dai"
+                          defaultValue={"dai"}
+                          onChange={(e) => {
+                            setDepositToken(e.target.value);
+                          }}
+                        >
                           <option value="dai">DAI</option>
                           <option value="weth">WETH</option>
                         </select>
                         <br></br>
                         <input
-                          id='depositAmount'
-                          step='0.01'
-                          type='number'
-                          className='form-control form-control-md'
-                          placeholder='Amount...'
+                          id="depositAmount"
+                          step="0.01"
+                          type="number"
+                          className="form-control form-control-md"
+                          placeholder="Amount..."
                           required
                           onChange={(e) => {
                             setDepositAmount(e.target.value);
                           }}
                         />
                       </div>
-                      <button type='submit' className='btn btn-primary'>
+                      <button type="submit" className="btn btn-primary">
                         Deposit
                       </button>
                     </form>
                   </div>
                 </Tab>
-                <Tab eventKey='write' title='Write'>
+                <Tab eventKey="write" title="Write">
                   <div>
                     <br></br>
                     <form
-                      className='form-group mr-sm-2'
+                      className="form-group mr-sm-2"
                       onSubmit={(e) => {
                         e.preventDefault();
-                        if (state.cheq!==null && state.dai!==null && state.weth!==null){
-                          const token = (depositToken=='dai') ? state.dai: state.weth;
+                        if (
+                          state.cheq !== null &&
+                          state.dai !== null &&
+                          state.weth !== null
+                        ) {
+                          const token =
+                            depositToken == "dai" ? state.dai : state.weth;
                           // console.log(amount, duration, reviewer, bearer)
-                          const amountWei = ethers.utils.parseEther(amount).toString(); console.log(amountWei, typeof amountWei);
-                          state.cheq?.functions['writeCheque(address,uint256,uint256,address,address)'](
+                          const amountWei = ethers.utils
+                            .parseEther(amount)
+                            .toString();
+                          console.log(amountWei, typeof amountWei);
+                          state.cheq?.functions[
+                            "writeCheque(address,uint256,uint256,address,address)"
+                          ](
                             token,
                             amountWei,
                             duration,
@@ -184,10 +206,10 @@ const userCheques = state.userCheques.map((chequeArray) =>
                       <div>
                         <br></br>
                         <input
-                          id='bearer'
-                          type='text'
-                          className='form-control form-control-md'
-                          placeholder='Recieving Account...'
+                          id="bearer"
+                          type="text"
+                          className="form-control form-control-md"
+                          placeholder="Recieving Account..."
                           required
                           onChange={(e) => {
                             setBearer(e.target.value);
@@ -197,10 +219,10 @@ const userCheques = state.userCheques.map((chequeArray) =>
                       <div>
                         <br></br>
                         <input
-                          id='reviewer'
-                          type='text'
-                          className='form-control form-control-md'
-                          placeholder='Reviewing Account...'
+                          id="reviewer"
+                          type="text"
+                          className="form-control form-control-md"
+                          placeholder="Reviewing Account..."
                           required
                           onChange={(e) => {
                             setReviewer(e.target.value);
@@ -210,11 +232,11 @@ const userCheques = state.userCheques.map((chequeArray) =>
                       <div>
                         <br></br>
                         <input
-                          id='duration'
-                          type='number'
-                          step='1'
-                          className='form-control form-control-md'
-                          placeholder='To Expire In _ Seconds'
+                          id="duration"
+                          type="number"
+                          step="1"
+                          className="form-control form-control-md"
+                          placeholder="To Expire In _ Seconds"
                           required
                           onChange={(e) => {
                             setDuration(e.target.value);
@@ -222,41 +244,41 @@ const userCheques = state.userCheques.map((chequeArray) =>
                         />
                       </div>
                       <div>
-                      <br></br>
+                        <br></br>
                         <select
-                            id='token'
-                            className='form-control form-control-md'
-                            placeholder='dai'
-                            defaultValue={'dai'}
-                            onChange={(e) => {
-                              setWriteToken(e.target.value);
-                            }}
-                          >
+                          id="token"
+                          className="form-control form-control-md"
+                          placeholder="dai"
+                          defaultValue={"dai"}
+                          onChange={(e) => {
+                            setWriteToken(e.target.value);
+                          }}
+                        >
                           <option value="dai">DAI</option>
                           <option value="weth">WETH</option>
                         </select>
                         <br></br>
                         <input
-                          id='amount'
-                          type='number'
-                          step='0.01'
-                          className='form-control form-control-md'
-                          placeholder='Amount...'
+                          id="amount"
+                          type="number"
+                          step="0.01"
+                          className="form-control form-control-md"
+                          placeholder="Amount..."
                           required
                           onChange={(e) => {
                             setAmount(e.target.value);
                           }}
                         />
                       </div>
-                      <div className='form-group mt-5'>
-                        <button type='submit' className='btn btn-primary'>
+                      <div className="form-group mt-5">
+                        <button type="submit" className="btn btn-primary">
                           Send Cheque
                         </button>
                       </div>
                     </form>
                   </div>
                 </Tab>
-                 <Tab eventKey='cash' title='Cash'>
+                <Tab eventKey="cash" title="Cash">
                   <div>
                     <br></br>
                     You have {state.userChequeCount} Cheque(s):
@@ -264,7 +286,7 @@ const userCheques = state.userCheques.map((chequeArray) =>
                     {userCheques}
                   </div>
                 </Tab>
-                <Tab eventKey='Auditors' title='Auditors'>
+                <Tab eventKey="Auditors" title="Auditors">
                   <br></br>
                   You are a(n) _ and adding account for...
                   <br></br>
@@ -282,43 +304,43 @@ const userCheques = state.userCheques.map((chequeArray) =>
                       }
                     }}
                   >
-                    <div key={`inline-${'radio'}`} className='mb-3'>
+                    <div key={`inline-${"radio"}`} className="mb-3">
                       <Form.Check
                         ref={(input: any) => {
                           setUserType2(input);
                         }}
                         defaultChecked={true}
                         inline
-                        label='User'
-                        value='1'
-                        name='group1'
-                        type={'radio'}
-                        id={`inline-${'radio'}-2`}
+                        label="User"
+                        value="1"
+                        name="group1"
+                        type={"radio"}
+                        id={`inline-${"radio"}-2`}
                       />
                       <Form.Check
                         ref={(input: any) => {
                           setUserType3(input);
                         }}
                         inline
-                        label='Auditor'
-                        value='2'
-                        name='group1'
-                        type={'radio'}
-                        id={`inline-${'radio'}-3`}
+                        label="Auditor"
+                        value="2"
+                        name="group1"
+                        type={"radio"}
+                        id={`inline-${"radio"}-3`}
                       />
                     </div>
                     <input
-                      id='acceptedAddress'
-                      type='text'
-                      className='form-control form-control-md mt-2'
-                      placeholder='Address...'
+                      id="acceptedAddress"
+                      type="text"
+                      className="form-control form-control-md mt-2"
+                      placeholder="Address..."
                       required
                       onChange={(e) => {
                         setAcceptedAddress(e.target.value);
                       }}
                     />
                     <div>
-                      <button type='submit' className='btn btn-primary mt-3'>
+                      <button type="submit" className="btn btn-primary mt-3">
                         Add Address
                       </button>
                     </div>
