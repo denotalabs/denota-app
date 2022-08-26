@@ -158,7 +158,7 @@ contract Cheq is ERC721, Ownable {
     function _feeOnTransfer(uint256 chequeID) private {
         Cheque storage cheque = chequeInfo[chequeID];
         IERC20 _token = cheque.token;
-        require(cheque.amount >= protocolFee[_token]);
+        require(cheque.amount >= protocolFee[_token], "too small for transfer");
         unchecked {
             cheque.amount = cheque.amount - protocolFee[_token];
         }
