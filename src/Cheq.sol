@@ -21,7 +21,8 @@ contract Cheq is ERC721, Ownable {
     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
     mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User
     mapping(address => mapping(uint256 => bool)) public auditorDurations; // Auditor voiding periods
-    mapping(address => mapping(address => uint256)) public acceptedAuditorTimestamp;
+    mapping(address => mapping(address => uint256))
+        public acceptedAuditorTimestamp;
     mapping(address => address[]) public acceptedUserAuditors; // Auditor addresses that user accepts
     mapping(address => address[]) public acceptedAuditorUsers; // User addresses that auditor accepts
 
@@ -207,11 +208,12 @@ contract Cheq is ERC721, Ownable {
         returns (uint256)
     {
         require(
-             amount <= deposits[_msgSender()][_token],
+            amount <= deposits[_msgSender()][_token],
             "Insufficient balance"
         );
         require(
-             block.timestamp >= acceptedAuditorTimestamp[_msgSender()][auditor] + 24 hours,
+            block.timestamp >=
+                acceptedAuditorTimestamp[_msgSender()][auditor] + 24 hours,
             "New Auditor cooldown"
         );
         deposits[_msgSender()][_token] -= amount;
@@ -318,8 +320,10 @@ contract Cheq is ERC721, Ownable {
 
     function setTrustedAccount(address account) external {
         // User will set this
-        require(lastTrustedChange[_msgSender()] == 0 ||
-            (block.timestamp >= lastTrustedChange[_msgSender()] + trustedAccountCooldown),
+        require(
+            lastTrustedChange[_msgSender()] == 0 ||
+                (block.timestamp >=
+                    lastTrustedChange[_msgSender()] + trustedAccountCooldown),
             "Trusted account cooldown"
         );
         trustedAccount[_msgSender()] = account;
