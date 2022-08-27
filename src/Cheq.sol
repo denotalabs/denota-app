@@ -21,7 +21,7 @@ contract Cheq is ERC721, Ownable {
     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
     mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User
     mapping(address => mapping(uint256 => bool)) public auditorDurations; // Auditor voiding periods
-    mapping(address => mapping(address => uint256)) public newAuditorWait;
+    mapping(address => mapping(address => uint256)) public acceptedAuditorTimestamp;
     mapping(address => address[]) public acceptedUserAuditors; // Auditor addresses that user accepts
     mapping(address => address[]) public acceptedAuditorUsers; // User addresses that auditor accepts
 
@@ -144,7 +144,7 @@ contract Cheq is ERC721, Ownable {
         uint256 _amount
     ) external {
         uint256 fromBalance = deposits[_msgSender()][_token];
-        require(fromBalance < _amount, "transfer amount exceeds balance");
+        require(_amount <= fromBalance, "transfer amount exceeds balance");
         unchecked {
             deposits[_msgSender()][_token] = fromBalance - _amount;
         }
@@ -207,12 +207,12 @@ contract Cheq is ERC721, Ownable {
         returns (uint256)
     {
         require(
-            deposits[_msgSender()][_token] <= amount,
+             amount <= deposits[_msgSender()][_token],
             "Insufficient balance"
         );
         require(
-            newAuditorWait[_msgSender()][auditor] + 7 days < block.timestamp,
-            "New Auditor"
+             block.timestamp >= acceptedAuditorTimestamp[_msgSender()][auditor] + 24 hours,
+            "New Auditor cooldown"
         );
         deposits[_msgSender()][_token] -= amount;
         _safeMint(recipient, totalSupply);
@@ -232,7 +232,7 @@ contract Cheq is ERC721, Ownable {
     function cashCheque(uint256 chequeID) external {
         Cheque storage cheque = chequeInfo[chequeID];
         require(_isApprovedOrOwner(_msgSender(), chequeID), "Non-owner");
-        require(cheque.expiry <= block.timestamp, "Premature");
+        require(block.timestamp >= cheque.expiry, "Premature");
         bool success = cheque.token.transfer(_msgSender(), cheque.amount);
         require(success, "Transfer failed.");
         _burn(chequeID);
@@ -276,7 +276,7 @@ contract Cheq is ERC721, Ownable {
             acceptedAuditorUsers[auditor].push(_msgSender());
             acceptedUserAuditors[_msgSender()].push(auditor);
         }
-        newAuditorWait[_msgSender()][auditor] = block.timestamp;
+        acceptedAuditorTimestamp[_msgSender()][auditor] = block.timestamp;
         emit AcceptAuditor(_msgSender(), auditor);
         return true;
     }
@@ -318,9 +318,8 @@ contract Cheq is ERC721, Ownable {
 
     function setTrustedAccount(address account) external {
         // User will set this
-        require(
-            (lastTrustedChange[_msgSender()] + trustedAccountCooldown) <
-                block.timestamp,
+        require(lastTrustedChange[_msgSender()] == 0 ||
+            (block.timestamp >= lastTrustedChange[_msgSender()] + trustedAccountCooldown),
             "Trusted account cooldown"
         );
         trustedAccount[_msgSender()] = account;

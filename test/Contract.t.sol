@@ -21,14 +21,14 @@ contract ContractTest is Test {
     /*//////////////////////////////////////////////////////////////
                            HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    function deposit(uint256 _amount, address _to) public {
+    function depositHelper(uint256 _amount, address _to) public {
         dai.approve(address(cheq), _amount); // msg.sender grants cheq permission to transfer erc20 to cheq's address
         assertTrue(dai.balanceOf(address(cheq)) == 0);
         cheq.deposit(dai, _amount, _to); // cheq transfers msg.sender's erc20 to cheq's address and give's it to _to's deposit mapping
         assertTrue(dai.balanceOf(address(cheq)) == _amount);
     }
 
-    function userAuditorUser(
+    function setupAuditorForTransaction(
         address user1,
         address user2,
         address auditor,
@@ -43,19 +43,20 @@ contract ContractTest is Test {
         cheq.acceptUser(user2);
         cheq.setAllowedDuration(duration);
         vm.stopPrank();
-        vm.warp(7 days + 100);
+        vm.warp(24 hours + 100);
     }
 
-    function writeCheque(
+    function writeChequeHelper(
         uint256 _amount,
         address auditor,
         address recipient,
         uint256 duration
     ) public returns (uint256) {
         // Set up params and state
-        deposit(_amount, msg.sender);
-        userAuditorUser(msg.sender, recipient, auditor, duration); // Drawer-Auditor-Recipient all accept
+        depositHelper(_amount, msg.sender);
+        setupAuditorForTransaction(msg.sender, recipient, auditor, duration); // Drawer-Auditor-Recipient all accept
         assertTrue(cheq.balanceOf(recipient) == 0); // writing cheque should reduce balance
+        assertTrue(block.timestamp >= cheq.acceptedAuditorTimestamp(msg.sender, auditor) + 24 hours); // auditor waiting period has passed
         vm.prank(msg.sender);
         uint256 chequeID = cheq.writeCheque(
             dai,
@@ -70,7 +71,7 @@ contract ContractTest is Test {
         return chequeID;
     }
 
-    function voidCheque(
+    function voidChequeHelper(
         address drawer,
         address auditor,
         uint256 chequeID,
@@ -119,7 +120,7 @@ contract ContractTest is Test {
     function testDirectTransfer() public {
         //address _to
         uint256 _amount = 100e18;
-        deposit(_amount, msg.sender);
+        depositHelper(_amount, msg.sender);
         assertTrue(cheq.deposits(msg.sender, dai) == _amount);
         // Transfer deposit to another user
         address _to = address(1);
@@ -140,7 +141,7 @@ contract ContractTest is Test {
         // Can't write cheques with no balance
         cheq.writeCheque(dai, _amount, duration, auditor, recipient);
         // Can't write cheques with insufficient balance
-        deposit(_amount, msg.sender);
+        depositHelper(_amount, msg.sender);
         cheq.writeCheque(dai, _amount + 1, duration, auditor, recipient);
         // Can't write cheques without accepted auditor
         cheq.writeCheque(dai, _amount, duration, auditor, recipient);
@@ -167,8 +168,8 @@ contract ContractTest is Test {
         address auditor = vm.addr(1);
         address recipient = vm.addr(2);
         uint256 duration = 60 * 60 * 24 * 7;
-        deposit(_amount, msg.sender);
-        userAuditorUser(msg.sender, recipient, auditor, duration);
+        depositHelper(_amount, msg.sender);
+        setupAuditorForTransaction(msg.sender, recipient, auditor, duration);
         assertTrue(cheq.balanceOf(msg.sender) == 0);
         assertTrue(cheq.balanceOf(recipient) == 0);
         // Write cheque
@@ -209,7 +210,7 @@ contract ContractTest is Test {
         address degen = vm.addr(3);
         uint256 duration = 60 * 60 * 24 * 7;
         assertTrue(cheq.balanceOf(recipient) == 0);
-        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration); // msg.sender writes this to the recipient
+        uint256 chequeID = writeChequeHelper(_amount, auditor, recipient, duration); // msg.sender writes this to the recipient
         assertTrue(cheq.balanceOf(recipient) == 1);
         uint256 chequeAmount = cheq.chequeAmount(chequeID);
         assertTrue(chequeAmount == _amount);
@@ -237,7 +238,7 @@ contract ContractTest is Test {
         address degen = vm.addr(3);
         uint256 duration = 60 * 60 * 24 * 7;
         assertTrue(cheq.balanceOf(recipient) == 0);
-        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration); // msg.sender writes this to the recipient
+        uint256 chequeID = writeChequeHelper(_amount, auditor, recipient, duration); // msg.sender writes this to the recipient
         assertTrue(cheq.balanceOf(recipient) == 1);
         uint256 chequeAmount = cheq.chequeAmount(chequeID);
         assertTrue(chequeAmount == _amount);
@@ -262,7 +263,7 @@ contract ContractTest is Test {
         address auditor = vm.addr(1);
         address recipient = vm.addr(2);
         uint256 duration = 60 * 60 * 24 * 7;
-        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration); // Deposits, handshakes, and writes cheque
+        uint256 chequeID = writeChequeHelper(_amount, auditor, recipient, duration); // Deposits, handshakes, and writes cheque
 
         assertTrue(cheq.deposits(recipient, dai) == 0);
         assertTrue(dai.balanceOf(recipient) == 0);
@@ -280,7 +281,7 @@ contract ContractTest is Test {
         address recipient = vm.addr(2);
         address degen = vm.addr(3);
         uint256 duration = 60 * 60 * 24 * 7;
-        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration); // msg.sender writes this to the recipient
+        uint256 chequeID = writeChequeHelper(_amount, auditor, recipient, duration); // msg.sender writes this to the recipient
 
         // Transfer cheque to degen account
         assertTrue(cheq.balanceOf(degen) == 0); // degen owns no cheques
@@ -312,8 +313,8 @@ contract ContractTest is Test {
         address auditor = vm.addr(1);
         address recipient = vm.addr(2);
         uint256 duration = 60 * 60 * 24 * 7;
-        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);
-        voidCheque(msg.sender, auditor, chequeID, recipient);
+        uint256 chequeID = writeChequeHelper(_amount, auditor, recipient, duration);
+        voidChequeHelper(msg.sender, auditor, chequeID, recipient);
 
         // Ensure cheque can't be cashed
         vm.warp(block.timestamp + duration + 1);
@@ -341,8 +342,7 @@ contract ContractTest is Test {
         vm.prank(msg.sender);
         cheq.setTrustedAccount(trusted);
 
-        uint256 chequeID = writeCheque(_amount, auditor, recipient, duration);
-
+        uint256 chequeID = writeChequeHelper(_amount, auditor, recipient, duration);   
         // Void cheque
         assertTrue(cheq.deposits(trusted, dai) == 0);
         assertTrue(cheq.balanceOf(recipient) == 1); // recipient owns cheque
@@ -383,7 +383,7 @@ contract ContractTest is Test {
         address auditor = vm.addr(1);
         address recipient = vm.addr(2);
         uint256 duration = 60 * 60 * 24 * 7;
-        userAuditorUser(msg.sender, recipient, auditor, duration);
+        setupAuditorForTransaction(msg.sender, recipient, auditor, duration);
         address[] memory auditorsUsers = cheq.getAcceptedAuditorUsers(auditor);
         assertTrue(auditorsUsers.length == 2);
         assertTrue(auditorsUsers[0] == msg.sender);
