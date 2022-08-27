@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
 import { ethers } from "ethers";
+
 import Cheq from "../../out/Cheq.sol/Cheq.json";
 import CheqAddress from "../../out/Cheq.sol/CheqAddress.json";
 import erc20 from "../../out/ERC20.sol/TestERC20.json";
 
-type BlockchainData = {
+export type BlockchainData = {
   account: string;
   cheq: null | ethers.Contract;
   dai: null | ethers.Contract;
@@ -25,7 +26,7 @@ type BlockchainData = {
 };
 
 const useBlockchainData = () => {
-  const [state, setState] = useState<BlockchainData>({
+  const [blockchainState, setBlockchainState] = useState<BlockchainData>({
     account: "",
     cheq: null,
     dai: null,
@@ -151,7 +152,7 @@ const useBlockchainData = () => {
         );
         const cheqTotalSupply = await cheq.totalSupply;
 
-        setState({
+        setBlockchainState({
           signer: signer,
           account: account,
           cheq: cheq,
@@ -180,7 +181,7 @@ const useBlockchainData = () => {
     }
   }, [connectWallet]);
 
-  return { state, loadBlockchainData };
+  return { blockchainState, loadBlockchainData };
 };
 
 export default useBlockchainData;
