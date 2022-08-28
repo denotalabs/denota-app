@@ -20,20 +20,19 @@ function App() {
   }, [loadBlockchainData]);
 
   return (
-    <div className="text-monospace">
+    <div>
       <Navbar blockchainState={blockchainState} />
 
       <div className="container-fluid mt-5 text-center">
+        
         <br></br>
         <h1>Welcome to Cheq</h1>
         <h6>Total cheqs written: {blockchainState.cheqBalance}</h6>
         <h6>Total weth deposited: {blockchainState.wethBalance}</h6>
         <h6>Total dai deposited: {blockchainState.daiBalance}</h6>
-
         <br></br>
-        <div className="row">
-          <main role="main" className="col-lg-12 d-flex text-center">
-            <div className="content mr-auto ml-auto">
+        
+            <div className="tabs">
               <Tabs id="uncontrolled-tab-example">
                 <Tab eventKey="deposit" title="Deposit">
                   <DepositTab blockchainState={blockchainState} />
@@ -49,8 +48,6 @@ function App() {
                 </Tab>
               </Tabs>
             </div>
-          </main>
-        </div>
       </div>
     </div>
   );
