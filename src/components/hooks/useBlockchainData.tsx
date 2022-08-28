@@ -68,14 +68,14 @@ const useBlockchainData = () => {
 
   const getUserCheques = useCallback(
     async (
-      dCheqContract: ethers.Contract,
+      cheqContract: ethers.Contract,
       account: string,
       userChequeCount: number
     ) => {
       const userCheques = [];
       let cheque, state, description;
       for (let i = 1; userCheques.length < userChequeCount; i++) {
-        cheque = await dCheqContract.cheques(i);
+        cheque = await cheqContract.cheques(i);
         console.log(cheque.expiry.toNumber() > Date.now() / 1000);
         if (cheque.bearer == account) {
           // Cheques In User's Possesion
