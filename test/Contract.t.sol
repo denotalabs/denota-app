@@ -365,7 +365,7 @@ contract ContractTest is Test {
         address trusted = vm.addr(3);
         uint256 duration = 60 * 60 * 24 * 7 + cheq.trustedAccountCooldown();
 
-     // Set drawer's trusted account
+        // Set drawer's trusted account
         vm.warp(block.timestamp + cheq.trustedAccountCooldown() + 1);
         vm.prank(msg.sender);
         cheq.setTrustedAccount(trusted);
