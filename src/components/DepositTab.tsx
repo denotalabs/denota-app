@@ -30,7 +30,7 @@ function DepositTab({ blockchainState }: Props) {
                 ? blockchainState.dai
                 : blockchainState.weth;
             token.approve(blockchainState.cheq.address, weiAmount);
-            blockchainState.cheq.deposit(token, weiAmount);
+            blockchainState.cheq?.functions['deposit(address,uint256)'](token, weiAmount);
           }
         }}
       >
