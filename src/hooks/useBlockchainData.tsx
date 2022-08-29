@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import Cheq from "../out/Cheq.sol/Cheq.json";
 import CheqAddress from "../out/Cheq.sol/CheqAddress.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
+import DaiAddress from "../out/ERC20.sol/DaiAddress.json";
+import WethAddress from "../out/ERC20.sol/WethAddress.json";
 
 export type BlockchainData = {
   account: string;
@@ -112,8 +114,16 @@ const useBlockchainData = () => {
         // Load contracts
         const cheqAddress: string = CheqAddress["deployedTo"];
         const cheq = new ethers.Contract(cheqAddress, Cheq.abi, signer);
-        const weth = new ethers.Contract(WethAddress["deployedTo"], erc20.abi, signer);
-        const dai = new ethers.Contract(DaiAddress["deployedTo"], erc20.abi, signer);
+        const weth = new ethers.Contract(
+          WethAddress["deployedTo"],
+          erc20.abi,
+          signer
+        );
+        const dai = new ethers.Contract(
+          DaiAddress["deployedTo"],
+          erc20.abi,
+          signer
+        );
 
         const qDAI = ethers.utils
           .formatUnits((await dai.balanceOf(account)).toString())

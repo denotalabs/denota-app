@@ -39,5 +39,5 @@ node:
 
 deploy:
 	forge create Cheq --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --json > ./src/out/Cheq.sol/CheqAddress.json
-	forge create src/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 100000000000000000000 dai DAI --json > ./src/out/ERC20.sol/DaiAddress.json
-	forge create src/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 100000000000000000000 weth WETH --json > ./src/out/ERC20.sol/WethAddress.json
+	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 100000000000000000000 dai DAI --json > ./src/out/ERC20.sol/DaiAddress.json
+	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 100000000000000000000 weth WETH --json > ./src/out/ERC20.sol/WethAddress.json
