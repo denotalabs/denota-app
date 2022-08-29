@@ -107,22 +107,13 @@ const useBlockchainData = () => {
 
   const loadBlockchainData = useCallback(async () => {
     if (typeof (window as any).ethereum !== "undefined") {
-      const [provider, signer, account] = await connectWallet(); //console.log(provider, signer, account, netId)
+      const [provider, signer, account] = await connectWallet(); // console.log(provider, signer, account)
       try {
         // Load contracts
         const cheqAddress: string = CheqAddress["deployedTo"];
-        console.log(cheqAddress);
         const cheq = new ethers.Contract(cheqAddress, Cheq.abi, signer);
-        const weth = new ethers.Contract(
-          "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-          erc20.abi,
-          signer
-        );
-        const dai = new ethers.Contract(
-          "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-          erc20.abi,
-          signer
-        );
+        const weth = new ethers.Contract(WethAddress["deployedTo"], erc20.abi, signer);
+        const dai = new ethers.Contract(DaiAddress["deployedTo"], erc20.abi, signer);
 
         const qDAI = ethers.utils
           .formatUnits((await dai.balanceOf(account)).toString())
