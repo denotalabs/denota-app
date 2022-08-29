@@ -5,24 +5,12 @@ import { Form, Formik } from "formik";
 import { Button, Flex, FormLabel } from "@chakra-ui/react";
 
 import type { BlockchainData } from "../hooks/useBlockchainData";
-import TokenField from "./input/TokenField";
-import AmountField from "./input/AmountField";
 
 interface Props {
   blockchainState: BlockchainData;
 }
 
-function DepositTab({ blockchainState }: Props) {
-  //   function validateAmount(value: number) {
-  //     let error;
-  //     if (!value) {
-  //       error = "Name is required";
-  //     } else if (value !== 0) {
-  //       error = "Jeez! You're not a fan 😱";
-  //     }
-  //     return error;
-  //   }
-
+function NewAuditorsTab({ blockchainState }: Props) {
   return (
     <Formik
       initialValues={{ token: "dai", amount: 0 }}
@@ -49,13 +37,10 @@ function DepositTab({ blockchainState }: Props) {
     >
       {(props) => (
         <Form>
-          <FormLabel>How much do you want to deposit?</FormLabel>
-          <Flex gap={10}>
-            <TokenField />
-            <AmountField />
-          </Flex>
+          <FormLabel>Are you a User or an Auditor?</FormLabel>
+          <Flex gap={10}></Flex>
           <Button mt={4} isLoading={props.isSubmitting} type="submit">
-            Deposit
+            Add Address
           </Button>
         </Form>
       )}
@@ -63,4 +48,4 @@ function DepositTab({ blockchainState }: Props) {
   );
 }
 
-export default DepositTab;
+export default NewAuditorsTab;

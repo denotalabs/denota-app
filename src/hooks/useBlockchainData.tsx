@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import { ethers } from "ethers";
 
-import Cheq from "../../out/Cheq.sol/Cheq.json";
-import CheqAddress from "../../out/Cheq.sol/CheqAddress.json";
-import erc20 from "../../out/ERC20.sol/TestERC20.json";
+import Cheq from "../out/Cheq.sol/Cheq.json";
+import CheqAddress from "../out/Cheq.sol/CheqAddress.json";
+import erc20 from "../out/ERC20.sol/TestERC20.json";
 
 export type BlockchainData = {
   account: string;

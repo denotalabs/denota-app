@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { Form } from "react-bootstrap";
 
-import type { BlockchainData } from "./hooks/useBlockchainData";
+import type { BlockchainData } from "../hooks/useBlockchainData";
 
 interface Props {
   blockchainState: BlockchainData;
