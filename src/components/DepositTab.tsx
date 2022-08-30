@@ -49,7 +49,10 @@ function DepositTab({ blockchainState }: Props) {
     >
       {(props) => (
         <Form>
-          <FormLabel>How much do you want to deposit?</FormLabel>
+          <FormLabel>How much do you want to deposit? <br></br>
+          Your Dai Balance: {blockchainState.userDaiBalance}<br></br>
+          Your Weth Balance: {blockchainState.userWethBalance}
+          </FormLabel>
           <Flex gap={10}>
             <TokenField />
             <AmountField />
