@@ -12,14 +12,10 @@ function AuditorFlow({ blockchainState }: Props) {
     <Tabs>
       <TabList>
         <Tab>SomeTab</Tab>
-        
       </TabList>
 
       <TabPanels>
-        <TabPanel>
-          Some stuff
-        </TabPanel>
-   
+        <TabPanel>Some stuff</TabPanel>
       </TabPanels>
     </Tabs>
   );
