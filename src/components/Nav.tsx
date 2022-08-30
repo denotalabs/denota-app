@@ -5,6 +5,7 @@ import {
   useDisclosure,
   useColorModeValue,
   Stack,
+  Text,
   useColorMode,
 } from "@chakra-ui/react";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
@@ -24,12 +25,10 @@ export default function Nav({ blockchainState }: Props) {
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <Box>Cheq</Box>
-          <h6>{blockchainState.account}</h6>
-          <h6>
-            qWETH Balance: {blockchainState.qDAI}
-            <br></br>
-            qDAI Balance: {blockchainState.qWETH}
-          </h6>
+          <Text>{blockchainState.account}</Text>
+          <Text>qWETH Balance: {blockchainState.qDAI}</Text>
+          <Text>qDAI Balance: {blockchainState.qWETH}</Text>
+
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
               <NavbarUser />

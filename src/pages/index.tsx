@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { Heading, Stack, Text } from "@chakra-ui/react";
 
 import useBlockchainData from "../hooks/useBlockchainData";
 
 import Nav from "../components/Nav";
-import Card from "../components/CheqCard";
+import CheqCard from "../components/CheqCard";
 import UserFlow from "../components/flows/UserFlow";
 import AuditorFlow from "../components/flows/AuditorFlow";
 
@@ -17,14 +18,13 @@ function HomePage() {
   return (
     <>
       <Nav blockchainState={blockchainState} />
-
-      <br></br>
-      <h1>Welcome to Cheq</h1>
-      <h6>Total cheqs written: {blockchainState.cheqBalance}</h6>
-      <h6>Total weth deposited: {blockchainState.wethBalance}</h6>
-      <h6>Total dai deposited: {blockchainState.daiBalance}</h6>
-      <br></br>
-      <Card />
+      <Stack>
+        <Heading>Welcome to Cheq.</Heading>
+        <Text>Total cheqs written: {blockchainState.cheqBalance}</Text>
+        <Text>Total weth deposited: {blockchainState.wethBalance}</Text>
+        <Text>Total dai deposited: {blockchainState.daiBalance}</Text>
+      </Stack>
+      <CheqCard />
       {isUser ? (
         <UserFlow blockchainState={blockchainState} />
       ) : (

@@ -18,7 +18,7 @@ export type BlockchainData = {
   qWETH: string;
   daiBalance: string;
   wethBalance: string;
-  userChequeCount: number;
+  userChequeCount: string;
   cheqTotalSupply: string;
   userCheques: Array<any>;
   acceptedUserAuditors: Array<any>;
@@ -39,7 +39,7 @@ const useBlockchainData = () => {
     qWETH: "",
     daiBalance: "",
     wethBalance: "",
-    userChequeCount: 0,
+    userChequeCount: "",
     cheqTotalSupply: "",
     userCheques: [],
     acceptedUserAuditors: [],
@@ -125,21 +125,17 @@ const useBlockchainData = () => {
           signer
         );
 
-        const qDAI = ethers.utils
-          .formatUnits((await dai.balanceOf(account)).toString())
-          .toString();
-        const qWETH = ethers.utils
-          .formatUnits((await weth.balanceOf(account)).toString())
-          .toString();
+        // TODO daiBalance and qDAI are currently the same
+        const daiBalance = await dai.balanceOf(account);
+        const qDAI = ethers.utils.formatUnits(daiBalance);
+
+        // TODO wethBalance and qWETH are currently the same
+        const wethBalance = await weth.balanceOf(account);
+        const qWETH = ethers.utils.formatUnits(wethBalance);
+
         (window as any).Cheq = cheq;
         const cheqBalance = await provider.getBalance(cheqAddress);
-        const daiBalance = (await dai.balanceOf(cheqAddress))
-          .toNumber()
-          .toString();
-        const wethBalance = (await weth.balanceOf(cheqAddress))
-          .toNumber()
-          .toString();
-        const userChequeCount = (await cheq.balanceOf(account)).toNumber();
+        const userChequeCount = await cheq.balanceOf(account);
         const userCheques = await getUserCheques(
           cheq,
           account,
@@ -163,9 +159,9 @@ const useBlockchainData = () => {
           cheqBalance: ethers.utils.formatEther(cheqBalance),
           qDAI: qDAI,
           qWETH: qWETH,
-          daiBalance: daiBalance,
-          wethBalance: wethBalance,
-          userChequeCount: userChequeCount,
+          daiBalance: ethers.utils.formatUnits(daiBalance),
+          wethBalance: ethers.utils.formatUnits(wethBalance),
+          userChequeCount: ethers.utils.formatUnits(userChequeCount),
           cheqTotalSupply: String(cheqTotalSupply),
           userCheques: userCheques,
           acceptedUserAuditors: acceptedUserAuditors,
