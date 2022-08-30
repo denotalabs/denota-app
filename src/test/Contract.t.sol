@@ -3,8 +3,8 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "src/Cheq.sol";
-import "src/mock/erc20.sol";
+import "src/contracts/Cheq.sol";
+import "./mock/erc20.sol";
 
 contract ContractTest is Test {
     Cheq public cheq;

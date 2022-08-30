@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 
 import { Card } from "react-bootstrap";
 
-import type { BlockchainData } from "./hooks/useBlockchainData";
+import type { BlockchainData } from "../hooks/useBlockchainData";
 
 interface Props {
   blockchainState: BlockchainData;
