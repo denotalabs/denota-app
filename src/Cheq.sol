@@ -9,6 +9,7 @@ contract Cheq is ERC721, Ownable {
         uint256 amount;
         uint256 created;
         uint256 expiry;
+        uint256 itemId;
         IERC20 token;
         address drawer;
         address recipient;
@@ -197,6 +198,7 @@ contract Cheq is ERC721, Ownable {
                         ERC-721 FUNCTION USAGE
     //////////////////////////////////////////////////////////////*/
     function writeCheque(
+        uint256 itemId,
         IERC20 _token,
         uint256 amount,
         uint256 duration,
@@ -219,6 +221,7 @@ contract Cheq is ERC721, Ownable {
         deposits[_msgSender()][_token] -= amount;
         _safeMint(recipient, totalSupply);
         chequeInfo[totalSupply] = Cheque({
+            itemId: itemId,
             drawer: _msgSender(),
             recipient: recipient,
             created: block.timestamp,
@@ -363,5 +366,8 @@ contract Cheq is ERC721, Ownable {
 
     function chequeAuditor(uint256 chequeId) external view returns (address) {
         return chequeInfo[chequeId].auditor;
+    }
+    function chequeItemId(uint256 chequeId) external view returns (uint256) {
+        return chequeInfo[chequeId].itemId;
     }
 }
