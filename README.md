@@ -18,6 +18,7 @@ Run the local blockchain for deployment/testing:
 ```
 anvil
 ```
+```
 forge build
 ```
 Deploy the contracts to the blockchain
