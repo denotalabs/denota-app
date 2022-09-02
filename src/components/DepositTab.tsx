@@ -33,13 +33,26 @@ function DepositTab({ blockchainState }: Props) {
           blockchainState.dai !== null &&
           blockchainState.weth !== null
         ) {
-          const depositToken =
+          const depositToken =  // Contract of the token
             values.token == "dai" ? blockchainState.dai : blockchainState.weth;
-          depositToken.approve(blockchainState.cheq.address, weiAmount);
-          blockchainState.cheq?.functions["deposit(address, uint256)"](
-            depositToken,
-            weiAmount
-          );
+
+            // console.log(blockchainState.daiAllowance.toString());
+            console.log(depositToken, weiAmount);
+            console.log(weiAmount, weiAmount.lte(blockchainState.daiAllowance));
+            
+            console.log("contract address", blockchainState.cheqAddress, blockchainState.cheq.address);
+          if (weiAmount.lte(blockchainState.daiAllowance)){
+            blockchainState.cheq.functions["deposit(address,uint256)"](
+              depositToken.address,
+              weiAmount
+            );
+            alert(values)
+          } else{
+            depositToken.approve(blockchainState.cheqAddress, weiAmount);
+            alert(values)
+          }
+          // console.log(depositToken, weiAmount);
+          // console.log('blockchainState');
         }
         setTimeout(() => {
           alert(JSON.stringify(values, null, 2));
@@ -49,9 +62,11 @@ function DepositTab({ blockchainState }: Props) {
     >
       {(props) => (
         <Form>
-          <FormLabel>How much do you want to deposit? <br></br>
-          Your Dai Balance: {blockchainState.userDaiBalance}<br></br>
-          Your Weth Balance: {blockchainState.userWethBalance}
+          <FormLabel>
+            How much do you want to deposit? <br></br>
+            Your Dai Balance: {blockchainState.userDaiBalance}
+            <br></br>
+            Your Weth Balance: {blockchainState.userWethBalance}
           </FormLabel>
           <Flex gap={10}>
             <TokenField />

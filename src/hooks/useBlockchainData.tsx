@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 import Cheq from "../out/Cheq.sol/Cheq.json";
 import CheqAddress from "../out/Cheq.sol/CheqAddress.json";
@@ -12,6 +12,8 @@ export type BlockchainData = {
   cheq: null | ethers.Contract;
   dai: null | ethers.Contract;
   weth: null | ethers.Contract;
+  daiAllowance: BigNumber;
+  wethAllowance: BigNumber;
   cheqAddress: string;
   cheqBalance: string;
   qDAI: string;
@@ -35,6 +37,8 @@ const useBlockchainData = () => {
     cheq: null,
     dai: null,
     weth: null,
+    daiAllowance: BigNumber.from(0),
+    wethAllowance: BigNumber.from(0),
     cheqAddress: "",
     cheqBalance: "",
     qDAI: "",
@@ -52,7 +56,6 @@ const useBlockchainData = () => {
   });
 
   const connectWallet = useCallback(async () => {
-    console.log("Succ");
     const provider = new ethers.providers.Web3Provider(
       (window as any).ethereum
     ); // console.log(provider) //, window.ethereum, 5777 'http://localhost:8545'
@@ -133,12 +136,18 @@ const useBlockchainData = () => {
         // TODO daiBalance and qDAI are currently the same
         const daiBalance = await dai.balanceOf(cheqAddress); // Cheq's Dai balance
         const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
-        const qDAI = ethers.utils.formatUnits(await cheq.deposits(DaiAddress["deployedTo"], account));  // User's deposited dai balance
+        const qDAI = ethers.utils.formatUnits(
+          await cheq.deposits(DaiAddress["deployedTo"], account)
+        ); // User's deposited dai balance
+        const daiAllowance = await dai.allowance(account, cheqAddress); console.log(daiAllowance.toString());
 
         // TODO wethBalance and qWETH are currently the same
         const wethBalance = await weth.balanceOf(cheqAddress); // Cheq's Weth balance
         const userWethBalance = await weth.balanceOf(account); // User's Weth balance
-        const qWETH = ethers.utils.formatUnits(await cheq.deposits(WethAddress["deployedTo"], account));   // User's deposited Weth balance
+        const qWETH = ethers.utils.formatUnits(
+          await cheq.deposits(WethAddress["deployedTo"], account)
+        ); // User's deposited Weth balance
+        const wethAllowance = await weth.allowance(account, cheqAddress); console.log(wethAllowance.toString());
 
         (window as any).Cheq = cheq;
         const cheqBalance = await provider.getBalance(cheqAddress);
@@ -162,6 +171,8 @@ const useBlockchainData = () => {
           cheq: cheq,
           dai: dai,
           weth: weth,
+          daiAllowance: daiAllowance,
+          wethAllowance: wethAllowance,
           cheqAddress: cheqAddress,
           cheqBalance: ethers.utils.formatEther(cheqBalance),
           qDAI: qDAI,
