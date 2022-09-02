@@ -12,7 +12,7 @@ make fresh-install
 ```
 Run the front-end:
 ```
-npm run start
+npm run dev
 ```
 Run the local blockchain for deployment/testing:
 ```
