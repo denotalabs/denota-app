@@ -12,6 +12,7 @@ import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 import NavbarUser from "./NavbarUser";
 import type { BlockchainData } from "../hooks/useBlockchainData";
+import SettingsCog from "./SettingsCog";
 
 interface Props {
   blockchainState: BlockchainData;
@@ -34,9 +35,7 @@ export default function Nav({ blockchainState }: Props) {
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
               <NavbarUser />
-              <Button onClick={toggleColorMode}>
-                {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-              </Button>
+              <SettingsCog />
             </Stack>
           </Flex>
         </Flex>
