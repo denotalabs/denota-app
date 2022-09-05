@@ -6,7 +6,7 @@ interface Props {
   blockchainState: BlockchainData;
 }
 
-// TODO - auditor flow: User handshake requests, 
+// TODO - auditor flow: User handshake requests,
 function AuditorFlow({ blockchainState }: Props) {
   return (
     <Tabs>
