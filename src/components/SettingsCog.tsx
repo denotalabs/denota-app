@@ -1,23 +1,17 @@
-import { ReactNode } from "react";
 
 import {
-  Avatar,
   Button,
-  Link,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  MenuDivider,
-  Center,
-  useColorModeValue,
   useColorMode,
   FormControl,
   Switch,
   FormLabel,
 } from "@chakra-ui/react";
 
-import { SettingsIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { SettingsIcon } from "@chakra-ui/icons";
 
 export default function SettingsCog() {
   const { colorMode, toggleColorMode } = useColorMode();
