@@ -20,7 +20,7 @@ install :;
 
 # Install Foundry, node packages, and foundry libraries
 fresh-install:
-	curl -L https://foundry.paradigm.xyz | bash
+	curl -L https://foundry.paradigm.xyz | bash  # Need to reload PATH before foundryup
 	foundryup
 	npm install
 	make install
