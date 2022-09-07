@@ -18,21 +18,21 @@ install :;
 	forge install dapphub/ds-test 
 	forge install OpenZeppelin/openzeppelin-contracts
 
+# Update Dependencies
+update:; forge update
+
+setup-yarn:
+	yarn 
+
 # Install Foundry, node packages, and foundry libraries
 fresh-install:
 	curl -L https://foundry.paradigm.xyz | bash  # Need to reload PATH before foundryup
 	foundryup
 	npm install
-	make install
-
-# Update Dependencies
-update:; forge update
+	# make install  # forge build installs these
 
 # Builds
 build  :; forge clean && forge build --optimize --optimize-runs 1000000
-
-setup-yarn:
-	yarn 
 
 run: 
 	(npm run dev | sed -e 's/^/[NPM] : /' & anvil | sed -e 's/^/[ANVIL] : /')
