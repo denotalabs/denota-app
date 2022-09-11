@@ -454,4 +454,5 @@ contract ContractTest is Test {
         cheq.withdraw(dai, daiReserve);
         assertTrue(dai.balanceOf(address(this)) == daiReserve);
     }
+    // NEED TO ADD depositWrite() test
 }

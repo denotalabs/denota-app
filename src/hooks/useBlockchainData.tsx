@@ -133,21 +133,17 @@ const useBlockchainData = () => {
           signer
         );
 
-        // TODO daiBalance and qDAI are currently the same
         const daiBalance = await dai.balanceOf(cheqAddress); // Cheq's Dai balance
         const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
-        const qDAI = ethers.utils.formatUnits(
-          await cheq.deposits(DaiAddress["deployedTo"], account)
-        ); // User's deposited dai balance
-        const daiAllowance = await dai.allowance(account, cheqAddress); console.log(daiAllowance.toString());
+        const qDAI = await cheq.deposits(dai.address, account); // User's deposited dai balance
+        const daiAllowance = await dai.allowance(account, cheqAddress);
+        console.log("dai allowance: ",daiAllowance.toString());
 
-        // TODO wethBalance and qWETH are currently the same
         const wethBalance = await weth.balanceOf(cheqAddress); // Cheq's Weth balance
         const userWethBalance = await weth.balanceOf(account); // User's Weth balance
-        const qWETH = ethers.utils.formatUnits(
-          await cheq.deposits(WethAddress["deployedTo"], account)
-        ); // User's deposited Weth balance
-        const wethAllowance = await weth.allowance(account, cheqAddress); console.log(wethAllowance.toString());
+        const qWETH = await cheq.deposits(weth.address, account); // User's deposited Weth balance
+        const wethAllowance = await weth.allowance(account, cheqAddress);
+        console.log("weth allowance: ",wethAllowance.toString());
 
         (window as any).Cheq = cheq;
         const cheqBalance = await provider.getBalance(cheqAddress);
@@ -175,8 +171,8 @@ const useBlockchainData = () => {
           wethAllowance: wethAllowance,
           cheqAddress: cheqAddress,
           cheqBalance: ethers.utils.formatEther(cheqBalance),
-          qDAI: qDAI,
-          qWETH: qWETH,
+          qDAI: ethers.utils.formatUnits(qDAI),
+          qWETH: ethers.utils.formatUnits(qWETH),
           userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
           userWethBalance: ethers.utils.formatUnits(userWethBalance),
           daiBalance: ethers.utils.formatUnits(daiBalance),
