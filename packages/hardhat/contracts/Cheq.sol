@@ -233,7 +233,7 @@ contract Cheq is ERC721, Ownable {
         });
         totalSupply += 1;
         uint256 chequeID = totalSupply - 1;
-        emit WriteCheque(msg.sender, auditor, recipient, chequeID);
+        emit WriteCheque(msg.sender, auditor, chequeID, recipient);
         return chequeID; // NOT IDEAL
     }
 

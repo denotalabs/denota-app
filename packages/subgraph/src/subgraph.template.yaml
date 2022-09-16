@@ -11,23 +11,26 @@ dataSources:
       startBlock: 1
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - #Purpose
-        - #Sender
+        # - Auditor  # Auditor wants to know cheqs that they audit and their status, Users they accept
+        # - Merchant  # Merchant wants to know cheqs that they own and their status, Auditors they accept
+        # - Consumer  # Sender wants to know cheqs they sent, Auditors that they accept
+        - Sender
+        - Cheque  # Cheq and its owner/status
       abis:
         - name: Cheq
           file: ./abis/localhost_Cheq.json
       eventHandlers:
-        - event: Void(address,address,uint256)
+        - event: Void(indexed address,indexed address,indexed uint256)
           handler: handleVoid
-        - event: AcceptUser(address,address)
+        - event: AcceptUser(indexed address,indexed address)
           handler: handleAcceptUser
-        - event: AcceptAuditor(address,address)
+        - event: AcceptAuditor(indexed address,indexed address)
           handler: handleAcceptAuditor
-        - event: Cash(address,uint256)
+        - event: Cash(indexed address,indexed uint256)
           handler: handleCash
-        - event: WriteCheque(uint256,address,uint256,uint256,address,address)
+        - event: WriteCheque(indexed address,indexed address,indexed uint256,address)
           handler: handleWriteCheque
       file: ./src/mapping.ts

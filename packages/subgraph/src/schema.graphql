@@ -1,7 +1,6 @@
-type Purpose @entity {
+type Cheque @entity {
   id: ID!
   sender: Sender!
-  purpose: String!
   createdAt: BigInt!
   transactionHash: String!
 }
@@ -9,7 +8,7 @@ type Purpose @entity {
 type Sender @entity {
   id: ID!
   address: Bytes!
-  purposes: [Purpose!] @derivedFrom(field: "sender")
+  cheques: [Cheque!] @derivedFrom(field: "sender")
   createdAt: BigInt!
-  purposeCount: BigInt!
+  chequeCount: BigInt!
 }
