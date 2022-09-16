@@ -7,7 +7,7 @@ function Home({ web3 }) {
   return (
     <>
       {/* Page Header start */}
-      <div className="flex flex-1 justify-between items-center">
+      <div className="flex flex-1 justify-between items-center" style={{border: '1px solid rgba(0, 0, 0, 0.05)'}}>
         <Header />
         <div className="mr-6">
           <Account {...web3} />
