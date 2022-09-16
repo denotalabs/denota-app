@@ -42,15 +42,15 @@ function AuditorsTab({ blockchainState }: Props) {
         {(props) => (
           <Form>
             <RadioButtonField
-              fieldName='accountType'
-              label='Are you a User or an Auditor?'
+              fieldName="accountType"
+              label="Are you a User or an Auditor?"
               values={["user", "auditor"]}
             />
             <br />
             <Flex gap={10} width={400}>
-              <AccountField fieldName='address' placeholder='Address...' />
+              <AccountField fieldName="address" placeholder="Address..." />
             </Flex>
-            <Button mt={4} isLoading={props.isSubmitting} type='submit'>
+            <Button mt={4} isLoading={props.isSubmitting} type="submit">
               Add Address
             </Button>
           </Form>
