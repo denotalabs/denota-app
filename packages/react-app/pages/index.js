@@ -3,7 +3,6 @@ import { Contract, Account, Header } from "../components";
 import { Web3Consumer } from "../helpers/Web3Context";
 
 function Home({ web3 }) {
-  console.log(`🗄 web3 context:`, web3);
 
   return (
     <>
@@ -18,20 +17,9 @@ function Home({ web3 }) {
 
       {/* Main Page Content start */}
       <div className="flex flex-1 flex-col h-screen w-full items-center">
-        <div className="text-center" style={{ margin: 64 }}>
-          <span>This App is powered by Scaffold-eth & Next.js!</span>
-          <br />
-          <span>
-            Added{" "}
-            <a href="https://tailwindcomponents.com/cheatsheet/" target="_blank" rel="noreferrer">
-              TailwindCSS
-            </a>{" "}
-            for easier styling.
-          </span>
-        </div>
         <div className="text-center">
           <Contract
-            name="YourContract"
+            name="Cheq"
             signer={web3.userSigner}
             provider={web3.localProvider}
             address={web3.address}

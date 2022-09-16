@@ -3,23 +3,31 @@ schema:
   file: ./src/schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: YourContract
+    name: Cheq
     network: localhost
     source:
-      address: "{{localhost_YourContractAddress}}"
-      abi: YourContract
+      address: "{{localhost_CheqAddress}}"
+      abi: Cheq
       startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Purpose
-        - Sender
+        - #Purpose
+        - #Sender
       abis:
-        - name: YourContract
-          file: ./abis/localhost_YourContract.json
+        - name: Cheq
+          file: ./abis/localhost_Cheq.json
       eventHandlers:
-        - event: SetPurpose(address,string)
-          handler: handleSetPurpose
+        - event: Void(address,address,uint256)
+          handler: handleVoid
+        - event: AcceptUser(address,address)
+          handler: handleAcceptUser
+        - event: AcceptAuditor(address,address)
+          handler: handleAcceptAuditor
+        - event: Cash(address,uint256)
+          handler: handleCash
+        - event: WriteCheque(uint256,address,uint256,uint256,address,address)
+          handler: handleWriteCheque
       file: ./src/mapping.ts

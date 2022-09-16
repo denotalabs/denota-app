@@ -4,7 +4,7 @@ import "../node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
-contract YourContract is ERC721, Ownable {
+contract Cheq is ERC721, Ownable {
     struct Cheque {
         uint256 amount;
         uint256 created;
@@ -41,6 +41,7 @@ contract YourContract is ERC721, Ownable {
                            EVENTS/MODIFIERS
     //////////////////////////////////////////////////////////////*/
     event Deposit(IERC20 indexed _token, address indexed to, uint256 amount);
+    event WriteCheque(address indexed drawer, address indexed auditor, uint256 indexed chequeID, address recipient);
     event Cash(address indexed bearer, uint256 indexed tokenId);
     event Void(
         address indexed drawer,
@@ -231,7 +232,9 @@ contract YourContract is ERC721, Ownable {
             amount: amount
         });
         totalSupply += 1;
-        return totalSupply - 1; // NOT IDEAL
+        uint256 chequeID = totalSupply - 1;
+        emit WriteCheque(msg.sender, auditor, recipient, chequeID);
+        return chequeID; // NOT IDEAL
     }
 
     function cashCheque(uint256 chequeID) external {
