@@ -33,23 +33,27 @@ function DepositTab({ blockchainState }: Props) {
           blockchainState.dai !== null &&
           blockchainState.weth !== null
         ) {
-          const depositToken =  // Contract of the token
+          const depositToken = // Contract of the token
             values.token == "dai" ? blockchainState.dai : blockchainState.weth;
 
-            // console.log(blockchainState.daiAllowance.toString());
-            console.log(depositToken, weiAmount);
-            console.log(weiAmount, weiAmount.lte(blockchainState.daiAllowance));
-            
-            console.log("contract address", blockchainState.cheqAddress, blockchainState.cheq.address);
-          if (weiAmount.lte(blockchainState.daiAllowance)){
+          // console.log(blockchainState.daiAllowance.toString());
+          console.log(depositToken, weiAmount);
+          console.log(weiAmount, weiAmount.lte(blockchainState.daiAllowance));
+
+          console.log(
+            "contract address",
+            blockchainState.cheqAddress,
+            blockchainState.cheq.address
+          );
+          if (weiAmount.lte(blockchainState.daiAllowance)) {
             blockchainState.cheq.functions["deposit(address,uint256)"](
               depositToken.address,
               weiAmount
             );
-            alert(values)
-          } else{
+            alert(values);
+          } else {
             depositToken.approve(blockchainState.cheqAddress, weiAmount);
-            alert(values)
+            alert(values);
           }
           // console.log(depositToken, weiAmount);
           // console.log('blockchainState');

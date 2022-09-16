@@ -139,7 +139,8 @@ const useBlockchainData = () => {
         const qDAI = ethers.utils.formatUnits(
           await cheq.deposits(DaiAddress["deployedTo"], account)
         ); // User's deposited dai balance
-        const daiAllowance = await dai.allowance(account, cheqAddress); console.log(daiAllowance.toString());
+        const daiAllowance = await dai.allowance(account, cheqAddress);
+        console.log(daiAllowance.toString());
 
         // TODO wethBalance and qWETH are currently the same
         const wethBalance = await weth.balanceOf(cheqAddress); // Cheq's Weth balance
@@ -147,7 +148,8 @@ const useBlockchainData = () => {
         const qWETH = ethers.utils.formatUnits(
           await cheq.deposits(WethAddress["deployedTo"], account)
         ); // User's deposited Weth balance
-        const wethAllowance = await weth.allowance(account, cheqAddress); console.log(wethAllowance.toString());
+        const wethAllowance = await weth.allowance(account, cheqAddress);
+        console.log(wethAllowance.toString());
 
         (window as any).Cheq = cheq;
         const cheqBalance = await provider.getBalance(cheqAddress);

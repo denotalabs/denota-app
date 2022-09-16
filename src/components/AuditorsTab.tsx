@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { ethers } from "ethers";
 
-import { Form } from "react-bootstrap";
+import { Form, Formik } from "formik";
+
+import { Button, Flex } from "@chakra-ui/react";
 
 import type { BlockchainData } from "../hooks/useBlockchainData";
+import AccountField from "./input/AccountField";
+import RadioButtonField from "./input/RadioButtonField";
 
 interface Props {
   blockchainState: BlockchainData;
 }
-function AuditorsTab({ blockchainState }: Props) {
-  const [userType2, setUserType2] = useState<any>("");
-  const [userType3, setUserType3] = useState("");
-  const [acceptedAddress, setAcceptedAddress] = useState("");
 
+function AuditorsTab({ blockchainState }: Props) {
   const userAuditors = blockchainState.acceptedUserAuditors.map((auditor) => (
     <li key={auditor}>{auditor.slice(2, 10)}...</li>
   ));
@@ -20,70 +21,47 @@ function AuditorsTab({ blockchainState }: Props) {
   ));
 
   return (
-    <div>
-      <br></br>
-      You are a(n) _ and adding account for...
-      <br></br>
-      <br></br>
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (userType2.checked) {
+    <>
+      <Formik
+        initialValues={{ address: "", accountType: "user" }}
+        onSubmit={(values, actions) => {
+          if (values.accountType === "user") {
             // user accepts this auditor
-            blockchainState.cheq?.acceptAuditor(acceptedAddress);
+            blockchainState.cheq?.acceptAuditor(values.address);
           } else {
             // auditor accepts this user
-            blockchainState.cheq?.acceptUser(acceptedAddress);
+            blockchainState.cheq?.acceptUser(values.address);
             blockchainState.cheq?.setAllowedDuration(60 * 60 * 24 * 7);
           }
+          setTimeout(() => {
+            alert(JSON.stringify(values, null, 2));
+            actions.setSubmitting(false);
+          }, 1000);
         }}
       >
-        <div key={`inline-${"radio"}`} className="mb-3">
-          <Form.Check
-            ref={(input: any) => {
-              setUserType2(input);
-            }}
-            defaultChecked={true}
-            inline
-            label="User"
-            value="1"
-            name="group1"
-            type={"radio"}
-            id={`inline-${"radio"}-2`}
-          />
-          <Form.Check
-            ref={(input: any) => {
-              setUserType3(input);
-            }}
-            inline
-            label="Auditor"
-            value="2"
-            name="group1"
-            type={"radio"}
-            id={`inline-${"radio"}-3`}
-          />
-        </div>
-        <input
-          id="acceptedAddress"
-          type="text"
-          className="form-control form-control-md mt-2"
-          placeholder="Address..."
-          required
-          onChange={(e) => {
-            setAcceptedAddress(e.target.value);
-          }}
-        />
-        <div>
-          <button type="submit" className="btn btn-primary mt-3">
-            Add Address
-          </button>
-        </div>
-      </Form>
+        {(props) => (
+          <Form>
+            <RadioButtonField
+              fieldName='accountType'
+              label='Are you a User or an Auditor?'
+              values={["user", "auditor"]}
+            />
+            <br />
+            <Flex gap={10} width={400}>
+              <AccountField fieldName='address' placeholder='Address...' />
+            </Flex>
+            <Button mt={4} isLoading={props.isSubmitting} type='submit'>
+              Add Address
+            </Button>
+          </Form>
+        )}
+      </Formik>
       <br></br>
       Your Auditors: {userAuditors}
       <br></br>
       Your Users: {auditorUsers}
-    </div>
+    </>
   );
 }
+
 export default AuditorsTab;
