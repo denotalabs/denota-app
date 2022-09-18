@@ -84,7 +84,7 @@ contract Cheq is ERC721, Ownable {
     /*//////////////////////////////////////////////////////////////
                         ONLY OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    constructor() ERC721("dCheque", "dCHQ") {}
+    constructor() ERC721("CheqProtocol", "CHEQ") {}
 
     function setProtocolFee(IERC20 _token, uint256 _protocolFee)
         external
@@ -127,7 +127,7 @@ contract Cheq is ERC721, Ownable {
         emit Deposit(_token, _address, _amount);
     }
 
-    function deposit(IERC20 _token, uint256 _amount) external returns (bool) {
+    function deposit(IERC20 _token, uint256 _amount) public returns (bool) {  // make one external and use other in depositWrite()?
         _deposit(_token, _msgSender(), _amount);
         return true;
     }
@@ -136,7 +136,7 @@ contract Cheq is ERC721, Ownable {
         IERC20 _token,
         uint256 _amount,
         address _address
-    ) external returns (bool) {
+    ) public returns (bool) {
         _deposit(_token, _address, _amount);
         return true;
     }
@@ -206,7 +206,7 @@ contract Cheq is ERC721, Ownable {
         address auditor,
         address recipient
     )
-        external
+        public
         UserAuditorUserHandshake(_token, amount, auditor, duration, recipient)
         returns (uint256)
     {
@@ -336,10 +336,17 @@ contract Cheq is ERC721, Ownable {
         lastTrustedChange[_msgSender()] = block.timestamp;
     }
 
-    // function depositWrite() external{
-    //     deposit();
-    //     writeCheque(_token, amount, duration, auditor, recipient);
-    // }
+    function depositWrite(        
+        uint256 itemId,
+        IERC20 _token,
+        uint256 amount,
+        uint256 duration,
+        address auditor,
+        address recipient) external
+        returns (uint256){
+        require(deposit(_token, amount), "deposit failed");
+        return writeCheque(itemId, _token, amount, duration, auditor, recipient);
+    }
     /*//////////////////////////////////////////////////////////////
                    CHEQUE READ FUNCTIONS (NECESSARY?)
     //////////////////////////////////////////////////////////////*/
