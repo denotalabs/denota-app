@@ -15,8 +15,8 @@ remove :; rm -rf .gitmodules && rm -rf .git/modules/* && rm -rf lib && touch .gi
 
 # Install the Modules
 install :; 
-	forge install dapphub/ds-test 
-	forge install OpenZeppelin/openzeppelin-contracts
+	forge install dapphub/ds-test --no-commit
+	forge install OpenZeppelin/openzeppelin-contracts --no-commit
 
 # Update Dependencies
 update:; forge update
