@@ -35,13 +35,13 @@ contract ContractTest is Test {
         uint256 duration
     ) public {
         vm.prank(user1);
-        cheq.acceptAuditor(auditor);
+        cheq.acceptAuditor(auditor, true);
         vm.prank(user2);
-        cheq.acceptAuditor(auditor);
+        cheq.acceptAuditor(auditor, true);
         vm.startPrank(auditor);
-        cheq.acceptUser(user1);
-        cheq.acceptUser(user2);
-        cheq.setAllowedDuration(duration);
+        cheq.acceptUser(user1, true);
+        cheq.acceptUser(user2, true);
+        // cheq.setAllowedDuration(duration);
         vm.stopPrank();
         vm.warp(block.timestamp + 24 hours + 100);
     }
@@ -148,19 +148,19 @@ contract ContractTest is Test {
         cheq.writeCheque(0,dai, _amount + 1, duration, auditor, recipient);
         // Can't write cheques without accepted auditor
         cheq.writeCheque(0,dai, _amount, duration, auditor, recipient);
-        cheq.acceptAuditor(auditor);
+        cheq.acceptAuditor(auditor, true);
         // Can't write cheques without auditor handshake
         cheq.writeCheque(0,dai, _amount, duration, auditor, recipient);
         vm.prank(auditor);
-        cheq.acceptUser(msg.sender);
+        cheq.acceptUser(msg.sender, true);
         // Can't write cheques without recipient approving auditor
         cheq.writeCheque(0,dai, _amount, duration, auditor, recipient);
         vm.prank(recipient);
-        cheq.acceptAuditor(auditor);
+        cheq.acceptAuditor(auditor, true);
         // Can't write cheques without auditor approving recipient
         cheq.writeCheque(0,dai, _amount, duration, auditor, recipient);
         vm.prank(auditor);
-        cheq.acceptUser(recipient);
+        cheq.acceptUser(recipient, true);
         // Can't write cheques without auditor approved duration
         cheq.writeCheque(0,dai, _amount, duration, auditor, recipient);
     }
@@ -192,7 +192,8 @@ contract ContractTest is Test {
             IERC20 token,
             address drawer,
             address recipient1,
-            address auditor1
+            address auditor1,
+            Cheq.Status status
         ) = cheq.chequeInfo(chequeID);
         assertTrue(amount == _amount, "amount");
         assertTrue(created == block.timestamp, "created");
@@ -400,35 +401,35 @@ contract ContractTest is Test {
 
     function testAcceptUser(address auditor, address user) public {
         vm.prank(auditor);
-        cheq.acceptUser(user);
+        cheq.acceptUser(user, true);
     }
 
     function testAcceptAuditor(address user, address auditor) public {
         vm.prank(user);
-        cheq.acceptAuditor(auditor);
+        cheq.acceptAuditor(auditor, true);
     }
 
-    function testSetAllowedDuration(address auditor, uint256 duration) public {
-        vm.prank(auditor);
-        cheq.setAllowedDuration(duration);
-    }
+    // function testSetAllowedDuration(address auditor, uint256 duration) public {
+    //     vm.prank(auditor);
+    //     cheq.setAllowedDuration(duration);
+    // }
 
-    function testGetAccepted() public {
-        address auditor = vm.addr(1);
-        address recipient = vm.addr(2);
-        uint256 duration = 60 * 60 * 24 * 7;
-        setupAuditorForTransaction(msg.sender, recipient, auditor, duration);
-        address[] memory auditorsUsers = cheq.getAcceptedAuditorUsers(auditor);
-        assertTrue(auditorsUsers.length == 2);
-        assertTrue(auditorsUsers[0] == msg.sender);
-        assertTrue(auditorsUsers[1] == recipient);
+    // function testGetAccepted() public {  // This is being hardcoded for now
+    //     address auditor = vm.addr(1);
+    //     address recipient = vm.addr(2);
+    //     uint256 duration = 60 * 60 * 24 * 7;
+    //     setupAuditorForTransaction(msg.sender, recipient, auditor, duration);
+    //     address[] memory auditorsUsers = cheq.getAcceptedAuditorUsers(auditor, true);
+    //     assertTrue(auditorsUsers.length == 2);
+    //     assertTrue(auditorsUsers[0] == msg.sender);
+    //     assertTrue(auditorsUsers[1] == recipient);
 
-        address[] memory userAuditors = cheq.getAcceptedUserAuditors(
-            msg.sender
-        );
-        assertTrue(userAuditors.length == 1);
-        assertTrue(userAuditors[0] == auditor);
-    }
+    //     address[] memory userAuditors = cheq.getAcceptedUserAuditors(
+    //         msg.sender
+    //     );
+    //     assertTrue(userAuditors.length == 1);
+    //     assertTrue(userAuditors[0] == auditor);
+    // }
 
     function testFailWithdraw(uint256 _amount) public {
         // Withdraw protocol fees to dev account

@@ -3,38 +3,22 @@ import { Field } from "formik";
 import {
   FormControl,
   FormErrorMessage,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
+  Select
 } from "@chakra-ui/react";
 
-function DurationField() {
-  // TODO add time validation
-  // function validateDuration(value: string) {
-  // }
 
-  // TODO figure out if this should just be a drop down select instead
+function DurationField() {
   return (
-    <Field
-      name={"duration"}
-      // validate={validateDuration}
-    >
-      {({ field, form: { setFieldValue, errors, touched } }: any) => (
-        <FormControl isInvalid={errors.amount && touched.amount}>
-          <NumberInput
-            {...field}
-            onChange={(val) => setFieldValue(field.name, val)}
-            min={0}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-          <FormErrorMessage>{errors.amount}</FormErrorMessage>
+    <Field name="duration">
+      {({ field, form: { errors, touched } }: any) => (
+        <FormControl isInvalid={errors.duration && touched.duration}>
+          <Select defaultValue={60} placeholder='1 minute'>
+            <option value={3600}>1 hour</option>
+            <option value={86400}>1 day</option>
+            <option value={604800}>1 week</option>
+            <option value={18144000}>1 month</option>
+          </Select>
+          <FormErrorMessage>{errors.duration}</FormErrorMessage>
         </FormControl>
       )}
     </Field>

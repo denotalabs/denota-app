@@ -13,16 +13,6 @@ interface Props {
 }
 
 function DepositTab({ blockchainState }: Props) {
-  //   function validateAmount(value: number) {
-  //     let error;
-  //     if (!value) {
-  //       error = "Name is required";
-  //     } else if (value !== 0) {
-  //       error = "Jeez! You're not a fan 😱";
-  //     }
-  //     return error;
-  //   }
-
   return (
     <Formik
       initialValues={{ token: "dai", amount: 0 }}
@@ -36,7 +26,6 @@ function DepositTab({ blockchainState }: Props) {
           const depositToken = // Token Contract
             values.token == "dai" ? blockchainState.dai : blockchainState.weth;
 
-
           console.log(blockchainState.daiAllowance.toString());
           console.log(depositToken, weiAmount);
           console.log(weiAmount, weiAmount.lte(blockchainState.daiAllowance));
@@ -45,19 +34,20 @@ function DepositTab({ blockchainState }: Props) {
             blockchainState.cheq.functions["deposit(address,uint256)"](
               depositToken.address,
               weiAmount
-            );
-            alert(values);
+            ).then((message) => {
+              alert(message);
+            });
           } else {
-            depositToken.approve(blockchainState.cheqAddress, weiAmount);  // Invalid chain ID for signer
+            depositToken.approve(blockchainState.cheqAddress, weiAmount);
             // alert(values);
           }
           // console.log(depositToken, weiAmount);
           // console.log('blockchainState');
         }
-        setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
-          actions.setSubmitting(false);
-        }, 1000);
+        // setTimeout(() => {
+        //   alert(JSON.stringify(values, null, 2));
+        //   actions.setSubmitting(false);
+        // }, 1000);
       }}
     >
       {(props) => (

@@ -9,6 +9,7 @@ import WethAddress from "../out/ERC20.sol/WethAddress.json";
 
 export type BlockchainData = {
   account: string;
+  userType: string;
   cheq: null | ethers.Contract;
   dai: null | ethers.Contract;
   weth: null | ethers.Contract;
@@ -34,13 +35,14 @@ export type BlockchainData = {
 const useBlockchainData = () => {
   const [blockchainState, setBlockchainState] = useState<BlockchainData>({
     account: "",
+    userType: "Customer",
     cheq: null,
     dai: null,
     weth: null,
     daiAllowance: BigNumber.from(0),
     wethAllowance: BigNumber.from(0),
     cheqAddress: "",
-    cheqBalance: "",
+    cheqBalance: "0",
     qDAI: "",
     qWETH: "",
     userDaiBalance: "",
@@ -83,31 +85,19 @@ const useBlockchainData = () => {
       userChequeCount: number
     ) => {
       const userCheques = [];
-      let cheque, state, description;
-      for (let i = 1; userCheques.length < userChequeCount; i++) {
-        cheque = await cheqContract.cheques(i);
-        console.log(cheque.expiry.toNumber() > Date.now() / 1000);
-        if (cheque.bearer == account) {
-          // Cheques In User's Possesion
-          if (cheque.voided === true) {
-            // Auditor Voided Cheque
-            state = "danger";
-            description = "Voided";
-          } else if (cheque.expiry <= Date.now() / 1000) {
-            // Cheque Ready to Cash
-            state = "success";
-            description = "Cashable";
-          } else {
-            // Cheque Pending
-            state = "warning";
-            description = "Pending";
-          }
-          userCheques.push([i, cheque, state, description]);
+      let cheque, cheqOwner;
+      for (let i = 0; userCheques.length < userChequeCount; i++) {
+        cheqOwner = await cheqContract.ownerOf(i);
+        cheque = await cheqContract.chequeInfo(i);
+        console.log(cheqOwner, cheque);
+
+        let timeCreated = cheque.created.toNumber();
+        timeCreated = new Date(timeCreated * 1000);// console.log(timeCreated)
+
+        if (cheqOwner == account) {
+          userCheques.push([i, cheque, timeCreated]);
         } else if (cheque.drawer == account) {
-          // User Sent this Cheque
-          state = "secondary";
-          description = "Sent";
-          userCheques.push([i, cheque, state, description]);
+          userCheques.push([i, cheque, timeCreated]);
         }
       }
       return userCheques;
@@ -117,8 +107,12 @@ const useBlockchainData = () => {
 
   const loadBlockchainData = useCallback(async () => {
     if (typeof (window as any).ethereum !== "undefined") {
-      const [provider, signer, account] = await connectWallet(); // console.log(provider, signer, account)
+      const [provider, signer, account, netid] = await connectWallet(); // console.log(provider, signer, account)
+      let userType = account=="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ? "Customer"
+      : (account=="0x70997970C51812dc3A010C7d01b50e0d17dc79C8"? "Merchant": "Auditor");
       try {
+
+        console.log(userType, account)
         // Load contracts
         const cheqAddress: string = CheqAddress["deployedTo"];
         const cheq = new ethers.Contract(cheqAddress, Cheq.abi, signer);
@@ -147,51 +141,47 @@ const useBlockchainData = () => {
 
         (window as any).Cheq = cheq;
         const cheqBalance = await provider.getBalance(cheqAddress);
-        const userChequeCount = await cheq.balanceOf(account);
+        const userChequeCount = (await cheq.balanceOf(account)).toNumber();
         const userCheques = await getUserCheques(
           cheq,
           account,
           userChequeCount
         );
-        const acceptedUserAuditors = await cheq.getAcceptedUserAuditors(
-          account
-        );
-        const acceptedAuditorUsers = await cheq.getAcceptedAuditorUsers(
-          account
-        );
-        const cheqTotalSupply = await cheq.totalSupply;
+        const cheqTotalSupply = await cheq.totalSupply();
+
 
         setBlockchainState({
           signer: signer,
           account: account,
+          userType: userType,
           cheq: cheq,
           dai: dai,
           weth: weth,
           daiAllowance: daiAllowance,
           wethAllowance: wethAllowance,
           cheqAddress: cheqAddress,
-          cheqBalance: ethers.utils.formatEther(cheqBalance),
+          cheqBalance: ethers.utils.formatEther(cheqBalance).slice(0,-2),
           qDAI: ethers.utils.formatUnits(qDAI),
           qWETH: ethers.utils.formatUnits(qWETH),
           userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
           userWethBalance: ethers.utils.formatUnits(userWethBalance),
           daiBalance: ethers.utils.formatUnits(daiBalance),
           wethBalance: ethers.utils.formatUnits(wethBalance),
-          userChequeCount: ethers.utils.formatUnits(userChequeCount),
+          userChequeCount: userChequeCount,
           cheqTotalSupply: String(cheqTotalSupply),
           userCheques: userCheques,
-          acceptedUserAuditors: acceptedUserAuditors,
-          acceptedAuditorUsers: acceptedAuditorUsers,
+          acceptedUserAuditors: [], //acceptedUserAuditors,
+          acceptedAuditorUsers: [], //acceptedAuditorUsers,
         });
         return true;
       } catch (e) {
         console.log("error", e);
         window.alert("Contracts not deployed to the current network");
       }
-    } else {
-      //if MetaMask not exists push alert
+    } else {  //if MetaMask not exists push alert
       window.alert("Please install MetaMask");
     }
+
   }, [connectWallet]);
 
   return { blockchainState, loadBlockchainData };

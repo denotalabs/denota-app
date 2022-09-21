@@ -5,6 +5,8 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
 contract Cheq is ERC721, Ownable {
+    enum Status{Pending, Cashed, Voided}
+
     struct Cheque {
         uint256 amount;
         uint256 created;
@@ -14,6 +16,7 @@ contract Cheq is ERC721, Ownable {
         address drawer;
         address recipient;
         address auditor;
+        Status status;
         // bool collateralized;
     }
     /*//////////////////////////////////////////////////////////////
@@ -21,19 +24,17 @@ contract Cheq is ERC721, Ownable {
     //////////////////////////////////////////////////////////////*/
     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
     mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User
-    mapping(address => mapping(uint256 => bool)) public auditorDurations; // Auditor voiding periods
+    // mapping(address => mapping(uint256 => bool)) public auditorDurations; // Auditor voiding periods
     mapping(address => mapping(address => uint256))
         public acceptedAuditorTimestamp;
-    mapping(address => address[]) public acceptedUserAuditors; // Auditor addresses that user accepts
-    mapping(address => address[]) public acceptedAuditorUsers; // User addresses that auditor accepts
-
+    
     mapping(address => address) public trustedAccount; // User's trusted account
     mapping(address => uint256) public lastTrustedChange; // Last time user updated trusted account
     uint256 public trustedAccountCooldown = 180 days; // Cooldown before user can change trusted account again
 
     mapping(uint256 => Cheque) public chequeInfo; // Cheque information
     mapping(address => mapping(IERC20 => uint256)) public deposits; // Total user deposits
-    uint256 private totalSupply; // Total cheques created
+    uint256 public totalSupply; // Total cheques created
 
     mapping(IERC20 => uint256) public protocolFee; // Fee in ERC20 token taken from each cheque transfer
     mapping(IERC20 => uint256) public protocolReserve; // Token balances not needed for cheque collateralization
@@ -76,7 +77,7 @@ contract Cheq is ERC721, Ownable {
             userAuditor[recipient][auditor],
             "Recipient must approve auditor"
         );
-        require(auditorDurations[auditor][duration], "Duration not allowed");
+        // require(auditorDurations[auditor][duration], "Duration not allowed");
         _;
     }
 
@@ -215,7 +216,7 @@ contract Cheq is ERC721, Ownable {
         );
         require(
             block.timestamp >=
-                acceptedAuditorTimestamp[_msgSender()][auditor] + 24 hours,
+                acceptedAuditorTimestamp[_msgSender()][auditor],// + 24 hours, TODO ADD THIS BACK AFTER DEMO
             "New Auditor cooldown"
         );
         deposits[_msgSender()][_token] -= amount;
@@ -228,7 +229,8 @@ contract Cheq is ERC721, Ownable {
             expiry: block.timestamp + duration,
             auditor: auditor,
             token: _token,
-            amount: amount
+            amount: amount,
+            status: Status.Pending
         });
         totalSupply += 1;
         return totalSupply - 1; // NOT IDEAL
@@ -238,31 +240,33 @@ contract Cheq is ERC721, Ownable {
         Cheque storage cheque = chequeInfo[chequeID];
         require(_isApprovedOrOwner(_msgSender(), chequeID), "Non-owner");
         require(block.timestamp >= cheque.expiry, "Premature");
+        require(cheque.status == Status(0), "Not cashable");
         bool success = cheque.token.transfer(_msgSender(), cheque.amount);
         require(success, "Transfer failed.");
-        _burn(chequeID);
+        cheque.status = Status.Cashed;
         emit Cash(_msgSender(), chequeID);
     }
 
     function _voidCheque(
-        Cheque memory cheque,
+        Cheque storage cheque,
         uint256 chequeID,
         address depositTo
     ) private {
         require(cheque.auditor == _msgSender(), "Not auditor");
         require(cheque.expiry >= block.timestamp, "Cheque matured");
-        _burn(chequeID);
+        
+        cheque.status = Status.Voided;
         deposits[depositTo][cheque.token] += cheque.amount; // Add balance back to drawer
         emit Void(cheque.drawer, cheque.auditor, chequeID);
     }
 
     function voidCheque(uint256 chequeID) external {
-        Cheque memory cheque = chequeInfo[chequeID];
+        Cheque storage cheque = chequeInfo[chequeID];
         _voidCheque(cheque, chequeID, cheque.drawer);
     }
 
     function voidRescueCheque(uint256 chequeID) external {
-        Cheque memory cheque = chequeInfo[chequeID];
+        Cheque storage cheque = chequeInfo[chequeID];
         address fallbackAccount = trustedAccount[cheque.drawer];
         require(fallbackAccount != address(0), "No Fallback");
         _voidCheque(cheque, chequeID, fallbackAccount);
@@ -271,55 +275,23 @@ contract Cheq is ERC721, Ownable {
     /*//////////////////////////////////////////////////////////////
                           AUDITOR FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    function acceptAuditor(address auditor) external returns (bool) {
-        // User will set this
-        if (userAuditor[_msgSender()][auditor]) {
-            return true;
-        }
-        userAuditor[_msgSender()][auditor] = true;
-        if (auditorUser[auditor][_msgSender()]) {
-            acceptedAuditorUsers[auditor].push(_msgSender());
-            acceptedUserAuditors[_msgSender()].push(auditor);
-        }
+    function acceptAuditor(address auditor, bool accept) external returns (bool) {
+        userAuditor[_msgSender()][auditor] = accept;
         acceptedAuditorTimestamp[_msgSender()][auditor] = block.timestamp;
         emit AcceptAuditor(_msgSender(), auditor);
         return true;
     }
 
-    function acceptUser(address drawer) external returns (bool) {
-        // Auditor will set this
-        if (auditorUser[_msgSender()][drawer]) {
-            return true;
-        }
-        auditorUser[_msgSender()][drawer] = true;
-        if (userAuditor[drawer][_msgSender()]) {
-            acceptedUserAuditors[drawer].push(_msgSender());
-            acceptedAuditorUsers[_msgSender()].push(drawer);
-        }
+    function acceptUser(address drawer, bool accept) external returns (bool) {
+        auditorUser[_msgSender()][drawer] = accept;
         emit AcceptUser(_msgSender(), drawer);
         return true;
     }
 
-    function setAllowedDuration(uint256 duration) external {
-        // Auditor will set this
-        auditorDurations[_msgSender()][duration] = true;
-    }
-
-    function getAcceptedUserAuditors(address _address)
-        external
-        view
-        returns (address[] memory)
-    {
-        return acceptedUserAuditors[_address];
-    }
-
-    function getAcceptedAuditorUsers(address _address)
-        external
-        view
-        returns (address[] memory)
-    {
-        return acceptedAuditorUsers[_address];
-    }
+    // function setAllowedDuration(uint256 duration) external {
+    //     // Auditor will set this
+    //     auditorDurations[_msgSender()][duration] = true;
+    // }
 
     function setTrustedAccount(address account) external {
         // User will set this
@@ -333,7 +305,7 @@ contract Cheq is ERC721, Ownable {
         lastTrustedChange[_msgSender()] = block.timestamp;
     }
 
-    function depositWrite(        
+    function depositWrite(
         uint256 itemId,
         IERC20 _token,
         uint256 amount,
