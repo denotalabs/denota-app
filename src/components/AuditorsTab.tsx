@@ -11,6 +11,7 @@ function AuditorsTab({ blockchainState }: Props) {
   const [userType2, setUserType2] = useState<any>("");
   const [userType3, setUserType3] = useState("");
   const [auditorAddress, setAuditorAddress] = useState("");
+  const [userAddress, setUserAddress] = useState("");
 
   const userAuditors = (
     <Box
@@ -41,9 +42,6 @@ function AuditorsTab({ blockchainState }: Props) {
       <br></br>
       {userAuditors}
       <br></br>
-      {/* You are a(n) _ and adding account for...
-      <br></br>
-      <br></br> */}
       <Form
         onSubmit={(e) => {
           e.preventDefault();
@@ -100,8 +98,62 @@ function AuditorsTab({ blockchainState }: Props) {
           </Button>
         </div>
       </Form>
-      {/* <br></br>
-      Your Users: {auditorUsers} */}
+      <Form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (userType2.checked) {
+            blockchainState.cheq?.acceptUser(userAddress, true);
+          } else {
+            blockchainState.cheq?.acceptUser(userAddress, false);
+          }
+        }}
+      >
+        <div key={`inline-${"radio"}`} className="mb-3">
+          Add or Remove User:<br></br>
+          <br></br>
+          <Form.Check
+            ref={(input: any) => {
+              setUserType2(input);
+            }}
+            defaultChecked={true}
+            label="Add"
+            value="1"
+            name="group1"
+            type={"radio"}
+            id={`inline-${"radio"}-2`}
+          />
+          <Form.Check
+            ref={(input: any) => {
+              setUserType3(input);
+            }}
+            label="Remove"
+            value="2"
+            name="group1"
+            type={"radio"}
+            id={`inline-${"radio"}-3`}
+          />
+        </div>
+        <br></br>
+        <Flex>
+          <Input
+            id="userAddress"
+            type="text"
+            className="form-control form-control-md mt-2"
+            placeholder="Address..."
+            required
+            onChange={(e) => {
+              setUserAddress(e.target.value);
+            }}
+          />
+        </Flex>
+        <div>
+          <Button mt={4} type="submit">
+            {" "}
+            {/*isLoading={props.isSubmitting}*/}
+            Update
+          </Button>
+        </div>
+      </Form>
     </div>
   );
 }
