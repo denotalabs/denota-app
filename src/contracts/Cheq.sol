@@ -84,7 +84,11 @@ contract Cheq is ERC721, Ownable {
     /*//////////////////////////////////////////////////////////////
                         ONLY OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    constructor() ERC721("dCheque", "dCHQ") {}
+    constructor() ERC721("CheqProtocol", "CHEQ") {}
+
+    function selfDestruct() external onlyOwner {
+        this.selfDestruct();
+    }
 
     function setProtocolFee(IERC20 _token, uint256 _protocolFee)
         external
