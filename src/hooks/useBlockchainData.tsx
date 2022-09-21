@@ -92,7 +92,7 @@ const useBlockchainData = () => {
         console.log(cheqOwner, cheque);
 
         let timeCreated = cheque.created.toNumber();
-        timeCreated = new Date(timeCreated * 1000);// console.log(timeCreated)
+        timeCreated = new Date(timeCreated * 1000); // console.log(timeCreated)
 
         if (cheqOwner == account) {
           userCheques.push([i, cheque, timeCreated]);
@@ -108,11 +108,14 @@ const useBlockchainData = () => {
   const loadBlockchainData = useCallback(async () => {
     if (typeof (window as any).ethereum !== "undefined") {
       const [provider, signer, account, netid] = await connectWallet(); // console.log(provider, signer, account)
-      let userType = account=="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ? "Customer"
-      : (account=="0x70997970C51812dc3A010C7d01b50e0d17dc79C8"? "Merchant": "Auditor");
+      let userType =
+        account == "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+          ? "Customer"
+          : account == "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+          ? "Merchant"
+          : "Auditor";
       try {
-
-        console.log(userType, account)
+        console.log(userType, account);
         // Load contracts
         const cheqAddress: string = CheqAddress["deployedTo"];
         const cheq = new ethers.Contract(cheqAddress, Cheq.abi, signer);
@@ -131,13 +134,13 @@ const useBlockchainData = () => {
         const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
         const qDAI = await cheq.deposits(dai.address, account); // User's deposited dai balance
         const daiAllowance = await dai.allowance(account, cheqAddress);
-        console.log("dai allowance: ",daiAllowance.toString());
+        console.log("dai allowance: ", daiAllowance.toString());
 
         const wethBalance = await weth.balanceOf(cheqAddress); // Cheq's Weth balance
         const userWethBalance = await weth.balanceOf(account); // User's Weth balance
         const qWETH = await cheq.deposits(weth.address, account); // User's deposited Weth balance
         const wethAllowance = await weth.allowance(account, cheqAddress);
-        console.log("weth allowance: ",wethAllowance.toString());
+        console.log("weth allowance: ", wethAllowance.toString());
 
         (window as any).Cheq = cheq;
         const cheqBalance = await provider.getBalance(cheqAddress);
@@ -149,7 +152,6 @@ const useBlockchainData = () => {
         );
         const cheqTotalSupply = await cheq.totalSupply();
 
-
         setBlockchainState({
           signer: signer,
           account: account,
@@ -160,7 +162,7 @@ const useBlockchainData = () => {
           daiAllowance: daiAllowance,
           wethAllowance: wethAllowance,
           cheqAddress: cheqAddress,
-          cheqBalance: ethers.utils.formatEther(cheqBalance).slice(0,-2),
+          cheqBalance: ethers.utils.formatEther(cheqBalance).slice(0, -2),
           qDAI: ethers.utils.formatUnits(qDAI),
           qWETH: ethers.utils.formatUnits(qWETH),
           userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
@@ -178,10 +180,10 @@ const useBlockchainData = () => {
         console.log("error", e);
         window.alert("Contracts not deployed to the current network");
       }
-    } else {  //if MetaMask not exists push alert
+    } else {
+      //if MetaMask not exists push alert
       window.alert("Please install MetaMask");
     }
-
   }, [connectWallet]);
 
   return { blockchainState, loadBlockchainData };

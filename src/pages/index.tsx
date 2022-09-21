@@ -20,12 +20,16 @@ function HomePage() {
       <Center my={4} py={4}>
         <Stack>
           <Heading>Welcome to Cheq</Heading>
-          <Center><Heading as='h3' size='md'>A reversible payment protocol</Heading></Center>
-          <Center><Text>Total cheqs written: {blockchainState.cheqTotalSupply}</Text></Center>
+          <Center>
+            <Heading as="h3" size="md">
+              A reversible payment protocol
+            </Heading>
+          </Center>
+          <Center>
+            <Text>Total cheqs written: {blockchainState.cheqTotalSupply}</Text>
+          </Center>
         </Stack>
       </Center>
-      
-      
 
       {isUser ? (
         <UserFlow blockchainState={blockchainState} />

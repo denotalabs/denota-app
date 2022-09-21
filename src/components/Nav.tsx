@@ -21,7 +21,7 @@ interface Props {
 export default function Nav({ blockchainState }: Props) {
   const { colorMode, toggleColorMode } = useColorMode();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  
+
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -35,7 +35,7 @@ export default function Nav({ blockchainState }: Props) {
 
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
-              <NavbarUser blockchainState={blockchainState}/>
+              <NavbarUser blockchainState={blockchainState} />
               <SettingsCog />
             </Stack>
           </Flex>

@@ -19,13 +19,12 @@ interface Props {
   blockchainState: BlockchainData;
 }
 
-
-let addToken = async (tokenAddress:string)=>{
+let addToken = async (tokenAddress: string) => {
   try {
     const wasAdded = await (window as any).ethereum.request({
-      method: 'wallet_watchAsset',
+      method: "wallet_watchAsset",
       params: {
-        type: 'ERC20',
+        type: "ERC20",
         options: {
           address: tokenAddress,
           symbol: "DAI",
@@ -34,14 +33,14 @@ let addToken = async (tokenAddress:string)=>{
       },
     });
     if (wasAdded) {
-      console.log('Added');
+      console.log("Added");
     } else {
-      console.log('Not added');
+      console.log("Not added");
     }
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 const NavLink = ({ children }: { children: ReactNode }) => (
   <Link
@@ -58,10 +57,13 @@ const NavLink = ({ children }: { children: ReactNode }) => (
   </Link>
 );
 
-export default function NavbarUser({blockchainState} : Props) {
-  let imageURL = blockchainState.userType=="Auditor" ? "https://cdn-icons-png.flaticon.com/512/2352/2352184.png"
-    : (blockchainState.userType=="Merchant"? "https://img.favpng.com/3/8/14/computer-icons-merchant-clip-art-portable-network-graphics-vector-graphics-png-favpng-GVS1Me5FzY2iJ9HwQPFgNwhdH.jpg":
-    "https://mpng.subpng.com/20190419/cus/kisspng-computer-icons-single-customer-view-vector-graphic-faberlic-5cba3294f07246.5572284215557065169849.jpg")
+export default function NavbarUser({ blockchainState }: Props) {
+  let imageURL =
+    blockchainState.userType == "Auditor"
+      ? "https://cdn-icons-png.flaticon.com/512/2352/2352184.png"
+      : blockchainState.userType == "Merchant"
+      ? "https://img.favpng.com/3/8/14/computer-icons-merchant-clip-art-portable-network-graphics-vector-graphics-png-favpng-GVS1Me5FzY2iJ9HwQPFgNwhdH.jpg"
+      : "https://mpng.subpng.com/20190419/cus/kisspng-computer-icons-single-customer-view-vector-graphic-faberlic-5cba3294f07246.5572284215557065169849.jpg";
   return (
     <Menu>
       <MenuButton
@@ -71,26 +73,24 @@ export default function NavbarUser({blockchainState} : Props) {
         cursor={"pointer"}
         minW={0}
       >
-        <Avatar
-          size={"sm"}
-          src={imageURL}
-        />
+        <Avatar size={"sm"} src={imageURL} />
       </MenuButton>
       <MenuList alignItems={"center"}>
         <br />
         <Center>
-          <Avatar
-            size={"2xl"}
-            src={imageURL}
-          />
+          <Avatar size={"2xl"} src={imageURL} />
         </Center>
         <br />
         <Center>
           <p>{blockchainState.userType}</p>
         </Center>
         <MenuDivider />
-        <MenuItem onClick={()=>addToken(DaiAddress["deployedTo"])}>Add DAI</MenuItem>
-        <MenuItem onClick={()=>addToken(WethAddress["deployedTo"])}>Add WETH</MenuItem>
+        <MenuItem onClick={() => addToken(DaiAddress["deployedTo"])}>
+          Add DAI
+        </MenuItem>
+        <MenuItem onClick={() => addToken(WethAddress["deployedTo"])}>
+          Add WETH
+        </MenuItem>
         <MenuItem>Account Settings</MenuItem>
         <MenuItem>Logout</MenuItem>
       </MenuList>
