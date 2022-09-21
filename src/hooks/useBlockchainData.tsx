@@ -117,15 +117,16 @@ const useBlockchainData = () => {
       try {
         console.log(userType, account);
         // Load contracts
-        const cheqAddress: string = "0xE853832b71a36C5cEF23ea6C9ADDEb5f94211364";//CheqAddress["deployedTo"];
+        const cheqAddress: string =
+          "0xE853832b71a36C5cEF23ea6C9ADDEb5f94211364"; //CheqAddress["deployedTo"];
         const cheq = new ethers.Contract(cheqAddress, Cheq.abi, signer);
         const weth = new ethers.Contract(
-          "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e",//WethAddress["deployedTo"],
+          "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e", //WethAddress["deployedTo"],
           erc20.abi,
           signer
         );
         const dai = new ethers.Contract(
-          "0x982723cb1272271b5ee405A5F14E9556032d9308",//DaiAddress["deployedTo"],
+          "0x982723cb1272271b5ee405A5F14E9556032d9308", //DaiAddress["deployedTo"],
           erc20.abi,
           signer
         );

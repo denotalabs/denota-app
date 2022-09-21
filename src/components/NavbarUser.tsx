@@ -85,10 +85,14 @@ export default function NavbarUser({ blockchainState }: Props) {
           <p>{blockchainState.userType}</p>
         </Center>
         <MenuDivider />
-        <MenuItem onClick={() => addToken(DaiAddress["deployedTo"])}>
+        <MenuItem
+          onClick={() => addToken("0x982723cb1272271b5ee405A5F14E9556032d9308")}
+        >
           Add DAI
         </MenuItem>
-        <MenuItem onClick={() => addToken(WethAddress["deployedTo"])}>
+        <MenuItem
+          onClick={() => addToken("0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e")}
+        >
           Add WETH
         </MenuItem>
         <MenuItem>Account Settings</MenuItem>
