@@ -20,9 +20,9 @@ function WriteTab({ blockchainState }: Props) {
       initialValues={{
         token: "dai",
         amount: 0,
-        reviewer: "",
+        reviewer: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
         bearer: "",
-        duration: 0,
+        duration: 60,
       }}
       onSubmit={(values, actions) => {
         if (
@@ -32,45 +32,98 @@ function WriteTab({ blockchainState }: Props) {
         ) {
           const token =
             values.token == "dai" ? blockchainState.dai : blockchainState.weth;
-          // console.log(amount, duration, reviewer, bearer)
           const amountWei = ethers.utils.parseEther(values.amount.toString());
-          console.log(amountWei, typeof amountWei);
-          blockchainState.cheq?.functions[
-            "writeCheque(address,uint256,uint256,address,address)"
-          ](token, amountWei, values.duration, values.reviewer, values.bearer);
+          token.functions
+            .allowance(blockchainState.account, blockchainState.cheqAddress)
+            .then((tokenAllowance) => {
+              if (tokenAllowance < amountWei) {
+                // User has not approved Cheq enough allowance
+                token.functions
+                  .approve(blockchainState.cheqAddress, amountWei)
+                  .then((success) => {
+                    if (success) {
+                      console.log(
+                        0,
+                        token.address,
+                        amountWei,
+                        values.duration,
+                        values.reviewer,
+                        values.bearer
+                      );
+                      blockchainState.cheq?.depositWrite(
+                        0,
+                        token.address,
+                        amountWei,
+                        values.duration,
+                        values.reviewer,
+                        values.bearer
+                      );
+                    } else {
+                      alert("Token approval failed");
+                    }
+                  });
+              } else {
+                // User has approved enough, write cheq
+                console.log(
+                  0,
+                  token.address,
+                  amountWei,
+                  values.duration,
+                  values.reviewer,
+                  values.bearer
+                );
+                blockchainState.cheq
+                  ?.depositWrite(
+                    0,
+                    token.address,
+                    amountWei,
+                    values.duration,
+                    values.reviewer,
+                    values.bearer
+                  )
+                  .then((message: any) => {});
+              }
+            });
         }
         setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
+          // alert(JSON.stringify(values, null, 2));
           actions.setSubmitting(false);
-        }, 1000);
+        }, 2000);
       }}
     >
       {(props) => (
         <Form>
           <Stack align="flex-start">
-            <FormLabel>
-              Please enter the recipient and the auditor addresses.
-            </FormLabel>
+            <FormLabel>Merchant Address</FormLabel>
             <Flex gap={10}>
-              <AccountField
-                fieldName="bearer"
-                placeholder="Receiving Account address"
-              />
-              <AccountField
-                fieldName="reviewer"
-                placeholder="Reviewing Account address"
-              />
+              <AccountField fieldName="bearer" placeholder="0x" />
             </Flex>
-            <FormLabel>How much time until your cheq expires? </FormLabel>
-            <DurationField />
-            <FormLabel>How much would you like to send? </FormLabel>
+
+            <FormLabel>Auditor Address</FormLabel>
+            <Flex>
+              <AccountField fieldName="reviewer" placeholder="0x" />
+            </Flex>
+
+            <FormLabel>Inspection Period:</FormLabel>
+            <Flex gap={10}>
+              <DurationField />
+            </Flex>
+
+            <FormLabel>Select Currency</FormLabel>
             <Flex gap={10}>
               <TokenField />
+            </Flex>
+
+            <FormLabel>Amount</FormLabel>
+            <Flex gap={10}>
               <AmountField />
             </Flex>
-            <Button mt={4} isLoading={props.isSubmitting} type="submit">
-              Send Cheq
-            </Button>
+
+            <Flex gap={10}>
+              <Button mt={4} isLoading={props.isSubmitting} type="submit">
+                Send Cheq
+              </Button>
+            </Flex>
           </Stack>
         </Form>
       )}

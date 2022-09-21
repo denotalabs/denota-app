@@ -1,9 +1,60 @@
-import { Box, Center, Heading, Text, Stack } from "@chakra-ui/react";
+import { Box, Center, Button, Text, Stack } from "@chakra-ui/react";
+import { ethers } from "ethers";
+import DaiAddress from "../out/ERC20.sol/DaiAddress.json";
+import type { BlockchainData } from "../hooks/useBlockchainData";
+interface Props {
+  cheqArrayState: any;
+  blockchainState: BlockchainData;
+}
 
 // id, recipient, amount, status, timestamp, token, expiry
-export default function CheqCard() {
+export default function CheqCard({ cheqArrayState, blockchainState }: Props) {
+  let cheqId = cheqArrayState[0];
+  let status =
+    cheqArrayState[1].status == 0
+      ? "Pending"
+      : cheqArrayState[1].status == 1
+      ? "Cashed"
+      : "Voided";
+  let token =
+    cheqArrayState[1].token === DaiAddress["deployedTo"] ? "DAI" : "WETH";
+  let amount = ethers.utils
+    .formatEther(cheqArrayState[1].amount.toString())
+    .toString();
+  let sender = cheqArrayState[1].drawer.slice(0, 10) + "...";
+  let auditor = cheqArrayState[1].auditor.slice(0, 10) + "...";
+  let created = cheqArrayState[2].toLocaleString("en-US", { timeZone: "UTC" });
+  let timeCreated = new Date(cheqArrayState[1].expiry * 1000);
+  let expiration = timeCreated.toLocaleString("en-US", { timeZone: "UTC" });
+  let isCashable = Date.now() >= cheqArrayState[1].expiry.toNumber() * 1000;
+
+  let button;
+  if (status == "Cashed") {
+    button = <Button disabled>Cashed</Button>;
+  } else {
+    button = isCashable ? (
+      <Button
+        onClick={(e) => {
+          blockchainState.cheq?.cashCheque(cheqId);
+        }}
+      >
+        Cash Cheq
+      </Button>
+    ) : (
+      <Button
+        onClick={(e) => {
+          alert("Auditor has been notified");
+        }}
+        className=""
+      >
+        Cancel Cheq
+      </Button>
+    );
+    status = isCashable ? "Mature" : status;
+  }
+
   return (
-    <Center py={12}>
+    <Center py={2}>
       <Box
         p={6}
         maxW={"330px"}
@@ -14,40 +65,36 @@ export default function CheqCard() {
         borderRadius="lg"
         zIndex={1}
       >
-        <Stack direction={"row"} align={"right"}>
-          <Stack>
-            <Text
-              color={"gray.500"}
-              fontSize={"sm"}
-              textTransform={"uppercase"}
-            >
-              Cheque ID: 898
-            </Text>
-            <Heading fontSize={"2xl"} fontFamily={"body"} fontWeight={500}>
-              Nice Chair, pink
-            </Heading>
-            <Text fontSize={"sm"}>Cheque ID: 898</Text>
-            <Text fontWeight={800} fontSize={"xl"}>
-              $57
-            </Text>
-          </Stack>
+        <Stack>
           <Stack align={"flex-end"}>
+            <Text fontWeight={400} fontSize={"xs"}>
+              Auditor: {auditor}
+            </Text>
+            <Text fontWeight={400} fontSize={"xs"}>
+              Sender: {sender}
+            </Text>
+            <Text fontWeight={400} fontSize={"xs"}>
+              Amount: {amount} {token}
+            </Text>
+            <Text fontWeight={400} fontSize={"xs"}>
+              Created: {created}
+            </Text>
+            <Text fontWeight={400} fontSize={"xs"}>
+              Maturation: {expiration}
+            </Text>
+            <Text fontWeight={400} fontSize={"xs"}>
+              Status: {status}
+            </Text>
             <Text
               color={"gray.500"}
               fontSize={"sm"}
               textTransform={"uppercase"}
             >
-              Cheque ID: 898
-            </Text>
-            <Heading fontSize={"2xl"} fontFamily={"body"} fontWeight={500}>
-              Nice Chair, pink
-            </Heading>
-            <Text fontSize={"sm"}>Cheque ID: 898</Text>
-            <Text fontWeight={800} fontSize={"xl"}>
-              $57
+              Cheque ID: {cheqId}
             </Text>
           </Stack>
         </Stack>
+        {button}
       </Box>
     </Center>
   );
