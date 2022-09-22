@@ -1,6 +1,9 @@
 # Cheq v0.0
 Deposit ETH and write cheques to others that are time locked and can be reversed
 
+Contract implementation located at [src/contracts/Cheq.sol](src/contracts/Cheq.sol)
+
+
 1. Deposit ETH into the dApp
 2. writeCheque() to an address for an amount specified
 3. The recipient can cashCheque() once the check matures and the dApp will transfer the ETH
