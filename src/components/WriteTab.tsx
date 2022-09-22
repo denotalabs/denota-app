@@ -81,7 +81,7 @@ function WriteTab({ blockchainState }: Props) {
                     values.reviewer,
                     values.bearer
                   )
-                  .then((message: any) => {});
+                  .then();
               }
             });
         }

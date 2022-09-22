@@ -1,18 +1,16 @@
-import { useState } from "react";
+import { Form, Formik } from "formik";
 
-import { Form } from "react-bootstrap";
-import { Button, Input, Box, Flex } from "@chakra-ui/react";
+import { Box, Button, Flex } from "@chakra-ui/react";
+
 import type { BlockchainData } from "../hooks/useBlockchainData";
+import RadioButtonField from "./RadioButtonField";
+import AccountField from "./input/AccountField";
 
 interface Props {
   blockchainState: BlockchainData;
 }
-function AuditorsTab({ blockchainState }: Props) {
-  const [userType2, setUserType2] = useState<any>("");
-  const [userType3, setUserType3] = useState("");
-  const [auditorAddress, setAuditorAddress] = useState("");
-  const [userAddress, setUserAddress] = useState("");
 
+function AuditorsTab({ blockchainState }: Props) {
   const userAuditors = (
     <Box
       p={6}
@@ -28,133 +26,73 @@ function AuditorsTab({ blockchainState }: Props) {
     </Box>
   );
 
-  // const userAuditors = blockchainState.acceptedUserAuditors.map((auditor) => (
-  //   <li key={auditor}>{auditor.slice(2, 10)}...</li>
-  // ));
-  // const auditorUsers = blockchainState.acceptedAuditorUsers.map((user) => (
-  //   <li key={user}>{user.slice(2, 10)}...</li>
-  // ));
   return (
     <div>
       <br></br>
-      Your Auditors:
+      Available Auditors:
       <br></br>
       <br></br>
       {userAuditors}
       <br></br>
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (userType2.checked) {
-            blockchainState.cheq?.acceptAuditor(auditorAddress, true);
+      <Formik
+        initialValues={{ address: "", accountType: "add" }}
+        onSubmit={(values, actions) => {
+          if (values.accountType === "add") {
+            // user accepts this auditor
+            blockchainState.cheq?.acceptAuditor(values.address, true);
           } else {
-            blockchainState.cheq?.acceptAuditor(auditorAddress, false);
+            // auditor accepts this user
+            blockchainState.cheq?.acceptAuditor(values.address, false);
           }
         }}
       >
-        <div key={`inline-${"radio"}`} className="mb-3">
-          Add or Remove Auditor:<br></br>
-          <br></br>
-          <Form.Check
-            ref={(input: any) => {
-              setUserType2(input);
-            }}
-            defaultChecked={true}
-            label="Add"
-            value="1"
-            name="group1"
-            type={"radio"}
-            id={`inline-${"radio"}-2`}
-          />
-          <Form.Check
-            ref={(input: any) => {
-              setUserType3(input);
-            }}
-            label="Remove"
-            value="2"
-            name="group1"
-            type={"radio"}
-            id={`inline-${"radio"}-3`}
-          />
-        </div>
-        <br></br>
-        <Flex>
-          <Input
-            id="auditorAddress"
-            type="text"
-            className="form-control form-control-md mt-2"
-            placeholder="Address..."
-            required
-            onChange={(e) => {
-              setAuditorAddress(e.target.value);
-            }}
-          />
-        </Flex>
-        <div>
-          <Button mt={4} type="submit">
-            {" "}
-            {/*isLoading={props.isSubmitting}*/}
-            Update
-          </Button>
-        </div>
-      </Form>
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (userType2.checked) {
-            blockchainState.cheq?.acceptUser(userAddress, true);
+        {(props) => (
+          <Form>
+            <RadioButtonField
+              fieldName="accountType"
+              label="Add or Remove Auditor?"
+              values={["add", "remove"]}
+            />
+            <br />
+            <Flex gap={10} width={400}>
+              <AccountField fieldName="address" placeholder="Address..." />
+            </Flex>
+            <Button mt={4} isLoading={props.isSubmitting} type="submit">
+              Update
+            </Button>
+          </Form>
+        )}
+      </Formik>
+      <br></br>
+      <Formik
+        initialValues={{ address: "", accountType: "add" }}
+        onSubmit={(values, actions) => {
+          if (values.accountType === "add") {
+            blockchainState.cheq?.acceptUser(values.address, true);
           } else {
-            blockchainState.cheq?.acceptUser(userAddress, false);
+            blockchainState.cheq?.acceptUser(values.address, false);
           }
         }}
       >
-        <div key={`inline-${"radio"}`} className="mb-3">
-          Add or Remove User:<br></br>
-          <br></br>
-          <Form.Check
-            ref={(input: any) => {
-              setUserType2(input);
-            }}
-            defaultChecked={true}
-            label="Add"
-            value="1"
-            name="group1"
-            type={"radio"}
-            id={`inline-${"radio"}-2`}
-          />
-          <Form.Check
-            ref={(input: any) => {
-              setUserType3(input);
-            }}
-            label="Remove"
-            value="2"
-            name="group1"
-            type={"radio"}
-            id={`inline-${"radio"}-3`}
-          />
-        </div>
-        <br></br>
-        <Flex>
-          <Input
-            id="userAddress"
-            type="text"
-            className="form-control form-control-md mt-2"
-            placeholder="Address..."
-            required
-            onChange={(e) => {
-              setUserAddress(e.target.value);
-            }}
-          />
-        </Flex>
-        <div>
-          <Button mt={4} type="submit">
-            {" "}
-            {/*isLoading={props.isSubmitting}*/}
-            Update
-          </Button>
-        </div>
-      </Form>
+        {(props) => (
+          <Form>
+            <RadioButtonField
+              fieldName="accountType"
+              label="Add or Remove User?"
+              values={["add", "remove"]}
+            />
+            <br />
+            <Flex gap={10} width={400}>
+              <AccountField fieldName="address" placeholder="Address..." />
+            </Flex>
+            <Button mt={4} isLoading={props.isSubmitting} type="submit">
+              Update
+            </Button>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 }
+
 export default AuditorsTab;
