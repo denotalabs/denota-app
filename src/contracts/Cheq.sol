@@ -4,6 +4,13 @@ import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
+// MUMBAI
+// AAVE: 0x2a58E9bbb5434FdA7FF78051a4B82cb0EF669C17
+// TestDAI: 0x982723cb1272271b5ee405A5F14E9556032d9308
+// TestWETH: 0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e
+// DAI: 0x9A753f0F7886C9fbF63cF59D0D4423C5eFaCE95B
+// WETH: 0xd575d4047f8c667E064a4ad433D04E25187F40BB
+
 contract Cheq is ERC721, Ownable {
     enum Status{Pending, Cashed, Voided}
 

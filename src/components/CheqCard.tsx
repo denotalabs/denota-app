@@ -1,6 +1,6 @@
 import { Box, Center, Button, Text, Stack } from "@chakra-ui/react";
 import { ethers } from "ethers";
-import DaiAddress from "../out/ERC20.sol/DaiAddress.json";
+import { DaiAddress } from "../hooks/useBlockchainData";
 import type { BlockchainData } from "../hooks/useBlockchainData";
 interface Props {
   cheqArrayState: any;
@@ -16,8 +16,7 @@ export default function CheqCard({ cheqArrayState, blockchainState }: Props) {
       : cheqArrayState[1].status == 1
       ? "Cashed"
       : "Voided";
-  let token =
-    cheqArrayState[1].token === DaiAddress["deployedTo"] ? "DAI" : "WETH";
+  let token = cheqArrayState[1].token === DaiAddress ? "DAI" : "WETH";
   let amount = ethers.utils
     .formatEther(cheqArrayState[1].amount.toString())
     .toString();

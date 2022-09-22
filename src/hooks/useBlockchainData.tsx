@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-
 import Cheq from "../out/Cheq.sol/Cheq.json";
-import CheqAddress from "../out/Cheq.sol/CheqAddress.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
-import DaiAddress from "../out/ERC20.sol/DaiAddress.json";
-import WethAddress from "../out/ERC20.sol/WethAddress.json";
+
+export const CheqAddress: string = "0xE853832b71a36C5cEF23ea6C9ADDEb5f94211364";
+export const DaiAddress: string = "0x982723cb1272271b5ee405A5F14E9556032d9308";
+export const WethAddress: string = "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e";
 
 export type BlockchainData = {
   account: string;
@@ -117,34 +117,24 @@ const useBlockchainData = () => {
       try {
         console.log(userType, account);
         // Load contracts
-        const cheqAddress: string =
-          "0xE853832b71a36C5cEF23ea6C9ADDEb5f94211364"; //CheqAddress["deployedTo"];
-        const cheq = new ethers.Contract(cheqAddress, Cheq.abi, signer);
-        const weth = new ethers.Contract(
-          "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e", //WethAddress["deployedTo"],
-          erc20.abi,
-          signer
-        );
-        const dai = new ethers.Contract(
-          "0x982723cb1272271b5ee405A5F14E9556032d9308", //DaiAddress["deployedTo"],
-          erc20.abi,
-          signer
-        );
+        const cheq = new ethers.Contract(CheqAddress, Cheq.abi, signer);
+        const weth = new ethers.Contract(WethAddress, erc20.abi, signer);
+        const dai = new ethers.Contract(DaiAddress, erc20.abi, signer);
 
-        const daiBalance = await dai.balanceOf(cheqAddress); // Cheq's Dai balance
+        const daiBalance = await dai.balanceOf(CheqAddress); // Cheq's Dai balance
         const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
         const qDAI = await cheq.deposits(dai.address, account); // User's deposited dai balance
-        const daiAllowance = await dai.allowance(account, cheqAddress);
+        const daiAllowance = await dai.allowance(account, CheqAddress);
         console.log("dai allowance: ", daiAllowance.toString());
 
-        const wethBalance = await weth.balanceOf(cheqAddress); // Cheq's Weth balance
+        const wethBalance = await weth.balanceOf(CheqAddress); // Cheq's Weth balance
         const userWethBalance = await weth.balanceOf(account); // User's Weth balance
         const qWETH = await cheq.deposits(weth.address, account); // User's deposited Weth balance
-        const wethAllowance = await weth.allowance(account, cheqAddress);
+        const wethAllowance = await weth.allowance(account, CheqAddress);
         console.log("weth allowance: ", wethAllowance.toString());
 
         (window as any).Cheq = cheq;
-        const cheqBalance = await provider.getBalance(cheqAddress);
+        const cheqBalance = await provider.getBalance(CheqAddress);
         const userChequeCount = (await cheq.balanceOf(account)).toNumber();
         const userCheques = await getUserCheques(
           cheq,
@@ -162,7 +152,7 @@ const useBlockchainData = () => {
           weth: weth,
           daiAllowance: daiAllowance,
           wethAllowance: wethAllowance,
-          cheqAddress: cheqAddress,
+          cheqAddress: CheqAddress,
           cheqBalance: ethers.utils.formatEther(cheqBalance).slice(0, -2),
           qDAI: ethers.utils.formatUnits(qDAI),
           qWETH: ethers.utils.formatUnits(qWETH),

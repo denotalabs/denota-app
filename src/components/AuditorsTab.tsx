@@ -50,7 +50,7 @@ function AuditorsTab({ blockchainState }: Props) {
           <Form>
             <RadioButtonField
               fieldName="accountType"
-              label="Add or Remove Auditor?"
+              label="Add or remove auditor?"
               values={["add", "remove"]}
             />
             <br />
@@ -78,7 +78,7 @@ function AuditorsTab({ blockchainState }: Props) {
           <Form>
             <RadioButtonField
               fieldName="accountType"
-              label="Add or Remove User?"
+              label="Add or remove user?"
               values={["add", "remove"]}
             />
             <br />
