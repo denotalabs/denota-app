@@ -46,6 +46,3 @@ Check out the [Foundry Book](https://book.getfoundry.sh/) for more specifics.
 ### Testing
 ```forge test``` will run all tests.
 ```forge test -m nameOfTest``` will run a specific test.
-
-## Frontend
-[Tutorial Template codebase was based on (dBank by Dapp University)](https://github.com/dappuniversity/dbank)
