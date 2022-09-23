@@ -5,7 +5,6 @@ interface Props {
 }
 function CashTab({ blockchainState }: Props) {
   // Cheque States: Mature: green, Pending: yellow, Voided: red
-  console.log(blockchainState.userCheques);
   const userCheques = blockchainState.userCheques.map((chequeArray, index) => (
     <CheqCard
       key={index}

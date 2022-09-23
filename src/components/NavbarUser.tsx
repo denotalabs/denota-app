@@ -12,14 +12,13 @@ import {
   Center,
   useColorModeValue,
 } from "@chakra-ui/react";
-import DaiAddress from "../out/ERC20.sol/DaiAddress.json";
-import WethAddress from "../out/ERC20.sol/WethAddress.json";
+import { DaiAddress, WethAddress } from "../hooks/useBlockchainData";
 import type { BlockchainData } from "../hooks/useBlockchainData";
 interface Props {
   blockchainState: BlockchainData;
 }
 
-let addToken = async (tokenAddress: string) => {
+let addToken = async (tokenAddress: string, symbol: string) => {
   try {
     const wasAdded = await (window as any).ethereum.request({
       method: "wallet_watchAsset",
@@ -27,7 +26,7 @@ let addToken = async (tokenAddress: string) => {
         type: "ERC20",
         options: {
           address: tokenAddress,
-          symbol: "DAI",
+          symbol: symbol,
           decimals: 18,
         },
       },
@@ -85,17 +84,10 @@ export default function NavbarUser({ blockchainState }: Props) {
           <p>{blockchainState.userType}</p>
         </Center>
         <MenuDivider />
-        <MenuItem
-          onClick={() => addToken("0x982723cb1272271b5ee405A5F14E9556032d9308")}
-        >
-          Add DAI
-        </MenuItem>
-        <MenuItem
-          onClick={() => addToken("0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e")}
-        >
+        <MenuItem onClick={() => addToken(DaiAddress, "DAI")}>Add DAI</MenuItem>
+        <MenuItem onClick={() => addToken(WethAddress, "WETH")}>
           Add WETH
         </MenuItem>
-        <MenuItem>Account Settings</MenuItem>
         <MenuItem>Logout</MenuItem>
       </MenuList>
     </Menu>

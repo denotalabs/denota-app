@@ -34,7 +34,7 @@ function WriteTab({ blockchainState }: Props) {
             values.token == "dai" ? blockchainState.dai : blockchainState.weth;
           const amountWei = ethers.utils.parseEther(values.amount.toString());
           token.functions
-            .allowance(blockchainState.account, blockchainState.cheqAddress)
+            .allowance(blockchainState.account, blockchainState.cheqAddress) // Get user's token approval granted to Cheq
             .then((tokenAllowance) => {
               if (tokenAllowance < amountWei) {
                 // User has not approved Cheq enough allowance
@@ -81,12 +81,13 @@ function WriteTab({ blockchainState }: Props) {
                     values.reviewer,
                     values.bearer
                   )
-                  .then();
+                  .then((cheqID: string) => {
+                    alert("Cheq created!: #" + cheqID);
+                  });
               }
             });
         }
         setTimeout(() => {
-          // alert(JSON.stringify(values, null, 2));
           actions.setSubmitting(false);
         }, 2000);
       }}

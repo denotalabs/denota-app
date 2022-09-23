@@ -66,14 +66,14 @@ export default function CheqCard({ cheqArrayState, blockchainState }: Props) {
       >
         <Stack>
           <Stack align={"flex-end"}>
-            <Text fontWeight={400} fontSize={"xs"}>
-              Auditor: {auditor}
-            </Text>
-            <Text fontWeight={400} fontSize={"xs"}>
+            <Text fontWeight={600} fontSize={"md"}>
               Sender: {sender}
             </Text>
             <Text fontWeight={400} fontSize={"xs"}>
               Amount: {amount} {token}
+            </Text>
+            <Text fontWeight={400} fontSize={"xs"}>
+              Auditor: {auditor}
             </Text>
             <Text fontWeight={400} fontSize={"xs"}>
               Created: {created}
