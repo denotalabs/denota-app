@@ -6,11 +6,7 @@ function CashTab() {
 
   // Cheque States: Mature: green, Pending: yellow, Voided: red
   const userCheques = blockchainState.userCheques.map((chequeArray, index) => (
-    <CheqCard
-      key={index}
-      blockchainState={blockchainState}
-      cheqArrayState={chequeArray}
-    />
+    <CheqCard key={index} cheqArrayState={chequeArray} />
   ));
   return (
     <div>
