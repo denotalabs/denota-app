@@ -22,9 +22,10 @@ dataSources:
         - Handshake
       abis:
         - name: Cheq
-          file: ../../out/Cheq.sol/Cheq.json
+          file: ../out/Cheq.sol/Cheq.json
       eventHandlers:
-        - event: WriteCheque(indexed uint256,uint256,uint256,address,address,indexed address,indexed address)
+        - event: WriteCheque(indexed uint256,uint256,uint256,address,address,indexed address,indexed
+            address)
           handler: handleWrite
         - event: Cash(indexed address,indexed uint256)
           handler: handleCash
@@ -36,4 +37,4 @@ dataSources:
           handler: handleShakeAuditor
         - event: ShakeUser(indexed address,indexed address,bool)
           handler: handleShakeUser
-      file: mapping.ts
+      file: Cheq/Cheq.wasm
