@@ -4,17 +4,15 @@ import { Form, Formik } from "formik";
 
 import { Button, Flex, FormLabel, Stack } from "@chakra-ui/react";
 
-import type { BlockchainData } from "../hooks/useBlockchainData";
 import TokenField from "./input/TokenField";
 import AmountField from "./input/AmountField";
 import AccountField from "./input/AccountField";
 import DurationField from "./input/DurationField";
+import { useBlockchainData } from "../context/BlockchainDataProvider";
 
-interface Props {
-  blockchainState: BlockchainData;
-}
+function WriteTab() {
+  const blockchainState = useBlockchainData();
 
-function WriteTab({ blockchainState }: Props) {
   return (
     <Formik
       initialValues={{

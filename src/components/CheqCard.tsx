@@ -1,7 +1,6 @@
 import { Box, Center, Button, Text, Stack } from "@chakra-ui/react";
 import { ethers } from "ethers";
-import { DaiAddress } from "../hooks/useBlockchainData";
-import type { BlockchainData } from "../hooks/useBlockchainData";
+import { DaiAddress } from "../context/BlockchainDataProvider";
 interface Props {
   cheqArrayState: any;
   blockchainState: BlockchainData;

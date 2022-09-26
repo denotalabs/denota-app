@@ -8,20 +8,11 @@ import {
   Text,
   useColorMode,
 } from "@chakra-ui/react";
-import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 import NavbarUser from "./NavbarUser";
-import type { BlockchainData } from "../hooks/useBlockchainData";
 import SettingsCog from "./SettingsCog";
 
-interface Props {
-  blockchainState: BlockchainData;
-}
-
-export default function Nav({ blockchainState }: Props) {
-  const { colorMode, toggleColorMode } = useColorMode();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
+export default function Nav() {
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -35,7 +26,7 @@ export default function Nav({ blockchainState }: Props) {
 
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
-              <NavbarUser blockchainState={blockchainState} />
+              <NavbarUser />
               <SettingsCog />
             </Stack>
           </Flex>

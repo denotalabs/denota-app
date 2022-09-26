@@ -1,9 +1,9 @@
-import type { BlockchainData } from "../hooks/useBlockchainData";
 import CheqCard from "../components/CheqCard";
-interface Props {
-  blockchainState: BlockchainData;
-}
-function CashTab({ blockchainState }: Props) {
+import { useBlockchainData } from "../context/BlockchainDataProvider";
+
+function CashTab() {
+  const blockchainState = useBlockchainData();
+
   // Cheque States: Mature: green, Pending: yellow, Voided: red
   const userCheques = blockchainState.userCheques.map((chequeArray, index) => (
     <CheqCard
