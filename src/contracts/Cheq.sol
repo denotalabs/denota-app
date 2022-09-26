@@ -51,7 +51,7 @@ contract Cheq is ERC721, Ownable {
     event Deposit(IERC20 indexed _token, address indexed to, uint256 amount);
     event WriteCheque(uint256 indexed tokenId, uint256 amount, uint256 expiry, IERC20 token, address drawer, address indexed recipient, address indexed auditor); 
     event Cash(address indexed bearer, uint256 indexed tokenId);
-    event Void(uint256 indexed tokenId);
+    event Void(address indexed bearer, uint256 indexed tokenId);
     event ShakeAuditor(address indexed user, address indexed auditor, bool accepted);
     event ShakeUser(address indexed auditor, address indexed user, bool accepted);
 
@@ -250,7 +250,7 @@ contract Cheq is ERC721, Ownable {
         
         cheque.status = Status.Voided;
         deposits[depositTo][cheque.token] += cheque.amount; // Add balance back to drawer
-        emit Void(chequeID);
+        emit Void(ownerOf(chequeID), chequeID);
     }
 
     function voidCheque(uint256 chequeID) external {

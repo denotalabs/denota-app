@@ -82,3 +82,11 @@ deploy:
 	# # cast send $(cheqAddress) "acceptUser(address,bool)" $(address2) "true" --from $(address3) && \
 	# # cast send $(cheqAddress) "setAllowedDuration(uint256)" 604800 --from $(address3)
 	
+	# forge create --rpc-url https://matic-mumbai.chainstacklabs.com --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/contracts/Cheq.sol:Cheq  
+
+graph:
+	npm run clean-graph-node # If node has run before
+	npm run run-graph-node
+	npm run graph-build
+	npm run create-local # May need delay before this command if graphNode not ready to receive subgraph
+	npm run graph-ship-local
