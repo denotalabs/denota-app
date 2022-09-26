@@ -20,7 +20,10 @@
     "react-dom": "^18.2.0",
     "solhint": "^3.3.7",
     "solhint-plugin-prettier": "^0.0.5",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "@graphprotocol/graph-cli": "^0.22.1",
+    "@graphprotocol/graph-ts": "^0.22.1",
+    "mustache": "^3.1.0"
   },
   "scripts": {
     "dev": "next dev",
@@ -30,12 +33,28 @@
     "solhint": "./node_modules/.bin/solhint -f table **/*.sol",
     "prettier:solidity": "./node_modules/.bin/prettier --write **/*.sol",
     "prettier:ts": "./node_modules/.bin/prettier --write **/*.tsx",
-    "prepare": "husky install"
+    "prepare": "husky install",
+
+    "run-graph-node": "cd src/graph/graph-node && docker-compose up",
+    "remove-graph-node": "cd src/graph/graph-node && docker-compose down",
+    "clean-graph-node": "rm -rf src/graph/graph-node/data/",
+
+    "graph-prepare": "mustache src/graph/subgraph/config/config.json  src/graph/subgraph/src/subgraph.template.yaml >  src/graph/subgraph/subgraph.yaml",
+    "create-local": "graph create --node http://localhost:8020/ Cheq/Cheq",
+    "remove-local": "graph remove --node http://localhost:8020/ Cheq/Cheq",
+    "deploy-local": "cd src/graph/subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 Cheq/Cheq",
+
+    "codegen": "cd src/graph/subgraph && graph codegen",
+    "deploy": "cd src/graph/subgraph && graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ GITHUB_USERNAME/your-contract",
+    "graph-build": "cd src/graph/subgraph && graph build",
+    "graph-ship-local": "cd src/graph/subgraph && graph-prepare && graph-codegen && deploy-local",
+    "deploy-and-graph": "cd src/graph/subgraph && deploy && graph-ship-local"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
     "eslint": "^8.19.0",
-    "hardhat": "^2.11.2"
+    "hardhat": "^2.11.2",
+    "mustache": "^3.1.0"
   }
 }

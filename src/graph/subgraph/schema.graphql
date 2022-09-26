@@ -1,0 +1,56 @@
+type ERC20 @entity(immutable: true) {
+  id: ID!
+  address: Bytes!
+  name: String!
+  symbol: String!
+}
+type Token @entity {
+  id: ID!
+  createdAt: BigInt!
+  amount: BigInt!
+  expiry: BigInt!
+  item_Id: BigInt!
+  ercToken: ERC20!
+  status: BigInt!
+  transactionHash: String!
+  owner: Account!
+  drawer: Account!
+  recipient: Account!
+  auditor: Account!
+}
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  tokensOwned: [Token!]! @derivedFrom(field: "owner")
+  numTokensOwned: BigInt!
+  tokensSent: [Token!]! @derivedFrom(field: "drawer")
+  numTokensSent: BigInt!
+  tokensAuditing: [Token!]! @derivedFrom(field: "auditor")
+  numTokensAuditing: BigInt!
+  tokensReceived: [Token!]! @derivedFrom(field: "recipient")
+  numTokensReceived: BigInt!
+  auditorsRequested: [RequestAuditor!]! @derivedFrom(field: "userAddress")
+  numAuditorsRequested: BigInt!
+  usersRequested: [RequestUser!]! @derivedFrom(field: "auditorAddress")
+  numUsersRequested: BigInt!
+}
+type RequestAuditor @entity {
+  id: ID!
+  userAddress: Account!
+  auditorAddress: Account!
+  createdAt: BigInt!
+}
+type RequestUser @entity {
+  id: ID!
+  auditorAddress: Account!
+  userAddress: Account!
+  createdAt: BigInt!
+}
+type Handshake @entity {
+  id: ID!
+  auditorShake: RequestAuditor!
+  userShake: RequestUser!
+  completed: Boolean!
+  completedAt: BigInt!
+}
+
