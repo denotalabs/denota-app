@@ -2,15 +2,13 @@ import { Form, Formik } from "formik";
 
 import { Box, Button, Flex } from "@chakra-ui/react";
 
-import type { BlockchainData } from "../hooks/useBlockchainData";
 import RadioButtonField from "./RadioButtonField";
 import AccountField from "./input/AccountField";
+import { useBlockchainData } from "../context/BlockchainDataProvider";
 
-interface Props {
-  blockchainState: BlockchainData;
-}
+function AuditorsTab() {
+  const blockchainState = useBlockchainData();
 
-function AuditorsTab({ blockchainState }: Props) {
   const userAuditors = (
     <Box
       p={6}

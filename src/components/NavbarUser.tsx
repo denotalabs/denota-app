@@ -12,13 +12,13 @@ import {
   Center,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { DaiAddress, WethAddress } from "../hooks/useBlockchainData";
-import type { BlockchainData } from "../hooks/useBlockchainData";
-interface Props {
-  blockchainState: BlockchainData;
-}
+import {
+  DaiAddress,
+  useBlockchainData,
+  WethAddress,
+} from "../context/BlockchainDataProvider";
 
-let addToken = async (tokenAddress: string, symbol: string) => {
+const addToken = async (tokenAddress: string, symbol: string) => {
   try {
     const wasAdded = await (window as any).ethereum.request({
       method: "wallet_watchAsset",
@@ -56,8 +56,10 @@ const NavLink = ({ children }: { children: ReactNode }) => (
   </Link>
 );
 
-export default function NavbarUser({ blockchainState }: Props) {
-  let imageURL =
+export default function NavbarUser() {
+  const blockchainState = useBlockchainData();
+
+  const imageURL =
     blockchainState.userType == "Auditor"
       ? "https://cdn-icons-png.flaticon.com/512/2352/2352184.png"
       : blockchainState.userType == "Merchant"

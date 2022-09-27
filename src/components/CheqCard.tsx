@@ -1,31 +1,37 @@
 import { Box, Center, Button, Text, Stack } from "@chakra-ui/react";
 import { ethers } from "ethers";
-import { DaiAddress } from "../hooks/useBlockchainData";
-import type { BlockchainData } from "../hooks/useBlockchainData";
+import {
+  DaiAddress,
+  useBlockchainData,
+} from "../context/BlockchainDataProvider";
+
 interface Props {
   cheqArrayState: any;
-  blockchainState: BlockchainData;
 }
 
 // id, recipient, amount, status, timestamp, token, expiry
-export default function CheqCard({ cheqArrayState, blockchainState }: Props) {
-  let cheqId = cheqArrayState[0];
+export default function CheqCard({ cheqArrayState }: Props) {
+  const blockchainState = useBlockchainData();
+
+  const cheqId = cheqArrayState[0];
   let status =
     cheqArrayState[1].status == 0
       ? "Pending"
       : cheqArrayState[1].status == 1
       ? "Cashed"
       : "Voided";
-  let token = cheqArrayState[1].token === DaiAddress ? "DAI" : "WETH";
-  let amount = ethers.utils
+  const token = cheqArrayState[1].token === DaiAddress ? "DAI" : "WETH";
+  const amount = ethers.utils
     .formatEther(cheqArrayState[1].amount.toString())
     .toString();
-  let sender = cheqArrayState[1].drawer.slice(0, 10) + "...";
-  let auditor = cheqArrayState[1].auditor.slice(0, 10) + "...";
-  let created = cheqArrayState[2].toLocaleString("en-US", { timeZone: "UTC" });
-  let timeCreated = new Date(cheqArrayState[1].expiry * 1000);
-  let expiration = timeCreated.toLocaleString("en-US", { timeZone: "UTC" });
-  let isCashable = Date.now() >= cheqArrayState[1].expiry.toNumber() * 1000;
+  const sender = cheqArrayState[1].drawer.slice(0, 10) + "...";
+  const auditor = cheqArrayState[1].auditor.slice(0, 10) + "...";
+  const created = cheqArrayState[2].toLocaleString("en-US", {
+    timeZone: "UTC",
+  });
+  const timeCreated = new Date(cheqArrayState[1].expiry * 1000);
+  const expiration = timeCreated.toLocaleString("en-US", { timeZone: "UTC" });
+  const isCashable = Date.now() >= cheqArrayState[1].expiry.toNumber() * 1000;
 
   let button;
   if (status == "Cashed") {

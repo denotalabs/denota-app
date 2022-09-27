@@ -1,11 +1,14 @@
 import { AppProps } from "next/app";
 
 import { ChakraProvider } from "@chakra-ui/react";
+import { BlockchainDataProvider } from "../context/BlockchainDataProvider";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider>
-      <Component {...pageProps} />
+      <BlockchainDataProvider>
+        <Component {...pageProps} />
+      </BlockchainDataProvider>
     </ChakraProvider>
   );
 }

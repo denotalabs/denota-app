@@ -1,16 +1,10 @@
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 
-import { BlockchainData } from "../../hooks/useBlockchainData";
-
 import CashTab from "../CashTab";
 import WriteTab from "../WriteTab";
 import AuditorsTab from "../AuditorsTab";
 
-interface Props {
-  blockchainState: BlockchainData;
-}
-
-function UserFlow({ blockchainState }: Props) {
+function UserFlow() {
   return (
     <Tabs>
       <TabList>
@@ -22,13 +16,13 @@ function UserFlow({ blockchainState }: Props) {
 
       <TabPanels>
         <TabPanel>
-          <WriteTab blockchainState={blockchainState} />
+          <WriteTab />
         </TabPanel>
         <TabPanel>
-          <CashTab blockchainState={blockchainState} />
+          <CashTab />
         </TabPanel>
         <TabPanel>
-          <AuditorsTab blockchainState={blockchainState} />
+          <AuditorsTab />
         </TabPanel>
       </TabPanels>
     </Tabs>

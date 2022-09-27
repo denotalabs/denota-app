@@ -4,15 +4,13 @@ import { Form, Formik } from "formik";
 
 import { Button, Flex, FormLabel } from "@chakra-ui/react";
 
-import type { BlockchainData } from "../hooks/useBlockchainData";
 import TokenField from "./input/TokenField";
 import AmountField from "./input/AmountField";
+import { useBlockchainData } from "../context/BlockchainDataProvider";
 
-interface Props {
-  blockchainState: BlockchainData;
-}
+function DepositTab() {
+  const blockchainState = useBlockchainData();
 
-function DepositTab({ blockchainState }: Props) {
   return (
     <Formik
       initialValues={{ token: "dai", amount: 0 }}
