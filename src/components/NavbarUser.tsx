@@ -90,6 +90,11 @@ export default function NavbarUser() {
         <MenuItem onClick={() => addToken(WethAddress, "WETH")}>
           Add WETH
         </MenuItem>
+        <MenuItem onClick={() => console.log()}>
+          {" "}
+          {/* setIsUser(false)*/}
+          Auditor Mode
+        </MenuItem>
         <MenuItem>Logout</MenuItem>
       </MenuList>
     </Menu>
