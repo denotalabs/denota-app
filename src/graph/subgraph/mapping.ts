@@ -66,12 +66,15 @@ export function handleWrite(event: WriteCheque): void {
   // Increment each Account's token counts
   drawingAccount.numTokensSent = drawingAccount.numTokensSent.plus(BigInt.fromI32(1))
   // drawingAccount.tokensSent.concat(token.id)
+  drawingAccount.save()
   receivingAccount.numTokensReceived = receivingAccount.numTokensReceived.plus(BigInt.fromI32(1))
   // receivingAccount.tokensReceived.concat(token.id)
   receivingAccount.numTokensOwned = receivingAccount.numTokensOwned.plus(BigInt.fromI32(1))
   // receivingAccount.tokensOwned.concat(token.id)
+  receivingAccount.save()
   auditingAccount.numTokensAuditing = auditingAccount.numTokensAuditing.plus(BigInt.fromI32(1))
   // auditingAccount.tokensAuditing.concat(token.id)
+  auditingAccount.save()
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -87,8 +90,10 @@ export function handleTransfer(event: Transfer): void {
     token = new Token(tokenId)
     token.save()
   }
-
   toAccount = toAccount==null ? saveNewAccount(to) : toAccount
+  toAccount.numTokensOwned = toAccount.numTokensOwned.plus(BigInt.fromI32(1))
+  // toAccount.tokensOwned.concat(token.id)
+  toAccount.save()
 
   if (from!="0x0000000000000000000000000000000000000000"){  // Decrement from Account's token ownership and increment to's
     fromAccount = fromAccount==null ? saveNewAccount(from) : fromAccount
@@ -98,9 +103,8 @@ export function handleTransfer(event: Transfer): void {
     //   }
     // }
     fromAccount.numTokensOwned = fromAccount.numTokensSent.minus(BigInt.fromI32(1))
+    fromAccount.save()
   }
-  toAccount.numTokensOwned = toAccount.numTokensOwned.plus(BigInt.fromI32(1))
-  // toAccount.tokensOwned.concat(token.id)
 }
 
 export function handleCash(event: Cash): void {
@@ -111,6 +115,8 @@ export function handleCash(event: Cash): void {
     token.status = BigInt.fromI32(1)
     ownerAccount.tokensCashed = ownerAccount.tokensCashed.concat([token.id])
     ownerAccount.numTokensCashed = ownerAccount.numTokensCashed.plus(BigInt.fromI32(1))
+    token.save()
+    ownerAccount.save()
   } else{ // SHOULDN'T HAPPEN?
   }
 }
@@ -120,14 +126,17 @@ export function handleVoid(event: Void): void {
   let ownerAccount = Account.load(event.params.bearer.toHexString())
   ownerAccount = ownerAccount==null ? saveNewAccount(event.params.bearer.toHexString()) : ownerAccount
   if (token!=null){
-    token.status = BigInt.fromI32(1)
+    token.status = BigInt.fromI32(2)
     ownerAccount.tokensVoided = ownerAccount.tokensVoided.concat([token.id])
-    ownerAccount.numTokensCashed = ownerAccount.numTokensCashed.plus(BigInt.fromI32(1))
+    ownerAccount.numTokensVoided = ownerAccount.numTokensVoided.plus(BigInt.fromI32(1))
     let auditorAccount = Account.load(token.auditor)
     if (auditorAccount!=null){  // Add token to list of tokens they've voided
       auditorAccount.numVoidedTokens.plus(BigInt.fromI32(1))
       auditorAccount.voidedTokens = auditorAccount.voidedTokens.concat([token.id])
+      auditorAccount.save()
     }
+    token.save()
+    ownerAccount.save()
   }
   else{
     // SHOULDN'T HAPPEN?
@@ -137,52 +146,70 @@ export function handleVoid(event: Void): void {
 export function handleShakeAuditor(event: ShakeAuditor): void {
   let userAccount = Account.load(event.params.user.toHexString())
   userAccount = userAccount==null ? saveNewAccount(event.params.user.toHexString()) : userAccount
-
   let auditorAccount = Account.load(event.params.auditor.toHexString())
   auditorAccount = auditorAccount==null ? saveNewAccount(event.params.auditor.toHexString()) : auditorAccount
-  
-  let requestUser = RequestUser.load(auditorAccount.id+userAccount.id)
 
   let requestAuditor = RequestAuditor.load(userAccount.id+auditorAccount.id)  // How to know id beforehand if not address concat?
   if (requestAuditor==null){  // User has requested auditor for first time
     requestAuditor = new RequestAuditor(userAccount.id+auditorAccount.id)  // Duplicate info
-    requestAuditor.createdAt = event.block.timestamp
-    requestAuditor.auditorAddress = auditorAccount.id
+    requestAuditor.auditorAddress = auditorAccount.id    
     requestAuditor.userAddress = userAccount.id
+    requestAuditor.createdAt = event.block.timestamp
   }
   requestAuditor.isWaiting = event.params.accepted
-  if (requestUser!=null){  // User has completed handshake
-    let handshake = new Handshake(userAccount.id+auditorAccount.id)
-    handshake.auditorShake = requestAuditor.id
-    handshake.userShake = requestUser.id
-    handshake.save()
+  requestAuditor.save()
+
+  // Create/load handshake
+  let requestUser = RequestUser.load(auditorAccount.id+userAccount.id)
+  if (requestUser!=null){  // Both requests exist
+
+    let handshake = Handshake.load(auditorAccount.id+userAccount.id)
+    if (handshake!=null){  // Handshake has happened before, update its status
+      handshake.completed = requestUser.isWaiting && requestAuditor.isWaiting
+      handshake.save()
+    } else {
+      handshake = new Handshake(auditorAccount.id+userAccount.id)
+      handshake.auditorShake = requestAuditor.id
+      handshake.userShake = requestUser.id
+      handshake.completed = requestUser.isWaiting && requestAuditor.isWaiting
+      handshake.completedAt = event.block.timestamp
+      handshake.save()
+    } 
   }
-
-  /*
-type RequestAuditor @entity {
-  id: ID!
-  userAddress: Account!
-  auditorAddress: Account!
-  createdAt: BigInt!
-}
-type RequestUser @entity {
-  id: ID!
-  auditorAddress: Account!
-  userAddress: Account!
-  createdAt: BigInt!
-}
-type Handshake @entity {
-  id: ID!
-  auditorShake: RequestAuditor!
-  userShake: RequestUser!
-  completed: Boolean!
-  completedAt: BigInt!
-} */
-
 }
 
 export function handleShakeUser(event: ShakeUser): void {
+  let auditorAccount = Account.load(event.params.auditor.toHexString())
+  auditorAccount = auditorAccount==null ? saveNewAccount(event.params.auditor.toHexString()) : auditorAccount
+  let userAccount = Account.load(event.params.user.toHexString())
+  userAccount = userAccount==null ? saveNewAccount(event.params.user.toHexString()) : userAccount
+
+  let requestUser = RequestUser.load(auditorAccount.id+userAccount.id)  // How to know id beforehand if not address concat?
+  if (requestUser==null){  // User has requested auditor for first time
+    requestUser = new RequestUser(auditorAccount.id+userAccount.id)  // Duplicate info
+    requestUser.auditorAddress = auditorAccount.id    
+    requestUser.userAddress = userAccount.id
+    requestUser.createdAt = event.block.timestamp
+  }
+  requestUser.isWaiting = event.params.accepted
+  requestUser.save()
+
+  // Create/load handshake
+  let requestAuditor = RequestAuditor.load(userAccount.id+auditorAccount.id)
+  if (requestAuditor!=null){  // Both requests exist
+
+    let handshake = Handshake.load(auditorAccount.id+userAccount.id)
+    if (handshake!=null){  // Handshake has happened before, update its status
+      handshake.completed = requestUser.isWaiting && requestAuditor.isWaiting
+      handshake.save()
+    } else {
+      handshake = new Handshake(auditorAccount.id+userAccount.id)
+      handshake.auditorShake = requestAuditor.id
+      handshake.userShake = requestUser.id
+      handshake.completed = requestUser.isWaiting && requestAuditor.isWaiting
+      handshake.completedAt = event.block.timestamp
+      handshake.save()
+    } 
+  }
 
 }
-
-
