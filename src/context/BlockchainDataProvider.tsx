@@ -10,6 +10,8 @@ import { BigNumber, ethers } from "ethers";
 import Cheq from "../out/Cheq.sol/Cheq.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
 
+export const APIURL = "http://localhost:8000/subgraphs/name/Cheq/Cheq";
+
 interface BlockchainDataInterface {
   account: string;
   userType: string;
@@ -217,5 +219,6 @@ const getUserCheques = async (
       userCheques.push([i, cheque, timeCreated]);
     }
   }
-  return userCheques.reverse();
+
+  return userCheques.reverse(); // ID, Cheq struct, timeCreated
 };

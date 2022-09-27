@@ -35,13 +35,8 @@ function AuditorsTab() {
       <Formik
         initialValues={{ address: "", accountType: "add" }}
         onSubmit={(values, actions) => {
-          if (values.accountType === "add") {
-            // user accepts this auditor
-            blockchainState.cheq?.acceptAuditor(values.address, true);
-          } else {
-            // auditor accepts this user
-            blockchainState.cheq?.acceptAuditor(values.address, false);
-          }
+          let bool = true ? values.accountType === "add" : false;
+          blockchainState.cheq?.acceptAuditor(values.address, bool);
         }}
       >
         {(props) => (

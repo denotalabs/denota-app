@@ -57,6 +57,24 @@ export default function SettingsCog() {
             />
           </FormControl>
         </MenuItem>
+        <MenuItem closeOnSelect={false}>
+          <FormControl
+            display="flex"
+            alignItems="space-between"
+            justifyContent="space-between"
+          >
+            <FormLabel htmlFor="auditor-mode" mb="0">
+              Auditor Mode
+            </FormLabel>
+            <Switch
+              onChange={() => {
+                console.log("Activate auditor mode");
+              }}
+              isChecked={colorMode === "dark"}
+              id="auditor-mode"
+            />
+          </FormControl>
+        </MenuItem>
       </MenuList>
     </Menu>
   );
