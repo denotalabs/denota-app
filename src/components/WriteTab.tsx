@@ -9,9 +9,11 @@ import AmountField from "./input/AmountField";
 import AccountField from "./input/AccountField";
 import DurationField from "./input/DurationField";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
+import { useAccount } from "../hooks/useAccount";
 
 function WriteTab() {
   const blockchainState = useBlockchainData();
+  const accountData = useAccount();
 
   return (
     <Formik
@@ -34,14 +36,16 @@ function WriteTab() {
           token.functions
             .allowance(blockchainState.account, blockchainState.cheqAddress) // Get user's token approval granted to Cheq
             .then((tokenAllowance) => {
-              if (tokenAllowance < amountWei) {
+              console.log(tokenAllowance[0], typeof tokenAllowance[0]);
+              console.log(amountWei, typeof amountWei);
+              // console.log(amountWei.gt(tokenAllowance));
+              if (amountWei.gt(tokenAllowance.toNumber())) {
                 // User has not approved Cheq enough allowance
                 token.functions
                   .approve(blockchainState.cheqAddress, amountWei)
                   .then((success) => {
                     if (success) {
                       console.log(
-                        0,
                         token.address,
                         amountWei,
                         values.duration,
@@ -49,7 +53,6 @@ function WriteTab() {
                         values.bearer
                       );
                       blockchainState.cheq?.depositWrite(
-                        0,
                         token.address,
                         amountWei,
                         values.duration,

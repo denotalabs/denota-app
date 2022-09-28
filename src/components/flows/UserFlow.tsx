@@ -4,7 +4,7 @@ import CashTab from "../CashTab";
 import WriteTab from "../WriteTab";
 import AuditorsTab from "../AuditorsTab";
 
-function UserFlow(accountData: any) {
+function UserFlow() {
   return (
     <Tabs>
       <TabList>
@@ -13,7 +13,6 @@ function UserFlow(accountData: any) {
         <Tab>My Cheqs</Tab>
         <Tab>My Auditors</Tab>
       </TabList>
-      {/* {accountData} */}
       <TabPanels>
         <TabPanel>
           <WriteTab />

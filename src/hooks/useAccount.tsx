@@ -1,74 +1,39 @@
-import React, {
-  createContext,
-  memo,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
-//accounts($account: String )  //(first: 10, where: { id: $account })
-//   const accountQuery = `
-//   query {
-//     accounts {
-//       id
-//       tokensOwned
-//       numTokensOwned
-//       tokensSent
-//       numTokensSent
-//       tokensAuditing
-//       numTokensAuditing
-//       tokensReceived
-//       numTokensReceived
-//       tokensCashed
-//       numTokensCashed
-//       tokensVoided
-//       numTokensVoided
-//       voidedTokens
-//       numVoidedTokens
-//       auditorsRequested
-//       numAuditorsRequested
-//       usersRequested
-//       numUsersRequested
-//     }
-//   }
-// `;
-// const accountQuery = `
-// query {
-//   accounts {
-//     id
-//     numTokensOwned
-//     numTokensSent
-//     numTokensAuditing
-//     numTokensReceived
-//     tokensCashed
-//     numTokensCashed
-//     tokensVoided
-//     numTokensVoided
-//     voidedTokens
-//     numVoidedTokens
-//     numAuditorsRequested
-//     numUsersRequested
-//   }
-// }
-// `;
 
 const accountQuery = `
 query accounts($account: String ){
   accounts(where: { id: $account })  {
-    id
-    numTokensOwned
-    numTokensSent
-    numTokensAuditing
-    numTokensReceived
-    tokensCashed
-    numTokensCashed
-    tokensVoided
-    numTokensVoided
-    voidedTokens
-    numVoidedTokens
-    numAuditorsRequested
-    numUsersRequested
+
+    tokensOwned {
+      id
+      createdAt
+      amount
+      expiry
+      ercToken {
+        id
+      }
+      status
+      transactionHash
+      drawer {
+        id
+      }
+      recipient {
+        id
+      }
+      auditor {
+        id
+      }
+    }
+    auditorsRequested {
+      id
+      auditorAddress {
+        id
+      }
+      isWaiting
+      createdAt
+    }
   }
 }
 `;
@@ -80,8 +45,6 @@ export const useAccount = () => {
 
   useEffect(() => {
     if (account) {
-      console.log(account);
-
       const client = new ApolloClient({
         uri: APIURL,
         cache: new InMemoryCache(),
@@ -90,12 +53,12 @@ export const useAccount = () => {
         .query({
           query: gql(accountQuery),
           variables: {
-            account: account,
+            account: account.toLowerCase(),
           },
         })
         .then((data) => {
-          console.log("Subgraph data: ", data);
-          setAccountData(data);
+          console.log("Subgraph data: ", data["data"]["accounts"][0]);
+          setAccountData(data["data"]["accounts"][0]);
         })
         .catch((err) => {
           console.log("Error fetching data: ", err);
@@ -105,3 +68,66 @@ export const useAccount = () => {
 
   return accountData;
 };
+
+// const accountQuery = `
+// query accounts($account: String ){
+//   accounts(where: { id: $account })  {
+//     id
+
+//     tokensOwned {
+//       id
+//       createdAt
+//       amount
+//       expiry
+//       ercToken
+//       status
+//       transactionHash
+//       owner
+//       drawer
+//       recipient
+//       auditor
+//     }
+//     numTokensOwned
+
+//     tokensSent {
+//       id
+//     }
+//     numTokensSent
+
+//     tokensAuditing {
+//       id
+//     }
+//     numTokensAuditing
+
+//     tokensReceived{
+//       id
+//     }
+//     numTokensReceived
+
+//     tokensCashed {
+//       id
+//     }
+//     numTokensCashed
+
+//     tokensVoided {
+//       id
+//     }
+//     numTokensVoided
+
+//     voidedTokens {
+//       id
+//     }
+//     numVoidedTokens
+
+//     auditorsRequested {
+//       id
+//     }
+//     numAuditorsRequested
+
+//     usersRequested {
+//       id
+//     }
+//     numUsersRequested
+//   }
+// }
+// `;

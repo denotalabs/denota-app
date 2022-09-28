@@ -4,48 +4,11 @@ import { Heading, Stack, Text, Center } from "@chakra-ui/react";
 import Nav from "../components/Nav";
 import UserFlow from "../components/flows/UserFlow";
 import AuditorFlow from "../components/flows/AuditorFlow";
-import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
-import { useAccount } from "../hooks/useAccount";
-
-// const tokensQuery = `
-//   query {
-//     account(where: { id: $account }) {
-//       id
-//       createdAt
-//       amount
-//       expiry
-//       ercToken
-//       status
-//       transactionHash
-//       owner
-//       drawer
-//       recipient
-//       auditor
-//     }
-//   }
-// `;
-// const client = new ApolloClient({
-//   uri: APIURL,
-//   cache: new InMemoryCache(),
-//   });
-//   client
-//   .query({
-//       query: gql(tokensQuery),
-//       variables: {
-
-//       }
-//   })
-//   .then((data) => console.log("Subgraph data: ", data))
-//   .catch((err) => {
-//       console.log("Error fetching data: ", err);
-// });
+import { useBlockchainData } from "../context/BlockchainDataProvider";
 
 function HomePage() {
   const blockchainState = useBlockchainData();
   const [isUser, setIsUser] = useState(true);
-
-  const accountData = useAccount();
 
   return (
     <>
@@ -65,7 +28,7 @@ function HomePage() {
       </Center>
 
       {isUser ? (
-        <UserFlow accountData={accountData} />
+        <UserFlow />
       ) : (
         <AuditorFlow blockchainState={blockchainState} />
       )}
