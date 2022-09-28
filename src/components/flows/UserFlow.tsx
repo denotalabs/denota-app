@@ -13,7 +13,6 @@ function UserFlow() {
         <Tab>My Cheqs</Tab>
         <Tab>My Auditors</Tab>
       </TabList>
-
       <TabPanels>
         <TabPanel>
           <WriteTab />

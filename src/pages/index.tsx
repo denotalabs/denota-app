@@ -12,13 +12,13 @@ function HomePage() {
 
   return (
     <>
-      <Nav />
+      <Nav setIsUser={setIsUser} isUser={isUser} />
       <Center my={4} py={4}>
         <Stack>
           <Heading>Welcome to Cheq</Heading>
           <Center>
             <Heading as="h3" size="md">
-              A payment protocol
+              A liquid escrow protocol
             </Heading>
           </Center>
           <Center>

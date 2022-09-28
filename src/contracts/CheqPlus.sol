@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.14;
-import "src/Cheq.sol";
+import "src/contracts/Cheq.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 
 
@@ -30,7 +30,7 @@ contract CheqAuditorPayments{
         // Must check if user has too many cheqs, if auditor is at max auditing capacity, is accepting payments
         require(cheqBook[auditor][msg.sender]+_amount<=cheqCap[auditor], "Purchasing More Than Limit");
         if (!cheq.userAuditor(msg.sender, auditor)){ // User doesn't accept auditor yet
-            cheq.acceptAuditor(auditor);  // Needs to do so on behalf of user
+            cheq.acceptAuditor(auditor, true);  // Needs to do so on behalf of user
         }
 
         if (isPayable[auditor] && currentCheqs[auditor]+_amount<=maxCheqs[auditor]){
@@ -38,7 +38,7 @@ contract CheqAuditorPayments{
             uint256 price = cheqPrice[auditor][token] * _amount;
             token.transferFrom(msg.sender, auditor, price);
             if (acceptOnPayment[auditor] || acceptUserOnPayment[auditor][msg.sender]){  // Auditor accepts everyone on payment or specifically this user
-                cheq.acceptUser(msg.sender);  // Needs to do so on behalf of auditor
+                cheq.acceptUser(msg.sender, true);  // Needs to do so on behalf of auditor
                 setUserCheqs(msg.sender, _amount);
             } // Auditor would need to honor user's payment in this case
         }

@@ -1,0 +1,40 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Cheq
+    network: mumbai
+    source:
+      address: "0x9DCD716739CFdF61d9B73fC20f4D13dCf898D956"
+      abi: Cheq
+      startBlock: 28308353
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - ERC20
+        - Account
+        - RequestAuditor
+        - RequestUser
+        - Handshake
+      abis:
+        - name: Cheq
+          file: ../out/Cheq.sol/Cheq.json
+      eventHandlers:
+        - event: WriteCheque(indexed uint256,uint256,uint256,address,address,indexed address,indexed
+            address)
+          handler: handleWrite
+        - event: Cash(indexed address,indexed uint256)
+          handler: handleCash
+        - event: Void(indexed address,indexed uint256)
+          handler: handleVoid
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: ShakeAuditor(indexed address,indexed address,bool)
+          handler: handleShakeAuditor
+        - event: ShakeUser(indexed address,indexed address,bool)
+          handler: handleShakeUser
+      file: Cheq/Cheq.wasm
