@@ -12,7 +12,12 @@ import {
 
 import { SettingsIcon } from "@chakra-ui/icons";
 
-export default function SettingsCog() {
+interface Props {
+  setIsUser: any; // Fix any
+  isUser: boolean;
+}
+
+export default function SettingsCog({ setIsUser, isUser }: Props) {
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
@@ -68,9 +73,9 @@ export default function SettingsCog() {
             </FormLabel>
             <Switch
               onChange={() => {
-                console.log("Activate auditor mode");
+                setIsUser(!isUser);
               }}
-              isChecked={colorMode === "dark"}
+              isChecked={isUser === true}
               id="auditor-mode"
             />
           </FormControl>

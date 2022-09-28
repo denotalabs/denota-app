@@ -12,7 +12,7 @@ function HomePage() {
 
   return (
     <>
-      <Nav />
+      <Nav setIsUser={setIsUser} isUser={isUser} />
       <Center my={4} py={4}>
         <Stack>
           <Heading>Welcome to Cheq</Heading>

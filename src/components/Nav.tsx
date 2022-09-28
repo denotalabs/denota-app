@@ -12,22 +12,21 @@ import {
 import NavbarUser from "./NavbarUser";
 import SettingsCog from "./SettingsCog";
 
-export default function Nav() {
+interface Props {
+  setIsUser: any; // Fix any
+  isUser: boolean;
+}
+
+export default function Nav({ setIsUser, isUser }: Props) {
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <Text as="b">CheqProtocol</Text>
-          {/* <Text minWidth={50} fontSize="xs">
-            {blockchainState.account}
-          </Text>
-          <Text fontSize="xs">qWETH Balance: {blockchainState.qDAI}</Text>
-          <Text fontSize="xs">qDAI Balance: {blockchainState.qWETH}</Text> */}
-
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
               <NavbarUser />
-              <SettingsCog />
+              <SettingsCog setIsUser={setIsUser} isUser={isUser} />
             </Stack>
           </Flex>
         </Flex>
