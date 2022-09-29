@@ -46,7 +46,6 @@ export const useToken = (field: string) => {
           },
         })
         .then((data) => {
-          console.log("Subgraph data: ", data["data"]);
           setTokenData(data["data"]);
         })
         .catch((err) => {

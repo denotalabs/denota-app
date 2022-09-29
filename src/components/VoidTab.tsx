@@ -1,11 +1,11 @@
-import CheqCard from "../components/CheqCard";
+import CheqCard from "./CheqCard";
 import { DaiAddress } from "../context/BlockchainDataProvider";
 import { useAccount } from "../hooks/useAccount";
 import { ethers } from "ethers";
 import { Skeleton, Stack } from "@chakra-ui/react";
 
-function CashTab() {
-  const accountData = useAccount(true);
+function VoidTab() {
+  const accountData = useAccount(false);
 
   if (accountData) {
     const cheqs = accountData["tokensOwned"].map(
@@ -47,7 +47,7 @@ function CashTab() {
             created={created}
             expiry={expiration}
             isCashable={isCashable}
-            isUser={true}
+            isUser={false}
           />
         );
       }
@@ -72,4 +72,4 @@ function CashTab() {
   }
 }
 
-export default CashTab;
+export default VoidTab;

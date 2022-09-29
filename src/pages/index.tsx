@@ -27,11 +27,7 @@ function HomePage() {
         </Stack>
       </Center>
 
-      {isUser ? (
-        <UserFlow />
-      ) : (
-        <AuditorFlow blockchainState={blockchainState} />
-      )}
+      {isUser ? <UserFlow /> : <AuditorFlow />}
     </>
   );
 }

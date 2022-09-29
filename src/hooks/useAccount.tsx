@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
 
-const accountQuery = `
+const userAccountQuery = `
 query accounts($account: String ){
   accounts(where: { id: $account })  {
 
@@ -26,9 +26,18 @@ query accounts($account: String ){
         id
       }
     }
+
     auditorsRequested {
       id
       auditorAddress {
+        id
+      }
+      isWaiting
+      createdAt
+    }
+    usersRequested {
+      id
+      userAddress {
         id
       }
       isWaiting
@@ -38,10 +47,56 @@ query accounts($account: String ){
 }
 `;
 
-export const useAccount = () => {
+const auditorAccountQuery = `
+query accounts($account: String ){
+  accounts(where: { id: $account })  {
+
+    tokensAuditing {
+      id
+      createdAt
+      amount
+      expiry
+      ercToken {
+        id
+      }
+      status
+      transactionHash
+      drawer {
+        id
+      }
+      recipient {
+        id
+      }
+      auditor {
+        id
+      }
+    }
+
+    auditorsRequested {
+      id
+      auditorAddress {
+        id
+      }
+      isWaiting
+      createdAt
+    }
+    usersRequested {
+      id
+      userAddress {
+        id
+      }
+      isWaiting
+      createdAt
+    }
+  }
+}
+`;
+
+export const useAccount = (isUser: boolean) => {
   const blockchainState = useBlockchainData();
   const account = blockchainState.account;
   const [accountData, setAccountData] = useState<any>();
+  const query = isUser ? userAccountQuery : auditorAccountQuery;
 
   useEffect(() => {
     if (account) {
@@ -51,13 +106,12 @@ export const useAccount = () => {
       });
       client
         .query({
-          query: gql(accountQuery),
+          query: gql(query),
           variables: {
             account: account.toLowerCase(),
           },
         })
         .then((data) => {
-          console.log("Subgraph data: ", data["data"]["accounts"][0]);
           setAccountData(data["data"]["accounts"][0]);
         })
         .catch((err) => {

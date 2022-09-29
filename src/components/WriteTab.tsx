@@ -9,11 +9,11 @@ import AmountField from "./input/AmountField";
 import AccountField from "./input/AccountField";
 import DurationField from "./input/DurationField";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
-import { useAccount } from "../hooks/useAccount";
+import { useHandshake } from "../hooks/useHandshake";
 
 function WriteTab() {
   const blockchainState = useBlockchainData();
-  const accountData = useAccount();
+  const handshakeData = useHandshake(true);
 
   return (
     <Formik
@@ -36,8 +36,8 @@ function WriteTab() {
           token.functions
             .allowance(blockchainState.account, blockchainState.cheqAddress) // Get user's token approval granted to Cheq
             .then((tokenAllowance) => {
-              console.log(tokenAllowance[0], typeof tokenAllowance[0]);
-              console.log(amountWei, typeof amountWei);
+              // console.log(tokenAllowance[0], typeof tokenAllowance[0]);
+              // console.log(amountWei, typeof amountWei);
               // console.log(amountWei.gt(tokenAllowance));
               if (amountWei.gt(tokenAllowance.toNumber())) {
                 // User has not approved Cheq enough allowance
@@ -45,13 +45,13 @@ function WriteTab() {
                   .approve(blockchainState.cheqAddress, amountWei)
                   .then((success) => {
                     if (success) {
-                      console.log(
-                        token.address,
-                        amountWei,
-                        values.duration,
-                        values.reviewer,
-                        values.bearer
-                      );
+                      // console.log(
+                      //   token.address,
+                      //   amountWei,
+                      //   values.duration,
+                      //   values.reviewer,
+                      //   values.bearer
+                      // );
                       blockchainState.cheq?.depositWrite(
                         token.address,
                         amountWei,
@@ -65,14 +65,14 @@ function WriteTab() {
                   });
               } else {
                 // User has approved enough, write cheq
-                console.log(
-                  0,
-                  token.address,
-                  amountWei,
-                  values.duration,
-                  values.reviewer,
-                  values.bearer
-                );
+                // console.log(
+                //   0,
+                //   token.address,
+                //   amountWei,
+                //   values.duration,
+                //   values.reviewer,
+                //   values.bearer
+                // );
                 blockchainState.cheq
                   ?.depositWrite(
                     0,

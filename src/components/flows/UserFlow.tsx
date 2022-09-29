@@ -8,19 +8,20 @@ function UserFlow() {
   return (
     <Tabs>
       <TabList>
-        {/* <Tab>Deposit</Tab> */}
-        <Tab>Write Cheq</Tab>
-        <Tab>My Cheqs</Tab>
-        <Tab>My Auditors</Tab>
+        {/* <Tab key={0}>Deposit</Tab> */}
+        <Tab key={1}>Write Cheq</Tab>
+        <Tab key={2}>My Cheqs</Tab>
+        <Tab key={3}>My Auditors</Tab>
       </TabList>
+
       <TabPanels>
-        <TabPanel>
+        <TabPanel key={1}>
           <WriteTab />
         </TabPanel>
-        <TabPanel>
+        <TabPanel key={2}>
           <CashTab />
         </TabPanel>
-        <TabPanel>
+        <TabPanel key={3}>
           <AuditorsTab />
         </TabPanel>
       </TabPanels>

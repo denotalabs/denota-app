@@ -14,6 +14,7 @@ interface Props {
   auditor: string;
   created: string;
   isCashable: Boolean;
+  isUser: boolean;
 }
 
 export default function CheqCard({
@@ -26,32 +27,47 @@ export default function CheqCard({
   auditor,
   created,
   isCashable,
+  isUser,
 }: Props) {
   const blockchainState = useBlockchainData();
 
   let button;
-  if (status == "Cashed") {
-    button = <Button disabled>Cashed</Button>;
+  if (isUser) {
+    if (status == "Cashed") {
+      button = <Button disabled>Cashed</Button>;
+    } else {
+      button = isCashable ? (
+        <Button
+          onClick={(e) => {
+            blockchainState.cheq?.cashCheque(cheqId);
+          }}
+        >
+          Cash Cheq
+        </Button>
+      ) : (
+        <Button
+          onClick={(e) => {
+            alert("Auditor has been notified");
+          }}
+          className=""
+        >
+          Cancel Cheq
+        </Button>
+      );
+      status = isCashable ? "Mature" : status;
+    }
   } else {
-    button = isCashable ? (
-      <Button
-        onClick={(e) => {
-          blockchainState.cheq?.cashCheque(cheqId);
-        }}
-      >
-        Cash Cheq
-      </Button>
-    ) : (
-      <Button
-        onClick={(e) => {
-          alert("Auditor has been notified");
-        }}
-        className=""
-      >
-        Cancel Cheq
-      </Button>
-    );
-    status = isCashable ? "Mature" : status;
+    if (!isCashable) {
+      button = (
+        <Button
+          onClick={(e) => {
+            blockchainState.cheq?.voidCheque(cheqId);
+          }}
+        >
+          Void Cheq
+        </Button>
+      );
+    }
   }
 
   return (

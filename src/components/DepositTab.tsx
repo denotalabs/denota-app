@@ -24,9 +24,9 @@ function DepositTab() {
           const depositToken = // Token Contract
             values.token == "dai" ? blockchainState.dai : blockchainState.weth;
 
-          console.log(blockchainState.daiAllowance.toString());
-          console.log(depositToken, weiAmount);
-          console.log(weiAmount, weiAmount.lte(blockchainState.daiAllowance));
+          // console.log(blockchainState.daiAllowance.toString());
+          // console.log(depositToken, weiAmount);
+          // console.log(weiAmount, weiAmount.lte(blockchainState.daiAllowance));
 
           if (weiAmount.lte(blockchainState.daiAllowance)) {
             blockchainState.cheq.functions["deposit(address,uint256)"](

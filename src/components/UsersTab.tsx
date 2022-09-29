@@ -7,9 +7,9 @@ import AccountField from "./input/AccountField";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useHandshake } from "../hooks/useHandshake";
 
-function AuditorsTab() {
+function UsersTab() {
   const blockchainState = useBlockchainData();
-  const handshakeData = useHandshake(true);
+  const handshakeData = useHandshake(false);
 
   if (!handshakeData) {
     return (
@@ -20,22 +20,22 @@ function AuditorsTab() {
       </>
     );
   } else {
-    let userAuditors: any = handshakeData.map((auditor: any, index: number) => (
-      <li key={index}>{auditor}</li>
+    let auditorsUsers: any = handshakeData.map((user: any, index: number) => (
+      <li key={index}>{user}</li>
     ));
-    if (!userAuditors) {
-      userAuditors = <li key={0}>Request an auditor below</li>;
+    if (auditorsUsers == false) {
+      auditorsUsers = <li key={0}>Accept a user below</li>;
     }
     return (
       <div>
         <br></br>
-        Your current auditors:
+        Your current users:
         <br></br>
         <br></br>
         <Box
           key={1}
           p={6}
-          maxW={"460px"}
+          maxW={"455px"}
           w={"full"}
           boxShadow="sm"
           rounded={"lg"}
@@ -43,21 +43,24 @@ function AuditorsTab() {
           borderRadius="lg"
           zIndex={1}
         >
-          {userAuditors}
+          {auditorsUsers}
         </Box>
         <br></br>
         <Formik
           initialValues={{ address: "", accountType: "add" }}
           onSubmit={(values, actions) => {
-            let bool = true ? values.accountType === "add" : false;
-            blockchainState.cheq?.acceptAuditor(values.address, bool);
+            if (values.accountType === "add") {
+              blockchainState.cheq?.acceptUser(values.address, true);
+            } else {
+              blockchainState.cheq?.acceptUser(values.address, false);
+            }
           }}
         >
           {(props) => (
             <Form>
               <RadioButtonField
                 fieldName="accountType"
-                label="Add or remove auditor?"
+                label="Add or remove user?"
                 values={["add", "remove"]}
               />
               <br />
@@ -75,4 +78,4 @@ function AuditorsTab() {
   }
 }
 
-export default AuditorsTab;
+export default UsersTab;
