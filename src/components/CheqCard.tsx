@@ -54,7 +54,7 @@ export default function CheqCard({
           Cancel Cheq
         </Button>
       );
-      status = isCashable ? "Mature" : status;
+      status = isCashable ? "Matured" : status;
     }
   } else {
     if (!isCashable) {
@@ -67,6 +67,8 @@ export default function CheqCard({
           Void Cheq
         </Button>
       );
+    } else {
+      button = <Button disabled>Matured</Button>;
     }
   }
 

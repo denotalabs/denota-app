@@ -8,7 +8,7 @@ function VoidTab() {
   const accountData = useAccount(false);
 
   if (accountData) {
-    const cheqs = accountData["tokensOwned"].map(
+    const cheqs = accountData["tokensAuditing"].map(
       (token: any, index: number) => {
         const cheqId = parseInt(token.id, 16);
         const status =
@@ -55,7 +55,7 @@ function VoidTab() {
 
     return (
       <div>
-        You have {accountData["tokensOwned"].length} cheq(s):
+        You have {accountData["tokensAuditing"].length} cheq(s):
         <br></br>
         <br></br>
         {cheqs}

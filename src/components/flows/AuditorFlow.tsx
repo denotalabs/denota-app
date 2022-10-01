@@ -1,17 +1,20 @@
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 
 import UsersTab from "../UsersTab";
+import VoidTab from "../VoidTab";
 
 function AuditorFlow() {
   return (
     <Tabs>
       <TabList>
-        <Tab>Cheqs</Tab>
+        <Tab>Auditing</Tab>
         <Tab>User Requests</Tab>
       </TabList>
 
       <TabPanels>
-        <TabPanel>Accept or deny</TabPanel>
+        <TabPanel>
+          <VoidTab />
+        </TabPanel>
         <TabPanel>
           <UsersTab />
         </TabPanel>

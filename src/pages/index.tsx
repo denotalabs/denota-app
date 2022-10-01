@@ -26,7 +26,6 @@ function HomePage() {
           </Center>
         </Stack>
       </Center>
-
       {isUser ? <UserFlow /> : <AuditorFlow />}
     </>
   );
