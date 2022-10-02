@@ -5,11 +5,11 @@ import { Box, Button, Flex, Stack, Skeleton } from "@chakra-ui/react";
 import RadioButtonField from "./RadioButtonField";
 import AccountField from "./input/AccountField";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
-import { useHandshake } from "../hooks/useHandshake";
+import { useHandshakes } from "../hooks/useHandshakes";
 
 function AuditorsTab() {
   const blockchainState = useBlockchainData();
-  const handshakeData = useHandshake(true);
+  const handshakeData = useHandshakes(true);
 
   if (!handshakeData) {
     return (

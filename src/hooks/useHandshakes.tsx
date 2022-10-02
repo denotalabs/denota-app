@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
-import { useAccount } from "../hooks/useAccount";
+import { useAccount } from "./useAccount";
 
 const auditorHandshakeQuery = `
 query handshakes($auditorRequests: [String] ){
@@ -27,10 +27,10 @@ query handshakes($userRequests: [String] ){
 }
 `;
 
-export const useHandshake = (isUser: boolean) => {
+export const useHandshakes = (isUser: boolean) => {
   const blockchainState = useBlockchainData();
   const account = blockchainState.account;
-  const accountData = useAccount(isUser);
+  const accountData = useAccount(isUser, "");
   const [handshakeData, setHandshakeData] = useState<any>();
 
   useEffect(() => {
@@ -40,7 +40,6 @@ export const useHandshake = (isUser: boolean) => {
         cache: new InMemoryCache(),
       });
       if (isUser) {
-        // console.log(accountData)
         const auditorRequests = accountData.auditorsRequested.map(
           (auditor: any) => {
             if (auditor.isWaiting) {

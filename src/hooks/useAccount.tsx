@@ -2,51 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
 
-const userAccountQuery = `
-query accounts($account: String ){
-  accounts(where: { id: $account })  {
-
-    tokensOwned {
-      id
-      createdAt
-      amount
-      expiry
-      ercToken {
-        id
-      }
-      status
-      transactionHash
-      drawer {
-        id
-      }
-      recipient {
-        id
-      }
-      auditor {
-        id
-      }
-    }
-
-    auditorsRequested {
-      id
-      auditorAddress {
-        id
-      }
-      isWaiting
-      createdAt
-    }
-    usersRequested {
-      id
-      userAddress {
-        id
-      }
-      isWaiting
-      createdAt
-    }
-  }
-}
-`;
-
 const auditorAccountQuery = `
 query accounts($account: String ){
   accounts(where: { id: $account })  {
@@ -92,14 +47,144 @@ query accounts($account: String ){
 }
 `;
 
-export const useAccount = (isUser: boolean) => {
+export const useAccount = (isUser: boolean, isTokenSelect: string) => {
   const blockchainState = useBlockchainData();
   const account = blockchainState.account;
   const [accountData, setAccountData] = useState<any>();
-  const query = isUser ? userAccountQuery : auditorAccountQuery;
 
   useEffect(() => {
     if (account) {
+      isTokenSelect = isTokenSelect ? isTokenSelect : "tokensOwned";
+      let userAccountQuery;
+      if (isTokenSelect == "all") {
+        userAccountQuery = `
+        query accounts($account: String ){
+          accounts(where: { id: $account })  {
+            tokensOwned {
+              id
+              createdAt
+              amount
+              expiry
+              ercToken {
+                id
+              }
+              status
+              transactionHash
+              drawer {
+                id
+              }
+              recipient {
+                id
+              }
+              auditor {
+                id
+              }
+            }
+            tokensSent {
+              id
+              createdAt
+              amount
+              expiry
+              ercToken {
+                id
+              }
+              status
+              transactionHash
+              drawer {
+                id
+              }
+              recipient {
+                id
+              }
+              auditor {
+                id
+              }
+            }
+            tokensReceived {
+              id
+              createdAt
+              amount
+              expiry
+              ercToken {
+                id
+              }
+              status
+              transactionHash
+              drawer {
+                id
+              }
+              recipient {
+                id
+              }
+              auditor {
+                id
+              }
+            }
+            auditorsRequested {
+              id
+              auditorAddress {
+                id
+              }
+              isWaiting
+              createdAt
+            }
+            usersRequested {
+              id
+              userAddress {
+                id
+              }
+              isWaiting
+              createdAt
+            }
+          }
+        }
+        `;
+      } else {
+        userAccountQuery = `
+      query accounts($account: String ){
+        accounts(where: { id: $account })  {
+          ${isTokenSelect} {
+            id
+            createdAt
+            amount
+            expiry
+            ercToken {
+              id
+            }
+            status
+            transactionHash
+            drawer {
+              id
+            }
+            recipient {
+              id
+            }
+            auditor {
+              id
+            }
+          }
+          auditorsRequested {
+            id
+            auditorAddress {
+              id
+            }
+            isWaiting
+            createdAt
+          }
+          usersRequested {
+            id
+            userAddress {
+              id
+            }
+            isWaiting
+            createdAt
+          }
+        }
+      }
+      `;
+      }
+
+      const query = isUser ? userAccountQuery : auditorAccountQuery;
       const client = new ApolloClient({
         uri: APIURL,
         cache: new InMemoryCache(),
@@ -109,6 +194,7 @@ export const useAccount = (isUser: boolean) => {
           query: gql(query),
           variables: {
             account: account.toLowerCase(),
+            tokenType: isTokenSelect,
           },
         })
         .then((data) => {
@@ -118,70 +204,7 @@ export const useAccount = (isUser: boolean) => {
           console.log("Error fetching data: ", err);
         });
     }
-  }, [account]);
+  }, [account, isTokenSelect]);
 
   return accountData;
 };
-
-// const accountQuery = `
-// query accounts($account: String ){
-//   accounts(where: { id: $account })  {
-//     id
-
-//     tokensOwned {
-//       id
-//       createdAt
-//       amount
-//       expiry
-//       ercToken
-//       status
-//       transactionHash
-//       owner
-//       drawer
-//       recipient
-//       auditor
-//     }
-//     numTokensOwned
-
-//     tokensSent {
-//       id
-//     }
-//     numTokensSent
-
-//     tokensAuditing {
-//       id
-//     }
-//     numTokensAuditing
-
-//     tokensReceived{
-//       id
-//     }
-//     numTokensReceived
-
-//     tokensCashed {
-//       id
-//     }
-//     numTokensCashed
-
-//     tokensVoided {
-//       id
-//     }
-//     numTokensVoided
-
-//     voidedTokens {
-//       id
-//     }
-//     numVoidedTokens
-
-//     auditorsRequested {
-//       id
-//     }
-//     numAuditorsRequested
-
-//     usersRequested {
-//       id
-//     }
-//     numUsersRequested
-//   }
-// }
-// `;
