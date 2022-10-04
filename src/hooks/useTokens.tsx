@@ -26,23 +26,6 @@ query accounts($account: String ){
         id
       }
     }
-
-    auditorsRequested {
-      id
-      auditorAddress {
-        id
-      }
-      isWaiting
-      createdAt
-    }
-    usersRequested {
-      id
-      userAddress {
-        id
-      }
-      isWaiting
-      createdAt
-    }
   }
 }
 `;

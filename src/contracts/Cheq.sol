@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.14;
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
@@ -33,10 +33,6 @@ contract Cheq is ERC721, Ownable {
     // mapping(address => mapping(uint256 => bool)) public auditorDurations; // Auditor voiding periods
     mapping(address => mapping(address => uint256))
         public acceptedAuditorTimestamp;
-    
-    mapping(address => address) public trustedAccount; // User's trusted account
-    mapping(address => uint256) public lastTrustedChange; // Last time user updated trusted account
-    uint256 public trustedAccountCooldown = 180 days; // Cooldown before user can change trusted account again
 
     mapping(uint256 => Cheque) public chequeInfo; // Cheque information
     mapping(address => mapping(IERC20 => uint256)) public deposits; // Total user deposits
@@ -64,18 +60,18 @@ contract Cheq is ERC721, Ownable {
         address recipient
     ) {
         if (auditor!=_msgSender()){
-            require(userAuditor[_msgSender()][auditor], "Unapproved auditor");  // You haven't requested auditor
-            require(auditorUser[auditor][_msgSender()], "Auditor must approve you");
+            require(userAuditor[_msgSender()][auditor], "AUDITOR_UNAUTH");  // You haven't requested this auditor
+            require(auditorUser[auditor][_msgSender()], "UNAPP_AUDITOR");  // auditor hasn't approved you
             require(
                 auditorUser[auditor][recipient],
-                "Auditor must approve recipient"
+                "AUDITOR:UNAUTH_RECIPIENT"
             );
             // require(auditorDurations[auditor][duration], "Duration not allowed");
+            require(
+                userAuditor[recipient][auditor],
+                "RECIPIENT:UNAUTH_AUDITOR"
+            );
         }
-        require(
-            userAuditor[recipient][auditor],
-            "Recipient must approve auditor"
-        );
         _;
     }
 
@@ -215,12 +211,7 @@ contract Cheq is ERC721, Ownable {
     {
         require(
             amount <= deposits[_msgSender()][_token],
-            "Insufficient balance"
-        );
-        require(
-            block.timestamp >=
-                acceptedAuditorTimestamp[_msgSender()][auditor], // + 24 hours, TODO ADD THIS BACK AFTER DEMO
-            "New Auditor cooldown"
+            "INSUF_BAL"
         );
         deposits[_msgSender()][_token] -= amount;
         chequeInfo[totalSupply] = _initCheque(_token, amount, duration, auditor, recipient);
@@ -258,13 +249,6 @@ contract Cheq is ERC721, Ownable {
         _voidCheque(cheque, chequeID, cheque.drawer);
     }
 
-    function voidRescueCheque(uint256 chequeID) external {
-        Cheque storage cheque = chequeInfo[chequeID];
-        address fallbackAccount = trustedAccount[cheque.drawer];
-        require(fallbackAccount != address(0), "No Fallback");
-        _voidCheque(cheque, chequeID, fallbackAccount);
-    }
-
     /*//////////////////////////////////////////////////////////////
                           AUDITOR FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -286,18 +270,6 @@ contract Cheq is ERC721, Ownable {
     //     auditorDurations[_msgSender()][duration] = true;
     // }
 
-    function setTrustedAccount(address account) external {
-        // User will set this
-        require(
-            lastTrustedChange[_msgSender()] == 0 ||
-                (block.timestamp >=
-                    lastTrustedChange[_msgSender()] + trustedAccountCooldown),
-            "Trusted account cooldown"
-        );
-        trustedAccount[_msgSender()] = account;
-        lastTrustedChange[_msgSender()] = block.timestamp;
-    }
-
     function depositWrite(
         IERC20 _token,
         uint256 amount,
@@ -307,35 +279,5 @@ contract Cheq is ERC721, Ownable {
         returns (uint256){
         require(deposit(_token, amount), "deposit failed");
         return writeCheque(_token, amount, duration, auditor, recipient);
-    }
-    /*//////////////////////////////////////////////////////////////
-                   CHEQUE READ FUNCTIONS (NECESSARY?)
-    //////////////////////////////////////////////////////////////*/
-    function chequeAmount(uint256 chequeId) external view returns (uint256) {
-        return chequeInfo[chequeId].amount;
-    }
-
-    function chequeCreated(uint256 chequeId) external view returns (uint256) {
-        return chequeInfo[chequeId].created;
-    }
-
-    function chequeExpiry(uint256 chequeId) external view returns (uint256) {
-        return chequeInfo[chequeId].expiry;
-    }
-
-    function chequeToken(uint256 chequeId) external view returns (IERC20) {
-        return chequeInfo[chequeId].token;
-    }
-
-    function chequeDrawer(uint256 chequeId) external view returns (address) {
-        return chequeInfo[chequeId].drawer;
-    }
-
-    function chequeRecipient(uint256 chequeId) external view returns (address) {
-        return chequeInfo[chequeId].recipient;
-    }
-
-    function chequeAuditor(uint256 chequeId) external view returns (address) {
-        return chequeInfo[chequeId].auditor;
     }
 }

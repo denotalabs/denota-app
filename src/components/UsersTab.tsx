@@ -20,12 +20,24 @@ function UsersTab() {
       </>
     );
   } else {
-    let auditorsUsers: any = handshakeData.map((user: any, index: number) => (
-      <li key={index}>{user}</li>
-    ));
-    if (auditorsUsers == false) {
-      auditorsUsers = <li key={0}>Accept a user below</li>;
-    }
+    let auditorsUsers: any = handshakeData["completed"].map(
+      (user: any, index: number) => <li key={index}>{user}</li>
+    );
+    auditorsUsers = auditorsUsers ? (
+      auditorsUsers
+    ) : (
+      <li key={0}>Accept a user below</li>
+    );
+
+    let auditorsRequested = handshakeData["requested"].map(
+      (user: any, index: number) => <li key={index}>{user}</li>
+    );
+    auditorsRequested = auditorsRequested ? (
+      auditorsRequested
+    ) : (
+      <li key={0}>Accept a user below</li>
+    );
+
     return (
       <div>
         <br></br>
@@ -73,6 +85,23 @@ function UsersTab() {
             </Form>
           )}
         </Formik>
+        <br></br>
+        Your requested users:
+        <br></br>
+        <br></br>
+        <Box
+          key={2}
+          p={6}
+          maxW={"455px"}
+          w={"full"}
+          boxShadow="sm"
+          rounded={"lg"}
+          borderWidth="1px"
+          borderRadius="lg"
+          zIndex={1}
+        >
+          {auditorsRequested}
+        </Box>
       </div>
     );
   }

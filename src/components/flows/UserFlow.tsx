@@ -15,11 +15,11 @@ import CashTab from "../CashTab";
 import WriteTab from "../WriteTab";
 import AuditorsTab from "../AuditorsTab";
 import { useState } from "react";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 function UserFlow() {
   const [isTokenSelect, setTokenSelect] = useState("tokensOwned"); // tokensOwned, tokensSent, tokensAuditing, tokensReceived, tokensCashed, tokensVoided
   // const [isSort, setIsSort] = useState("asc");  // asc, desc
-
   return (
     <Tabs>
       <TabList>
@@ -35,7 +35,13 @@ function UserFlow() {
         </TabPanel>
         <TabPanel key={2}>
           <Menu>
-            <MenuButton as={Button} cursor={"pointer"} minW={0} my={3}>
+            <MenuButton
+              as={Button}
+              cursor={"pointer"}
+              minW={0}
+              my={3}
+              rightIcon={<ChevronDownIcon />}
+            >
               Filter
             </MenuButton>
             <MenuList alignItems={"center"}>

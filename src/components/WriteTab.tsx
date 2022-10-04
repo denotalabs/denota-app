@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 import { Form, Formik } from "formik";
 
@@ -13,7 +13,7 @@ import { useHandshakes } from "../hooks/useHandshakes";
 
 function WriteTab() {
   const blockchainState = useBlockchainData();
-  const handshakeData = useHandshakes(true);
+  // const handshakeData = useHandshakes(true);
 
   return (
     <Formik
@@ -36,7 +36,7 @@ function WriteTab() {
           token.functions
             .allowance(blockchainState.account, blockchainState.cheqAddress) // Get user's token approval granted to Cheq
             .then((tokenAllowance) => {
-              if (amountWei.gt(tokenAllowance.toNumber())) {
+              if (amountWei.sub(tokenAllowance[0]) >= BigNumber.from(0)) {
                 // User has not approved Cheq enough allowance
                 token.functions
                   .approve(blockchainState.cheqAddress, amountWei)
@@ -56,7 +56,6 @@ function WriteTab() {
               } else {
                 blockchainState.cheq
                   ?.depositWrite(
-                    0,
                     token.address,
                     amountWei,
                     values.duration,
