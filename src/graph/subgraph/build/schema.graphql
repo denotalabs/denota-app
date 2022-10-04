@@ -34,30 +34,23 @@ type Account @entity {
   voidedTokens: [Token!]!
   numVoidedTokens: BigInt!
 
-  auditorsRequested: [RequestAuditor!]! @derivedFrom(field: "userAddress")
+  auditorsRequested: [Handshake!]! @derivedFrom(field: "userAccount")
   numAuditorsRequested: BigInt!
-  usersRequested: [RequestUser!]! @derivedFrom(field: "auditorAddress")
+  usersRequested: [Handshake!]! @derivedFrom(field: "auditorAccount")
   numUsersRequested: BigInt!
 }
 
-type RequestAuditor @entity {
-  id: ID!
-  userAddress: Account!
-  auditorAddress: Account!
-  isWaiting: Boolean!
-  createdAt: BigInt!
-}
-type RequestUser @entity {
-  id: ID!
-  auditorAddress: Account!
-  userAddress: Account!
-  isWaiting: Boolean!
-  createdAt: BigInt!
-}
 type Handshake @entity {
   id: ID!
-  auditorShake: RequestAuditor!
-  userShake: RequestUser!
+
+  userAccount: Account!
+  userShake: Boolean!
+  userLastShake: BigInt!
+
+  auditorAccount: Account!
+  auditorShake: Boolean!
+  auditorLastShake: BigInt!
+
   completed: Boolean!
-  completedAt: BigInt!
+  lastCompleted: BigInt!
 }

@@ -9,8 +9,6 @@ import { WriteCheque,
 import { Token,
   ERC20,
   Account,
-  RequestAuditor,
-  RequestUser,
   Handshake } from "../subgraph/generated/schema"  // Entities that contain the event info
 
 function saveNewAccount(account: string): Account{
@@ -149,32 +147,32 @@ export function handleShakeAuditor(event: ShakeAuditor): void {
   let auditorAccount = Account.load(event.params.auditor.toHexString())
   auditorAccount = auditorAccount==null ? saveNewAccount(event.params.auditor.toHexString()) : auditorAccount
 
-  let requestAuditor = RequestAuditor.load(userAccount.id+auditorAccount.id)  // How to know id beforehand if not address concat?
-  if (requestAuditor==null){  // User has requested auditor for first time
-    requestAuditor = new RequestAuditor(userAccount.id+auditorAccount.id)  // Duplicate info
-    requestAuditor.auditorAddress = auditorAccount.id    
-    requestAuditor.userAddress = userAccount.id
-    requestAuditor.createdAt = event.block.timestamp
-  }
-  requestAuditor.isWaiting = event.params.accepted
-  requestAuditor.save()
+  let handshake = Handshake.load(auditorAccount.id+userAccount.id)
+  if (handshake!=null){  // A request started already, update it
+    handshake.userShake = event.params.accepted
+    if (event.params.accepted){
+      handshake.userLastShake = event.block.timestamp
+    }
+    if (handshake.userShake && handshake.auditorShake){
+      handshake.completed = true
+      handshake.lastCompleted = event.block.timestamp
+    }
+    handshake.save()
+  } else {  // User initiated handshake
+    handshake = new Handshake(auditorAccount.id+userAccount.id)
 
-  // Create/load handshake
-  let requestUser = RequestUser.load(auditorAccount.id+userAccount.id)
-  if (requestUser!=null){  // Both requests exist
+    handshake.userAccount = userAccount.id
+    handshake.userShake = event.params.accepted
+    handshake.userLastShake = event.params.accepted ? event.block.timestamp : BigInt.fromI32(0)
 
-    let handshake = Handshake.load(auditorAccount.id+userAccount.id)
-    if (handshake!=null){  // Handshake has happened before, update its status
-      handshake.completed = requestUser.isWaiting && requestAuditor.isWaiting
-      handshake.save()
-    } else {
-      handshake = new Handshake(auditorAccount.id+userAccount.id)
-      handshake.auditorShake = requestAuditor.id
-      handshake.userShake = requestUser.id
-      handshake.completed = requestUser.isWaiting && requestAuditor.isWaiting
-      handshake.completedAt = event.block.timestamp
-      handshake.save()
-    } 
+    handshake.auditorAccount = auditorAccount.id
+    handshake.auditorShake = false
+    handshake.auditorLastShake = BigInt.fromI32(0)
+
+    handshake.completed = false
+    handshake.lastCompleted = BigInt.fromI32(0)
+
+    handshake.save()
   }
 }
 
@@ -184,32 +182,32 @@ export function handleShakeUser(event: ShakeUser): void {
   let userAccount = Account.load(event.params.user.toHexString())
   userAccount = userAccount==null ? saveNewAccount(event.params.user.toHexString()) : userAccount
 
-  let requestUser = RequestUser.load(auditorAccount.id+userAccount.id)  // How to know id beforehand if not address concat?
-  if (requestUser==null){  // User has requested auditor for first time
-    requestUser = new RequestUser(auditorAccount.id+userAccount.id)  // Duplicate info
-    requestUser.auditorAddress = auditorAccount.id    
-    requestUser.userAddress = userAccount.id
-    requestUser.createdAt = event.block.timestamp
+  let handshake = Handshake.load(auditorAccount.id+userAccount.id)
+  if (handshake!=null){  // A request started already, update it
+    handshake.auditorShake = event.params.accepted
+    if (event.params.accepted){
+      handshake.auditorLastShake = event.block.timestamp
+    }
+    if (handshake.userShake && handshake.auditorShake){
+      handshake.completed = true
+      handshake.lastCompleted = event.block.timestamp
+    }
+    handshake.save()
+
+  } else {  // Auditor initiated handshake
+    handshake = new Handshake(auditorAccount.id+userAccount.id)
+
+    handshake.userAccount = userAccount.id
+    handshake.userShake = false 
+    handshake.userLastShake = BigInt.fromI32(0)
+
+    handshake.auditorAccount = auditorAccount.id
+    handshake.auditorShake = event.params.accepted
+    handshake.auditorLastShake = event.params.accepted ? event.block.timestamp : BigInt.fromI32(0)
+
+    handshake.completed = false
+    handshake.lastCompleted = BigInt.fromI32(0)
+
+    handshake.save()
   }
-  requestUser.isWaiting = event.params.accepted
-  requestUser.save()
-
-  // Create/load handshake
-  let requestAuditor = RequestAuditor.load(userAccount.id+auditorAccount.id)
-  if (requestAuditor!=null){  // Both requests exist
-
-    let handshake = Handshake.load(auditorAccount.id+userAccount.id)
-    if (handshake!=null){  // Handshake has happened before, update its status
-      handshake.completed = requestUser.isWaiting && requestAuditor.isWaiting
-      handshake.save()
-    } else {
-      handshake = new Handshake(auditorAccount.id+userAccount.id)
-      handshake.auditorShake = requestAuditor.id
-      handshake.userShake = requestUser.id
-      handshake.completed = requestUser.isWaiting && requestAuditor.isWaiting
-      handshake.completedAt = event.block.timestamp
-      handshake.save()
-    } 
-  }
-
 }

@@ -33,7 +33,7 @@ interface BlockchainDataInterface {
   signer: null | ethers.providers.JsonRpcSigner;
 }
 
-export const CheqAddress = "0x9DCD716739CFdF61d9B73fC20f4D13dCf898D956";
+export const CheqAddress = "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A";
 export const DaiAddress = "0x982723cb1272271b5ee405A5F14E9556032d9308";
 export const WethAddress = "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e";
 

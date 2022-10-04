@@ -23,19 +23,20 @@ function AuditorsTab() {
     let userAuditors: any = handshakeData["completed"].map(
       (auditor: any, index: number) => <li key={index}>{auditor}</li>
     );
-    userAuditors = userAuditors ? (
+    userAuditors = userAuditors.length ? (
       userAuditors
     ) : (
-      <li key={0}>Request an auditor below</li>
+      <li>Request an auditor below</li>
     );
 
     let usersRequested = handshakeData["requested"].map(
       (auditor: any, index: number) => <li key={index}>{auditor}</li>
     );
-    usersRequested = usersRequested ? (
+
+    usersRequested = usersRequested.length ? (
       usersRequested
     ) : (
-      <li key={0}>Accept an auditor below</li>
+      <li>Accept an auditor below</li>
     );
 
     return (

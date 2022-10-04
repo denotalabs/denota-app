@@ -280,4 +280,31 @@ contract Cheq is ERC721, Ownable {
         require(deposit(_token, amount), "deposit failed");
         return writeCheque(_token, amount, duration, auditor, recipient);
     }
+    function chequeAmount(uint256 chequeId) external view returns (uint256) {
+        return chequeInfo[chequeId].amount;
+    }
+
+    function chequeCreated(uint256 chequeId) external view returns (uint256) {
+        return chequeInfo[chequeId].created;
+    }
+
+    function chequeExpiry(uint256 chequeId) external view returns (uint256) {
+        return chequeInfo[chequeId].expiry;
+    }
+
+    function chequeToken(uint256 chequeId) external view returns (IERC20) {
+        return chequeInfo[chequeId].token;
+    }
+
+    function chequeDrawer(uint256 chequeId) external view returns (address) {
+        return chequeInfo[chequeId].drawer;
+    }
+
+    function chequeRecipient(uint256 chequeId) external view returns (address) {
+        return chequeInfo[chequeId].recipient;
+    }
+
+    function chequeAuditor(uint256 chequeId) external view returns (address) {
+        return chequeInfo[chequeId].auditor;
+    }
 }

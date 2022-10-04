@@ -54,13 +54,21 @@ function CashTab({ isTokenSelect }: Props) {
         />
       );
     });
-
     return (
       <div>
         You have {tokenData.length} cheq(s):
         <br></br>
         <br></br>
         {cheqs}
+      </div>
+    );
+  } else if (tokenData == null) {
+    return (
+      <div>
+        You have 0 cheq(s):
+        <br></br>
+        <br></br>
+        No cheqs yet
       </div>
     );
   } else {

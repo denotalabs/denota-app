@@ -359,45 +359,45 @@ contract ContractTest is Test {
         cheq.transferFrom(recipient, msg.sender, chequeID);
     }
 
-    function testVoidRescueCheque() public {
-        uint256 _amount = 100e18;
-        address auditor = vm.addr(1);
-        address recipient = vm.addr(2);
-        address trusted = vm.addr(3);
-        uint256 duration = 60 * 60 * 24 * 7 + cheq.trustedAccountCooldown();
+    // function testVoidRescueCheque() public {
+    //     uint256 _amount = 100e18;
+    //     address auditor = vm.addr(1);
+    //     address recipient = vm.addr(2);
+    //     address trusted = vm.addr(3);
+    //     uint256 duration = 60 * 60 * 24 * 7 + cheq.trustedAccountCooldown();
 
-        // Set drawer's trusted account
-        vm.warp(block.timestamp + cheq.trustedAccountCooldown() + 1);
-        vm.prank(msg.sender);
-        cheq.setTrustedAccount(trusted);
+    //     // Set drawer's trusted account
+    //     vm.warp(block.timestamp + cheq.trustedAccountCooldown() + 1);
+    //     vm.prank(msg.sender);
+    //     cheq.setTrustedAccount(trusted);
 
-        uint256 chequeID = writeChequeHelper(
-            _amount,
-            auditor,
-            recipient,
-            duration
-        );
+    //     uint256 chequeID = writeChequeHelper(
+    //         _amount,
+    //         auditor,
+    //         recipient,
+    //         duration
+    //     );
 
-        // Void cheque
-        assertTrue(cheq.deposits(trusted, dai) == 0);
-        assertTrue(cheq.balanceOf(recipient) == 1); // recipient owns cheque
-        vm.prank(auditor);
-        cheq.voidRescueCheque(chequeID); // Auditor calls voidCheque
-        assertTrue(cheq.balanceOf(recipient) == 0, "recipient has balance of"); // recipient owns 1 less cheque
-        vm.expectRevert("ERC721: invalid token ID");
-        cheq.ownerOf(chequeID);
-        // Trusted account gets deposit
-        assertTrue(
-            cheq.deposits(trusted, dai) == _amount,
-            "trusted didn't get collateral"
-        );
-    }
+    //     // Void cheque
+    //     assertTrue(cheq.deposits(trusted, dai) == 0);
+    //     assertTrue(cheq.balanceOf(recipient) == 1); // recipient owns cheque
+    //     vm.prank(auditor);
+    //     cheq.voidRescueCheque(chequeID); // Auditor calls voidCheque
+    //     assertTrue(cheq.balanceOf(recipient) == 0, "recipient has balance of"); // recipient owns 1 less cheque
+    //     vm.expectRevert("ERC721: invalid token ID");
+    //     cheq.ownerOf(chequeID);
+    //     // Trusted account gets deposit
+    //     assertTrue(
+    //         cheq.deposits(trusted, dai) == _amount,
+    //         "trusted didn't get collateral"
+    //     );
+    // }
 
-    function testSetTrustedAccount(address trusted) public {
-        vm.warp(block.timestamp + cheq.trustedAccountCooldown() + 1);
-        vm.prank(msg.sender);
-        cheq.setTrustedAccount(trusted);
-    }
+    // function testSetTrustedAccount(address trusted) public {
+    //     vm.warp(block.timestamp + cheq.trustedAccountCooldown() + 1);
+    //     vm.prank(msg.sender);
+    //     cheq.setTrustedAccount(trusted);
+    // }
 
     function testAcceptUser(address auditor, address user) public {
         vm.prank(auditor);

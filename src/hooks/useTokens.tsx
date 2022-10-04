@@ -78,7 +78,11 @@ export const useTokens = (isTokenSelect: string, isUser: boolean) => {
           },
         })
         .then((data) => {
-          setTokenData(data["data"]["accounts"][0][isTokenSelect]);
+          if (data["data"]["accounts"][0]) {
+            setTokenData(data["data"]["accounts"][0][isTokenSelect]);
+          } else {
+            setTokenData(null);
+          }
         })
         .catch((err) => {
           console.log("Error fetching data: ", err);
