@@ -173,27 +173,3 @@ export const BlockchainDataProvider = memo(
 export function useBlockchainData() {
   return useContext(BlockchainDataContext);
 }
-
-const getUserCheques = async (
-  cheqContract: ethers.Contract,
-  account: string,
-  userChequeCount: number
-) => {
-  const userCheques = [];
-  let cheque, cheqOwner;
-  for (let i = 0; userCheques.length < userChequeCount; i++) {
-    cheqOwner = await cheqContract.ownerOf(i);
-    cheque = await cheqContract.chequeInfo(i);
-
-    let timeCreated = cheque.created.toNumber();
-    timeCreated = new Date(timeCreated * 1000); // console.log(timeCreated)
-
-    if (cheqOwner == account) {
-      userCheques.push([i, cheque, timeCreated]);
-    } else if (cheque.drawer == account) {
-      userCheques.push([i, cheque, timeCreated]);
-    }
-  }
-
-  return userCheques.reverse(); // ID, Cheq struct, timeCreated
-};

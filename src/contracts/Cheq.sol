@@ -11,6 +11,23 @@ import "openzeppelin/access/Ownable.sol";
 // DAI: 0x9A753f0F7886C9fbF63cF59D0D4423C5eFaCE95B
 // WETH: 0xd575d4047f8c667E064a4ad433D04E25187F40BB
 
+/*
+Pay fees on:
+    Transfer- from owner to protocol (flat fee) [from cheque.amount] ✅
+    WriteCheque- from drawer to auditor (flat and/or percent) [from cheque.amount | auditor-chosen ERC20 w .transferFrom() | ]
+    Void- from drawer|recipient to auditor (flat and/or percent) [from cheque.amount | auditor-chosen ERC20 w .transferFrom()]
+    Off-chain- from drawer|recipient to auditor (flat and/or percentage or cheqBook for off-chain pricing)
+    Native fees- from user to protocol|auditor
+        Easiest to price for user but
+Pay fees with:
+    subtract from cheque.amount
+    transfer ERC20 from paying party
+    transfer gwei from paying party
+    subtract deposit balance from paying party
+
+Don't want dangling debt if we can help it- if unavoidable, revoke handshake of debting party?
+ */
+
 contract Cheq is ERC721, Ownable {
     enum Status{Pending, Cashed, Voided}
 
@@ -30,6 +47,7 @@ contract Cheq is ERC721, Ownable {
     //////////////////////////////////////////////////////////////*/
     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
     mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User
+    mapping(address => uint256) public auditorFlatFee; // Auditor's writing fee
     // mapping(address => mapping(uint256 => bool)) public auditorDurations; // Auditor voiding periods
     mapping(address => mapping(address => uint256))
         public acceptedAuditorTimestamp;
@@ -213,6 +231,10 @@ contract Cheq is ERC721, Ownable {
             amount <= deposits[_msgSender()][_token],
             "INSUF_BAL"
         );
+        // uint256 fee = auditorFlatFee[auditor];
+        // require(msg.value >= fee, "AUD_FEE");
+        // (bool sent, ) = auditor.call({value: fee})("");
+        // require(sent, "FEE_FAIL");
         deposits[_msgSender()][_token] -= amount;
         chequeInfo[totalSupply] = _initCheque(_token, amount, duration, auditor, recipient);
         emit WriteCheque(totalSupply, amount, block.timestamp + duration, _token, _msgSender(), recipient, auditor);  // chequeInfo[chequeId]
@@ -238,9 +260,9 @@ contract Cheq is ERC721, Ownable {
     ) private {
         require(cheque.auditor == _msgSender(), "Not auditor");
         require(cheque.expiry >= block.timestamp, "Cheque matured");
-        
         cheque.status = Status.Voided;
-        deposits[depositTo][cheque.token] += cheque.amount; // Add balance back to drawer
+        // uint256 fee = auditorVoidFee[_msgSender()];
+        deposits[depositTo][cheque.token] += cheque.amount;// - fee; // Add balance back to drawer
         emit Void(ownerOf(chequeID), chequeID);
     }
 

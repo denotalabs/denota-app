@@ -21,7 +21,11 @@ function UsersTab() {
     );
   } else {
     let auditorsUsers: any = handshakeData["completed"].map(
-      (user: any, index: number) => <li key={index}>{user}</li>
+      (user: any, index: number) => {
+        if (user) {
+          return <li key={index}>{user}</li>;
+        }
+      }
     );
     auditorsUsers = auditorsUsers.length ? (
       auditorsUsers
@@ -35,7 +39,7 @@ function UsersTab() {
     auditorsRequested = auditorsRequested.length ? (
       auditorsRequested
     ) : (
-      <li key={0}>Accept a user below</li>
+      <li key={0}>Not Waiting On Any Users' Approval</li>
     );
 
     return (

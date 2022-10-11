@@ -14,6 +14,7 @@ import {
 import CashTab from "../CashTab";
 import WriteTab from "../WriteTab";
 import AuditorsTab from "../AuditorsTab";
+import AllAuditorsTab from "../AllAuditorsTab";
 import { useState } from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
@@ -27,6 +28,7 @@ function UserFlow() {
         <Tab key={1}>Write Cheq</Tab>
         <Tab key={2}>My Cheqs</Tab>
         <Tab key={3}>My Auditors</Tab>
+        <Tab key={4}>All Auditors</Tab>
       </TabList>
 
       <TabPanels>
@@ -66,6 +68,12 @@ function UserFlow() {
         </TabPanel>
         <TabPanel key={3}>
           <AuditorsTab />
+        </TabPanel>
+        <TabPanel key={3}>
+          <br></br>
+          All available auditors: <br></br>
+          <br></br>
+          <AllAuditorsTab />
         </TabPanel>
       </TabPanels>
     </Tabs>

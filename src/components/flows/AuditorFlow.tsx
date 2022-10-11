@@ -8,7 +8,7 @@ function AuditorFlow() {
     <Tabs>
       <TabList>
         <Tab>Auditing</Tab>
-        <Tab>User Requests</Tab>
+        <Tab>Your Users</Tab>
       </TabList>
 
       <TabPanels>

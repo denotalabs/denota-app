@@ -36,7 +36,7 @@ function AuditorsTab() {
     usersRequested = usersRequested.length ? (
       usersRequested
     ) : (
-      <li>Accept an auditor below</li>
+      <li>Not Waiting On Any Auditors' Approval</li>
     );
 
     return (
