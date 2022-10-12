@@ -31,11 +31,6 @@ const addToken = async (tokenAddress: string, symbol: string) => {
         },
       },
     });
-    if (wasAdded) {
-      console.log("Added");
-    } else {
-      console.log("Not added");
-    }
   } catch (error) {
     console.log(error);
   }

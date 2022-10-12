@@ -7,9 +7,9 @@ import AccountField from "./input/AccountField";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useHandshakes } from "../hooks/useHandshakes";
 
-function AuditorsTab() {
+function UsersTab() {
   const blockchainState = useBlockchainData();
-  const handshakeData = useHandshakes(true);
+  const handshakeData = useHandshakes(false);
 
   if (!handshakeData) {
     return (
@@ -20,35 +20,38 @@ function AuditorsTab() {
       </>
     );
   } else {
-    let userAuditors: any = handshakeData["completed"].map(
-      (auditor: any, index: number) => <li key={index}>{auditor}</li>
+    let auditorsUsers: any = handshakeData["completed"].map(
+      (user: any, index: number) => {
+        if (user) {
+          return <li key={index}>{user}</li>;
+        }
+      }
     );
-    userAuditors = userAuditors.length ? (
-      userAuditors
+    auditorsUsers = auditorsUsers.length ? (
+      auditorsUsers
     ) : (
-      <li>Request an auditor below</li>
+      <li key={0}>Accept a user below</li>
     );
 
-    let usersRequested = handshakeData["requested"].map(
-      (auditor: any, index: number) => <li key={index}>{auditor}</li>
+    let auditorsRequested = handshakeData["requested"].map(
+      (user: any, index: number) => <li key={index}>{user}</li>
     );
-
-    usersRequested = usersRequested.length ? (
-      usersRequested
+    auditorsRequested = auditorsRequested.length ? (
+      auditorsRequested
     ) : (
-      <li>Not Waiting On Any Auditors' Approval</li>
+      <li key={0}>Not Waiting On Any Users' Approval</li>
     );
 
     return (
       <div>
         <br></br>
-        Your current auditors:
+        Your current users:
         <br></br>
         <br></br>
         <Box
           key={1}
           p={6}
-          maxW={"460px"}
+          maxW={"455px"}
           w={"full"}
           boxShadow="sm"
           rounded={"lg"}
@@ -56,21 +59,24 @@ function AuditorsTab() {
           borderRadius="lg"
           zIndex={1}
         >
-          {userAuditors}
+          {auditorsUsers}
         </Box>
         <br></br>
         <Formik
           initialValues={{ address: "", accountType: "add" }}
           onSubmit={(values, actions) => {
-            let bool = true ? values.accountType === "add" : false;
-            blockchainState.cheq?.acceptAuditor(values.address, bool);
+            if (values.accountType === "add") {
+              blockchainState.cheq?.acceptUser(values.address, true);
+            } else {
+              blockchainState.cheq?.acceptUser(values.address, false);
+            }
           }}
         >
           {(props) => (
             <Form>
               <RadioButtonField
                 fieldName="accountType"
-                label="Add or remove auditor?"
+                label="Add or remove user?"
                 values={["add", "remove"]}
               />
               <br />
@@ -84,7 +90,7 @@ function AuditorsTab() {
           )}
         </Formik>
         <br></br>
-        Your requested auditors:
+        Your requested users:
         <br></br>
         <br></br>
         <Box
@@ -98,11 +104,11 @@ function AuditorsTab() {
           borderRadius="lg"
           zIndex={1}
         >
-          {usersRequested}
+          {auditorsRequested}
         </Box>
       </div>
     );
   }
 }
 
-export default AuditorsTab;
+export default UsersTab;

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.14;
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
@@ -10,6 +10,23 @@ import "openzeppelin/access/Ownable.sol";
 // TestWETH: 0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e
 // DAI: 0x9A753f0F7886C9fbF63cF59D0D4423C5eFaCE95B
 // WETH: 0xd575d4047f8c667E064a4ad433D04E25187F40BB
+
+/*
+Pay fees on:
+    Transfer- from owner to protocol (flat fee) [from cheque.amount] ✅
+    WriteCheque- from drawer to auditor (flat and/or percent) [from cheque.amount | auditor-chosen ERC20 w .transferFrom() | ]
+    Void- from drawer|recipient to auditor (flat and/or percent) [from cheque.amount | auditor-chosen ERC20 w .transferFrom()]
+    Off-chain- from drawer|recipient to auditor (flat and/or percentage or cheqBook for off-chain pricing)
+    Native fees- from user to protocol|auditor
+        Easiest to price for user but
+Pay fees with:
+    subtract from cheque.amount
+    transfer ERC20 from paying party
+    transfer gwei from paying party
+    subtract deposit balance from paying party
+
+Don't want dangling debt if we can help it- if unavoidable, revoke handshake of debting party?
+ */
 
 contract Cheq is ERC721, Ownable {
     enum Status{Pending, Cashed, Voided}
@@ -30,13 +47,10 @@ contract Cheq is ERC721, Ownable {
     //////////////////////////////////////////////////////////////*/
     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
     mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User
+    mapping(address => uint256) public auditorFlatFee; // Auditor's writing fee
     // mapping(address => mapping(uint256 => bool)) public auditorDurations; // Auditor voiding periods
     mapping(address => mapping(address => uint256))
         public acceptedAuditorTimestamp;
-    
-    mapping(address => address) public trustedAccount; // User's trusted account
-    mapping(address => uint256) public lastTrustedChange; // Last time user updated trusted account
-    uint256 public trustedAccountCooldown = 180 days; // Cooldown before user can change trusted account again
 
     mapping(uint256 => Cheque) public chequeInfo; // Cheque information
     mapping(address => mapping(IERC20 => uint256)) public deposits; // Total user deposits
@@ -64,18 +78,18 @@ contract Cheq is ERC721, Ownable {
         address recipient
     ) {
         if (auditor!=_msgSender()){
-            require(userAuditor[_msgSender()][auditor], "Unapproved auditor");  // You haven't requested auditor
-            require(auditorUser[auditor][_msgSender()], "Auditor must approve you");
+            require(userAuditor[_msgSender()][auditor], "AUDITOR_UNAUTH");  // You haven't requested this auditor
+            require(auditorUser[auditor][_msgSender()], "UNAPP_AUDITOR");  // auditor hasn't approved you
             require(
                 auditorUser[auditor][recipient],
-                "Auditor must approve recipient"
+                "AUDITOR:UNAUTH_RECIPIENT"
             );
             // require(auditorDurations[auditor][duration], "Duration not allowed");
+            require(
+                userAuditor[recipient][auditor],
+                "RECIPIENT:UNAUTH_AUDITOR"
+            );
         }
-        require(
-            userAuditor[recipient][auditor],
-            "Recipient must approve auditor"
-        );
         _;
     }
 
@@ -215,13 +229,12 @@ contract Cheq is ERC721, Ownable {
     {
         require(
             amount <= deposits[_msgSender()][_token],
-            "Insufficient balance"
+            "INSUF_BAL"
         );
-        require(
-            block.timestamp >=
-                acceptedAuditorTimestamp[_msgSender()][auditor], // + 24 hours, TODO ADD THIS BACK AFTER DEMO
-            "New Auditor cooldown"
-        );
+        // uint256 fee = auditorFlatFee[auditor];
+        // require(msg.value >= fee, "AUD_FEE");
+        // (bool sent, ) = auditor.call({value: fee})("");
+        // require(sent, "FEE_FAIL");
         deposits[_msgSender()][_token] -= amount;
         chequeInfo[totalSupply] = _initCheque(_token, amount, duration, auditor, recipient);
         emit WriteCheque(totalSupply, amount, block.timestamp + duration, _token, _msgSender(), recipient, auditor);  // chequeInfo[chequeId]
@@ -247,22 +260,15 @@ contract Cheq is ERC721, Ownable {
     ) private {
         require(cheque.auditor == _msgSender(), "Not auditor");
         require(cheque.expiry >= block.timestamp, "Cheque matured");
-        
         cheque.status = Status.Voided;
-        deposits[depositTo][cheque.token] += cheque.amount; // Add balance back to drawer
+        // uint256 fee = auditorVoidFee[_msgSender()];
+        deposits[depositTo][cheque.token] += cheque.amount;// - fee; // Add balance back to drawer
         emit Void(ownerOf(chequeID), chequeID);
     }
 
     function voidCheque(uint256 chequeID) external {
         Cheque storage cheque = chequeInfo[chequeID];
         _voidCheque(cheque, chequeID, cheque.drawer);
-    }
-
-    function voidRescueCheque(uint256 chequeID) external {
-        Cheque storage cheque = chequeInfo[chequeID];
-        address fallbackAccount = trustedAccount[cheque.drawer];
-        require(fallbackAccount != address(0), "No Fallback");
-        _voidCheque(cheque, chequeID, fallbackAccount);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -286,18 +292,6 @@ contract Cheq is ERC721, Ownable {
     //     auditorDurations[_msgSender()][duration] = true;
     // }
 
-    function setTrustedAccount(address account) external {
-        // User will set this
-        require(
-            lastTrustedChange[_msgSender()] == 0 ||
-                (block.timestamp >=
-                    lastTrustedChange[_msgSender()] + trustedAccountCooldown),
-            "Trusted account cooldown"
-        );
-        trustedAccount[_msgSender()] = account;
-        lastTrustedChange[_msgSender()] = block.timestamp;
-    }
-
     function depositWrite(
         IERC20 _token,
         uint256 amount,
@@ -308,9 +302,6 @@ contract Cheq is ERC721, Ownable {
         require(deposit(_token, amount), "deposit failed");
         return writeCheque(_token, amount, duration, auditor, recipient);
     }
-    /*//////////////////////////////////////////////////////////////
-                   CHEQUE READ FUNCTIONS (NECESSARY?)
-    //////////////////////////////////////////////////////////////*/
     function chequeAmount(uint256 chequeId) external view returns (uint256) {
         return chequeInfo[chequeId].amount;
     }

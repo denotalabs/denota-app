@@ -6,9 +6,9 @@ dataSources:
     name: Cheq
     network: mumbai
     source:
-      address: "0x9DCD716739CFdF61d9B73fC20f4D13dCf898D956"
+      address: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A"
       abi: Cheq
-      startBlock: 28308353
+      startBlock: 28446172
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -17,8 +17,6 @@ dataSources:
         - Token
         - ERC20
         - Account
-        - RequestAuditor
-        - RequestUser
         - Handshake
       abis:
         - name: Cheq

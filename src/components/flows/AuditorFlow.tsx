@@ -1,15 +1,23 @@
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 
-// TODO - auditor flow: User handshake requests,
+import UsersTab from "../UsersTab";
+import VoidTab from "../VoidTab";
+
 function AuditorFlow() {
   return (
     <Tabs>
       <TabList>
-        <Tab>SomeTab</Tab>
+        <Tab>Auditing</Tab>
+        <Tab>Your Users</Tab>
       </TabList>
 
       <TabPanels>
-        <TabPanel>Some stuff</TabPanel>
+        <TabPanel>
+          <VoidTab />
+        </TabPanel>
+        <TabPanel>
+          <UsersTab />
+        </TabPanel>
       </TabPanels>
     </Tabs>
   );

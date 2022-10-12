@@ -75,7 +75,7 @@ export default function SettingsCog({ setIsUser, isUser }: Props) {
               onChange={() => {
                 setIsUser(!isUser);
               }}
-              isChecked={isUser === true}
+              isChecked={isUser === false}
               id="auditor-mode"
             />
           </FormControl>

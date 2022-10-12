@@ -28,16 +28,12 @@ interface BlockchainDataInterface {
   userWethBalance: string;
   daiBalance: string;
   wethBalance: string;
-  userChequeCount: string;
   cheqTotalSupply: string;
-  userCheques: Array<any>;
-  acceptedUserAuditors: Array<any>;
-  acceptedAuditorUsers: Array<any>;
 
   signer: null | ethers.providers.JsonRpcSigner;
 }
 
-export const CheqAddress = "0x9DCD716739CFdF61d9B73fC20f4D13dCf898D956";
+export const CheqAddress = "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A";
 export const DaiAddress = "0x982723cb1272271b5ee405A5F14E9556032d9308";
 export const WethAddress = "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e";
 
@@ -57,11 +53,7 @@ const BlockchainDataContext = createContext<BlockchainDataInterface>({
   userWethBalance: "",
   daiBalance: "",
   wethBalance: "",
-  userChequeCount: "",
   cheqTotalSupply: "",
-  userCheques: [],
-  acceptedUserAuditors: [],
-  acceptedAuditorUsers: [],
   signer: null,
 });
 
@@ -84,11 +76,7 @@ export const BlockchainDataProvider = memo(
         userWethBalance: "",
         daiBalance: "",
         wethBalance: "",
-        userChequeCount: "",
         cheqTotalSupply: "",
-        userCheques: [],
-        acceptedUserAuditors: [],
-        acceptedAuditorUsers: [],
         signer: null,
       });
 
@@ -132,22 +120,13 @@ export const BlockchainDataProvider = memo(
           const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
           const qDAI = await cheq.deposits(dai.address, account); // User's deposited dai balance
           const daiAllowance = await dai.allowance(account, CheqAddress);
-          // console.log("dai allowance: ", daiAllowance.toString());
 
           const wethBalance = await weth.balanceOf(CheqAddress); // Cheq's Weth balance
           const userWethBalance = await weth.balanceOf(account); // User's Weth balance
           const qWETH = await cheq.deposits(weth.address, account); // User's deposited Weth balance
           const wethAllowance = await weth.allowance(account, CheqAddress);
-          // console.log("weth allowance: ", wethAllowance.toString());
 
-          (window as any).Cheq = cheq;
           const cheqBalance = await provider.getBalance(CheqAddress);
-          const userChequeCount = (await cheq.balanceOf(account)).toNumber();
-          const userCheques = await getUserCheques(
-            cheq,
-            account,
-            userChequeCount
-          );
           const cheqTotalSupply = await cheq.totalSupply();
 
           setBlockchainState({
@@ -167,11 +146,7 @@ export const BlockchainDataProvider = memo(
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             daiBalance: ethers.utils.formatUnits(daiBalance),
             wethBalance: ethers.utils.formatUnits(wethBalance),
-            userChequeCount: userChequeCount,
             cheqTotalSupply: String(cheqTotalSupply),
-            userCheques: userCheques,
-            acceptedUserAuditors: [], //acceptedUserAuditors,
-            acceptedAuditorUsers: [], //acceptedAuditorUsers,
           });
         } catch (e) {
           console.log("error", e);
@@ -198,27 +173,3 @@ export const BlockchainDataProvider = memo(
 export function useBlockchainData() {
   return useContext(BlockchainDataContext);
 }
-
-const getUserCheques = async (
-  cheqContract: ethers.Contract,
-  account: string,
-  userChequeCount: number
-) => {
-  const userCheques = [];
-  let cheque, cheqOwner;
-  for (let i = 0; userCheques.length < userChequeCount; i++) {
-    cheqOwner = await cheqContract.ownerOf(i);
-    cheque = await cheqContract.chequeInfo(i);
-
-    let timeCreated = cheque.created.toNumber();
-    timeCreated = new Date(timeCreated * 1000); // console.log(timeCreated)
-
-    if (cheqOwner == account) {
-      userCheques.push([i, cheque, timeCreated]);
-    } else if (cheque.drawer == account) {
-      userCheques.push([i, cheque, timeCreated]);
-    }
-  }
-
-  return userCheques.reverse(); // ID, Cheq struct, timeCreated
-};

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Heading, Stack, Text, Center } from "@chakra-ui/react";
 
 import Nav from "../components/Nav";
@@ -26,12 +26,7 @@ function HomePage() {
           </Center>
         </Stack>
       </Center>
-
-      {isUser ? (
-        <UserFlow />
-      ) : (
-        <AuditorFlow blockchainState={blockchainState} />
-      )}
+      {isUser ? <UserFlow /> : <AuditorFlow />}
     </>
   );
 }

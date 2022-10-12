@@ -1,26 +1,62 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 import { Form, Formik } from "formik";
 
-import { Button, Flex, FormLabel, Stack } from "@chakra-ui/react";
+import { Button, Flex, FormLabel, Select, Stack } from "@chakra-ui/react";
 
 import TokenField from "./input/TokenField";
 import AmountField from "./input/AmountField";
 import AccountField from "./input/AccountField";
 import DurationField from "./input/DurationField";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
-import { useAccount } from "../hooks/useAccount";
+import { useHandshakes } from "../hooks/useHandshakes";
 
 function WriteTab() {
   const blockchainState = useBlockchainData();
-  const accountData = useAccount();
+  const handshakeData = useHandshakes(true);
+
+  let auditorSelect: any;
+  if (!blockchainState) {
+    auditorSelect = (
+      <div>
+        <Select>
+          <option value="">Select Auditor</option>
+        </Select>
+      </div>
+    );
+  } else if (!handshakeData) {
+    auditorSelect = (
+      <div>
+        <Select>
+          <option value={blockchainState.account}>
+            {blockchainState.account.slice(0, 10)}..
+          </option>
+        </Select>
+      </div>
+    );
+  } else {
+    auditorSelect = (
+      <div>
+        <Select>
+          <option id="reviewer" value={blockchainState.account}>
+            {blockchainState.account.slice(0, 10)}..
+          </option>
+          {handshakeData["completed"].map((handshake: any) => {
+            <option id="reviewer" value={handshake}>
+              {handshake}
+            </option>;
+          })}
+        </Select>
+      </div>
+    );
+  }
 
   return (
     <Formik
       initialValues={{
         token: "dai",
         amount: 0,
-        reviewer: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+        reviewer: "",
         bearer: "",
         duration: 60,
       }}
@@ -36,22 +72,12 @@ function WriteTab() {
           token.functions
             .allowance(blockchainState.account, blockchainState.cheqAddress) // Get user's token approval granted to Cheq
             .then((tokenAllowance) => {
-              console.log(tokenAllowance[0], typeof tokenAllowance[0]);
-              console.log(amountWei, typeof amountWei);
-              // console.log(amountWei.gt(tokenAllowance));
-              if (amountWei.gt(tokenAllowance.toNumber())) {
+              if (amountWei.sub(tokenAllowance[0]) >= BigNumber.from(0)) {
                 // User has not approved Cheq enough allowance
                 token.functions
                   .approve(blockchainState.cheqAddress, amountWei)
                   .then((success) => {
                     if (success) {
-                      console.log(
-                        token.address,
-                        amountWei,
-                        values.duration,
-                        values.reviewer,
-                        values.bearer
-                      );
                       blockchainState.cheq?.depositWrite(
                         token.address,
                         amountWei,
@@ -64,18 +90,8 @@ function WriteTab() {
                     }
                   });
               } else {
-                // User has approved enough, write cheq
-                console.log(
-                  0,
-                  token.address,
-                  amountWei,
-                  values.duration,
-                  values.reviewer,
-                  values.bearer
-                );
                 blockchainState.cheq
                   ?.depositWrite(
-                    0,
                     token.address,
                     amountWei,
                     values.duration,
@@ -102,9 +118,7 @@ function WriteTab() {
             </Flex>
 
             <FormLabel>Auditor Address</FormLabel>
-            <Flex>
-              <AccountField fieldName="reviewer" placeholder="0x" />
-            </Flex>
+            {auditorSelect}
 
             <FormLabel>Inspection Period:</FormLabel>
             <Flex gap={10}>
