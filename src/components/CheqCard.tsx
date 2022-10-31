@@ -30,34 +30,20 @@ export default function CheqCard({
   isUser,
 }: Props) {
   const blockchainState = useBlockchainData();
+  // console.log(status, isUser)
 
-  let button;
-  if (isUser) {
-    if (status == "Cashed") {
-      button = <Button disabled>Cashed</Button>;
-    } else {
-      button = isCashable ? (
-        <Button
-          onClick={(e) => {
-            blockchainState.cheq?.cashCheque(cheqId);
-          }}
-        >
-          Cash Cheq
-        </Button>
-      ) : (
-        <Button
-          onClick={(e) => {
-            alert("Auditor has been notified");
-          }}
-          className=""
-        >
-          Cancel Cheq
-        </Button>
-      );
-      status = isCashable ? "Matured" : status;
-    }
-  } else {
-    if (!isCashable) {
+  // Sender: (pending)[pending-null], (cashed)[cashed- null], (matured)[matured-null], (voided)[voided-null]
+  // Auditor: (void)[pending-VOID], (cashed)[cashed- null], [matured-null], (voided)[void-null]
+  // Reciever: (pending)[pending-null], (cashed)[cashed- null], [matured-null], (voided)[voided-null]
+  // Owner: (pending)[pending-null], (cashed)[cashed- null], (CASH)[matured-CASH], (voided)[voided-null]
+
+  let button; // Sent: pending, matured, cashed, voided
+  if (status == "Voided") {
+    button = <Button disabled>Voided</Button>;
+  } else if (status == "Cashed") {
+    button = <Button disabled>Cashed</Button>;
+  } else if (status == "Pending" && !isCashable) {
+    if (blockchainState.account == auditor) {
       button = (
         <Button
           onClick={(e) => {
@@ -68,10 +54,25 @@ export default function CheqCard({
         </Button>
       );
     } else {
-      button = <Button disabled>Matured</Button>;
+      button = <Button disabled>Pending</Button>;
+    }
+  } else {
+    if (blockchainState.account == auditor || !isUser) {
+      button = <Button disabled>Void Cheq</Button>;
+    } else {
+      button = (
+        <Button
+          onClick={(e) => {
+            blockchainState.cheq?.cashCheque(cheqId);
+          }}
+        >
+          Cash Cheq
+        </Button>
+      );
     }
   }
 
+  status = isCashable ? "Matured" : status;
   return (
     <Center py={2}>
       <Box
@@ -118,3 +119,55 @@ export default function CheqCard({
     </Center>
   );
 }
+
+// if (isUser) {
+//   if (status == "Cashed") {
+//     button = <Button disabled>Cashed</Button>;
+//   } else if (blockchainState.account==sender && !isCashable){
+//     button =
+//       <Button>
+//         Pending Cheq
+//       </Button>
+//   } else if (blockchainState.account==sender){ // && status!="Matured"
+//     console.log(status)
+//     button =
+//       <Button>
+//         Pending Cheq
+//       </Button>
+//   }
+//   else {
+//     button = isCashable ? (
+//       <Button
+//         onClick={(e) => {
+//           blockchainState.cheq?.cashCheque(cheqId);
+//         }}
+//       >
+//         Cash Cheq
+//       </Button>
+//     ) : (
+//       <Button
+//         onClick={(e) => {
+//           alert("Auditor has been notified");
+//         }}
+//         className=""
+//       >
+//         Cancel Cheq
+//       </Button>
+//     );
+//     status = isCashable ? "Matured" : status;
+//   }
+// } else {
+//   if (!isCashable) {
+//     button = (
+//       <Button
+//         onClick={(e) => {
+//           blockchainState.cheq?.voidCheque(cheqId);
+//         }}
+//       >
+//         Void Cheq
+//       </Button>
+//     );
+//   } else {
+//     button = <Button disabled>Matured</Button>;
+//   }
+// }

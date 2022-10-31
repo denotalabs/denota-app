@@ -1,55 +1,28 @@
 import { BigNumber, ethers } from "ethers";
 
-import { Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 
-import { Button, Flex, FormLabel, Select, Stack } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Select,
+  Stack,
+} from "@chakra-ui/react";
 
 import TokenField from "./input/TokenField";
 import AmountField from "./input/AmountField";
 import AccountField from "./input/AccountField";
 import DurationField from "./input/DurationField";
+import AuditorField from "./input/AuditorField";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useHandshakes } from "../hooks/useHandshakes";
 
 function WriteTab() {
   const blockchainState = useBlockchainData();
   const handshakeData = useHandshakes(true);
-
-  let auditorSelect: any;
-  if (!blockchainState) {
-    auditorSelect = (
-      <div>
-        <Select>
-          <option value="">Select Auditor</option>
-        </Select>
-      </div>
-    );
-  } else if (!handshakeData) {
-    auditorSelect = (
-      <div>
-        <Select>
-          <option value={blockchainState.account}>
-            {blockchainState.account.slice(0, 10)}..
-          </option>
-        </Select>
-      </div>
-    );
-  } else {
-    auditorSelect = (
-      <div>
-        <Select>
-          <option id="reviewer" value={blockchainState.account}>
-            {blockchainState.account.slice(0, 10)}..
-          </option>
-          {handshakeData["completed"].map((handshake: any) => {
-            <option id="reviewer" value={handshake}>
-              {handshake}
-            </option>;
-          })}
-        </Select>
-      </div>
-    );
-  }
+  // let auditorSelect: any = <AuditorField/>// blockchainState={blockchainState} handshakeData={handshakeData} />
 
   return (
     <Formik
@@ -63,16 +36,20 @@ function WriteTab() {
       onSubmit={(values, actions) => {
         if (
           blockchainState.cheq !== null &&
+          blockchainState.account !== "" &&
           blockchainState.dai !== null &&
           blockchainState.weth !== null
         ) {
           const token =
             values.token == "dai" ? blockchainState.dai : blockchainState.weth;
           const amountWei = ethers.utils.parseEther(values.amount.toString());
+
+          console.log(values);
+
           token.functions
             .allowance(blockchainState.account, blockchainState.cheqAddress) // Get user's token approval granted to Cheq
             .then((tokenAllowance) => {
-              if (amountWei.sub(tokenAllowance[0]) >= BigNumber.from(0)) {
+              if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
                 // User has not approved Cheq enough allowance
                 token.functions
                   .approve(blockchainState.cheqAddress, amountWei)
@@ -99,6 +76,7 @@ function WriteTab() {
                     values.bearer
                   )
                   .then((cheqID: string) => {
+                    console.log(cheqID);
                     alert("Cheq created!: #" + cheqID);
                   });
               }
@@ -118,7 +96,9 @@ function WriteTab() {
             </Flex>
 
             <FormLabel>Auditor Address</FormLabel>
-            {auditorSelect}
+            <Flex gap={10}>
+              <AuditorField fieldName="reviewer" placeholder="Select Auditor" />
+            </Flex>
 
             <FormLabel>Inspection Period:</FormLabel>
             <Flex gap={10}>

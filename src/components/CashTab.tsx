@@ -19,7 +19,9 @@ function CashTab({ isTokenSelect }: Props) {
           ? "Pending"
           : token.status == "1"
           ? "Cashed"
-          : "Voided";
+          : token.status == "2"
+          ? "Voided"
+          : "Matured";
       const tokenName =
         token.ercToken.id === DaiAddress.toLocaleLowerCase() ? "DAI" : "WETH";
 
