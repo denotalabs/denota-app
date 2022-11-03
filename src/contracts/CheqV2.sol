@@ -5,38 +5,38 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
 /* 
-Cheq: executes WTFC
+CRX: executes WTFC
 Ownership (mint, transfer, ?burn)
-Metadata (cheque struct)
+Metadata (Cheq structs)
 Deposit balances
 ProtocolFees
 
 Broker: conditionalizes WTFC
 updates relevent internal variables
+
+Essentially, tokens are double wrapped using this system:
+    The token is wrapped in CRX as a Cheq (intrinsic properties), then wrapped inside it's broker (conditional functions)
+    CRX is the chess board while brokers are the movement rules
 */
 
-/* Invariants: 
-Cheq struct immutables- token, drawer, recipient, broker
 
-*/ 
+contract CRX is ERC721, Ownable {
 
-contract Cheq is ERC721, Ownable {
-
-    struct Cheque {
-        uint256 amount;  // broker can modify
-        uint256 escrowed;  // broker can modify
-        IERC20 token;
-        address drawer;
-        address recipient;
-        ICheqBroker broker;
+    struct Cheq {
+        uint256 amount;  // ? Broker can modify ?
+        uint256 escrowed;  // Broker can modify [MOST VULNERABLE, corresponds to CRX deposits]
+        IERC20 token;  // IMMUTABLE [not settable]
+        address drawer; // IMMUTABLE [settable]
+        address recipient; // IMMUTABLE [settable]
+        ICheqBroker broker;  // IMMUTABLE [not settable]
     }
     /*//////////////////////////////////////////////////////////////
                            STORAGE VARIABLES
     //////////////////////////////////////////////////////////////*/
-    mapping(uint256 => Cheque) public chequeInfo; // Cheque information
+    mapping(uint256 => Cheq) public chequeInfo; // Cheq information
     mapping(address => mapping(IERC20 => uint256)) public deposits; // Total user deposits
     uint256 public totalSupply; // Total cheques created
-    mapping(ICheqBroker => bool) public resolverWhitelist;
+    // mapping(ICheqBroker => bool) public resolverWhitelist;
     uint256 public protocolFee; // Fee in native token taken
     uint256 public protocolReserve; // Fee in native token taken
     // uint256 public writeFee;
@@ -49,11 +49,12 @@ contract Cheq is ERC721, Ownable {
     //////////////////////////////////////////////////////////////*/
     event Deposit(IERC20 indexed _token, address indexed to, uint256 amount);
     event WriteCheque(uint256 indexed tokenId, uint256 amount, uint256 escrowed, IERC20 token, address drawer, address indexed recipient, ICheqBroker indexed broker); 
+    event Fund(uint256 indexed chequeID, uint256 amount);
     event Cash(address indexed bearer, uint256 indexed tokenId, uint256 cashingAmount);
     event SetProtocolFee(uint256 amount);
     event Withdraw(address indexed _address, uint256 amount);  // Protocol fees
     
-    modifier onlyBroker(uint256 chequeID){require(address(chequeInfo[chequeID].broker)==msg.sender, "Only Cheque broker");_;}
+    modifier onlyCheqBroker(uint256 chequeID){require(address(chequeInfo[chequeID].broker)==msg.sender, "Only Cheq's broker");_;}
 
     /*//////////////////////////////////////////////////////////////
                         ONLY OWNER FUNCTIONS
@@ -68,16 +69,16 @@ contract Cheq is ERC721, Ownable {
         emit SetProtocolFee(_protocolFee);
     }
     function withdrawFees(uint256 _amount) external onlyOwner {
-        // require(protocolReserve >= _amount, "More than available");
-        // unchecked {
-        //     protocolReserve -= _amount;
-        // }
-        // bool success = payable(address(this)).call(
-        //     _msgSender(),
-        //     _amount
-        // );
-        // require(success, "Transfer failed.");
-        // emit Withdraw(_msgSender(), _amount);
+        require(protocolReserve >= _amount, "More than available");
+        unchecked {
+            protocolReserve -= _amount;
+        }
+        bool success = payable(address(this)).call(
+            _msgSender(),
+            _amount
+        );
+        require(success, "Transfer failed.");
+        emit Withdraw(_msgSender(), _amount);
     }
     /*//////////////////////////////////////////////////////////////
                             USER DEPOSITS
@@ -115,20 +116,20 @@ contract Cheq is ERC721, Ownable {
                           ERC-721 OVERRIDES
     //////////////////////////////////////////////////////////////*/
     function _feeOnTransfer(uint256 chequeID) private {  // Reduce escrowed amount on transfer
-        // Cheque storage cheque = chequeInfo[chequeID];
-        // IERC20 _token = cheque.token;
-        // require(cheque.amount >= protocolFee[_token], "too small for transfer");
+        // Cheq storage Cheq = chequeInfo[chequeID];
+        // IERC20 _token = Cheq.token;
+        // require(Cheq.amount >= protocolFee[_token], "too small for transfer");
         // unchecked {
-        //     cheque.amount = cheque.amount - protocolFee[_token];
+        //     Cheq.amount = Cheq.amount - protocolFee[_token];
         // }
         // protocolReserve[_token] += protocolFee[_token];
-    }
+    }  // Should this be in CRX?
 
     function transferFrom(
         address from,
         address to,
         uint256 chequeID
-    ) public onlyBroker(chequeID) virtual override {
+    ) public onlyCheqBroker(chequeID) virtual override {
         require(
             _isApprovedOrOwner(_msgSender(), chequeID),
             "Transfer disallowed"
@@ -142,7 +143,7 @@ contract Cheq is ERC721, Ownable {
         address to,
         uint256 chequeID,
         bytes memory data
-    ) public onlyBroker(chequeID) virtual override {
+    ) public onlyCheqBroker(chequeID) virtual override {
         require(
             _isApprovedOrOwner(_msgSender(), chequeID),
             "Transfer disallowed"
@@ -161,8 +162,8 @@ contract Cheq is ERC721, Ownable {
         uint256 escrowed,
         address recipient,
         ICheqBroker broker
-        ) private pure returns(Cheque memory){
-        return Cheque({
+        ) private pure returns(Cheq memory){
+        return Cheq({
             drawer: drawer,
             recipient: recipient,
             token: _token,
@@ -196,17 +197,22 @@ contract Cheq is ERC721, Ownable {
         return totalSupply-1;
     }
 
-    function cashCheque(uint256 chequeID, address to, uint256 cashAmount) external onlyBroker(chequeID) {
-        Cheque storage cheque = chequeInfo[chequeID];  // Delegate all requires to module??
-        require(cheque.escrowed>=cashAmount, "");
-        cheque.escrowed -= cashAmount;
-        require(cheque.token.transfer(to, cashAmount), "Transfer failed");
+    function cashCheque(uint256 chequeID, address to, uint256 cashAmount) external onlyCheqBroker(chequeID) {
+        Cheq storage Cheq = chequeInfo[chequeID]; 
+        require(Cheq.escrowed>=cashAmount, "");
+        Cheq.escrowed -= cashAmount;
+        require(Cheq.token.transfer(to, cashAmount), "Transfer failed");
         emit Cash(to, chequeID, cashAmount);
     }
 
-    function fundCheque(uint256 chequeID, uint256 amount) external onlyBroker(chequeID) {
-        // Allow people to add funding to a cheq if the status allows it
-    } //
+    function fundCheque(uint256 chequeID, uint256 amount) external onlyCheqBroker(chequeID) {
+        // require(deposit(from, _token, _amount))
+        require(amount <= deposits[from][_token], "INSUF_BAL");
+        deposits[from][_token] -= amount;
+        Cheq storage Cheq = chequeInfo[chequeID]; 
+        Cheq.escrowed += amount;
+        emit Fund(chequeID, amount);
+    }
 
     function depositWrite(
         address from,
@@ -243,8 +249,8 @@ contract Cheq is ERC721, Ownable {
 
 
 interface ICheqBroker {
-    enum Status{Pending, Cashed, Voided} // Refunded(voided), Spited, Disputing, Frozen, Burnt, Mature
-    function isWriteable(address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient) external view returns(bool);
+    // IDK how ERC721 approval functions figure into this
+    function isWriteable(address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) external view returns(bool);
     // Checks if caller can write the cheq [INTERFACE: broker] (isWriteable)
     // Checks if caller has enough balance [Cheq]
     //// Checks if recipient/Cheq allows this broker [Cheq]
@@ -252,17 +258,23 @@ interface ICheqBroker {
     // Deducts user balance [Cheq]
     // Initializes chequeInfo [Cheq]
     // Emits WriteCheque [Cheq]
-    // Mints cheque [Cheq]
+    // Mints Cheq [Cheq]
     // Calls onWrite() [INTERFACE]
     // Increments totalSupply [Cheq]
     // Returns chequeID (totalsupply) [Cheq]
     // PROTOCOL FEE [Cheq]
-    ///// function onWrite(uint256 chequeID, address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient) external returns(bool);
+    ///// function Write(uint256 chequeID, address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient) external returns(bool);
     // Updates the broker contract's variables
+    
     function isTransferable(uint256 chequeID, address caller) external view returns(bool);
     // Checks if caller isOwner 
     // Transfers
     // PROTOCOL FEE [Cheq]
+    //// function transfer(uint256 chequeID, address caller) external view;
+
+    function fundable(uint256 chequeID, address caller, uint256 amount) external view returns(uint256);
+    // Checks if the caller has enough in crx.deposits[caller][cheq.token]
+    
     function cashable(uint256 chequeID, address caller) external view returns(uint256);  // How much can be cashed
     // Checks if caller is the owner [INTERFACE: broker]
     // Checks if is cashable [INTERFACE: broker]
@@ -280,10 +292,10 @@ interface ICheqBroker {
     // Increments balance back to drawer
     // Emits Void event [Cheq]
     // PROTOCOL FEE [Cheq]
-    ////function onCash(uint256 chequeID, address caller) external;
-    function fundable(uint256 chequeID, address caller, uint256 amount) external view returns(uint256);
-    //// function onTransfer(uint256 chequeID, address caller) external view;
-    //// function cheqStatus(uint256 chequeID) external returns(Status);
+    // function cash() external returns (bool);
+    function status(uint256 chequeID) external view returns(string memory);  // TODO Could this be used maliciously?
+    // 0:Pending, 1:Ready, 2:Settled, 3:Rejected  
+    // Refunded/voided, Spited, Disputing, Frozen, Burnt, Mature
 }
 
 
@@ -294,8 +306,8 @@ interface IAuditFeeResolver {  // Execute fee or just return it?
     function onTransfer() external returns(uint256);
 }
 
-contract SelfSignTimeLock is ICheqBroker {  // IDK how ERC721 approval functions figure into this
-    Cheq public cheq;
+contract SelfSignTimeLock is ICheqBroker {  
+    CRX public crx;
     // struct CheqWrapper {
     //     address auditor;
     //     uint256 created;
@@ -307,15 +319,13 @@ contract SelfSignTimeLock is ICheqBroker {  // IDK how ERC721 approval functions
     mapping(uint256 => uint256) public cheqCreated;
     mapping(uint256 => uint256) public cheqInspectionPeriod;
     mapping(uint256 => bool) public cheqVoided;
+    // mapping(address => bool) public acceptsBroker;  // Allow users to opt-in?
 
-    mapping(address => bool) public acceptsResolver;  // Allow users to opt-in
-
-    constructor(Cheq _cheq){
-        cheq = _cheq;
+    constructor(CRX _crx){
+        crx = _crx;
     }
-
-    function isWriteable(address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient) public pure returns(bool) { 
-        // See if writer has enough deposit on Cheq or let Cheq do that?
+    function isWriteable(address, IERC20, uint256, uint256, address, address) public pure returns(bool) { 
+        // return acceptsBroker[sender] && acceptsBroker[recipient] && acceptsBroker[owner];  // See if writer has enough deposit on Cheq or let Cheq do that?
         return true;
     }
 
@@ -328,8 +338,8 @@ contract SelfSignTimeLock is ICheqBroker {  // IDK how ERC721 approval functions
         address auditor,
         uint256 inspectionPeriod
         ) external returns(uint256){
-        require(isWriteable(msg.sender, _token, amount, escrowed, recipient), "Not writeable");
-        uint256 cheqId = cheq.writeCheque(msg.sender, recipient, _token, amount, escrowed, this, owner);  // TODO Rewrite arg order to a standard form across write_()
+        // require(isWriteable(msg.sender, _token, amount, escrowed, recipient, owner), "Not writeable");  // Customary
+        uint256 cheqId = crx.writeCheque(msg.sender, recipient, _token, amount, escrowed, this, owner);  // TODO Rewrite arg order to a standard form across write_()
         cheqCreated[cheqId] = block.timestamp;
         cheqAuditor[cheqId] = auditor;
         cheqInspectionPeriod[cheqId] = inspectionPeriod;
@@ -339,24 +349,20 @@ contract SelfSignTimeLock is ICheqBroker {  // IDK how ERC721 approval functions
 
     function isTransferable(uint256 chequeID, address caller) public view returns(bool){
         // cheq._isApprovedOrOwner(caller, chequeID);  // Need to find out if this is true and return it
-        return cheq.ownerOf(chequeID)==caller;
-    }
-
-    function transferCheque(uint256 chequeID, address to) external{
-        require(isTransferable(chequeID, msg.sender), "Not-owner");
-        cheq.transferFrom(msg.sender, to, chequeID);
+        return crx.ownerOf(chequeID)==caller;
     }
 
     function fundable(uint256 chequeID, address caller, uint256 amount) public view returns(uint256) {
+        return false;
     }
 
     function cashable(uint256 chequeID, address caller) public view returns(uint256) {  // Let anyone see what's cashable, ALSO 
         if (block.timestamp >= cheqCreated[chequeID]+cheqInspectionPeriod[chequeID] 
-            || cheq.ownerOf(chequeID)!=caller 
+            || crx.ownerOf(chequeID)!=caller 
             || cheqVoided[chequeID]){
             return 0;
         } else{
-            return cheq.chequeEscrowed(chequeID);
+            return crx.chequeEscrowed(chequeID);
         }
     }
 
@@ -364,12 +370,99 @@ contract SelfSignTimeLock is ICheqBroker {  // IDK how ERC721 approval functions
         // require(cheq.ownerOf(chequeID)==msg.sender, "Non-owner");  // Keep this check to let user know they don't own it?
         uint256 cashingAmount = cashable(chequeID, msg.sender);
         require(cashingAmount>0, "Not cashable");
-        cheq.cashCheque(chequeID, msg.sender, cashingAmount);
+        crx.cashCheque(chequeID, msg.sender, cashingAmount);
     }
     
     function voidCheque(uint256 chequeID) external {
         require(cheqAuditor[chequeID]==msg.sender, "Only auditor");
         cheqVoided[chequeID] = true;
-        cheq.cashCheque(chequeID, cheq.chequeDrawer(chequeID), cheq.chequeEscrowed(chequeID));  // Return escrow to drawer
+        crx.cashCheque(chequeID, crx.chequeDrawer(chequeID), crx.chequeEscrowed(chequeID));  // Return escrow to drawer
+    }
+    function status(uint256 chequeID, address caller) public view returns(string memory){
+        if(cashable(chequeID, caller) != 0){
+            return "mature";
+        } else if(cheqVoided[chequeID]){
+            return "voided";
+        } else {
+            return "pending";
+        }
+    }
+}
+
+contract HandshakeTimeLock is ICheqBroker {
+    CRX public crx;
+
+    constructor(CRX _crx){
+        crx = _crx;
+    }
+
+    mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
+    mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User  
+    mapping(uint256 => uint256) public cheqCreated;
+    mapping(uint256 => uint256) public cheqInspectionPeriod;
+    mapping(uint256 => bool) public cheqVoided; 
+
+
+    function isWriteable(address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) public pure returns(bool) { 
+        return acceptsBroker[sender] && acceptsBroker[recipient] && acceptsBroker[owner];  // See if writer has enough deposit on Cheq or let Cheq do that?
+    }
+
+    function writeCheque(
+        IERC20 _token,
+        uint256 amount,
+        uint256 escrowed,
+        address recipient,
+        address owner,
+        address auditor,
+        uint256 inspectionPeriod
+        ) external returns(uint256){
+        require(isWriteable(msg.sender, _token, amount, escrowed, recipient, owner), "Not writeable");  // Customary
+        uint256 cheqId = crx.writeCheque(msg.sender, recipient, _token, amount, escrowed, this, owner);  // TODO Rewrite arg order to a standard form across write_()
+        cheqCreated[cheqId] = block.timestamp;
+        cheqAuditor[cheqId] = auditor;
+        cheqInspectionPeriod[cheqId] = inspectionPeriod;
+        // cheqWrappers[cheqId] = CheqWrapper({auditor: auditor, created: block.timestamp, inspectionDuration: inspectionPeriod, isVoided:false});
+        return cheqId;
+    }
+
+    function isTransferable(uint256 chequeID, address caller) public view returns(bool){
+        // cheq._isApprovedOrOwner(caller, chequeID);  // Need to find out if this is true and return it
+        return crx.ownerOf(chequeID)==caller;
+    }
+
+    function fundable(uint256 chequeID, address caller, uint256 amount) public view returns(uint256) {
+        return false;
+    }
+
+    function cashable(uint256 chequeID, address caller) public view returns(uint256) {  // Let anyone see what's cashable, ALSO 
+        if (block.timestamp >= cheqCreated[chequeID]+cheqInspectionPeriod[chequeID] 
+            || crx.ownerOf(chequeID)!=caller 
+            || cheqVoided[chequeID]){
+            return 0;
+        } else{
+            return crx.chequeEscrowed(chequeID);
+        }
+    }
+
+    function cashCheque(uint256 chequeID) external {
+        // require(cheq.ownerOf(chequeID)==msg.sender, "Non-owner");  // Keep this check to let user know they don't own it?
+        uint256 cashingAmount = cashable(chequeID, msg.sender);
+        require(cashingAmount>0, "Not cashable");
+        crx.cashCheque(chequeID, msg.sender, cashingAmount);
+    }
+    
+    function voidCheque(uint256 chequeID) external {
+        require(cheqAuditor[chequeID]==msg.sender, "Only auditor");
+        cheqVoided[chequeID] = true;
+        crx.cashCheque(chequeID, crx.chequeDrawer(chequeID), crx.chequeEscrowed(chequeID));  // Return escrow to drawer
+    }
+    function status(uint256 chequeID, address caller) public view returns(string memory){
+        if(cashable(chequeID, caller) != 0){
+            return "mature";
+        } else if(cheqVoided[chequeID]){
+            return "voided";
+        } else {
+            return "pending";
+        }
     }
 }
