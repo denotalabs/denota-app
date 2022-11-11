@@ -19,6 +19,11 @@ Essentially, tokens are double wrapped using this system:
     CRX is the chess board while brokers are the movement rules
 
 TODO: Add NFT forwarding functions to broker (including approvals)
+TODO: Decide whether users will keep their deposits across modules or modules have a deposit and they deal with differentiating user deposits?
+TODO: How to add additional parameters to ICheqBroker for broker's execution functions? IwriteCheq() + inspection period, inspector, voider, oracle, etc.. Maybe not include writeCheq as part of interface??
+TODO: Let the broker handle using write or depositWrite()? Or broker can use switch to call write() || depositWrite() depending on funds?
+TODO: have depositWrite() in crx or brokers? Would broker using deposit() update crx.deposits before write() if in same broker call?
+TODO: Could status() be used maliciously?
 */
 
 
@@ -48,13 +53,13 @@ contract CRX is ERC721, Ownable {
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
     //////////////////////////////////////////////////////////////*/
-    event Deposit(IERC20 indexed _token, address indexed to, uint256 amount);
-    event Write(uint256 indexed tokenId, uint256 amount, uint256 escrowed, IERC20 token, address drawer, address indexed recipient, ICheqBroker indexed broker); 
+    event Deposited(IERC20 indexed _token, address indexed to, uint256 amount);
+    event Writen(uint256 indexed tokenId, uint256 amount, uint256 escrowed, IERC20 token, address drawer, address indexed recipient, ICheqBroker indexed broker); 
     //    Transfer() // Inherited from IERC721
-    event Fund(uint256 indexed cheqId, address from, uint256 amount);
-    event Cash(address indexed bearer, uint256 indexed tokenId, uint256 cashingAmount);
-    event SetProtocolFee(uint256 amount);  // TODO figure out protocol fee structure (just on deposit?)
-    event Withdraw(address indexed _address, uint256 amount);  // Protocol fees
+    event Funded(uint256 indexed cheqId, address from, uint256 amount);
+    event Cashed(address indexed bearer, uint256 indexed tokenId, uint256 cashingAmount);
+    event ProtocolFeeSet(uint256 amount);  // TODO figure out protocol fee structure (just on deposit?)
+    event Withdrawn(address indexed _address, uint256 amount);  // Protocol fees
     
     modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker)==msg.sender, "Only Cheq's broker");_;}
 
@@ -68,9 +73,15 @@ contract CRX is ERC721, Ownable {
         onlyOwner
     {
         protocolFee = _protocolFee;
-        emit SetProtocolFee(_protocolFee);
+        emit ProtocolFeeSet(_protocolFee);
+        // writeFee = _writeFee;
+        // transferFee = _transferFee;
+        // fundFee = _fundFee;
+        // cashFee = _cashFee;
+        // emit SetProtocolFee(writeFee, transferFee, fundFee, cashFee);
+
     }
-    function withdrawFees(uint256 _amount) external onlyOwner {
+    function withdrawRevenue(uint256 _amount) external onlyOwner {
         // require(protocolReserve >= _amount, "More than available");
         // unchecked {
         //     protocolReserve -= _amount;
@@ -97,7 +108,7 @@ contract CRX is ERC721, Ownable {
             _amount
         ), "Transfer failed");
         deposits[from][_token] += _amount;
-        emit Deposit(_token, from, _amount);
+        emit Deposited(_token, from, _amount);
     }
 
     function deposit(IERC20 _token, uint256 _amount) public returns (bool) {  // make one external and use other in depositWrite()?
@@ -194,7 +205,7 @@ contract CRX is ERC721, Ownable {
         require(msg.sender == address(broker), "Only Broker");
         deposits[from][_token] -= amount;
         cheqInfo[totalSupply] = _initCheq(from, _token, amount, escrowed, recipient, broker);
-        emit Write(totalSupply, amount, escrowed, _token, from, recipient, broker);
+        emit Writen(totalSupply, amount, escrowed, _token, from, recipient, broker);
         _safeMint(owner, totalSupply);
         totalSupply += 1;
         return totalSupply-1;
@@ -205,7 +216,7 @@ contract CRX is ERC721, Ownable {
         require(cheq.escrowed>=cashAmount, "Can't cash more than available");
         cheq.escrowed -= cashAmount;
         require(cheq.token.transfer(to, cashAmount), "Transfer failed");
-        emit Cash(to, cheqId, cashAmount);
+        emit Cashed(to, cheqId, cashAmount);
     }
 
     function fund(uint256 cheqId, address from, uint256 amount) external onlyCheqBroker(cheqId) {
@@ -214,7 +225,7 @@ contract CRX is ERC721, Ownable {
         require(amount <= deposits[from][_token], "INSUF_BAL");
         deposits[from][_token] -= amount;
         cheq.escrowed += amount;
-        emit Fund(cheqId, from, amount);
+        emit Funded(cheqId, from, amount);
     }
 
     function depositWrite(
@@ -230,7 +241,7 @@ contract CRX is ERC721, Ownable {
         require(deposit(from, _token, amount), "deposit failed");
         return write(from, recipient, _token, amount, escrowed, broker, owner);
 
-    }  // TODO let the broker handle this? Or keep it here and broker can use switch to call write() || depositWrite()
+    }  
 
     function cheqAmount(uint256 cheqId) external view returns (uint256) {
         return cheqInfo[cheqId].amount;
@@ -256,6 +267,7 @@ contract CRX is ERC721, Ownable {
 interface ICheqBroker {
     // IDK how ERC721 approval functions figure into this
     function isWriteable(address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) external view returns(bool);
+    function writeCheq(IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) external returns(uint256);
     // Checks if caller can write the cheq [INTERFACE: broker] (isWriteable)
     // Checks if caller has enough balance [Cheq]
     //// Checks if recipient/Cheq allows this broker [Cheq]
@@ -271,16 +283,19 @@ interface ICheqBroker {
     ///// function Write(uint256 cheqId, address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient) external returns(bool);
     // Updates the broker contract's variables
     
-    function isTransferable(uint256 cheqId, address caller) external view returns(bool);
+    function isTransferable(uint256 cheqId, address caller, address to) external view returns(bool);
     // Checks if caller isOwner 
     // Transfers
     // PROTOCOL FEE [Cheq]
     //// function transfer(uint256 cheqId, address caller) external view;
+    function transferCheq(uint256 cheqId, address to) external;
 
     function fundable(uint256 cheqId, address caller, uint256 amount) external view returns(uint256);
-    // Checks if the caller has enough in crx.deposits[caller][cheq.token]
+    // Checks if the caller has enough in crx.deposits[caller][cheq.token]?
+    function fundCheq(uint256 cheqId, uint256 amount) external;
     
     function cashable(uint256 cheqId, address caller) external view returns(uint256);  // How much can be cashed
+    function cashCheq(uint256 cheqId, uint256 amount) external;
     // Checks if caller is the owner [INTERFACE: broker]
     // Checks if is cashable [INTERFACE: broker]
     // Sets as cashed [CHEQ OR INTERFACE?]
@@ -298,7 +313,7 @@ interface ICheqBroker {
     // Emits Void event [Cheq]
     // PROTOCOL FEE [Cheq]
     // function cash() external returns (bool);
-    function status(uint256 cheqId, address caller) external view returns(string memory);  // TODO Could this be used maliciously?
+    function status(uint256 cheqId, address caller) external view returns(string memory);
     // 0:Pending, 1:Ready, 2:Settled, 3:Rejected  
     // Refunded/voided, Spited, Disputing, Frozen, Burnt, Mature
 }
@@ -315,11 +330,12 @@ contract SelfSignTimeLock is ICheqBroker {
         crx = _crx;
     }
     function isWriteable(address, IERC20, uint256, uint256, address, address) public pure returns(bool) { 
-        // return acceptsBroker[sender] && acceptsBroker[recipient] && acceptsBroker[owner];  // See if writer has enough deposit on Cheq or let Cheq do that?
         return true;
     }
-
-    function writeCheque(
+    // function writeCheq(IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) public returns(uint256){
+    //     return crx.write(msg.sender, recipient, _token, amount, escrowed, this, owner);
+    // }
+    function writeCheq(
         IERC20 _token,
         uint256 amount,
         uint256 escrowed,
@@ -328,14 +344,14 @@ contract SelfSignTimeLock is ICheqBroker {
         uint256 inspectionPeriod
         ) external returns(uint256){
         // require(isWriteable(msg.sender, _token, amount, escrowed, recipient, owner), "Not writeable");  // Customary
-        uint256 cheqId = crx.write(msg.sender, recipient, _token, amount, escrowed, this, owner);  // TODO Rewrite arg order to a standard form across write_()
+        uint256 cheqId = crx.write(msg.sender, recipient, _token, amount, escrowed, this, owner);
         cheqCreated[cheqId] = block.timestamp;
         cheqInspectionPeriod[cheqId] = inspectionPeriod;
         cheqFunder[cheqId] = msg.sender;
         return cheqId;
     }
 
-        function writeInvoice(
+    function writeInvoice(
         IERC20 _token,
         uint256 amount,
         uint256 escrowed,
@@ -352,25 +368,26 @@ contract SelfSignTimeLock is ICheqBroker {
         return cheqId;
     }
 
-    function isTransferable(uint256 cheqId, address caller) public view returns(bool){
+    function isTransferable(uint256 cheqId, address caller, address to) public view returns(bool){
         // cheq._isApprovedOrOwner(caller, cheqId);  // Need to find out if this is true and return it
         return crx.ownerOf(cheqId)==caller;
     }
+    function transferCheq(uint256 cheqId, address to) public {
+        crx.transferFrom(msg.sender, to, cheqId);
+    }
 
-    function fundable(uint256 cheqId, address caller, uint256 amount) public view returns(uint256) {
+    function fundable(uint256 cheqId, address, uint256) public view returns(uint256) {
         uint currentEscrow = crx.cheqEscrowed(cheqId);
         if (currentEscrow == 0) {
             return crx.cheqAmount(cheqId);
         }
         return 0;
     }
-
-    function fundCheque(uint256 cheqId) public  returns(uint256) {
+    function fundCheq(uint256 cheqId, uint256 amount) public {
         //require(cheqFunder[cheqId]==msg.sender, "Not fundable"); Let random people fund cheqs?
-        uint256 fundableAmount = fundable(cheqId, msg.sender, 0);
+        uint256 fundableAmount = fundable(cheqId, msg.sender, amount);
         require(fundableAmount > 0, "Not fundable"); 
         crx.fund(cheqId, msg.sender, fundableAmount);
-
     }
 
     function cashable(uint256 cheqId, address caller) public view returns(uint256) {  // Let anyone see what's cashable, ALSO 
@@ -382,15 +399,14 @@ contract SelfSignTimeLock is ICheqBroker {
             return crx.cheqEscrowed(cheqId);
         }
     }
-
-    function cashCheque(uint256 cheqId) external {
+    function cashCheq(uint256 cheqId, uint256 amount) external {
         // require(cheq.ownerOf(cheqId)==msg.sender, "Non-owner");  // Keep this check to let user know they don't own it?
         uint256 cashingAmount = cashable(cheqId, msg.sender);
         require(cashingAmount>0, "Not cashable");
         crx.cash(cheqId, msg.sender, cashingAmount);
     }
     
-    function voidCheque(uint256 cheqId) external {
+    function voidCheq(uint256 cheqId) external {
         require(cheqFunder[cheqId]==msg.sender, "Only funder");
         cheqVoided[cheqId] = true;
         crx.cash(cheqId, crx.cheqDrawer(cheqId), crx.cheqEscrowed(cheqId));  // Return escrow to drawer
@@ -426,7 +442,7 @@ contract HandshakeTimeLock is ICheqBroker {
         return false;// TODO HOW TO ADD EXTRA INFO HERE? BYTES PARAMETER? ISOLATE MODULE BY WHO AUDITS IT'S CHEQS?
     }
 
-    function writeCheque(
+    function writeCheq(
         IERC20 _token,
         uint256 amount,
         uint256 escrowed,
@@ -463,14 +479,14 @@ contract HandshakeTimeLock is ICheqBroker {
         }
     }
 
-    function cashCheque(uint256 cheqId) external {
+    function cashCheq(uint256 cheqId) external {
         // require(cheq.ownerOf(cheqId)==msg.sender, "Non-owner");  // Keep this check to let user know they don't own it?
         uint256 cashingAmount = cashable(cheqId, msg.sender);
         require(cashingAmount>0, "Not cashable");
         crx.cash(cheqId, msg.sender, cashingAmount);
     }
     
-    function voidCheque(uint256 cheqId) external {
+    function voidCheq(uint256 cheqId) external {
         require(cheqAuditor[cheqId]==msg.sender, "Only auditor");
         cheqVoided[cheqId] = true;
         crx.cash(cheqId, crx.cheqDrawer(cheqId), crx.cheqEscrowed(cheqId));  // Return escrow to drawer
@@ -493,7 +509,7 @@ contract Invoice is ICheqBroker {
 
     }
 
-    function writeCheque(
+    function writeCheq(
         IERC20 _token,
         uint256 amount,
         address recipient,
@@ -516,7 +532,7 @@ contract Invoice is ICheqBroker {
     function cashable(uint256 cheqId, address caller) external view returns(uint256){
 
     }
-    function cashCheque(uint256 cheqId) external {
+    function cashCheq(uint256 cheqId) external {
 
     }
 
