@@ -17,9 +17,6 @@ function HomePage() {
       <Center my={4} py={4}>
         <Stack width='100%'>
           <Center>
-            <Text>Total cheqs written: {blockchainState.cheqTotalSupply}</Text>
-          </Center>
-          <Center>
             <HomeScreen />
           </Center>
         </Stack>
