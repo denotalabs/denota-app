@@ -1,15 +1,24 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { Box, Button, Center, Text } from "@chakra-ui/react";
+import { Box, Button, Center, Text, useDisclosure } from "@chakra-ui/react";
+import NewCheqModel from "../modal/NewCheqModel";
 
 function NewInvoice() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box width="100%" mx={10}>
       <Center>
-        <Button leftIcon={<AddIcon />} colorScheme="blue" size="lg">
+        <Button
+          onClick={onOpen}
+          leftIcon={<AddIcon />}
+          colorScheme="blue"
+          size="lg"
+        >
           <Text fontWeight={400} fontSize={"4xl"}>
             New Invoice
-          </Text>{" "}
+          </Text>
         </Button>
+        <NewCheqModel isOpen={isOpen} onClose={onClose} />
       </Center>
     </Box>
   );
