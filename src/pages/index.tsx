@@ -15,7 +15,7 @@ function HomePage() {
     <>
       <Nav setIsUser={setIsUser} isUser={isUser} />
       <Center my={4} py={4}>
-        <Stack width='100%'>
+        <Stack width="100%">
           <Center>
             <HomeScreen />
           </Center>

@@ -5,9 +5,11 @@ function Reputation() {
   const blockchainState = useBlockchainData();
 
   return (
-    <Box bg='cadetblue' height={16} width='100%'>
+    <Box bg="cadetblue" height={16} width="100%">
       <Center>
-        <Text>Total cheqs written: {blockchainState.cheqTotalSupply}</Text>
+        <Text fontSize={"lg"} fontWeight={400}>
+          Total cheqs written: {blockchainState.cheqTotalSupply}
+        </Text>
       </Center>
     </Box>
   );
