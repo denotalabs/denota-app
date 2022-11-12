@@ -11,18 +11,24 @@ contract ContractTest is Test {
     TestERC20 public dai;
     TestERC20 public usdc;
 
-    function setUp() public {
-        // Test contract has amount in DAI
-        cheq = new CRX(); // trusted account cooldown seconds
-        SelfSignTimeLock SSTL = new SelfSignTimeLock(cheq);
-        HandshakeTimeLock SSTL = new HandshakeTimeLock(cheq);
+    function setUp() public { 
+        cheq = new CRX(); 
+        SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
+        HandshakeTimeLock handshakeTL = new HandshakeTimeLock(cheq);
+
+        // Make sure whitelisting works
+        // Make sure non-whitelisted brokers/users don't work
+        cheq.whitelistBroker(selfSignedTL, true);
+        cheq.whitelistBroker(handshakeTL, true);
         dai = new TestERC20(10000e18, "DAI", "DAI"); //
         usdc = new TestERC20(0, "USDC", "USDC");
     }
 
     /*//////////////////////////////////////////////////////////////
-                           HEADLESS TESTING
+                           SELF-SIGNED TESTING
     //////////////////////////////////////////////////////////////*/
+
+
     function testWrite() public {
     }
     function testTransfer() public {
@@ -35,9 +41,6 @@ contract ContractTest is Test {
     }
     function testDeposit() public {
     }
-    /*//////////////////////////////////////////////////////////////
-                           SELF-SIGNED TESTING
-    //////////////////////////////////////////////////////////////*/
 
     /*//////////////////////////////////////////////////////////////
                            AUDITOR TESTING
@@ -62,7 +65,7 @@ contract ContractTest is Test {
         depositHelper(_amount, msg.sender);
         
         assertTrue(cheq.balanceOf(recipient) == 0);
-        vm.prank(msg.sender);
+        vm.prank(address(selfSignedTL));
         uint256 chequeID = cheq.write(
             dai,
             _amount,
