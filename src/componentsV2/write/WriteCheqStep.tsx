@@ -33,7 +33,7 @@ function WriteCheqStep() {
           </Flex>
           <Flex gap={10}>
             <Button mt={4} isLoading={props.isSubmitting} type="submit">
-              Send Invoice
+              Next
             </Button>
           </Flex>
         </Form>

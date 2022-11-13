@@ -18,7 +18,7 @@ interface Props {
 function NewCheqModel({ isOpen, onClose }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
+      <ModalOverlay bg="blackAlpha.800" />
       <ModalContent>
         <ModalHeader>New Invoice</ModalHeader>
         <ModalCloseButton />
