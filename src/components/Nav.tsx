@@ -30,13 +30,19 @@ export default function Nav(props: Props) {
             <Text as="b">CRXProtocol</Text>
             <ButtonGroup variant="link" spacing="6">
               <Link href="/" passHref>
-                <Button key="dashboard">Dashboard</Button>
+                <Button as="a" key="dashboard">
+                  Dashboard
+                </Button>
               </Link>
               <Link href="/learn" passHref>
-                <Button key="docs">Docs</Button>
+                <Button as="a" key="docs">
+                  Docs
+                </Button>
               </Link>
               <Link href="/about" passHref>
-                <Button key="about">About</Button>
+                <Button as="a" key="about">
+                  About
+                </Button>
               </Link>
             </ButtonGroup>
           </Stack>
