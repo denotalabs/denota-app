@@ -10,18 +10,23 @@ import HomeScreen from "../componentsV2/dashboard/HomeScreen";
 function HomePage() {
   const blockchainState = useBlockchainData();
   const [isUser, setIsUser] = useState(true);
+  const [isV2, setIsV2] = useState(true);
+  const v1Flow = isUser ? <UserFlow /> : <AuditorFlow />;
 
   return (
     <>
-      <Nav setIsUser={setIsUser} isUser={isUser} />
+      <Nav
+        setIsUser={setIsUser}
+        isUser={isUser}
+        setIsV2={setIsV2}
+        isV2={isV2}
+      />
       <Center my={4} py={4}>
         <Stack width="100%">
-          <Center>
-            <HomeScreen />
-          </Center>
+          <Center>{isV2 ? <HomeScreen /> : null}</Center>
         </Stack>
       </Center>
-      {/* {isUser ? <UserFlow /> : <AuditorFlow />} */}
+      {isV2 ? null : v1Flow}
     </>
   );
 }

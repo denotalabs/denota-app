@@ -15,9 +15,16 @@ import { SettingsIcon } from "@chakra-ui/icons";
 interface Props {
   setIsUser: any; // Fix any
   isUser: boolean;
+  isV2: boolean;
+  setIsV2: any; // Fix any
 }
 
-export default function SettingsCog({ setIsUser, isUser }: Props) {
+export default function SettingsCog({
+  setIsUser,
+  isUser,
+  isV2,
+  setIsV2,
+}: Props) {
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
@@ -76,6 +83,24 @@ export default function SettingsCog({ setIsUser, isUser }: Props) {
                 setIsUser(!isUser);
               }}
               isChecked={isUser === false}
+              id="auditor-mode"
+            />
+          </FormControl>
+        </MenuItem>
+        <MenuItem closeOnSelect={false}>
+          <FormControl
+            display="flex"
+            alignItems="space-between"
+            justifyContent="space-between"
+          >
+            <FormLabel htmlFor="auditor-mode" mb="0">
+              V2 Mode
+            </FormLabel>
+            <Switch
+              onChange={() => {
+                setIsV2(!isV2);
+              }}
+              isChecked={isV2}
               id="auditor-mode"
             />
           </FormControl>

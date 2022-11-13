@@ -15,9 +15,11 @@ import SettingsCog from "./SettingsCog";
 interface Props {
   setIsUser: any; // Fix any
   isUser: boolean;
+  isV2: boolean;
+  setIsV2: any; // Fix any
 }
 
-export default function Nav({ setIsUser, isUser }: Props) {
+export default function Nav(props: Props) {
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -26,7 +28,7 @@ export default function Nav({ setIsUser, isUser }: Props) {
           <Flex alignItems={"center"}>
             <Stack direction={"row"} spacing={7}>
               <NavbarUser />
-              <SettingsCog setIsUser={setIsUser} isUser={isUser} />
+              <SettingsCog {...props} />
             </Stack>
           </Flex>
         </Flex>

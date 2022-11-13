@@ -15,7 +15,7 @@ interface Props {
   onClose: () => void;
 }
 
-function NewCheqModel({ isOpen, onClose }: Props) {
+function NewCheqModal({ isOpen, onClose }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay bg="blackAlpha.800" />
@@ -30,4 +30,4 @@ function NewCheqModel({ isOpen, onClose }: Props) {
   );
 }
 
-export default NewCheqModel;
+export default NewCheqModal;
