@@ -1,6 +1,6 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { Box, Button, Center, Text, useDisclosure } from "@chakra-ui/react";
-import NewCheqModel from "../modal/NewCheqModel";
+import NewCheqModel from "../write/NewCheqModel";
 
 function NewInvoice() {
   const { isOpen, onOpen, onClose } = useDisclosure();

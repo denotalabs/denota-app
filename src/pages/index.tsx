@@ -5,7 +5,7 @@ import Nav from "../components/Nav";
 import UserFlow from "../components/flows/UserFlow";
 import AuditorFlow from "../components/flows/AuditorFlow";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
-import HomeScreen from "../componentsV2/home/HomeScreen";
+import HomeScreen from "../componentsV2/dashboard/HomeScreen";
 
 function HomePage() {
   const blockchainState = useBlockchainData();
