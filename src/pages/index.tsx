@@ -15,12 +15,6 @@ function HomePage() {
 
   return (
     <>
-      <Nav
-        setIsUser={setIsUser}
-        isUser={isUser}
-        setIsV2={setIsV2}
-        isV2={isV2}
-      />
       <Center my={4} py={4}>
         <Stack width="100%">
           <Center>{isV2 ? <HomeScreen /> : null}</Center>
