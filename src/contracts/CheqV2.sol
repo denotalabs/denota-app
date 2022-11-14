@@ -7,9 +7,9 @@ import "openzeppelin/access/Ownable.sol";
 contract CRX is ERC721, Ownable {
 
     struct Cheq {
+        IERC20 token;  // IMMUTABLE [not settable]
         uint256 amount;  // ? Broker can modify ?
         uint256 escrowed;  // Broker can modify [MOST VULNERABLE, corresponds to CRX deposits]
-        IERC20 token;  // IMMUTABLE [not settable]
         address drawer; // IMMUTABLE [settable]  !INTENDED DRAWER
         address recipient; // IMMUTABLE [settable]  !INTENDED ?FIRST OWNER
         ICheqBroker broker;  // IMMUTABLE [not settable]
@@ -94,11 +94,11 @@ contract CRX is ERC721, Ownable {
         );
         deposits[from][_token] -= escrow;
         cheqInfo[totalSupply] = Cheq({
-            drawer: from,
-            recipient: recipient,
             token: _token,
             amount: amount,
             escrowed: escrow, 
+            drawer: from,
+            recipient: recipient,
             broker: ICheqBroker(_msgSender())
         });
         _safeMint(owner, totalSupply);
@@ -214,26 +214,29 @@ contract SelfSignTimeLock is ICheqBroker {
         uint256 amount,
         uint256 escrow,
         address recipient,
-        address owner,
         uint256 inspectionPeriod
-        ) external returns(uint256){  // If no escrow its an invoice
+        ) public returns(uint256){  // If no escrow its an invoice
+        // require(inspectionPeriod>0, "Zero inspection period");
         if (escrow==0){  // Invoice
             uint256 cheqId = cheq.write(msg.sender, recipient, _token, amount, escrow, msg.sender);  // Sender is owner
             cheqCreated[cheqId] = block.timestamp;
             cheqInspectionPeriod[cheqId] = inspectionPeriod;
             cheqFunder[cheqId] = recipient;
+            cheqReceiver[cheqId] = msg.sender;
             return cheqId;
         } else {  // Cheq
+            // require(amount==escrow, "Cant send partially funded cheq"); // TODO
             uint256 cheqId = cheq.write(msg.sender, recipient, _token, amount, escrow, recipient);
             cheqCreated[cheqId] = block.timestamp;
             cheqInspectionPeriod[cheqId] = inspectionPeriod;
             cheqFunder[cheqId] = msg.sender;
+            cheqReceiver[cheqId] = recipient;
             return cheqId;
         }
     }
 
     function isTransferable(uint256 cheqId, address caller, address to) public view returns(bool){
-        return cheq.ownerOf(cheqId)==caller;
+        return cheq.ownerOf(cheqId)==caller;  // Would caller ever be addres(0)
     }
 
     function transferCheq(uint256 cheqId, address to) public {
@@ -362,65 +365,6 @@ contract SelfSignTimeLock is ICheqBroker {
 //         }
 //     }
 // }
-
-// contract Invoice is ICheqBroker {
-//     CRX public crx;
-//     mapping(uint256 => uint256) public cheqWorkDuration;
-//     mapping(uint256 => uint256) public cheqFundedTimestamp;
-
-//     function isWriteable(address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) public view returns(bool){
-//         return true;
-//     }
-
-//     function writeCheq(
-//         IERC20 _token,
-//         uint256 amount,
-//         address recipient,
-//         uint256 duration
-//         ) external returns(uint256){
-//         require(isWriteable(msg.sender, _token, amount, 0, recipient, msg.sender));
-//         uint256 cheqId = crx.write(msg.sender, recipient, _token, amount, 0, this, msg.sender);
-//         cheqWorkDuration[cheqId] = duration;
-//         return cheqId;
-//     }
-    
-//     function isTransferable(uint256 cheqId, address caller) external view returns(bool){
-//         return true;
-//     }
-
-//     function fundable(uint256 cheqId, address caller, uint256 amount) external view returns(uint256){
-//         if (caller == crx.cheqRecipient(cheqId)) {
-//             return crx.cheqAmount(cheqId);  // Only recipeint (employer) can fund cheq
-//         } else {
-//             return 0;
-//         }
-//     }
-
-//     function fundCheq(uint256 cheqId, uint256 amount) public {
-//         uint256 fundableAmount = fundable(cheqId, msg.sender, amount);
-//         require(fundableAmount > 0, "Not fundable"); 
-//         crx.fund(cheqId, msg.sender, fundableAmount);
-//     }
-    
-//     function cashable(uint256 cheqId, address caller) external view returns(uint256){
-//         if (crx.cheqDrawer(cheqId) == caller && cheqFundedTimestamp[cheqId]>0) {  // Allow invoicer to withdraw after time has elapsed
-//             return block.timestamp >= cheqFundedTimestamp[cheqId]+cheqWorkDuration[cheqId];
-//         } else if (crx.cheqRecipient(cheqId) == caller) {  // Allow cheq funder to rescind funding before work period has elapsed
-//             return block.timestamp < cheqFundedTimestamp[cheqId]+cheqWorkDuration[cheqId];
-//         } else {
-//             return false;
-//         }
-//     }
-//     function cashCheq(uint256 cheqId) external {
-
-//     }
-
-//     function status(uint256 cheqId, address caller) external view returns(string memory){
-
-//     }
-
-// }
-
 
 // require(
 //     _isApprovedOrOwner(_msgSender(), cheqId),
