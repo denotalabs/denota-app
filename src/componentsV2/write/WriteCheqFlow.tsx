@@ -3,9 +3,13 @@ import CheqConfirmStep from "./CheqConfirmStep";
 import CheqDetailsStep from "./CheqDetailsStep";
 import CheqModuleStep from "./CheqModuleStep";
 
-function WriteCheqFlow() {
+interface Props {
+  onClose?: () => void;
+}
+
+function WriteCheqFlow({ onClose }: Props) {
   return (
-    <Stepper>
+    <Stepper onClose={onClose}>
       <CheqDetailsStep screenKey="write" isInvoice></CheqDetailsStep>
       <CheqModuleStep screenKey="module" isInvoice></CheqModuleStep>
       <CheqConfirmStep screenKey="confirm" isInvoice></CheqConfirmStep>

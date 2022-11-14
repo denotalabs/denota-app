@@ -1,4 +1,4 @@
-import StepperContext, { StepperContextInterface } from "./StepperContext";
+import StepperContext, { StepperReducerInterface } from "./StepperContext";
 import {
   useEffect,
   useReducer,
@@ -11,6 +11,7 @@ import { Text } from "@chakra-ui/react";
 
 interface StepperProps {
   children: ReactNode;
+  onClose?: () => void;
 }
 
 enum StepperActionKind {
@@ -23,7 +24,7 @@ interface StepperAction {
   screenKey?: string;
 }
 
-function reducer(state: StepperContextInterface, action: StepperAction) {
+function reducer(state: StepperReducerInterface, action: StepperAction) {
   const { type, screenKey } = action;
   switch (type) {
     default:
@@ -46,7 +47,7 @@ function reducer(state: StepperContextInterface, action: StepperAction) {
   }
 }
 
-function Stepper({ children }: StepperProps) {
+function Stepper({ children, onClose }: StepperProps) {
   const allScreens: ReactNode[] = Children.toArray(children);
   const currentScreen: ReactNode =
     allScreens.length > 0 ? allScreens[0] : undefined;
@@ -62,7 +63,7 @@ function Stepper({ children }: StepperProps) {
     dispatch({ type: StepperActionKind.SET_SCREEN, screenKey });
   };
   return (
-    <StepperContext.Provider value={{ ...state, next, goToStep }}>
+    <StepperContext.Provider value={{ ...state, next, goToStep, onClose }}>
       <Text fontWeight={600} fontSize={"xl"} mb={8}>
         Invoice Step {state.currentIndex + 1}
       </Text>

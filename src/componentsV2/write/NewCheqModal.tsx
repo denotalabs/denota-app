@@ -8,7 +8,6 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
-import WriteCheqStep from "./CheqDetailsStep";
 import WriteCheqFlow from "./WriteCheqFlow";
 
 interface Props {
@@ -23,7 +22,7 @@ function NewCheqModal({ isOpen, onClose }: Props) {
       <ModalContent>
         <ModalCloseButton />
         <ModalBody>
-          <WriteCheqFlow />
+          <WriteCheqFlow onClose={onClose} />
         </ModalBody>
       </ModalContent>
     </Modal>
