@@ -4,13 +4,20 @@ import AccountField from "../../components/input/AccountField";
 import AmountField from "../../components/input/AmountField";
 import TokenField from "../../components/input/TokenField";
 
-function WriteCheqStep() {
+interface Props {
+  screenKey: string;
+  isInvoice: boolean;
+}
+
+// screenKey used in stepper flow
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function CheqDetailsStep({ isInvoice }: Props) {
   return (
     <Formik
       initialValues={{
         token: "dai",
         amount: 0,
-        bearer: "",
+        payer: "",
         duration: 60,
       }}
       onSubmit={(values, actions) => {
@@ -19,9 +26,11 @@ function WriteCheqStep() {
     >
       {(props) => (
         <Form>
-          <FormLabel>Payer Address</FormLabel>
+          <FormLabel>
+            {isInvoice ? "Payer Address" : "Recipient Address"}
+          </FormLabel>
           <Flex gap={10}>
-            <AccountField fieldName="bearer" placeholder="0x" />
+            <AccountField fieldName="payer" placeholder="0x" />
           </Flex>
           <FormLabel>Select Currency</FormLabel>
           <Flex gap={10}>
@@ -42,4 +51,4 @@ function WriteCheqStep() {
   );
 }
 
-export default WriteCheqStep;
+export default CheqDetailsStep;

@@ -5,6 +5,7 @@ import {
   Children,
   ReactNode,
   ReactElement,
+  useContext,
 } from "react";
 
 interface StepperProps {
@@ -64,6 +65,10 @@ function Stepper({ children }: StepperProps) {
       {state.currentScreen}
     </StepperContext.Provider>
   );
+}
+
+export function useStep() {
+  return useContext(StepperContext);
 }
 
 export default Stepper;
