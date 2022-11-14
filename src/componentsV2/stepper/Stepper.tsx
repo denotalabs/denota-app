@@ -7,6 +7,7 @@ import {
   ReactElement,
   useContext,
 } from "react";
+import { Text } from "@chakra-ui/react";
 
 interface StepperProps {
   children: ReactNode;
@@ -62,6 +63,9 @@ function Stepper({ children }: StepperProps) {
   };
   return (
     <StepperContext.Provider value={{ ...state, next, goToStep }}>
+      <Text fontWeight={600} fontSize={"xl"} mb={8}>
+        Invoice Step {state.currentIndex + 1}
+      </Text>
       {state.currentScreen}
     </StepperContext.Provider>
   );

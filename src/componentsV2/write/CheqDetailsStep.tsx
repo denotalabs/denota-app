@@ -3,6 +3,7 @@ import { Form, Formik } from "formik";
 import AccountField from "../../components/input/AccountField";
 import AmountField from "../../components/input/AmountField";
 import TokenField from "../../components/input/TokenField";
+import { useStep } from "../stepper/Stepper";
 
 interface Props {
   screenKey: string;
@@ -12,6 +13,8 @@ interface Props {
 // screenKey used in stepper flow
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function CheqDetailsStep({ isInvoice }: Props) {
+  const { next } = useStep();
+
   return (
     <Formik
       initialValues={{
@@ -22,6 +25,7 @@ function CheqDetailsStep({ isInvoice }: Props) {
       }}
       onSubmit={(values, actions) => {
         console.log("submitted");
+        next?.();
       }}
     >
       {(props) => (
