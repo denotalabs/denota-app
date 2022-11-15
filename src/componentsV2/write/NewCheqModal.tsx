@@ -19,9 +19,9 @@ function NewCheqModal({ isOpen, onClose }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay bg="blackAlpha.800" />
-      <ModalContent>
+      <ModalContent maxW="650px" bg="gray.900">
         <ModalCloseButton />
-        <ModalBody>
+        <ModalBody w="650px">
           <WriteCheqFlow onClose={onClose} />
         </ModalBody>
       </ModalContent>

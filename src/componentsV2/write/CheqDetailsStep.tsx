@@ -1,9 +1,12 @@
-import { Button, Flex, FormLabel } from "@chakra-ui/react";
+import { Box, Button, Flex, FormLabel } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import AccountField from "../../components/input/AccountField";
 import AmountField from "../../components/input/AmountField";
 import TokenField from "../../components/input/TokenField";
 import { useStep } from "../stepper/Stepper";
+import CurrencySelector from "./details/CurrencySelector";
+import DetailsBox from "./details/DetailsBox";
+import RoundedButton from "./RoundedButton";
 
 interface Props {
   screenKey: string;
@@ -13,45 +16,12 @@ interface Props {
 // screenKey used in stepper flow
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function CheqDetailsStep({ isInvoice }: Props) {
-  const { next } = useStep();
-
   return (
-    <Formik
-      initialValues={{
-        token: "dai",
-        amount: 0,
-        payer: "",
-        duration: 60,
-      }}
-      onSubmit={(values, actions) => {
-        console.log("submitted");
-        next?.();
-      }}
-    >
-      {(props) => (
-        <Form>
-          <FormLabel>
-            {isInvoice ? "Payer Address" : "Recipient Address"}
-          </FormLabel>
-          <Flex gap={10}>
-            <AccountField fieldName="payer" placeholder="0x" />
-          </Flex>
-          <FormLabel>Select Currency</FormLabel>
-          <Flex gap={10}>
-            <TokenField />
-          </Flex>
-          <FormLabel>Amount</FormLabel>
-          <Flex gap={10}>
-            <AmountField />
-          </Flex>
-          <Flex gap={10}>
-            <Button mt={4} isLoading={props.isSubmitting} type="submit">
-              Next
-            </Button>
-          </Flex>
-        </Form>
-      )}
-    </Formik>
+    <Box w="100%" p={6}>
+      <DetailsBox></DetailsBox>
+      <CurrencySelector></CurrencySelector>
+      <RoundedButton></RoundedButton>
+    </Box>
   );
 }
 
