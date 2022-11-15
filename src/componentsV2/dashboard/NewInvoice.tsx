@@ -1,5 +1,12 @@
 import { AddIcon } from "@chakra-ui/icons";
-import { Box, Button, Center, Text, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Center,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import NewCheqModal from "../write/NewCheqModal";
 
 function NewInvoice() {
@@ -8,16 +15,31 @@ function NewInvoice() {
   return (
     <Box width="100%" mx={10}>
       <Center>
-        <Button
-          onClick={onOpen}
-          leftIcon={<AddIcon />}
-          colorScheme="blue"
-          size="lg"
-        >
-          <Text fontWeight={400} fontSize={"4xl"}>
-            New Invoice
-          </Text>
-        </Button>
+        <ButtonGroup gap="4">
+          <Button
+            w="200px"
+            onClick={onOpen}
+            colorScheme="blue"
+            size="lg"
+            borderRadius={"20px"}
+          >
+            <Text fontWeight={400} fontSize={"4xl"}>
+              Send
+            </Text>
+          </Button>
+          <Button
+            w="200px"
+            onClick={onOpen}
+            colorScheme="blue"
+            size="lg"
+            borderRadius={"20px"}
+          >
+            <Text fontWeight={400} fontSize={"4xl"}>
+              Request
+            </Text>
+          </Button>
+        </ButtonGroup>
+
         <NewCheqModal isOpen={isOpen} onClose={onClose} />
       </Center>
     </Box>

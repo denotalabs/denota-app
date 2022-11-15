@@ -27,7 +27,7 @@ function DetailsBox() {
         <GridItem>
           <Flex alignItems={"center"} justifyContent={"space-between"}>
             <FormLabel>You are</FormLabel>
-            <Select w={120} placeholder="Select option">
+            <Select w={120} placeholder="Select">
               <option value="option1">Invoicing</option>
               <option value="option2">Paying</option>
             </Select>

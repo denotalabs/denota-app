@@ -16,7 +16,7 @@ import CheqCardV2 from "./CheqCardV2";
 function MyCheqsView() {
   // TODO (Integrate v2 UI with v2 smart contract): Load cheqs from graph
   return (
-    <Box boxShadow="outline" width="100%" p={6}>
+    <Box boxShadow="outline" width="100%" p={6} borderRadius={"10px"}>
       <Menu>
         <MenuButton
           as={Button}

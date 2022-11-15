@@ -9,7 +9,7 @@ interface Props {
 
 function CheqCardV2({ sender, amount, token, status }: Props) {
   return (
-    <GridItem w="100%" h="210" bg="blue.500" p={2}>
+    <GridItem w="100%" h="210" bg="blue.500" p={2} borderRadius={"10px"}>
       <Text fontWeight={600} fontSize={"xl"}>
         Sender: {sender}
       </Text>
