@@ -17,9 +17,9 @@ interface Props {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function CheqDetailsStep({ isInvoice }: Props) {
   return (
-    <Box w="100%" p={6}>
-      <DetailsBox></DetailsBox>
+    <Box w="100%" p={4}>
       <CurrencySelector></CurrencySelector>
+      <DetailsBox></DetailsBox>
       <RoundedButton></RoundedButton>
     </Box>
   );
