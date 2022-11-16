@@ -35,7 +35,7 @@ function MyCheqsView() {
           <MenuItem>Voided</MenuItem>
         </MenuList>
       </Menu>
-      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+      <Grid templateColumns="repeat(auto-fit, minmax(240px, 1fr))" gap={6}>
         <CheqCardV2
           sender="Cheq 1"
           status="Cashable"
