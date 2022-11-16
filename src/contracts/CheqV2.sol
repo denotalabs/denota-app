@@ -51,7 +51,7 @@ contract CRX is ERC721, Ownable {
         address to,
         uint256 amount
     ) private {
-        require(amount > 0, "Zero deposit");
+        // require(amount > 0, "Zero deposit");  // Allow zero deposits
         require(token.transferFrom(
             _msgSender(),
             address(this),
@@ -92,7 +92,7 @@ contract CRX is ERC721, Ownable {
             escrow <= deposits[from][_token],  // Trust broker to not take from arbitrary user balance (whitelist)
             "INSUF_BAL"
         );
-        deposits[from][_token] -= escrow;
+        deposits[from][_token] -= escrow;  // Deduct user balance
         cheqInfo[totalSupply] = Cheq({
             token: _token,
             amount: amount,
@@ -195,6 +195,12 @@ interface ICheqBroker {
     // function cash() external returns (bool);
 }
 
+// TODO: decide whether you can write yourself a cheq or invoice
+// TODO: decide whether cheqs/invoices can have a zero inspectionPeriod
+// TODO: decide whether non-zero funding and cashing should be allowed
+// TODO: decide whether zero "amount" should be allowed
+// TODO: decide whether fund & cash should take in an amount parameter or just cash/fund specified amount
+// TODO: decide whether any account can fund an invoice
 contract SelfSignTimeLock is ICheqBroker {  
     CRX public cheq;
     mapping(uint256 => address) public cheqFunder;
@@ -209,7 +215,7 @@ contract SelfSignTimeLock is ICheqBroker {
         return true;
     }
 
-    function writeCheq(
+    function writeCheq(   //  BUG: integer overflow if block.timestamp+inspectionPeriod too large
         IERC20 _token,
         uint256 amount,
         uint256 escrow,
@@ -245,36 +251,42 @@ contract SelfSignTimeLock is ICheqBroker {
     }
 
     function fundable(uint256 cheqId, address, uint256) public view returns(uint256) {
-        if (cheq.cheqEscrowed(cheqId) == 0) {  // Invoice
+        if (cheq.cheqEscrowed(cheqId) == 0) {  // Invoice  // && caller == cheqReciever[cheqId]÷
             return cheq.cheqAmount(cheqId);
         } else {  // Cheq
             return 0;
         }
     }
 
-    function fundCheq(uint256 cheqId, uint256 amount) public {
+    function fundCheq(uint256 cheqId, uint256 amount) public {  
         uint256 fundableAmount = fundable(cheqId, msg.sender, amount);
-        require(fundableAmount > 0, "Not fundable"); 
+        // require(fundableAmount > 0, "Not fundable"); 
         require(fundableAmount == amount, "Cant fund this amount");
         cheq.fund(cheqId, msg.sender, amount);
         cheqCreated[cheqId] = block.timestamp;  // If it can be funded its an invoice, reset creation date for job start
     }
 
+    // TODO what if funder doesnt fund the invoice for too long??
     function cashable(uint256 cheqId, address caller, uint256 amount) public view returns(uint256) {  // Invoice funder can cash before period, cheq writer can cash before period
-        if (cheqFunder[cheqId] == caller && block.timestamp < cheqCreated[cheqId]+cheqInspectionPeriod[cheqId]){
+        // Chargeback case
+        if (cheqFunder[cheqId] == caller && (block.timestamp < cheqCreated[cheqId] + cheqInspectionPeriod[cheqId])){  // Funding party can rescind before the inspection period elapses
             return cheq.cheqEscrowed(cheqId);
-        } else if (cheq.ownerOf(cheqId)==caller){
+        } else if (cheq.ownerOf(cheqId) == caller && (block.timestamp >= cheqCreated[cheqId] + cheqInspectionPeriod[cheqId])){  // Receiving/Owning party can cash after inspection period
             return cheq.cheqEscrowed(cheqId);
-        } else{
+        } else {
             return 0;
         }
     }
 
     function cashCheq(uint256 cheqId, uint256 amount) external {
         uint256 cashableAmount = cashable(cheqId, msg.sender, amount);
-        require(cashableAmount>0, "Not cashable");
-        require(cashableAmount == amount, "Cant fund this amount");
+        // require(cashableAmount > 0, "Not cashable");
+        require(cashableAmount == amount, "Cant cash this amount");
         cheq.cash(cheqId, msg.sender, amount);
+    }
+
+    function cheqIsMature(uint256 cheqId) public view returns(bool) {
+        return block.timestamp >= (cheqCreated[cheqId] + cheqInspectionPeriod[cheqId]);
     }
 }
 
@@ -384,3 +396,73 @@ contract SelfSignTimeLock is ICheqBroker {
     //     return write(from, recipient, _token, amount, escrowed, owner);
 
     // }
+
+contract SimpleBank is ICheqBroker, Ownable {  
+    CRX public cheq;
+    mapping(uint256 => uint256) public cheqCreated;
+    mapping(uint256 => bool) public cheqIsPaused;
+    mapping(address => bool) public userWhitelist;
+    mapping(IERC20 => bool) public tokenWhitelist;
+    uint256 public settlementPeriod;
+
+    constructor(CRX _cheq, uint256 settlementTime){
+        cheq = _cheq;
+        settlementPeriod = settlementTime;
+    }
+
+    function whitelistUser(address user, bool isAccepted) public onlyOwner {
+        userWhitelist[user] = isAccepted;
+    }
+    function whitelistToken(IERC20 token, bool isAccepted) public onlyOwner {
+        tokenWhitelist[token] = isAccepted;
+    }
+    function pauseCheq(uint256 cheqId, bool isPaused) public onlyOwner {
+        cheqIsPaused[cheqId] = isPaused;
+    }
+
+    function isWriteable(address sender, IERC20 token, uint256 amount, uint256 escrowed, address recipient, address owner) public view returns(bool) { 
+        return tokenWhitelist[token] && userWhitelist[sender] && userWhitelist[recipient] && amount == escrowed && owner == recipient && amount > 0;
+    }
+
+    function writeCheq(
+        IERC20 _token,
+        uint256 amount,
+        uint256 escrow,
+        address recipient
+        ) public returns(uint256){
+        require(isWriteable(msg.sender, _token, amount, escrow, recipient, recipient), "Not Writable");
+        uint256 cheqId = cheq.write(msg.sender, recipient, _token, amount, escrow, recipient);
+        cheqCreated[cheqId] = block.timestamp;
+        return cheqId;
+    }
+
+    function isTransferable(uint256, address, address) public pure returns(bool){
+        return false;
+    }
+
+    function transferCheq(uint256, address) public pure {
+        require(false, "Cant transfer");
+    }
+
+    function fundable(uint256, address, uint256) public pure returns(uint256) {
+        return 0;
+    }
+    function fundCheq(uint256, uint256) public pure {
+        require(false, "Cant fund");
+    }
+
+    function cashable(uint256 cheqId, address caller, uint256) public view returns(uint256) { 
+        if (cheq.ownerOf(cheqId)==caller && cheqCreated[cheqId]+settlementPeriod > block.timestamp && !cheqIsPaused[cheqId]) {
+            return cheq.cheqEscrowed(cheqId);
+        } else {
+            return 0;
+        }
+    }
+
+    function cashCheq(uint256 cheqId, uint256 amount) external {
+        uint256 cashableAmount = cashable(cheqId, msg.sender, amount);
+        require(cashableAmount > 0, "Not cashable");
+        require(cashableAmount == amount, "Cant cash this amount");
+        cheq.cash(cheqId, msg.sender, amount);
+    }
+}

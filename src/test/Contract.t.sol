@@ -17,6 +17,11 @@ contract ContractTest is Test {
         dai = new TestERC20(tokenAllocation, "DAI", "DAI");  // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
     }
+    function isContract(address _addr) public view returns (bool){
+        uint32 size;
+        assembly {size := extcodesize(_addr)}
+        return (size > 0);
+    }
 
     /*//////////////////////////////////////////////////////////////
                                CHEQ TESTS
@@ -35,7 +40,7 @@ contract ContractTest is Test {
 
     function testFailWhitelist(address caller) public {
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
-        if (caller!=address(this)){
+        if (caller != address(this)){  // Deployer can whitelist, test others
             vm.prank(caller);
             cheq.whitelistBroker(selfSignedTL, true);
         }
@@ -60,6 +65,8 @@ contract ContractTest is Test {
         if (caller!=address(this)){
             vm.prank(caller);
             cheq.deposit(dai, _amount);
+        } else {
+            require(false, "bad fuzz");
         }
     }
 
@@ -84,6 +91,8 @@ contract ContractTest is Test {
             recipient != address(sstl) && 
             recipient != address(this) &&
             recipient != address(cheq) &&
+            recipient != address(dai) &&
+            recipient != address(usdc) &&
             duration != 0) {
             depositHelper(amount, msg.sender);
             assertTrue(cheq.balanceOf(msg.sender) == 0);
@@ -151,14 +160,14 @@ contract ContractTest is Test {
 
     function testFailWriteCheq(uint256 amount, address recipient, uint256 duration) public {
         SelfSignTimeLock sstl = setUpTimelock();
-        if (
-            !(amount > 0 && 
+        if (amount > 0 && 
             amount <= tokenAllocation && 
             recipient != address(0) && 
             recipient != address(sstl) && 
             recipient != address(this) &&
             recipient != address(cheq) &&
-            duration != 0)){
+            duration > 0){
+            console.log(recipient);
             // Can't write cheq without a deposit on crx
             vm.prank(msg.sender);
             sstl.writeCheq(dai, amount, amount, recipient, duration);
@@ -178,27 +187,23 @@ contract ContractTest is Test {
             // Can't write a cheq with a higher escrow than amount??
             vm.prank(msg.sender);
             sstl.writeCheq(dai, amount, amount + 1, recipient, duration);
+        } else {
+            require(false, "false");
         }
     }
 
     function writeHelper(address caller, uint256 amount, uint256 escrow, address recipient, uint256 duration, SelfSignTimeLock sstl) public returns(uint256){
         vm.prank(caller);
-        uint256 cheqId = sstl.writeCheq(dai, amount, escrow, recipient, duration);
+        uint256 cheqId = sstl.writeCheq(dai, amount, escrow, recipient, duration);  // Change dai to arbitrary token
         return cheqId;
     }
 
     function testTransferCheq(address caller,  uint256 amount, address recipient, uint256 duration, address to) public {
         SelfSignTimeLock sstl = setUpTimelock();
         if (
-            caller != address(0) &&
-            to != address(0) &&
-            amount > 0 && 
-            amount <= tokenAllocation && 
-            recipient != address(0) && 
-            recipient != address(sstl) && 
-            recipient != address(this) &&
-            recipient != address(cheq) &&
-            duration > 0
+            cheqConditionChecks(caller, amount, recipient, duration, sstl) && 
+            cheqConditionChecks(caller, amount, to, duration, sstl) && 
+            amount > 0
             ){
             depositHelper(amount, caller);
             uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
@@ -236,14 +241,8 @@ contract ContractTest is Test {
 
     function testTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
         SelfSignTimeLock sstl = setUpTimelock();
-        if (
-            caller != address(0) &&
-            amount > 0 && 
-            amount <= tokenAllocation && 
-            recipient != address(0) && 
-            recipient != address(sstl) && 
-            recipient != address(this) &&
-            duration != 0
+        if (cheqConditionChecks(caller, amount, recipient, duration, sstl) &&
+            cheqConditionChecks(caller, amount, to,        duration, sstl)  // Don't transfer "to" smart contract
             ){
             depositHelper(amount, caller);
             uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
@@ -251,31 +250,39 @@ contract ContractTest is Test {
             sstl.transferCheq(cheqId, to);
         }
     }
+    function cheqConditionChecks(address caller, uint256 amount, address recipient, uint256 duration, SelfSignTimeLock sstl) public view returns(bool){
+        return amount <= tokenAllocation && 
+               recipient != address(0) && 
+               !isContract(caller) &&
+               !isContract(recipient) &&
+               duration != 0 &&
+               duration < type(uint).max &&  // Causes overflow
+               (duration >> 2) + (block.timestamp >> 2) <= (type(uint).max >> 2) &&
+               caller != address(0);
+    }
 
     function testFailTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
         SelfSignTimeLock sstl = setUpTimelock();
         if (
             caller == address(0) ||
+            caller != msg.sender || // msg.sender is invoice owner so they are allowed to transfer
             to == address(0) ||
-            !(amount > 0 && 
-            amount <= tokenAllocation && 
-            recipient != address(0) && 
-            recipient != address(sstl) && 
-            recipient != address(this) &&
-            duration != 0 &&
-            caller == msg.sender)  // dont want caller to be owner (msg.sender)
+            !cheqConditionChecks(caller, amount, recipient, duration, sstl)
             ){
             depositHelper(amount, msg.sender);
             uint256 cheqId = writeHelper(msg.sender, amount, 0, recipient, duration, sstl);
+
             // Non-owner transfer
             vm.prank(caller);
             sstl.transferCheq(cheqId, to);
             // Transfer of non-existent cheq
+            sstl.transferCheq(cheqId+1, to);
             vm.prank(caller);
             sstl.transferCheq(cheqId+1, to);
             vm.prank(msg.sender);
             sstl.transferCheq(cheqId+1, to);
-            sstl.transferCheq(cheqId+1, to);
+        } else {
+            require(false, "failed");
         }
     }
     
@@ -286,35 +293,108 @@ contract ContractTest is Test {
 
     function testFundInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {  //
         SelfSignTimeLock sstl = setUpTimelock();
-        if (amount > 0 && 
-            amount <= tokenAllocation && 
-            recipient != address(0) && 
-            recipient != address(sstl) && 
-            recipient != address(this) &&
-            duration != 0 &&
-            caller != address(0)  // callers become the owners of an invoice
-            ){
-            console.log("Before", cheq.deposits(recipient, dai));
+        if (cheqConditionChecks(caller, amount, recipient, duration, sstl)){
+            // TODO why would someone send a zero faceValue cheq?? Perhaps to wrap the NFT with additional information??
             depositHelper(amount, recipient);  // Recipient will be the funder
-            console.log("After",cheq.deposits(recipient, dai));
             uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
             vm.prank(recipient);  // This can be anybody
             sstl.fundCheq(cheqId, amount);
         }
     }
 
-    // function testFailFundInvoice() public {  
-    //     // not invoice
-    //     // invoice but not correct amount?
-    // }
+    function testFailFundInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
+        SelfSignTimeLock sstl = setUpTimelock();
+        if (cheqConditionChecks(caller, amount, recipient, duration, sstl) && random != 0){
+            depositHelper(amount, recipient);  // Recipient will be the funder
+            uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
+            vm.prank(recipient); 
+            sstl.fundCheq(cheqId, amount);
+            vm.prank(caller);
+            sstl.fundCheq(cheqId, amount);
 
-    // function testCash() public {
+            // invoice but not correct amount?
+            depositHelper(amount, recipient);  // Recipient will be the funder
+            uint256 cheqId2 = writeHelper(caller, amount, 0, recipient, duration, sstl);
+            vm.prank(recipient); 
+            sstl.fundCheq(cheqId2, amount+random);
+            sstl.fundCheq(cheqId2, amount-random);
+            vm.prank(caller);
+            sstl.fundCheq(cheqId2, amount+random);
+            sstl.fundCheq(cheqId2, amount-random);
+        } else {
+            require(false, "false");
+        }
+    }
 
-    // }
-    // function testFailCash() public {
+    function testCashCheq(address caller, uint256 amount, address recipient, uint256 duration) public {
+        SelfSignTimeLock sstl = setUpTimelock();
+        if (cheqConditionChecks(caller, amount, recipient, duration, sstl) && amount != 0){
+            // Write cheq from: caller, owner: recipient, to: recipient
+            depositHelper(amount, caller);  
+            uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
+            
+            vm.startPrank(recipient);
+            vm.warp(block.timestamp + duration);
+            sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
+            vm.stopPrank();
+        }
+    }
+    function testCashInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {
+        SelfSignTimeLock sstl = setUpTimelock();
+        if (cheqConditionChecks(caller, amount, recipient, duration, sstl) &&  // Don't allow recipient to be a contract
+            cheqConditionChecks(caller, amount, caller, duration, sstl) &&  // Don't allow owner to be contract
+            amount > 0
+            ){
+            // Write invoice from: caller, owner: caller, to: recipient
+            depositHelper(amount, recipient);  
+            uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
+            vm.prank(recipient);
+            sstl.fundCheq(cheqId, amount);
 
-    // }
+            vm.startPrank(caller);
+            vm.warp(block.timestamp + duration);
+            sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
+            vm.stopPrank();
+        }
+    }
 
+    function testFailCashCheq(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
+        SelfSignTimeLock sstl = setUpTimelock();
+        if (!cheqConditionChecks(caller, amount, recipient, duration, sstl) && amount > 0){
+            depositHelper(amount, recipient);  
+            uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
+            // Can't cash until its time
+            vm.prank(recipient);
+            sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
+            // Can't cash unless owner
+            vm.warp(block.timestamp + duration);
+            sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
+            // Can't cash different amount
+            sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId)-random);
+        } else {
+            require(false, "bad fuzzing");
+        }
+    }
+    function testFailCashInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
+        SelfSignTimeLock sstl = setUpTimelock();
+        if (
+            !cheqConditionChecks(caller, amount, recipient, duration, sstl) && 
+            amount != 0 &&
+            recipient != address(0) &&
+            caller != recipient  // Sending yourself a cheq allows you to zero cash a cheq
+            ){
+            depositHelper(amount, recipient);  
+            uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
+
+            // Can't cash unfunded invoice
+            // vm.warp(block.timestamp + duration);
+            // sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));  // You can cash an unfunded cheq after inspectionPeriod
+
+            sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId)+1);
+        } else {
+            require(false, "bad fuzzing");
+        }
+    }
 }
 
 
@@ -340,463 +420,3 @@ contract ContractTest is Test {
     //     cheq.acceptUser(recipient, true);
     //     // Can't write cheques without auditor approved duration
     //     cheq.writeCheq(dai, _amount, duration, auditor, recipient);
-
-
-
-
-
-
-
-
-
-// pragma solidity ^0.8.13;
-
-// import "forge-std/Test.sol";
-// import "forge-std/console.sol";
-// import "src/contracts/Cheq.sol";
-// import "./mock/erc20.sol";
-
-// contract ContractTest is Test {
-//     Cheq public cheq;
-//     TestERC20 public dai;
-//     TestERC20 public usdc;
-
-//     function setUp() public {
-//         // Test contract has amount in DAI
-//         cheq = new Cheq(); // trusted account cooldown seconds
-//         dai = new TestERC20(100e18, "DAI", "DAI"); //
-//         usdc = new TestERC20(0, "USDC", "USDC");
-//     }
-
-//     /*//////////////////////////////////////////////////////////////
-//                            HELPER FUNCTIONS
-//     //////////////////////////////////////////////////////////////*/
-    // function depositHelper(uint256 _amount, address _to) public {
-    //     dai.approve(address(cheq), _amount); // msg.sender grants cheq permission to transfer erc20 to cheq's address
-    //     assertTrue(dai.balanceOf(address(cheq)) == 0);
-    //     cheq.deposit(dai, _amount, _to); // cheq transfers msg.sender's erc20 to cheq's address and give's it to _to's deposit mapping
-    //     assertTrue(dai.balanceOf(address(cheq)) == _amount);
-    // }
-
-//     function setupAuditorForTransaction(
-//         address user1,
-//         address user2,
-//         address auditor,
-//         uint256 duration
-//     ) public {
-//         vm.prank(user1);
-//         cheq.acceptAuditor(auditor, true);
-//         vm.prank(user2);
-//         cheq.acceptAuditor(auditor, true);
-//         vm.startPrank(auditor);
-//         cheq.acceptUser(user1, true);
-//         cheq.acceptUser(user2, true);
-//         // cheq.setAllowedDuration(duration);
-//         vm.stopPrank();
-//         vm.warp(block.timestamp + 24 hours + 100);
-//     }
-
-    // function writeChequeHelper(
-    //     uint256 _amount,
-    //     address auditor,
-    //     address recipient,
-    //     uint256 duration
-    // ) public returns (uint256) {
-    //     // Set up params and state
-    //     depositHelper(_amount, msg.sender);
-    //     setupAuditorForTransaction(msg.sender, recipient, auditor, duration); // Drawer-Auditor-Recipient all accept
-    //     assertTrue(cheq.balanceOf(recipient) == 0); // writing cheque should reduce balance
-    //     assertTrue(
-    //         block.timestamp >=
-    //             cheq.acceptedAuditorTimestamp(msg.sender, auditor) + 24 hours
-    //     ); // auditor waiting period has passed
-    //     vm.prank(msg.sender);
-    //     uint256 chequeID = cheq.writeCheque(
-    //         dai,
-    //         _amount,
-    //         duration,
-    //         auditor,
-    //         recipient
-    //     );
-    //     assertTrue(cheq.deposits(msg.sender, dai) == 0); // writing cheque should reduce balance
-    //     assertTrue(cheq.balanceOf(recipient) == 1); // recipient cheque balance increased
-    //     assertTrue(cheq.ownerOf(chequeID) == recipient); // recipient owns cheque
-    //     return chequeID;
-    // }
-
-//     function voidChequeHelper(
-//         address drawer,
-//         address auditor,
-//         uint256 chequeID,
-//         address owner
-//     ) public {
-//         uint256 drawerDeposit = cheq.deposits(drawer, dai); // Drawers deposit amount
-//         assertTrue(cheq.balanceOf(owner) == 1); // recipient owns cheque
-//         vm.prank(auditor);
-//         cheq.voidCheque(chequeID); // Auditor calls voidCheque
-//         assertTrue(cheq.balanceOf(owner) == 0); // recipient owns 1 less cheque
-//         assertTrue(
-//             cheq.deposits(drawer, dai) ==
-//                 drawerDeposit + cheq.chequeAmount(chequeID)
-//         ); // drawer's collateral is returned
-//         drawerDeposit = cheq.deposits(drawer, dai); // Drawers deposit amount
-//         vm.expectRevert("ERC721: invalid token ID");
-//         cheq.ownerOf(chequeID); // FAILS SINCE _burn() REMOVES OWNERSHIP
-//     }
-
-//     function transferCheque() public {}
-
-//     /*//////////////////////////////////////////////////////////////
-//                            TESTING FUNCTIONS
-//     //////////////////////////////////////////////////////////////*/
-//     function testSetProtocolFee(uint256 amount) public {
-//         // DAI
-//         assertTrue(cheq.protocolFee(dai) == 0);
-//         cheq.setProtocolFee(dai, amount);
-//         assertTrue(cheq.protocolFee(dai) == amount);
-//         // USDC
-//         assertTrue(cheq.protocolFee(usdc) == 0);
-//         cheq.setProtocolFee(usdc, amount);
-//         assertTrue(cheq.protocolFee(usdc) == amount);
-//     }
-
-//     function testFailDeposit(uint256 _amount) public {
-//         // Can't deposit token where msg.sender has balance=0
-//         cheq.deposit(usdc, _amount);
-//     }
-
-//     function testFailDepositTo(uint256 _amount, address _address) public {
-//         // Can't deposit to user where msg.sender token where user balance=0
-//         cheq.deposit(usdc, _amount, _address);
-//     }
-
-//     // function testDirectTransfer() public {
-//     //     //address _to
-//     //     uint256 _amount = 100e18;
-//     //     depositHelper(_amount, msg.sender);
-//     //     assertTrue(cheq.deposits(msg.sender, dai) == _amount);
-//     //     // Transfer deposit to another user
-//     //     address _to = address(1);
-//     //     vm.prank(msg.sender);
-//     //     cheq.directTransfer(dai, _to, _amount);
-//     //     // Transferer doesn't have that amount anymore
-//     //     assertTrue(cheq.deposits(msg.sender, dai) == 0);
-//     //     // Transferee has that amount now
-//     //     assertTrue(cheq.deposits(_to, dai) == _amount);
-//     // }
-
-    //     // Can't write cheques with no balance
-    //     cheq.writeCheque(dai, _amount, duration, auditor, recipient);
-    //     // Can't write cheques with insufficient balance
-    //     depositHelper(_amount, msg.sender);
-    //     cheq.writeCheque(dai, _amount + 1, duration, auditor, recipient);
-    //     // Can't write cheques without accepted auditor
-    //     cheq.writeCheque(dai, _amount, duration, auditor, recipient);
-    //     cheq.acceptAuditor(auditor, true);
-    //     // Can't write cheques without auditor handshake
-    //     cheq.writeCheque(dai, _amount, duration, auditor, recipient);
-    //     vm.prank(auditor);
-    //     cheq.acceptUser(msg.sender, true);
-    //     // Can't write cheques without recipient approving auditor
-    //     cheq.writeCheque(dai, _amount, duration, auditor, recipient);
-    //     vm.prank(recipient);
-    //     cheq.acceptAuditor(auditor, true);
-    //     // Can't write cheques without auditor approving recipient
-    //     cheq.writeCheque(dai, _amount, duration, auditor, recipient);
-    //     vm.prank(auditor);
-    //     cheq.acceptUser(recipient, true);
-    //     // Can't write cheques without auditor approved duration
-    //     cheq.writeCheque(dai, _amount, duration, auditor, recipient);
-    // }
-    // function testWriteCheque() public {
-    //     // Set up params and state
-    //     uint256 _amount = 100e18;
-    //     address auditor = vm.addr(1);
-    //     address recipient = vm.addr(2);
-    //     uint256 duration = 60 * 60 * 24 * 7;
-    //     depositHelper(_amount, msg.sender);
-    //     setupAuditorForTransaction(msg.sender, recipient, auditor, duration);
-    //     assertTrue(cheq.balanceOf(msg.sender) == 0);
-    //     assertTrue(cheq.balanceOf(recipient) == 0);
-    //     // Write cheque
-    //     vm.prank(msg.sender);
-    //     uint256 chequeID = cheq.writeCheque(
-    //         dai,
-    //         _amount,
-    //         duration,
-    //         auditor,
-    //         recipient
-    //     );
-
-    //     (   uint256 amount,
-    //         uint256 created,
-    //         uint256 expiry,
-    //         IERC20 token,
-    //         address drawer,
-    //         address recipient1,
-    //         address auditor1,
-    //         Cheq.Status status
-    //     ) = cheq.chequeInfo(chequeID);
-    //     assertTrue(amount == _amount, "amount");
-    //     assertTrue(created == block.timestamp, "created");
-    //     assertTrue(expiry == block.timestamp + duration, "expired");
-    //     assertTrue(token == dai, "token");
-    //     assertTrue(drawer == msg.sender, "drawer");
-    //     assertTrue(recipient1 == recipient, "recipient");
-    //     assertTrue(auditor1 == auditor, "auditor");
-    //     assertTrue(status == Cheq.Status(0), "cheq not pending");
-    //     assertTrue(cheq.balanceOf(msg.sender) == 0, "drawer balance");
-    //     assertTrue(cheq.balanceOf(recipient) == 1, "recipient");
-    //     assertTrue(cheq.ownerOf(chequeID) == recipient, "owner");
-    // }
-
-//     function testTransferFrom() public {
-//         uint256 _amount = 100e18;
-//         address auditor = vm.addr(1);
-//         address recipient = vm.addr(2);
-//         address degen = vm.addr(3);
-//         uint256 duration = 60 * 60 * 24 * 7;
-//         assertTrue(cheq.balanceOf(recipient) == 0);
-//         uint256 chequeID = writeChequeHelper(
-//             _amount,
-//             auditor,
-//             recipient,
-//             duration
-//         ); // msg.sender writes this to the recipient
-//         assertTrue(cheq.balanceOf(recipient) == 1);
-//         uint256 chequeAmount = cheq.chequeAmount(chequeID);
-//         assertTrue(chequeAmount == _amount);
-
-//         // transfer cheque to new account
-//         assertTrue(cheq.balanceOf(degen) == 0);
-//         uint256 protocolReserve = cheq.protocolReserve(dai);
-//         assertTrue(protocolReserve == 0);
-
-//         vm.prank(recipient);
-//         cheq.transferFrom(recipient, degen, chequeID);
-//         assertTrue(cheq.balanceOf(recipient) == 0);
-//         assertTrue(cheq.balanceOf(degen) == 1);
-//         // fee on transfer
-//         uint256 protocolFee = cheq.protocolFee(dai);
-//         chequeAmount = cheq.chequeAmount(chequeID);
-//         assertTrue(chequeAmount == _amount - protocolFee); // cheque worth less
-//         assertTrue(cheq.protocolReserve(dai) == protocolFee); // reserve worth more
-//     }
-
-//     function testSafeTransferFrom() public {
-//         uint256 _amount = 100e18;
-//         address auditor = vm.addr(1);
-//         address recipient = vm.addr(2);
-//         address degen = vm.addr(3);
-//         uint256 duration = 60 * 60 * 24 * 7;
-//         assertTrue(cheq.balanceOf(recipient) == 0);
-//         uint256 chequeID = writeChequeHelper(
-//             _amount,
-//             auditor,
-//             recipient,
-//             duration
-//         ); // msg.sender writes this to the recipient
-//         assertTrue(cheq.balanceOf(recipient) == 1);
-//         uint256 chequeAmount = cheq.chequeAmount(chequeID);
-//         assertTrue(chequeAmount == _amount);
-
-//         // // transfer cheque to new account
-//         assertTrue(cheq.balanceOf(degen) == 0);
-//         uint256 protocolReserve = cheq.protocolReserve(dai);
-//         assertTrue(protocolReserve == 0);
-//         vm.prank(recipient);
-//         cheq.safeTransferFrom(recipient, degen, chequeID);
-//         assertTrue(cheq.balanceOf(recipient) == 0);
-//         assertTrue(cheq.balanceOf(degen) == 1);
-//         // fee on transfer
-//         uint256 protocolFee = cheq.protocolFee(dai);
-//         chequeAmount = cheq.chequeAmount(chequeID);
-//         assertTrue(chequeAmount == _amount - protocolFee);
-//         assertTrue(cheq.protocolReserve(dai) == protocolFee);
-//     }
-
-//     function testCashCheque() public {
-//         uint256 _amount = 100e18;
-//         address auditor = vm.addr(1);
-//         address recipient = vm.addr(2);
-//         uint256 duration = 60 * 60 * 24 * 7;
-//         uint256 chequeID = writeChequeHelper(
-//             _amount,
-//             auditor,
-//             recipient,
-//             duration
-//         ); // Deposits, handshakes, and writes cheque
-
-//         assertTrue(cheq.deposits(recipient, dai) == 0);
-//         assertTrue(dai.balanceOf(recipient) == 0);
-
-//         vm.warp(block.timestamp + duration + 1);
-//         vm.prank(recipient);
-//         cheq.cashCheque(chequeID); // recipient asks cheq to transfer them the erc20 'locked' in the cheque
-//         assertTrue(dai.balanceOf(recipient) == _amount);
-//     }
-
-//     function testTransferCashCheque() public {
-//         // the degen cashes the cheque
-//         uint256 _amount = 100e18;
-//         address auditor = vm.addr(1);
-//         address recipient = vm.addr(2);
-//         address degen = vm.addr(3);
-//         uint256 duration = 60 * 60 * 24 * 7;
-//         uint256 chequeID = writeChequeHelper(
-//             _amount,
-//             auditor,
-//             recipient,
-//             duration
-//         ); // msg.sender writes this to the recipient
-
-//         // Transfer cheque to degen account
-//         assertTrue(cheq.balanceOf(degen) == 0); // degen owns no cheques
-//         assertTrue(cheq.protocolReserve(dai) == 0); // protocol fee has not been taken
-//         // Transfer
-//         uint256 chequeAmount = cheq.chequeAmount(chequeID);
-//         assertTrue(chequeAmount == _amount);
-//         vm.prank(recipient);
-//         cheq.transferFrom(recipient, degen, chequeID); // owner (recipient) asks Cheq to transfer to degen
-//         assertTrue(cheq.balanceOf(recipient) == 0);
-//         assertTrue(cheq.balanceOf(degen) == 1);
-//         // Fee on transfer
-//         uint256 protocolFee = cheq.protocolFee(dai);
-//         chequeAmount = cheq.chequeAmount(chequeID);
-//         assertTrue(chequeAmount == _amount - protocolFee); // cheque worth less
-//         assertTrue(cheq.protocolReserve(dai) == protocolFee); // reserve worth more
-
-//         // Degen cashing
-//         assertTrue(cheq.deposits(degen, dai) == 0);
-//         assertTrue(dai.balanceOf(degen) == 0);
-//         vm.warp(block.timestamp + duration + 1);
-//         vm.prank(degen);
-//         cheq.cashCheque(chequeID); // degen asks cheq to transfer them the erc20 'locked' in the cheque
-//         assertTrue(dai.balanceOf(degen) == _amount);
-//     }
-
-//     function testVoidCheque() public {
-//         uint256 _amount = 100e18;
-//         address auditor = vm.addr(1);
-//         address recipient = vm.addr(2);
-//         uint256 duration = 60 * 60 * 24 * 7;
-//         uint256 chequeID = writeChequeHelper(
-//             _amount,
-//             auditor,
-//             recipient,
-//             duration
-//         );
-//         voidChequeHelper(msg.sender, auditor, chequeID, recipient);
-
-//         // Ensure cheque can't be cashed
-//         vm.warp(block.timestamp + duration + 1);
-//         vm.prank(recipient);
-//         assertTrue(dai.balanceOf(recipient) == 0);
-//         vm.expectRevert("ERC721: invalid token ID");
-//         cheq.cashCheque(chequeID); // recipient asks cheq to transfer them the erc20 'locked' in the cheque
-//         assertTrue(dai.balanceOf(recipient) == 0);
-
-//         // Ensure cheque can't be transfered
-//         vm.prank(recipient);
-//         vm.expectRevert("ERC721: invalid token ID");
-//         cheq.transferFrom(recipient, msg.sender, chequeID);
-//     }
-
-//     // function testVoidRescueCheque() public {
-//     //     uint256 _amount = 100e18;
-//     //     address auditor = vm.addr(1);
-//     //     address recipient = vm.addr(2);
-//     //     address trusted = vm.addr(3);
-//     //     uint256 duration = 60 * 60 * 24 * 7 + cheq.trustedAccountCooldown();
-
-//     //     // Set drawer's trusted account
-//     //     vm.warp(block.timestamp + cheq.trustedAccountCooldown() + 1);
-//     //     vm.prank(msg.sender);
-//     //     cheq.setTrustedAccount(trusted);
-
-//     //     uint256 chequeID = writeChequeHelper(
-//     //         _amount,
-//     //         auditor,
-//     //         recipient,
-//     //         duration
-//     //     );
-
-//     //     // Void cheque
-//     //     assertTrue(cheq.deposits(trusted, dai) == 0);
-//     //     assertTrue(cheq.balanceOf(recipient) == 1); // recipient owns cheque
-//     //     vm.prank(auditor);
-//     //     cheq.voidRescueCheque(chequeID); // Auditor calls voidCheque
-//     //     assertTrue(cheq.balanceOf(recipient) == 0, "recipient has balance of"); // recipient owns 1 less cheque
-//     //     vm.expectRevert("ERC721: invalid token ID");
-//     //     cheq.ownerOf(chequeID);
-//     //     // Trusted account gets deposit
-//     //     assertTrue(
-//     //         cheq.deposits(trusted, dai) == _amount,
-//     //         "trusted didn't get collateral"
-//     //     );
-//     // }
-
-//     // function testSetTrustedAccount(address trusted) public {
-//     //     vm.warp(block.timestamp + cheq.trustedAccountCooldown() + 1);
-//     //     vm.prank(msg.sender);
-//     //     cheq.setTrustedAccount(trusted);
-//     // }
-
-//     function testAcceptUser(address auditor, address user) public {
-//         vm.prank(auditor);
-//         cheq.acceptUser(user, true);
-//     }
-
-//     function testAcceptAuditor(address user, address auditor) public {
-//         vm.prank(user);
-//         cheq.acceptAuditor(auditor, true);
-//     }
-
-//     // function testSetAllowedDuration(address auditor, uint256 duration) public {
-//     //     vm.prank(auditor);
-//     //     cheq.setAllowedDuration(duration);
-//     // }
-
-//     // function testGetAccepted() public {  // This is being hardcoded for now
-//     //     address auditor = vm.addr(1);
-//     //     address recipient = vm.addr(2);
-//     //     uint256 duration = 60 * 60 * 24 * 7;
-//     //     setupAuditorForTransaction(msg.sender, recipient, auditor, duration);
-//     //     address[] memory auditorsUsers = cheq.getAcceptedAuditorUsers(auditor, true);
-//     //     assertTrue(auditorsUsers.length == 2);
-//     //     assertTrue(auditorsUsers[0] == msg.sender);
-//     //     assertTrue(auditorsUsers[1] == recipient);
-
-//     //     address[] memory userAuditors = cheq.getAcceptedUserAuditors(
-//     //         msg.sender
-//     //     );
-//     //     assertTrue(userAuditors.length == 1);
-//     //     assertTrue(userAuditors[0] == auditor);
-//     // }
-
-//     function testFailWithdraw(uint256 _amount) public {
-//         // Withdraw protocol fees to dev account
-//         testTransferFrom(); // deposits, hadshakes, writes, transfers
-
-//         uint256 daiReserve = cheq.protocolReserve(dai);
-//         if (_amount > daiReserve) {
-//             // withdrawing more than unused collateral reserve allows
-//             cheq.withdraw(dai, _amount);
-//         } else {
-//             // Non-owner withdrawing funds
-//             vm.prank(msg.sender);
-//             cheq.withdraw(dai, _amount);
-//         }
-//     }
-
-//     function testWithdraw() public {
-//         // Withdraw protocol fees to dev account
-//         testTransferFrom(); // deposits, hadshakes, writes, transfers
-//         assertTrue(dai.balanceOf(msg.sender) == 0);
-//         uint256 daiReserve = cheq.protocolReserve(dai);
-//         assertTrue(dai.balanceOf(address(this)) == 0);
-//         cheq.withdraw(dai, daiReserve);
-//         assertTrue(dai.balanceOf(address(this)) == daiReserve);
-//     }
-//     // NEED TO ADD depositWrite() test
-// }
