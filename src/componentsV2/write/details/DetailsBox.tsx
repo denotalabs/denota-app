@@ -37,7 +37,7 @@ function DetailsBox() {
           <Flex alignItems={"center"} justifyContent={"space-between"}>
             <FormLabel>Client</FormLabel>
             <FormControl>
-              <Input />
+              <Input placeholder="0x..." />
             </FormControl>
           </Flex>
         </GridItem>
