@@ -1,4 +1,7 @@
-import StepperContext, { StepperReducerInterface } from "./StepperContext";
+import StepperContext, {
+  StepperReducerInterface,
+  StringMap,
+} from "./StepperContext";
 import {
   useEffect,
   useReducer,
@@ -6,6 +9,7 @@ import {
   ReactNode,
   ReactElement,
   useContext,
+  useState,
 } from "react";
 import { Text } from "@chakra-ui/react";
 
@@ -56,14 +60,23 @@ function Stepper({ children, onClose }: StepperProps) {
     currentScreen,
     allScreens,
   });
+  const [formData, setFormData] = useState<StringMap>({});
   const next = () => {
     dispatch({ type: StepperActionKind.NEXT });
   };
   const goToStep = (screenKey: string) => {
     dispatch({ type: StepperActionKind.SET_SCREEN, screenKey });
   };
+  const appendFormData = (data: StringMap) => {
+    setFormData({
+      ...formData,
+      ...data,
+    });
+  };
   return (
-    <StepperContext.Provider value={{ ...state, next, goToStep, onClose }}>
+    <StepperContext.Provider
+      value={{ ...state, next, goToStep, onClose, formData, appendFormData }}
+    >
       <Text fontWeight={600} fontSize={"xl"} mb={4}>
         Invoice Step {state.currentIndex + 1}
       </Text>
