@@ -1,19 +1,15 @@
 import {
   Box,
-  Center,
   Flex,
   FormControl,
   FormLabel,
   Grid,
   GridItem,
   Input,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
   Select,
 } from "@chakra-ui/react";
+import AccountField from "../../../components/input/AccountField";
+import AmountField from "../../../components/input/AmountField";
 
 interface Props {
   isInvoice: boolean;
@@ -47,27 +43,14 @@ function DetailsBox({ isInvoice }: Props) {
               Client Address
             </FormLabel>
             <FormControl>
-              <Input placeholder="0x..." />
+              <AccountField fieldName="account" placeholder="0x" />
             </FormControl>
           </Flex>
         </GridItem>
         <GridItem>
           <Flex alignItems={"center"} justifyContent={"space-between"}>
             <FormLabel>Amount</FormLabel>
-            <FormControl>
-              <NumberInput
-                precision={2}
-                step={0.1}
-                min={0}
-                // TODO add max, set by user's balance
-              >
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
-            </FormControl>
+            <AmountField />
           </Flex>
         </GridItem>
         <GridItem>
