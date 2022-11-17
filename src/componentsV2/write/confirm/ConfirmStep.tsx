@@ -14,7 +14,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
 
   return (
     <Box w="100%" p={4}>
-      <ConfirmNotice></ConfirmNotice>
+      <ConfirmNotice isInvoice={isInvoice}></ConfirmNotice>
       <ConfirmDetails></ConfirmDetails>
       <RoundedButton
         onClick={() => {
