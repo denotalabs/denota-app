@@ -15,7 +15,11 @@ import {
   Select,
 } from "@chakra-ui/react";
 
-function DetailsBox() {
+interface Props {
+  isInvoice: boolean;
+}
+
+function DetailsBox({ isInvoice }: Props) {
   return (
     <Box borderRadius={10} padding={6} bg="gray.700" w="100%" h="140px">
       <Grid
@@ -27,9 +31,13 @@ function DetailsBox() {
         <GridItem>
           <Flex alignItems={"center"} justifyContent={"space-between"}>
             <FormLabel>You are</FormLabel>
-            <Select w={120} placeholder="Select">
-              <option value="option1">Invoicing</option>
-              <option value="option2">Paying</option>
+            <Select
+              defaultValue={isInvoice ? "invoice" : "pay"}
+              w={120}
+              placeholder="Select"
+            >
+              <option value="invoice">Invoicing</option>
+              <option value="pay">Paying</option>
             </Select>
           </Flex>
         </GridItem>
@@ -68,7 +76,7 @@ function DetailsBox() {
             <FormControl>
               <Input />
             </FormControl>
-          </Flex>{" "}
+          </Flex>
         </GridItem>
       </Grid>
     </Box>

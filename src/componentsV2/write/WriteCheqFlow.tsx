@@ -5,14 +5,21 @@ import CheqModuleStep from "./module/ModuleStep";
 
 interface Props {
   onClose?: () => void;
+  isInvoice: boolean;
 }
 
-function WriteCheqFlow({ onClose }: Props) {
+function WriteCheqFlow({ onClose, isInvoice }: Props) {
   return (
     <Stepper onClose={onClose}>
-      <CheqDetailsStep screenKey="write" isInvoice></CheqDetailsStep>
-      <CheqModuleStep screenKey="module" isInvoice></CheqModuleStep>
-      <CheqConfirmStep screenKey="confirm" isInvoice></CheqConfirmStep>
+      <CheqDetailsStep
+        screenKey="write"
+        isInvoice={isInvoice}
+      ></CheqDetailsStep>
+      <CheqModuleStep screenKey="module" isInvoice={isInvoice}></CheqModuleStep>
+      <CheqConfirmStep
+        screenKey="confirm"
+        isInvoice={isInvoice}
+      ></CheqConfirmStep>
     </Stepper>
   );
 }

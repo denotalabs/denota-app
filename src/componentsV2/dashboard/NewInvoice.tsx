@@ -10,7 +10,16 @@ import {
 import NewCheqModal from "../write/NewCheqModal";
 
 function NewInvoice() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isInvoiceOpen,
+    onOpen: onInvoiceOpen,
+    onClose: onInvoiceClose,
+  } = useDisclosure();
+  const {
+    isOpen: isCheqOpen,
+    onOpen: onCheqOpen,
+    onClose: onCheqClose,
+  } = useDisclosure();
 
   return (
     <Box width="100%" mx={10}>
@@ -18,7 +27,7 @@ function NewInvoice() {
         <ButtonGroup gap="4">
           <Button
             w="200px"
-            onClick={onOpen}
+            onClick={onCheqOpen}
             colorScheme="blue"
             size="lg"
             borderRadius={"20px"}
@@ -29,7 +38,7 @@ function NewInvoice() {
           </Button>
           <Button
             w="200px"
-            onClick={onOpen}
+            onClick={onInvoiceOpen}
             colorScheme="blue"
             size="lg"
             borderRadius={"20px"}
@@ -40,7 +49,16 @@ function NewInvoice() {
           </Button>
         </ButtonGroup>
 
-        <NewCheqModal isOpen={isOpen} onClose={onClose} />
+        <NewCheqModal
+          isOpen={isCheqOpen}
+          onClose={onCheqClose}
+          isInvoice={false}
+        />
+        <NewCheqModal
+          isOpen={isInvoiceOpen}
+          onClose={onInvoiceClose}
+          isInvoice
+        />
       </Center>
     </Box>
   );

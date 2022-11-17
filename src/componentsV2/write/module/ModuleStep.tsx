@@ -1,6 +1,7 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { useStep } from "../../stepper/Stepper";
 import RoundedButton from "../RoundedButton";
+import ModuleSelect from "./ModuleSelect";
 
 interface Props {
   screenKey: string;
@@ -12,11 +13,7 @@ function CheqModuleStep({ isInvoice }: Props) {
 
   return (
     <Box w="100%" p={4}>
-      <Box bg="gray.700" borderRadius="10px" h="350px" p={3}>
-        <Text fontWeight={600} fontSize={"lg"}>
-          {"Module"}
-        </Text>
-      </Box>
+      <ModuleSelect />
       <RoundedButton
         onClick={() => {
           next?.();

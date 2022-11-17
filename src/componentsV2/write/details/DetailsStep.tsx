@@ -14,7 +14,7 @@ function CheqDetailsStep({ isInvoice }: Props) {
   return (
     <Box w="100%" p={4}>
       <CurrencySelector></CurrencySelector>
-      <DetailsBox></DetailsBox>
+      <DetailsBox isInvoice={isInvoice}></DetailsBox>
       <RoundedButton
         onClick={() => {
           next?.();
