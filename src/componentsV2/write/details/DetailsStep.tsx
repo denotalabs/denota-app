@@ -18,13 +18,15 @@ function CheqDetailsStep({ isInvoice }: Props) {
         initialValues={{
           token: "ETH",
           amount: 0,
-          account: "",
+          address: "",
+          mode: isInvoice ? "invoice" : "pay",
         }}
         onSubmit={(values, actions) => {
           appendFormData({
             token: values.token,
             amount: values.amount.toString(),
-            account: values.account,
+            address: values.address,
+            mode: values.mode,
           });
           next?.();
         }}

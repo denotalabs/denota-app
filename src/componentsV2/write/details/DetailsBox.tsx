@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import AccountField from "../../../components/input/AccountField";
 import AmountField from "../../../components/input/AmountField";
+import ModeSelect from "./ModeSelect";
 
 interface Props {
   isInvoice: boolean;
@@ -27,14 +28,7 @@ function DetailsBox({ isInvoice }: Props) {
         <GridItem>
           <Flex alignItems={"center"} justifyContent={"space-between"}>
             <FormLabel>You are</FormLabel>
-            <Select
-              defaultValue={isInvoice ? "invoice" : "pay"}
-              w={120}
-              placeholder="Select"
-            >
-              <option value="invoice">Invoicing</option>
-              <option value="pay">Paying</option>
-            </Select>
+            <ModeSelect isInvoice={isInvoice} />
           </Flex>
         </GridItem>
         <GridItem>
@@ -43,7 +37,7 @@ function DetailsBox({ isInvoice }: Props) {
               Client Address
             </FormLabel>
             <FormControl>
-              <AccountField fieldName="account" placeholder="0x" />
+              <AccountField fieldName="address" placeholder="0x" />
             </FormControl>
           </Flex>
         </GridItem>
