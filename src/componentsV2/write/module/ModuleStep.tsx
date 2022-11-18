@@ -20,7 +20,6 @@ function CheqModuleStep({ isInvoice }: Props) {
           module: "self",
         }}
         onSubmit={(values, actions) => {
-          console.log({ values });
           appendFormData({
             inspection: values.inspection,
             module: values.module,

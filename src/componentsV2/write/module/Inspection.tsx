@@ -13,9 +13,8 @@ function Inspection() {
       }: any) => (
         <Select
           w={120}
-          placeholder="Select"
           {...field}
-          onChange={(value) => setFieldValue("inspection", value)}
+          onChange={(event) => setFieldValue("inspection", event.target.value)}
           onBlur={() => setFieldTouched("inspection", true)}
           value={values.inspection}
         >

@@ -13,9 +13,8 @@ function ModuleSelect() {
       }: any) => (
         <Select
           w={120}
-          placeholder="Select"
           {...field}
-          onChange={(value) => setFieldValue("module", value)}
+          onChange={(event) => setFieldValue("module", event.target.value)}
           onBlur={() => setFieldTouched("module", true)}
           value={values.module}
           flexGrow={1}

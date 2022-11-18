@@ -17,9 +17,10 @@ function ModeSelect({ isInvoice }: Props) {
       }: any) => (
         <Select
           w={120}
-          placeholder="Select"
           {...field}
-          onChange={(value) => setFieldValue("mode", value)}
+          onChange={(event) => {
+            setFieldValue("mode", event.target.value);
+          }}
           onBlur={() => setFieldTouched("mode", true)}
           value={values.mode}
         >
