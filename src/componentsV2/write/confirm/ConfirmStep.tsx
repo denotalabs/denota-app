@@ -1,4 +1,5 @@
 import { Box, Button, Text } from "@chakra-ui/react";
+import { Form, Formik } from "formik";
 import { useStep } from "../../stepper/Stepper";
 import RoundedButton from "../RoundedButton";
 import ConfirmDetails from "./ConfirmDetails";
@@ -14,16 +15,24 @@ function CheqConfirmStep({ isInvoice }: Props) {
 
   return (
     <Box w="100%" p={4}>
-      <ConfirmNotice isInvoice={isInvoice}></ConfirmNotice>
-      <ConfirmDetails></ConfirmDetails>
-      <RoundedButton
-        onClick={() => {
+      <Formik
+        initialValues={{}}
+        onSubmit={() => {
           console.log({ formData });
+
           onClose?.();
         }}
       >
-        {isInvoice ? "Create Invoice" : "Confirm Payment"}
-      </RoundedButton>
+        {() => (
+          <Form>
+            <ConfirmNotice isInvoice={isInvoice}></ConfirmNotice>
+            <ConfirmDetails></ConfirmDetails>
+            <RoundedButton type="submit">
+              {isInvoice ? "Create Invoice" : "Confirm Payment"}
+            </RoundedButton>
+          </Form>
+        )}
+      </Formik>
     </Box>
   );
 }
