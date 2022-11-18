@@ -1,10 +1,10 @@
 import { Select } from "@chakra-ui/react";
 import { Field } from "formik";
 
-function ModuleSelect() {
+function Inspection() {
   return (
     <Field
-      name="mode"
+      name="inspection"
       // validate={validateAmount}
     >
       {({
@@ -15,17 +15,16 @@ function ModuleSelect() {
           w={120}
           placeholder="Select"
           {...field}
-          onChange={(value) => setFieldValue("module", value)}
-          onBlur={() => setFieldTouched("module", true)}
-          value={values.module}
-          flexGrow={1}
+          onChange={(value) => setFieldValue("inspection", value)}
+          onBlur={() => setFieldTouched("inspection", true)}
+          value={values.inspection}
         >
-          <option value="self">Self-serve</option>
-          <option value="byoa">BYOA</option>
+          <option value="90">90 days</option>
+          <option value="30">30 days</option>
         </Select>
       )}
     </Field>
   );
 }
 
-export default ModuleSelect;
+export default Inspection;

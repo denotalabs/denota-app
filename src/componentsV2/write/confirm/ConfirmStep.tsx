@@ -10,7 +10,7 @@ interface Props {
 }
 
 function CheqConfirmStep({ isInvoice }: Props) {
-  const { onClose } = useStep();
+  const { onClose, formData } = useStep();
 
   return (
     <Box w="100%" p={4}>
@@ -18,6 +18,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
       <ConfirmDetails></ConfirmDetails>
       <RoundedButton
         onClick={() => {
+          console.log({ formData });
           onClose?.();
         }}
       >
