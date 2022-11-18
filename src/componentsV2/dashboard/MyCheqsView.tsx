@@ -9,6 +9,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Select,
   Text,
 } from "@chakra-ui/react";
 import CheqCardV2 from "./CheqCardV2";
@@ -17,24 +18,22 @@ function MyCheqsView() {
   // TODO (Integrate v2 UI with v2 smart contract): Load cheqs from graph
   return (
     <Box boxShadow="outline" width="100%" p={6} borderRadius={"10px"}>
-      <Menu>
-        <MenuButton
-          as={Button}
-          cursor={"pointer"}
-          minW={0}
-          mb={6}
-          rightIcon={<ChevronDownIcon />}
-        >
-          Received
-        </MenuButton>
-        <MenuList alignItems={"center"}>
-          <MenuItem>Owned</MenuItem>
-          <MenuItem>Sent</MenuItem>
-          <MenuItem>Received</MenuItem>
-          <MenuItem>Cashed</MenuItem>
-          <MenuItem>Voided</MenuItem>
-        </MenuList>
-      </Menu>
+      <Select
+        defaultValue="tokensReceived"
+        minW={0}
+        mb={6}
+        w="120px"
+        onChange={(event) => {
+          console.log(event.target.value);
+          // setTokenSelect(event.target.value)
+        }}
+      >
+        <option value="tokensOwned">Owned</option>
+        <option value="tokensSent">Sent</option>
+        <option value="tokensReceived">Received</option>
+        <option value="tokensCashed">Cashed</option>
+        <option value="tokensVoided">Voided</option>
+      </Select>
       <Grid templateColumns="repeat(auto-fit, minmax(240px, 1fr))" gap={6}>
         <CheqCardV2
           sender="Cheq 1"
