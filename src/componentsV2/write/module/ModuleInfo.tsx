@@ -6,7 +6,7 @@ function ModuleInfo() {
   return (
     <Box borderRadius={10} padding={6} bg="gray.700" w="100%">
       <Grid
-        templateColumns="1fr 1fr"
+        templateColumns="repeat(auto-fit, minmax(240px, 1fr))"
         templateRows="repeat(1, 1fr)"
         gap={6}
         h="100%"

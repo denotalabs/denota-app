@@ -27,7 +27,7 @@ export default function Nav(props: Props) {
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <Stack direction={"row"} spacing={6}>
-            <Text as="b">CRXProtocol</Text>
+            <Text as="b">CruxProtocol</Text>
             <ButtonGroup variant="link" spacing="6">
               <Link href="/" passHref>
                 <Button as="a" key="dashboard">

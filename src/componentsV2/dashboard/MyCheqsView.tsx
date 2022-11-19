@@ -28,9 +28,9 @@ function MyCheqsView() {
           // setTokenSelect(event.target.value)
         }}
       >
-        <option value="tokensOwned">Owned</option>
-        <option value="tokensSent">Sent</option>
+        <option value="">All</option>
         <option value="tokensReceived">Received</option>
+        <option value="tokensSent">Sent</option>
         <option value="tokensCashed">Cashed</option>
         <option value="tokensVoided">Voided</option>
       </Select>

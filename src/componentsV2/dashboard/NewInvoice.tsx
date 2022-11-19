@@ -26,7 +26,7 @@ function NewInvoice() {
       <Center>
         <ButtonGroup gap="4">
           <Button
-            w="200px"
+            w="min(40vw, 200px)"
             onClick={onCheqOpen}
             colorScheme="blue"
             size="lg"
@@ -37,7 +37,7 @@ function NewInvoice() {
             </Text>
           </Button>
           <Button
-            w="200px"
+            w="min(40vw, 200px)"
             onClick={onInvoiceOpen}
             colorScheme="blue"
             size="lg"

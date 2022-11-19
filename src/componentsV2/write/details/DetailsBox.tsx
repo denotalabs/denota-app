@@ -5,6 +5,7 @@ import {
   FormLabel,
   Grid,
   GridItem,
+  HStack,
   Input,
   Select,
 } from "@chakra-ui/react";
@@ -18,44 +19,56 @@ interface Props {
 
 function DetailsBox({ isInvoice }: Props) {
   return (
-    <Box borderRadius={10} padding={6} bg="gray.700" w="100%" h="140px">
-      <Grid
-        templateColumns="2fr 3fr"
-        templateRows="repeat(2, 1fr)"
-        gap={6}
-        h="100%"
-      >
-        <GridItem>
-          <Flex alignItems={"center"} justifyContent={"space-between"}>
-            <FormLabel>You are</FormLabel>
-            <ModeSelect isInvoice={isInvoice} />
-          </Flex>
-        </GridItem>
-        <GridItem>
-          <Flex alignItems={"center"} justifyContent={"space-between"}>
-            <FormLabel noOfLines={1} flexShrink={0}>
-              Client Address
-            </FormLabel>
-            <FormControl>
-              <AccountField fieldName="address" placeholder="0x" />
-            </FormControl>
-          </Flex>
-        </GridItem>
-        <GridItem>
-          <Flex alignItems={"center"} justifyContent={"space-between"}>
-            <FormLabel>Amount</FormLabel>
-            <AmountField />
-          </Flex>
-        </GridItem>
-        <GridItem>
-          <Flex alignItems={"center"} justifyContent={"space-between"}>
-            <FormLabel>Notes</FormLabel>
-            <FormControl>
-              <Input />
-            </FormControl>
-          </Flex>
-        </GridItem>
-      </Grid>
+    <Box borderRadius={10} padding={6} bg="gray.700" w="100%">
+      <Flex flexWrap={"wrap"} gap={"18px"} direction={"row"}>
+        <Flex
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          flexShrink={0}
+          marginInlineStart={0}
+        >
+          <FormLabel>You are</FormLabel>
+          <ModeSelect isInvoice={isInvoice} />
+        </Flex>
+        <Flex
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          flexShrink={0}
+          w="200px"
+          marginInlineStart={0}
+        >
+          <FormLabel>Amount</FormLabel>
+          <AmountField />
+        </Flex>
+        <Flex
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          flexShrink={0}
+          w="100%"
+          mx={0}
+          ms={0}
+          marginInlineStart={0}
+        >
+          <FormLabel noOfLines={1} flexShrink={0}>
+            Client Address
+          </FormLabel>
+          <FormControl>
+            <AccountField fieldName="address" placeholder="0x" />
+          </FormControl>
+        </Flex>
+        <Flex
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          flexShrink={0}
+          w="100%"
+          marginInlineStart={0}
+        >
+          <FormLabel>Notes</FormLabel>
+          <FormControl>
+            <Input />
+          </FormControl>
+        </Flex>
+      </Flex>
     </Box>
   );
 }
