@@ -1,5 +1,7 @@
 import { Box, Button, Text } from "@chakra-ui/react";
+import { ethers } from "ethers";
 import { Form, Formik } from "formik";
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useStep } from "../../stepper/Stepper";
 import RoundedButton from "../RoundedButton";
 import ConfirmDetails from "./ConfirmDetails";
@@ -12,15 +14,45 @@ interface Props {
 
 function CheqConfirmStep({ isInvoice }: Props) {
   const { onClose, formData } = useStep();
+  const blockchainState = useBlockchainData();
 
   return (
     <Box w="100%" p={4}>
       <Formik
         initialValues={{}}
-        onSubmit={() => {
+        onSubmit={async () => {
           console.log({ formData });
+          if (formData.module === "self") {
+            let tokenAddress = "";
 
-          onClose?.();
+            switch (formData.token) {
+              case "ETH":
+                tokenAddress = blockchainState.weth?.address ?? "";
+                break;
+              case "WBTC":
+                tokenAddress = blockchainState.weth?.address ?? "";
+                break;
+              case "USDC":
+                tokenAddress = blockchainState.weth?.address ?? "";
+                break;
+            }
+
+            const amountWei = ethers.utils.parseEther(formData.amount);
+
+            const escrowedWei = formData.mode === "invoice" ? 0 : amountWei;
+
+            const cheqId = await blockchainState.selfSignBroker?.writeCheq(
+              tokenAddress,
+              amountWei,
+              escrowedWei,
+              formData.address,
+              formData.inspection
+            );
+            alert("Cheq created!: #" + cheqId);
+            onClose?.();
+          } else {
+            onClose?.();
+          }
         }}
       >
         {() => (

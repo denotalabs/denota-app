@@ -8,6 +8,7 @@ import React, {
 import { useContext } from "react";
 import { BigNumber, ethers } from "ethers";
 import Cheq from "../out/Cheq.sol/Cheq.json";
+import SelfSignedBroker from "../out/CheqV2.sol/SelfSignTimeLock.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
 
 export const APIURL = "http://localhost:8000/subgraphs/name/Cheq/Cheq";
@@ -18,6 +19,7 @@ interface BlockchainDataInterface {
   cheq: null | ethers.Contract;
   dai: null | ethers.Contract;
   weth: null | ethers.Contract;
+  selfSignBroker: null | ethers.Contract;
   daiAllowance: BigNumber;
   wethAllowance: BigNumber;
   cheqAddress: string;
@@ -43,6 +45,7 @@ const BlockchainDataContext = createContext<BlockchainDataInterface>({
   cheq: null,
   dai: null,
   weth: null,
+  selfSignBroker: null,
   daiAllowance: BigNumber.from(0),
   wethAllowance: BigNumber.from(0),
   cheqAddress: "",
@@ -66,6 +69,7 @@ export const BlockchainDataProvider = memo(
         cheq: null,
         dai: null,
         weth: null,
+        selfSignBroker: null,
         daiAllowance: BigNumber.from(0),
         wethAllowance: BigNumber.from(0),
         cheqAddress: "",
@@ -113,6 +117,11 @@ export const BlockchainDataProvider = memo(
         try {
           // Load contracts
           const cheq = new ethers.Contract(CheqAddress, Cheq.abi, signer);
+          const selfSignBroker = new ethers.Contract(
+            CheqAddress, //
+            SelfSignedBroker.abi,
+            signer
+          );
           const weth = new ethers.Contract(WethAddress, erc20.abi, signer);
           const dai = new ethers.Contract(DaiAddress, erc20.abi, signer);
 
@@ -130,14 +139,15 @@ export const BlockchainDataProvider = memo(
           const cheqTotalSupply = await cheq.totalSupply();
 
           setBlockchainState({
-            signer: signer,
-            account: account,
-            userType: userType,
-            cheq: cheq,
-            dai: dai,
-            weth: weth,
-            daiAllowance: daiAllowance,
-            wethAllowance: wethAllowance,
+            signer,
+            account,
+            userType,
+            cheq,
+            dai,
+            weth,
+            selfSignBroker,
+            daiAllowance,
+            wethAllowance,
             cheqAddress: CheqAddress,
             cheqBalance: ethers.utils.formatEther(cheqBalance).slice(0, -2),
             qDAI: ethers.utils.formatUnits(qDAI),

@@ -16,12 +16,12 @@ function CheqModuleStep({ isInvoice }: Props) {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          inspection: "90",
+          inspection: 604800,
           module: "self",
         }}
         onSubmit={(values, actions) => {
           appendFormData({
-            inspection: values.inspection,
+            inspection: values.inspection.toString(),
             module: values.module,
           });
           next?.();
