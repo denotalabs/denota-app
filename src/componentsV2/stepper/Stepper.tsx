@@ -78,7 +78,7 @@ function Stepper({ children, onClose }: StepperProps) {
       value={{ ...state, next, goToStep, onClose, formData, appendFormData }}
     >
       <Text fontWeight={600} fontSize={"xl"} mb={4}>
-        Invoice Step {state.currentIndex + 1}
+        Step {state.currentIndex + 1}
       </Text>
       {state.currentScreen}
     </StepperContext.Provider>

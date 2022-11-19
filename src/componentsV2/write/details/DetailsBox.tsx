@@ -31,6 +31,20 @@ function DetailsBox({ isInvoice }: Props) {
           <ModeSelect isInvoice={isInvoice} />
         </Flex>
         <Flex
+          w={300}
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          flexShrink={0}
+          flexGrow={1}
+        >
+          <FormLabel noOfLines={1} flexShrink={0}>
+            Client Address
+          </FormLabel>
+          <FormControl>
+            <AccountField fieldName="address" placeholder="0x" />
+          </FormControl>
+        </Flex>
+        <Flex
           alignItems={"center"}
           justifyContent={"space-between"}
           flexShrink={0}
@@ -44,24 +58,8 @@ function DetailsBox({ isInvoice }: Props) {
           alignItems={"center"}
           justifyContent={"space-between"}
           flexShrink={0}
-          w="100%"
-          mx={0}
-          ms={0}
           marginInlineStart={0}
-        >
-          <FormLabel noOfLines={1} flexShrink={0}>
-            Client Address
-          </FormLabel>
-          <FormControl>
-            <AccountField fieldName="address" placeholder="0x" />
-          </FormControl>
-        </Flex>
-        <Flex
-          alignItems={"center"}
-          justifyContent={"space-between"}
-          flexShrink={0}
-          w="100%"
-          marginInlineStart={0}
+          flexGrow={1}
         >
           <FormLabel>Notes</FormLabel>
           <FormControl>

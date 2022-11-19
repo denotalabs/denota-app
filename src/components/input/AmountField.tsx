@@ -20,7 +20,7 @@ function AmountField() {
       name="amount"
       // validate={validateAmount}
     >
-      {({ field, form: { setFieldValue, errors, touched } }: any) => (
+      {({ field, form: { setFieldValue, errors, touched, values } }: any) => (
         <FormControl isInvalid={errors.amount && touched.amount}>
           <NumberInput
             {...field}
@@ -28,6 +28,7 @@ function AmountField() {
             precision={2}
             step={0.1}
             min={0}
+            value={values.amount}
             // TODO add max, set by user's balance
           >
             <NumberInputField />
