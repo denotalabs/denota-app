@@ -41,25 +41,25 @@ function CheqConfirmStep({ isInvoice }: Props) {
 
             const escrowedWei = formData.mode === "invoice" ? 0 : amountWei;
 
-            const cheqId = await blockchainState.selfSignBroker?.writeCheq(
+            const tx = blockchainState.selfSignBroker?.writeCheq(
               tokenAddress,
               amountWei,
               escrowedWei,
               formData.address,
               formData.inspection
             );
-            alert("Cheq created!: #" + cheqId);
+            console.log(tx);
             onClose?.();
           } else {
             onClose?.();
           }
         }}
       >
-        {() => (
+        {(props) => (
           <Form>
             <ConfirmNotice isInvoice={isInvoice}></ConfirmNotice>
             <ConfirmDetails></ConfirmDetails>
-            <RoundedButton type="submit">
+            <RoundedButton type="submit" isLoading={props.isSubmitting}>
               {isInvoice ? "Create Invoice" : "Confirm Payment"}
             </RoundedButton>
           </Form>
