@@ -50,8 +50,10 @@ function CheqConfirmStep({ isInvoice }: Props) {
                 formData.inspection
               );
               console.log(tx.hash);
+              alert("TX hash " + tx.hash);
             } catch (error) {
               console.log(error);
+              alert("Transaction failed");
             } finally {
               onClose?.();
             }
