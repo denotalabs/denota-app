@@ -41,15 +41,20 @@ function CheqConfirmStep({ isInvoice }: Props) {
 
             const escrowedWei = formData.mode === "invoice" ? 0 : amountWei;
 
-            const tx = blockchainState.selfSignBroker?.writeCheq(
-              tokenAddress,
-              amountWei,
-              escrowedWei,
-              formData.address,
-              formData.inspection
-            );
-            console.log(tx);
-            onClose?.();
+            try {
+              const tx = await blockchainState.selfSignBroker?.writeCheq(
+                tokenAddress,
+                amountWei,
+                escrowedWei,
+                formData.address,
+                formData.inspection
+              );
+              console.log(tx.hash);
+            } catch (error) {
+              console.log(error);
+            } finally {
+              onClose?.();
+            }
           } else {
             onClose?.();
           }
