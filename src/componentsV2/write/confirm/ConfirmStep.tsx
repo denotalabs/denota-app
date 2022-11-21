@@ -26,7 +26,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
 
   const buttonText = useMemo(() => {
     if (needsApproval) {
-      return "Approve";
+      return "Approve " + formData.token;
     }
     return isInvoice ? "Create Invoice" : "Confirm Payment";
   }, [needsApproval]);
@@ -37,8 +37,9 @@ function CheqConfirmStep({ isInvoice }: Props) {
         blockchainState.account,
         blockchainState.cheqAddress
       );
-
       if (amountWei.sub(tokenAllowance[0]) >= BigNumber.from(0)) {
+        setNeedsApproval(true);
+      } else {
         setNeedsApproval(false);
       }
     };
