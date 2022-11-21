@@ -25,6 +25,7 @@ function DetailsBox({ isInvoice }: Props) {
           alignItems={"center"}
           justifyContent={"space-between"}
           flexShrink={0}
+          w="200px"
         >
           <FormLabel mb={0}>You are</FormLabel>
           <ModeSelect isInvoice={isInvoice} />
