@@ -18,7 +18,6 @@ function Inspection() {
           onBlur={() => setFieldTouched("inspection", true)}
           value={values.inspection}
         >
-          <option value={3600}>1 hour</option>
           <option value={86400}>1 day</option>
           <option value={604800}>1 week</option>
           <option value={18144000}>1 month</option>

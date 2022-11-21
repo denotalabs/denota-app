@@ -53,13 +53,11 @@ function CheqConfirmStep({ isInvoice }: Props) {
       <Formik
         initialValues={{}}
         onSubmit={async (values, actions) => {
-          console.log({ formData });
           if (needsApproval) {
             const tx = await token?.functions.approve(
               blockchainState.cheqAddress,
               amountWei
             );
-            console.log({ tx });
             await tx.wait();
             setNeedsApproval(false);
             actions.setSubmitting(false);
@@ -89,10 +87,8 @@ function CheqConfirmStep({ isInvoice }: Props) {
                   formData.address,
                   formData.inspection
                 );
-                console.log(tx.hash);
                 alert("TX hash " + tx.hash);
               } catch (error) {
-                console.log(error);
                 alert("Transaction failed");
               } finally {
                 onClose?.();
