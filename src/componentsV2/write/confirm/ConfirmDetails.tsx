@@ -7,7 +7,7 @@ function ConfirmDetails() {
   const { formData } = useStep();
   const maturityDate = useMemo(() => {
     const date = new Date();
-    date.setDate(date.getDate() + Number(formData.inspection));
+    date.setDate(date.getDate() + Number(formData.inspection) / 86400);
     return date.toDateString();
   }, [formData.inspection]);
   return (

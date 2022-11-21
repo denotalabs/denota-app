@@ -59,6 +59,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
               blockchainState.cheqAddress,
               amountWei
             );
+            console.log({ tx });
             await tx.wait();
             setNeedsApproval(false);
             actions.setSubmitting(false);
