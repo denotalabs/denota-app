@@ -30,18 +30,18 @@ query accounts($account: String ){
 }
 `;
 
-export const useTokens = (isTokenSelect: string, isUser: boolean) => {
+export const useTokens = (tokenField: string, isUser: boolean) => {
   const blockchainState = useBlockchainData();
   const account = blockchainState.account;
   const [tokenData, setTokenData] = useState<any>();
 
   useEffect(() => {
     if (account) {
-      isTokenSelect = isTokenSelect ? isTokenSelect : "tokensOwned";
+      tokenField = tokenField ? tokenField : "tokensOwned";
       const userTokenQuery = `
       query accounts($account: String ){
         accounts(where: { id: $account }, first: 1)  {
-          ${isTokenSelect} {
+          ${tokenField} {
             id
             createdAt
             amount
@@ -79,7 +79,7 @@ export const useTokens = (isTokenSelect: string, isUser: boolean) => {
         })
         .then((data) => {
           if (data["data"]["accounts"][0]) {
-            setTokenData(data["data"]["accounts"][0][isTokenSelect]);
+            setTokenData(data["data"]["accounts"][0][tokenField]);
           } else {
             setTokenData(null);
           }
@@ -88,7 +88,7 @@ export const useTokens = (isTokenSelect: string, isUser: boolean) => {
           console.log("Error fetching data: ", err);
         });
     }
-  }, [account, isTokenSelect, isUser]);
+  }, [account, tokenField, isUser]);
 
   return tokenData;
 };

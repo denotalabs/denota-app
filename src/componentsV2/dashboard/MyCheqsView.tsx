@@ -1,31 +1,22 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  Center,
-  Grid,
-  GridItem,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Select,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Grid, Select } from "@chakra-ui/react";
+import { useState } from "react";
+// import { useTokens } from "../../hooks/useTokens";
 import CheqCardV2 from "./CheqCardV2";
 
 function MyCheqsView() {
-  // TODO (Integrate v2 UI with v2 smart contract): Load cheqs from graph
+  const [tokenField, setTokenField] = useState("tokensReceived");
+  // TODO (Integrate v2 UI with v2 smart contract): Load cheqs from graph:
+  // const tokenData = useTokens(tokenField, true);
+
   return (
     <Box boxShadow="outline" width="100%" p={6} borderRadius={"10px"}>
       <Select
-        defaultValue="tokensReceived"
+        defaultValue={"tokensReceived"}
         minW={0}
         mb={6}
         w="120px"
         onChange={(event) => {
-          console.log(event.target.value);
-          // setTokenSelect(event.target.value)
+          setTokenField(event.target.value);
         }}
       >
         <option value="">All</option>
