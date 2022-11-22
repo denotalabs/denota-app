@@ -17,8 +17,6 @@ import SettingsCog from "./SettingsCog";
 interface Props {
   setIsUser: any; // Fix any
   isUser: boolean;
-  isV2: boolean;
-  setIsV2: any; // Fix any
 }
 
 export default function Nav(props: Props) {

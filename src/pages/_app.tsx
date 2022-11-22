@@ -7,16 +7,10 @@ import Nav from "../components/Nav";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [isUser, setIsUser] = useState(true);
-  const [isV2, setIsV2] = useState(true);
   return (
     <ChakraProvider>
       <BlockchainDataProvider>
-        <Nav
-          setIsUser={setIsUser}
-          isUser={isUser}
-          setIsV2={setIsV2}
-          isV2={isV2}
-        />
+        <Nav setIsUser={setIsUser} isUser={isUser} />
         <Component {...pageProps} />
       </BlockchainDataProvider>
     </ChakraProvider>
