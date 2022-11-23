@@ -11,7 +11,7 @@ function ConfirmNotice({ isInvoice }: Props) {
         {isInvoice
           ? "You're sending an invoice. The payer has until the maturity date to request a refund."
           : "You're sending a cheque. You have until the maturity date to request a refund."}
-      </Text>{" "}
+      </Text>
     </Center>
   );
 }
