@@ -1,4 +1,4 @@
-import { Box, Center, Grid, Select, Text } from "@chakra-ui/react";
+import { Box, Center, Grid, Select, Text, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 // import { useTokens } from "../../hooks/useTokens";
 import CheqCardV2 from "./CheqCardV2";
@@ -6,16 +6,22 @@ import SkeletonGrid from "./SkeletonGrid";
 
 function MyCheqsView() {
   const [tokenField, setTokenField] = useState("tokensReceived");
-  const tokens: any[] | undefined = undefined;
+  const tokens: any[] | undefined = [undefined];
   // TODO (Integrate v2 UI with v2 smart contract): Load cheqs from graph:
   // const tokens = useTokens(tokenField, true);
 
   return (
-    <Box boxShadow="outline" width="100%" p={6} borderRadius={"10px"}>
+    <VStack
+      boxShadow="outline"
+      width="100%"
+      p={6}
+      borderRadius={"10px"}
+      gap={6}
+      align="stretch"
+    >
       <Select
         defaultValue={"tokensReceived"}
         minW={0}
-        mb={6}
         w="120px"
         onChange={(event) => {
           setTokenField(event.target.value);
@@ -28,7 +34,7 @@ function MyCheqsView() {
         <option value="tokensVoided">Voided</option>
       </Select>
       <CheqGrid tokens={tokens} />
-    </Box>
+    </VStack>
   );
 }
 
@@ -44,7 +50,7 @@ function CheqGrid({ tokens }: CheqGridProps) {
   if (tokens.length === 0) {
     return (
       <Center>
-        <Text fontWeight={600} fontSize={"xl"} textAlign="center">
+        <Text fontWeight={600} fontSize={"xl"} textAlign="center" pb={6}>
           {"No cheqs found"}
         </Text>
       </Center>
