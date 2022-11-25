@@ -31,11 +31,12 @@ function DetailsBox({ isInvoice }: Props) {
           <ModeSelect isInvoice={isInvoice} />
         </Flex>
         <Flex
-          w={300}
           alignItems={"center"}
           justifyContent={"space-between"}
           flexShrink={0}
           flexGrow={1}
+          w="300px"
+          maxW="100%"
         >
           <FormLabel noOfLines={1} flexShrink={0} mb={0}>
             Client Address
@@ -58,6 +59,7 @@ function DetailsBox({ isInvoice }: Props) {
           justifyContent={"space-between"}
           flexShrink={0}
           flexGrow={1}
+          maxW="100%"
         >
           <FormLabel mb={0}>Notes</FormLabel>
           <FormControl>

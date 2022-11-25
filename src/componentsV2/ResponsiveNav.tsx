@@ -1,27 +1,9 @@
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { Flex, Box, Text, ButtonGroup, Button, Stack } from "@chakra-ui/react";
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import NavbarUser from "../components/NavbarUser";
 import SettingsCog from "../components/SettingsCog";
-
-interface MenuProps {
-  isLast?: boolean; // Fix any
-  to: string;
-  children: ReactNode;
-}
-
-const MenuItem = ({ children, isLast = false, to = "/" }: MenuProps) => {
-  return (
-    <Text
-      mb={{ base: isLast ? 0 : 8, sm: 0 }}
-      mr={{ base: 0, sm: isLast ? 0 : 8 }}
-      display="block"
-    >
-      <Link href={to}>{children}</Link>
-    </Text>
-  );
-};
 
 interface Props {
   setIsUser: any;
