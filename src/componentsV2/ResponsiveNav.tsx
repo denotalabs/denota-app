@@ -15,7 +15,8 @@ const ResponsiveNav = (props: Props) => {
   const toggleMenu = () => setShow(!show);
   return (
     <Flex
-      p={8}
+      px={8}
+      py={4}
       as="nav"
       align="center"
       justify="space-between"

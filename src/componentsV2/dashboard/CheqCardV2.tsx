@@ -7,9 +7,30 @@ interface Props {
   amount: string;
 }
 
+const colorForStatus = (status: string) => {
+  switch (status) {
+    case "cashed":
+      return "blue.900";
+    case "cashable":
+      return "green.900";
+    case "voided":
+      return "gray.600";
+    case "pending":
+      return "purple.900";
+    default:
+      return "gray.600";
+  }
+};
+
 function CheqCardV2({ sender, amount, token, status }: Props) {
   return (
-    <GridItem w="100%" h="210" bg="blue.500" p={2} borderRadius={"10px"}>
+    <GridItem
+      w="100%"
+      h="210"
+      bg={colorForStatus(status)}
+      p={2}
+      borderRadius={"10px"}
+    >
       <Text fontWeight={600} fontSize={"xl"}>
         Sender: {sender}
       </Text>
