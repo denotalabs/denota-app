@@ -39,6 +39,32 @@ export const CheqAddress = "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A";
 export const DaiAddress = "0x982723cb1272271b5ee405A5F14E9556032d9308";
 export const WethAddress = "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e";
 
+const AddressMapping = {
+  mumbai: {
+    crx: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
+    dai: "0x982723cb1272271b5ee405A5F14E9556032d9308",
+    weth: "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e",
+    selfSignedBroker: "0x8Df6c6fb81d3d1DAAFCd5FD5564038b0d9006FbB",
+  },
+  local: {
+    crx: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
+    dai: "0x982723cb1272271b5ee405A5F14E9556032d9308",
+    weth: "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e",
+    selfSignedBroker: "0x8Df6c6fb81d3d1DAAFCd5FD5564038b0d9006FbB",
+  },
+};
+
+const mappingForChainId = (chainId: number) => {
+  switch (chainId) {
+    case 80001:
+      return AddressMapping.mumbai;
+    case 31337:
+      return AddressMapping.local;
+    default:
+      return AddressMapping.mumbai;
+  }
+};
+
 const BlockchainDataContext = createContext<BlockchainDataInterface>({
   account: "",
   userType: "Customer",
@@ -115,15 +141,18 @@ export const BlockchainDataProvider = memo(
             ? "Merchant"
             : "Auditor";
         try {
+          const { chainId } = await provider.getNetwork();
+          const mapping = mappingForChainId(chainId);
+
           // Load contracts
-          const cheq = new ethers.Contract(CheqAddress, Cheq.abi, signer);
+          const cheq = new ethers.Contract(mapping.crx, Cheq.abi, signer);
           const selfSignBroker = new ethers.Contract(
-            CheqAddress, //
+            mapping.selfSignedBroker, //
             SelfSignedBroker.abi,
             signer
           );
-          const weth = new ethers.Contract(WethAddress, erc20.abi, signer);
-          const dai = new ethers.Contract(DaiAddress, erc20.abi, signer);
+          const weth = new ethers.Contract(mapping.weth, erc20.abi, signer);
+          const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
 
           const daiBalance = await dai.balanceOf(CheqAddress); // Cheq's Dai balance
           const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
