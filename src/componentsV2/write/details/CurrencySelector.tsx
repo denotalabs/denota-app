@@ -19,7 +19,7 @@ function CurrencySelector() {
 
             <RadioGroup {...field}>
               <Stack spacing={4} direction="row">
-                {["WETH", "WBTC", "USDC"].map((value) => (
+                {["DAI", "WETH"].map((value) => (
                   <div key={value}>
                     <Radio {...field} value={value}>
                       {value}

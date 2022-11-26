@@ -20,7 +20,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
   const [needsApproval, setNeedsApproval] = useState(formData.mode === "pay");
 
   const token =
-    formData.token == "dai" ? blockchainState.dai : blockchainState.weth;
+    formData.token == "DAI" ? blockchainState.dai : blockchainState.weth;
 
   const amountWei = ethers.utils.parseEther(formData.amount);
 
@@ -65,14 +65,13 @@ function CheqConfirmStep({ isInvoice }: Props) {
             if (formData.module === "self") {
               let tokenAddress = "";
 
+              console.log({ token: formData.token });
+
               switch (formData.token) {
-                case "ETH":
-                  tokenAddress = blockchainState.weth?.address ?? "";
+                case "DAI":
+                  tokenAddress = blockchainState.dai?.address ?? "";
                   break;
-                case "WBTC":
-                  tokenAddress = blockchainState.weth?.address ?? "";
-                  break;
-                case "USDC":
+                case "WETH":
                   tokenAddress = blockchainState.weth?.address ?? "";
                   break;
               }
