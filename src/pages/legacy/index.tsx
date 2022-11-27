@@ -1,4 +1,4 @@
-import UserFlow from "../../components/flows/UserFlow";
+import UserFlow from "../../components/legacy/flows/UserFlow";
 
 function HomePage() {
   return (

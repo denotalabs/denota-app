@@ -8,7 +8,7 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { Field } from "formik";
-import RoundedBox from "../RoundedBox";
+import RoundedBox from "../../designSystem/RoundedBox";
 
 function CurrencySelector() {
   return (

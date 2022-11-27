@@ -3,8 +3,8 @@ import { BigNumber, ethers } from "ethers";
 import { Form, Formik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { useStep } from "../../stepper/Stepper";
-import RoundedButton from "../RoundedButton";
+import { useStep } from "../../designSystem/stepper/Stepper";
+import RoundedButton from "../../designSystem/RoundedButton";
 import ConfirmDetails from "./ConfirmDetails";
 import ConfirmNotice from "./ConfirmNotice";
 

@@ -8,8 +8,8 @@ import TokenField from "./input/TokenField";
 import AmountField from "./input/AmountField";
 import AccountField from "./input/AccountField";
 import DurationField from "./input/DurationField";
-import { useBlockchainData } from "../context/BlockchainDataProvider";
-import { useHandshakes } from "../hooks/useHandshakes";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import { useHandshakes } from "../../hooks/useHandshakes";
 
 function WriteTab() {
   const blockchainState = useBlockchainData();

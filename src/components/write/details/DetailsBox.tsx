@@ -1,7 +1,7 @@
 import { Flex, FormControl, FormLabel, Input } from "@chakra-ui/react";
-import AccountField from "../../../components/input/AccountField";
-import AmountField from "../../../components/input/AmountField";
-import RoundedBox from "../RoundedBox";
+import AccountField from "../../legacy/input/AccountField";
+import AmountField from "../../legacy/input/AmountField";
+import RoundedBox from "../../designSystem/RoundedBox";
 import ModeSelect from "./ModeSelect";
 
 interface Props {

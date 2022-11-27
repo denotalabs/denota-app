@@ -1,5 +1,5 @@
 import { Box, Flex, FormLabel, Grid, GridItem } from "@chakra-ui/react";
-import RoundedBox from "../RoundedBox";
+import RoundedBox from "../../designSystem/RoundedBox";
 import Inspection from "./Inspection";
 import ModuleSelect from "./ModuleSelect";
 

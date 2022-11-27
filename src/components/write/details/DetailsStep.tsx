@@ -1,8 +1,8 @@
 import { Box } from "@chakra-ui/react";
 import CurrencySelector from "./CurrencySelector";
 import DetailsBox from "./DetailsBox";
-import RoundedButton from "../RoundedButton";
-import { useStep } from "../../stepper/Stepper";
+import RoundedButton from "../../designSystem/RoundedButton";
+import { useStep } from "../../designSystem/stepper/Stepper";
 import { Form, Formik } from "formik";
 
 interface Props {

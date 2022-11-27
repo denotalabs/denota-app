@@ -16,7 +16,7 @@ import {
   DaiAddress,
   useBlockchainData,
   WethAddress,
-} from "../context/BlockchainDataProvider";
+} from "../../context/BlockchainDataProvider";
 
 const addToken = async (tokenAddress: string, symbol: string) => {
   try {

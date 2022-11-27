@@ -1,4 +1,4 @@
-import Stepper from "../stepper/Stepper";
+import Stepper from "../designSystem/stepper/Stepper";
 import CheqConfirmStep from "./confirm/ConfirmStep";
 import CheqDetailsStep from "./details/DetailsStep";
 import CheqModuleStep from "./module/ModuleStep";

@@ -3,8 +3,8 @@ import { AppProps } from "next/app";
 
 import { ChakraProvider } from "@chakra-ui/react";
 import { BlockchainDataProvider } from "../context/BlockchainDataProvider";
-import Nav from "../components/Nav";
-import ResponsiveNav from "../componentsV2/ResponsiveNav";
+import Nav from "../components/legacy/Nav";
+import ResponsiveNav from "../components/ResponsiveNav";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [isUser, setIsUser] = useState(true);

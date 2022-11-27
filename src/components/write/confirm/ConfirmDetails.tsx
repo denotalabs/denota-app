@@ -1,7 +1,7 @@
 import { Center, VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
-import { useStep } from "../../stepper/Stepper";
-import RoundedBox from "../RoundedBox";
+import { useStep } from "../../designSystem/stepper/Stepper";
+import RoundedBox from "../../designSystem/RoundedBox";
 import ConfirmDetailsRow from "./ConfirmDetailsRow";
 
 function ConfirmDetails() {
