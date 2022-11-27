@@ -37,7 +37,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
         blockchainState.account,
         blockchainState.cheqAddress
       );
-      if (amountWei.sub(tokenAllowance[0]) >= BigNumber.from(0)) {
+      if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
         setNeedsApproval(true);
       } else {
         setNeedsApproval(false);
@@ -64,8 +64,6 @@ function CheqConfirmStep({ isInvoice }: Props) {
           } else {
             if (formData.module === "self") {
               let tokenAddress = "";
-
-              console.log({ token: formData.token });
 
               switch (formData.token) {
                 case "DAI":

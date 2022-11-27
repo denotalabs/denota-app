@@ -1,10 +1,11 @@
 import { Box, Flex, FormLabel, Grid, GridItem } from "@chakra-ui/react";
+import RoundedBox from "../RoundedBox";
 import Inspection from "./Inspection";
 import ModuleSelect from "./ModuleSelect";
 
 function ModuleInfo() {
   return (
-    <Box borderRadius={10} padding={6} bg="gray.700" w="100%">
+    <RoundedBox padding={6}>
       <Grid
         templateColumns="repeat(auto-fit, minmax(240px, 1fr))"
         templateRows="repeat(1, 1fr)"
@@ -26,7 +27,7 @@ function ModuleInfo() {
           </Flex>
         </GridItem>
       </Grid>
-    </Box>
+    </RoundedBox>
   );
 }
 

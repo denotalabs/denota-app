@@ -16,7 +16,7 @@ function CheqDetailsStep({ isInvoice }: Props) {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          token: "WETH",
+          token: "DAI",
           amount: 0,
           address: "",
           mode: isInvoice ? "invoice" : "pay",

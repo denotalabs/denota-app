@@ -8,10 +8,11 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { Field } from "formik";
+import RoundedBox from "../RoundedBox";
 
 function CurrencySelector() {
   return (
-    <Box borderRadius={10} padding={4} mb={6} bg="gray.700" w="100%">
+    <RoundedBox padding={4} mb={6}>
       <Field name="token">
         {({ field, form: { errors, touched } }: any) => (
           <FormControl isInvalid={errors.name && touched.name}>
@@ -32,7 +33,7 @@ function CurrencySelector() {
           </FormControl>
         )}
       </Field>
-    </Box>
+    </RoundedBox>
   );
 }
 

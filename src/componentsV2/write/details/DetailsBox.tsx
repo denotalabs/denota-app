@@ -1,16 +1,7 @@
-import {
-  Box,
-  Flex,
-  FormControl,
-  FormLabel,
-  Grid,
-  GridItem,
-  HStack,
-  Input,
-  Select,
-} from "@chakra-ui/react";
+import { Flex, FormControl, FormLabel, Input } from "@chakra-ui/react";
 import AccountField from "../../../components/input/AccountField";
 import AmountField from "../../../components/input/AmountField";
+import RoundedBox from "../RoundedBox";
 import ModeSelect from "./ModeSelect";
 
 interface Props {
@@ -19,7 +10,7 @@ interface Props {
 
 function DetailsBox({ isInvoice }: Props) {
   return (
-    <Box borderRadius={10} padding={6} bg="gray.700" w="100%">
+    <RoundedBox padding={6}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"row"}>
         <Flex
           alignItems={"center"}
@@ -67,7 +58,7 @@ function DetailsBox({ isInvoice }: Props) {
           </FormControl>
         </Flex>
       </Flex>
-    </Box>
+    </RoundedBox>
   );
 }
 
