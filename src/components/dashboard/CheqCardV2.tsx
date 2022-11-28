@@ -11,6 +11,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import DetailsModal from "./details/DetailsModal";
+import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
 interface Props {
   sender: string;
@@ -35,7 +36,18 @@ const colorForStatus = (status: string) => {
 };
 
 function CheqCardV2({ sender, amount, token, status }: Props) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isDetailsOpen,
+    onOpen: onOpenDetails,
+    onClose: onCloseDetails,
+  } = useDisclosure();
+
+  const {
+    isOpen: isPayOpen,
+    onOpen: onOpenPay,
+    onClose: onClosePay,
+  } = useDisclosure();
+
   return (
     <GridItem
       w="100%"
@@ -93,6 +105,7 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
                   w="min(40vw, 100px)"
                   borderRadius={5}
                   colorScheme="teal"
+                  onClick={onOpenPay}
                 >
                   Pay
                 </Button>
@@ -101,7 +114,7 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
                 w="min(40vw, 100px)"
                 borderRadius={5}
                 colorScheme="teal"
-                onClick={onOpen}
+                onClick={onOpenDetails}
               >
                 Details
               </Button>
@@ -109,7 +122,8 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
           </Center>
         </VStack>
       </VStack>
-      <DetailsModal isOpen={isOpen} onClose={onClose} />
+      <DetailsModal isOpen={isDetailsOpen} onClose={onCloseDetails} />
+      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} />
     </GridItem>
   );
 }

@@ -1,17 +1,17 @@
 import SimpleModal from "../../designSystem/SimpleModal";
-import CheqDetails from "./CheqDetails";
+import ApproveAndPay from "./ApproveAndPay";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
-function DetailsModal(props: Props) {
+function ApproveAndPayModal(props: Props) {
   return (
     <SimpleModal {...props}>
-      <CheqDetails></CheqDetails>
+      <ApproveAndPay></ApproveAndPay>
     </SimpleModal>
   );
 }
 
-export default DetailsModal;
+export default ApproveAndPayModal;
