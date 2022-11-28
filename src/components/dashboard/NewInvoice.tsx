@@ -30,7 +30,7 @@ function NewInvoice() {
             onClick={onCheqOpen}
             colorScheme="blue"
             size="lg"
-            borderRadius={"20px"}
+            borderRadius={5}
           >
             <Text fontWeight={400} fontSize={"4xl"}>
               Send
@@ -41,7 +41,7 @@ function NewInvoice() {
             onClick={onInvoiceOpen}
             colorScheme="blue"
             size="lg"
-            borderRadius={"20px"}
+            borderRadius={5}
           >
             <Text fontWeight={400} fontSize={"4xl"}>
               Request

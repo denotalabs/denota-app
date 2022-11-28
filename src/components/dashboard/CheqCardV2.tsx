@@ -1,4 +1,14 @@
-import { Button, ButtonGroup, GridItem, Text } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Center,
+  Flex,
+  GridItem,
+  HStack,
+  Text,
+  VStack,
+  Image,
+} from "@chakra-ui/react";
 
 interface Props {
   sender: string;
@@ -26,24 +36,62 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
   return (
     <GridItem
       w="100%"
-      h="210"
+      h="180"
       bg={colorForStatus(status)}
-      p={2}
-      borderRadius={"10px"}
+      p={3}
+      borderRadius={20}
     >
-      <Text fontWeight={600} fontSize={"xl"}>
-        {sender}
-      </Text>
-      <Text fontWeight={400} fontSize={"xl"}>
-        {amount} {token}
-      </Text>
-      <Text fontWeight={400} fontSize={"xl"}>
-        {status}
-      </Text>
-      <ButtonGroup gap="4">
-        <Button colorScheme="green">Cash</Button>
-        <Button colorScheme="red">Cancel</Button>
-      </ButtonGroup>
+      <VStack alignItems="flex-start" justifyContent="space-between" h="100%">
+        <Flex alignItems="flex-start" flexDirection="column">
+          <Text fontWeight={600} fontSize={"xl"}>
+            {sender}
+          </Text>
+          <HStack>
+            <Text fontWeight={400} fontSize={"xl"} my={0}>
+              {amount} {token}
+            </Text>
+
+            {token === "USDC" ? (
+              <Image
+                borderRadius="full"
+                boxSize="20px"
+                src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023"
+                alt="USDC"
+              />
+            ) : (
+              <Image
+                borderRadius="full"
+                boxSize="20px"
+                src="https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png?v=023"
+                alt="DAI"
+              />
+            )}
+          </HStack>
+        </Flex>
+
+        <VStack alignItems="flex-start" w="100%">
+          <Text fontWeight={400} fontSize={"xl"}>
+            {"Status: "}
+            {status}
+          </Text>
+          <Center w="100%">
+            <ButtonGroup gap="4">
+              {status === "cashable" ? (
+                <Button
+                  w="min(40vw, 100px)"
+                  borderRadius={5}
+                  colorScheme="teal"
+                >
+                  Cash
+                </Button>
+              ) : null}
+              <Button w="min(40vw, 100px)" borderRadius={5} colorScheme="teal">
+                Details
+              </Button>
+            </ButtonGroup>
+          </Center>
+        </VStack>
+      </VStack>
     </GridItem>
   );
 }

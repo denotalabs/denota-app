@@ -60,14 +60,36 @@ function CheqGrid({ tokens }: CheqGridProps) {
   return (
     <Grid templateColumns="repeat(auto-fit, minmax(240px, 1fr))" gap={6}>
       <CheqCardV2
-        sender="Cheq 1"
+        sender="MakerDAO"
         status="cashable"
         token="USDC"
         amount="1000"
       />
-      <CheqCardV2 sender="Cheq 2" status="pending" token="USDC" amount="500" />
-      <CheqCardV2 sender="Cheq 3" status="cashed" token="USDC" amount="900" />
-      <CheqCardV2 sender="Cheq 4" status="voided" token="USDC" amount="250" />
+      <CheqCardV2
+        sender="MolochDAO"
+        status="cashable"
+        token="DAI"
+        amount="1000"
+      />
+      <CheqCardV2
+        sender="MolochDAO"
+        status="cashable"
+        token="DAI"
+        amount="1000"
+      />
+      <CheqCardV2
+        sender="USWeb3Guy.eth"
+        status="pending"
+        token="USDC"
+        amount="500"
+      />
+      <CheqCardV2
+        sender="0xDEADBEEF"
+        status="cashed"
+        token="DAI"
+        amount="900"
+      />
+      <CheqCardV2 sender="0xFOOBAR" status="voided" token="USDC" amount="250" />
     </Grid>
   );
 }
