@@ -85,6 +85,15 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
                   Cash
                 </Button>
               ) : null}
+              {status === "pending" ? (
+                <Button
+                  w="min(40vw, 100px)"
+                  borderRadius={5}
+                  colorScheme="teal"
+                >
+                  Pay
+                </Button>
+              ) : null}
               <Button w="min(40vw, 100px)" borderRadius={5} colorScheme="teal">
                 Details
               </Button>
