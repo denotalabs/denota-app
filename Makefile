@@ -39,8 +39,8 @@ run:
 
 deploy:
 	forge create Cheq --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --json > ./src/out/Cheq.sol/CheqAddress.json
-	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 100000000000000000000 dai DAI --json > ./src/out/ERC20.sol/DaiAddress.json
-	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 100000000000000000000 weth WETH --json > ./src/out/ERC20.sol/WethAddress.json
+	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 10000000000000000000000000 dai DAI --json > ./src/out/ERC20.sol/DaiAddress.json
+	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 10000000000000000000000000 weth WETH --json > ./src/out/ERC20.sol/WethAddress.json
 	
 
 	##############################################  Convert script to bash commands  ##############################################
@@ -82,8 +82,16 @@ deploy:
 	# # cast send $(cheqAddress) "acceptUser(address,bool)" $(address2) "true" --from $(address3) && \
 	# # cast send $(cheqAddress) "setAllowedDuration(uint256)" 604800 --from $(address3)
 	
-	# forge create --rpc-url https://matic-mumbai.chainstacklabs.com --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/contracts/Cheq.sol:Cheq  
+	## forge create src/contracts/CheqV2.sol:CRX --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url https://matic-mumbai.chainstacklabs.com
+	## forge create src/contracts/CheqV2.sol:SelfSignTimeLock --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 0xA0A78F3Ba39E57047A35D6931eC3869962191e8c
+	## forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 10000000000000000000000000 dai DAI
+	## forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 10000000000000000000000000 weth WETH
 
+	# cast send 0xA0A78F3Ba39E57047A35D6931eC3869962191e8c "whitelistBroker(address,bool)" 0x8Df6c6fb81d3d1DAAFCd5FD5564038b0d9006FbB "true" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url https://matic-mumbai.chainstacklabs.com
+	# cast send 0x8Df6c6fb81d3d1DAAFCd5FD5564038b0d9006FbB "whitelistToken(address,bool)" 0x63d98DB901EDD4dFFA7A0aFEBE0CcB850435CfA3 "true" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url https://matic-mumbai.chainstacklabs.com
+	# cast send 0x8Df6c6fb81d3d1DAAFCd5FD5564038b0d9006FbB "whitelistToken(address,bool)" 0xAA6DA55ba764428e1C4c492c6db5FDe3ccf57332 "true" --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url https://matic-mumbai.chainstacklabs.com
+
+	
 graph:
 	npm run clean-graph-node # If node has run before
 	npm run run-graph-node
