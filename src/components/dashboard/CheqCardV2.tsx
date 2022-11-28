@@ -32,13 +32,13 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
       borderRadius={"10px"}
     >
       <Text fontWeight={600} fontSize={"xl"}>
-        Sender: {sender}
+        {sender}
       </Text>
       <Text fontWeight={400} fontSize={"xl"}>
-        Amount: {amount} {token}
+        {amount} {token}
       </Text>
       <Text fontWeight={400} fontSize={"xl"}>
-        Status: {status}
+        {status}
       </Text>
       <ButtonGroup gap="4">
         <Button colorScheme="green">Cash</Button>
