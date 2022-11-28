@@ -8,7 +8,9 @@ import {
   Text,
   VStack,
   Image,
+  useDisclosure,
 } from "@chakra-ui/react";
+import DetailsModal from "./details/DetailsModal";
 
 interface Props {
   sender: string;
@@ -33,6 +35,7 @@ const colorForStatus = (status: string) => {
 };
 
 function CheqCardV2({ sender, amount, token, status }: Props) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <GridItem
       w="100%"
@@ -94,13 +97,19 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
                   Pay
                 </Button>
               ) : null}
-              <Button w="min(40vw, 100px)" borderRadius={5} colorScheme="teal">
+              <Button
+                w="min(40vw, 100px)"
+                borderRadius={5}
+                colorScheme="teal"
+                onClick={onOpen}
+              >
                 Details
               </Button>
             </ButtonGroup>
           </Center>
         </VStack>
       </VStack>
+      <DetailsModal isOpen={isOpen} onClose={onClose} />
     </GridItem>
   );
 }
