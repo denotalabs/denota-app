@@ -442,6 +442,14 @@ contract ContractTest is Test {
     function testFailCashInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
         vm.assume(random != 0);
         vm.assume(amount != 0);
+        vm.assume(amount <= dai.totalSupply());  //amount > 0  && 
+        vm.assume(caller != recipient);
+        vm.assume(caller != address(0));
+        vm.assume(recipient != address(0));
+        vm.assume(!isContract(recipient));
+        vm.assume(!isContract(caller));
+        vm.assume(caller != recipient);
+        vm.assume(duration < type(uint256).max);
         // if (!cheqWriteCondition(caller, amount, recipient, duration) || amount != 0){
         //     require(false, "bad fuzzing");
         // }
@@ -449,10 +457,13 @@ contract ContractTest is Test {
         depositHelper(amount, recipient);  
         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 
-        // Can't cash unfunded invoice
-        // vm.warp(block.timestamp + duration);
-        // sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));  // You can cash an unfunded cheq after inspectionPeriod
+        // Can't cash before inspection
+        sstl.cashCheq(cheqId+1, cheq.cheqEscrowed(cheqId)); 
+        // Cant cash wrong cheq
+        vm.warp(block.timestamp + duration);
+        sstl.cashCheq(cheqId+1, cheq.cheqEscrowed(cheqId));  // You can cash an unfunded cheq after inspectionPeriod
 
+        // cant cash wrong amount
         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId)+1);
     }
 }
