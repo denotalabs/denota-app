@@ -15,9 +15,9 @@ interface Props {
 
 function SimpleModal({ isOpen, onClose, children }: Props) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay bg="blackAlpha.800" />
-      <ModalContent maxW="650px" bg="gray.900">
+      <ModalContent bg="gray.900">
         <ModalCloseButton />
         <ModalBody>{children}</ModalBody>
       </ModalContent>
