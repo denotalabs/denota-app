@@ -9,6 +9,7 @@ import {
   VStack,
   Image,
   useDisclosure,
+  Tooltip,
 } from "@chakra-ui/react";
 import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
@@ -28,6 +29,13 @@ const STATUS_COLOR_MAP = {
   cashable: "green.900",
   voided: "gray.600",
   pending: "purple.900",
+};
+
+const TOOLTIP_MESSAGE_MAP = {
+  cashed: "Payment has been cashed",
+  cashable: "Payment can be cashed",
+  voided: "Payment is cancelled",
+  pending: "Payment will be cashable on {date}",
 };
 
 function CheqCardV2({ sender, amount, token, status }: Props) {
@@ -66,10 +74,15 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
         </Flex>
 
         <VStack alignItems="flex-start" w="100%">
-          <Text fontWeight={400} fontSize={"xl"}>
-            {"Status: "}
-            {status}
-          </Text>
+          <Tooltip
+            label={TOOLTIP_MESSAGE_MAP[status]}
+            aria-label="status tooltip"
+            placement="right"
+          >
+            <Text fontWeight={600} fontSize={"xl"}>
+              {status}
+            </Text>
+          </Tooltip>
           <Center w="100%">
             <ButtonGroup gap="4">
               {status === "cashable" ? (
