@@ -10,29 +10,24 @@ import {
   Image,
   useDisclosure,
 } from "@chakra-ui/react";
+import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
+export type CheqStatus = "cashed" | "voided" | "pending" | "cashable";
+
 interface Props {
   sender: string;
-  status: string;
-  token: string;
+  status: CheqStatus;
+  token: CheqCurrency;
   amount: string;
 }
 
-const colorForStatus = (status: string) => {
-  switch (status) {
-    case "cashed":
-      return "blue.900";
-    case "cashable":
-      return "green.900";
-    case "voided":
-      return "gray.600";
-    case "pending":
-      return "purple.900";
-    default:
-      return "gray.600";
-  }
+const STATUS_COLOR_MAP = {
+  cashed: "blue.900",
+  cashable: "green.900",
+  voided: "gray.600",
+  pending: "purple.900",
 };
 
 function CheqCardV2({ sender, amount, token, status }: Props) {
@@ -52,7 +47,7 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
     <GridItem
       w="100%"
       h="180"
-      bg={colorForStatus(status)}
+      bg={STATUS_COLOR_MAP[status]}
       p={3}
       borderRadius={20}
     >
@@ -66,21 +61,7 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
               {amount} {token}
             </Text>
 
-            {token === "USDC" ? (
-              <Image
-                borderRadius="full"
-                boxSize="20px"
-                src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023"
-                alt="USDC"
-              />
-            ) : (
-              <Image
-                borderRadius="full"
-                boxSize="20px"
-                src="https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png?v=023"
-                alt="DAI"
-              />
-            )}
+            <CurrencyIcon currency={token} />
           </HStack>
         </Flex>
 
