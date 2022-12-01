@@ -62,7 +62,9 @@ function CurrencySelectorInner({
           <RadioCard key={value} radioProps={radio}>
             <HStack>
               <CurrencyIcon currency={value} />
-              <Text textAlign="center">{value}</Text>
+              <Text fontSize="sm" textAlign="center">
+                {value}
+              </Text>
             </HStack>
           </RadioCard>
         );
@@ -96,8 +98,7 @@ function RadioCard({ radioProps, children }: RadioCardProps) {
           color: "white",
           borderColor: "teal.600",
         }}
-        px={5}
-        py={3}
+        p={2}
       >
         {children}
       </Box>

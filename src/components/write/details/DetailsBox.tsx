@@ -10,7 +10,7 @@ interface Props {
 
 function DetailsBox({ isInvoice }: Props) {
   return (
-    <RoundedBox padding={6}>
+    <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"row"}>
         <Flex
           alignItems={"center"}
