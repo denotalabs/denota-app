@@ -20,14 +20,15 @@ function MyCheqsView() {
       align="stretch"
     >
       <Select
-        defaultValue={"tokensReceived"}
+        defaultValue={"all"}
         minW={0}
         w="120px"
         onChange={(event) => {
           setTokenField(event.target.value);
         }}
+        focusBorderColor="clear"
       >
-        <option value="">All</option>
+        <option value="all">All</option>
         <option value="tokensReceived">Received</option>
         <option value="tokensSent">Sent</option>
         <option value="tokensCashed">Cashed</option>

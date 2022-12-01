@@ -1,9 +1,9 @@
 import { Box } from "@chakra-ui/react";
-import CurrencySelector from "./CurrencySelector";
 import DetailsBox from "./DetailsBox";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { useStep } from "../../designSystem/stepper/Stepper";
 import { Form, Formik } from "formik";
+import CurrencySelectorV2 from "./CurrencySelector";
 
 interface Props {
   screenKey: string;
@@ -22,6 +22,7 @@ function CheqDetailsStep({ isInvoice }: Props) {
           mode: isInvoice ? "invoice" : "pay",
         }}
         onSubmit={(values, actions) => {
+          console.log({ token: values.token });
           appendFormData({
             token: values.token,
             amount: values.amount.toString(),
@@ -33,7 +34,8 @@ function CheqDetailsStep({ isInvoice }: Props) {
       >
         {(props) => (
           <Form>
-            <CurrencySelector></CurrencySelector>
+            {/* <CurrencySelector></CurrencySelector> */}
+            <CurrencySelectorV2></CurrencySelectorV2>
             <DetailsBox isInvoice={isInvoice}></DetailsBox>
             <RoundedButton type="submit">{"Next"}</RoundedButton>
           </Form>

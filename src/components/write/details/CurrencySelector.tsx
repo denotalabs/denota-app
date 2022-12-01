@@ -3,37 +3,105 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  Radio,
-  RadioGroup,
-  Stack,
+  HStack,
+  useRadio,
+  useRadioGroup,
+  UseRadioProps,
+  Text,
 } from "@chakra-ui/react";
 import { Field } from "formik";
+import { ReactNode } from "react";
+import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedBox from "../../designSystem/RoundedBox";
 
 function CurrencySelector() {
   return (
     <RoundedBox padding={4} mb={6}>
       <Field name="token">
-        {({ field, form: { errors, touched } }: any) => (
+        {({ field, form: { errors, touched, setFieldValue, values } }: any) => (
           <FormControl isInvalid={errors.name && touched.name}>
             <FormLabel mb={2}>Select Asset</FormLabel>
 
-            <RadioGroup {...field}>
-              <Stack spacing={4} direction="row">
-                {["DAI", "WETH"].map((value) => (
-                  <div key={value}>
-                    <Radio {...field} value={value}>
-                      {value}
-                    </Radio>
-                  </div>
-                ))}
-              </Stack>
-            </RadioGroup>
+            <CurrencySelectorInner
+              setFieldValue={setFieldValue}
+              value={values.token}
+            />
             <FormErrorMessage>{errors.name}</FormErrorMessage>
           </FormControl>
         )}
       </Field>
     </RoundedBox>
+  );
+}
+
+interface CurrencySelectorInnerProps {
+  setFieldValue: any;
+  value: string;
+}
+
+function CurrencySelectorInner({
+  setFieldValue,
+  value,
+}: CurrencySelectorInnerProps) {
+  const options: CheqCurrency[] = ["DAI", "WETH"];
+
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name: "framework",
+    defaultValue: value,
+    onChange: (val) => {
+      setFieldValue("token", val);
+    },
+  });
+
+  const group = getRootProps();
+  return (
+    <HStack {...group}>
+      {options.map((value) => {
+        const radio = getRadioProps({ value });
+        return (
+          <RadioCard key={value} radioProps={radio}>
+            <HStack>
+              <CurrencyIcon currency={value} />
+              <Text textAlign="center">{value}</Text>
+            </HStack>
+          </RadioCard>
+        );
+      })}
+    </HStack>
+  );
+}
+
+interface RadioCardProps {
+  children: ReactNode;
+  radioProps: UseRadioProps;
+}
+
+function RadioCard({ radioProps, children }: RadioCardProps) {
+  const { getInputProps, getCheckboxProps } = useRadio(radioProps);
+
+  const input = getInputProps();
+  const checkbox = getCheckboxProps();
+
+  return (
+    <Box as="label">
+      <input {...input} />
+      <Box
+        {...checkbox}
+        cursor="pointer"
+        borderWidth="1px"
+        borderRadius="md"
+        boxShadow="md"
+        _checked={{
+          bg: "teal.600",
+          color: "white",
+          borderColor: "teal.600",
+        }}
+        px={5}
+        py={3}
+      >
+        {children}
+      </Box>
+    </Box>
   );
 }
 
