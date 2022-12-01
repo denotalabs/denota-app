@@ -91,7 +91,7 @@ function RadioCard({ radioProps, children }: RadioCardProps) {
         {...checkbox}
         cursor="pointer"
         borderWidth="1px"
-        borderRadius="md"
+        borderRadius="full"
         boxShadow="md"
         _checked={{
           bg: "teal.600",
