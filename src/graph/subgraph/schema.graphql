@@ -1,56 +1,49 @@
-type ERC20 @entity(immutable: true) {
+type Account @entity {
   id: ID!
+  tokensOwned: [Token!]! @derivedFrom(field: "owner")
+  numTokensOwned: BigInt!
+
+  tokensSent: [Token!]! @derivedFrom(field: "drawer")
+  numTokensSent: BigInt!
+  
+  tokensReceived: [Token!]! @derivedFrom(field: "recipient")
+  numTokensReceived: BigInt!
 }
+type Broker @entity {
+  id: ID!
+  tokensManaged: [Token!]! @derivedFrom(field: "broker")
+  numTokensManaged: BigInt!
+}
+
 type Token @entity {
   id: ID!
   createdAt: BigInt!
-  amount: BigInt!
-  expiry: BigInt!
   ercToken: ERC20!
-  status: BigInt!
-  transactionHash: String!
-  owner: Account!
+  amount: BigInt!
+
+  escrowed: BigInt!
+  
   drawer: Account!
   recipient: Account!
-  auditor: Account!
+  module: Module!
+  
+  owner: Account!
+  
+  transactionHash: String!
 }
-type Account @entity {
+type Ownership @entity(immutable: true) {
   id: ID!
-
-  tokensOwned: [Token!]! @derivedFrom(field: "owner")
-  numTokensOwned: BigInt!
-  tokensSent: [Token!]! @derivedFrom(field: "drawer")
-  numTokensSent: BigInt!
-  tokensAuditing: [Token!]! @derivedFrom(field: "auditor")
-  numTokensAuditing: BigInt!
-  tokensReceived: [Token!]! @derivedFrom(field: "recipient")
-  numTokensReceived: BigInt!
-
-  tokensCashed: [Token!]!
-  numTokensCashed: BigInt!
-  tokensVoided: [Token!]!
-  numTokensVoided: BigInt!
-
-  voidedTokens: [Token!]!
-  numVoidedTokens: BigInt!
-
-  auditorsRequested: [Handshake!]! @derivedFrom(field: "userAccount")
-  numAuditorsRequested: BigInt!
-  usersRequested: [Handshake!]! @derivedFrom(field: "auditorAccount")
-  numUsersRequested: BigInt!
+  tokenId: BigInt!
+  from: Account!
+  to: Account!
+}
+type Escrow @entity(immutable: true) {
+  id: ID!
+  tokenId: BigInt!
+  caller: Account!
+  amount: BigInt!
 }
 
-type Handshake @entity {
+type ERC20 @entity(immutable: true) {
   id: ID!
-
-  userAccount: Account!
-  userShake: Boolean!
-  userLastShake: BigInt!
-
-  auditorAccount: Account!
-  auditorShake: Boolean!
-  auditorLastShake: BigInt!
-
-  completed: Boolean!
-  lastCompleted: BigInt!
 }

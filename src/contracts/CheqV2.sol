@@ -4,6 +4,9 @@ import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
+// TODO Make sure OpenSea integration works
+// TODO Enable URI editing
+// TODO Allow brokers to modify deposits freely?? May allow yield from their end
 contract CRX is ERC721, Ownable {
 
     struct Cheq {
@@ -21,17 +24,18 @@ contract CRX is ERC721, Ownable {
     mapping(address => mapping(IERC20 => uint256)) public deposits; // Total user deposits
     mapping(ICheqBroker => bool) public brokerWhitelist; // Total user deposits
     uint256 public totalSupply; // Total cheqs created
+    // uint256 public chainId;
 
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
     //////////////////////////////////////////////////////////////*/
-    event Deposited(IERC20 indexed _token, address indexed to, uint256 amount);
-    event Written(uint256 indexed cheqId, uint256 amount, uint256 escrowed, IERC20 token, address drawer, address indexed recipient, ICheqBroker indexed broker); 
-    event Funded(uint256 indexed cheqId, address from, uint256 amount);
-    event Cashed(address indexed bearer, uint256 indexed cheqId, uint256 amount);
-    event BrokerWhitelisted(ICheqBroker indexed _address, bool isAccepted);
+    event Deposited(IERC20 indexed token, address indexed to, uint256 amount);
+    event Written(uint256 indexed cheqId, IERC20 token, uint256 amount, uint256 escrowed, address indexed drawer, address recipient, ICheqBroker indexed broker, address owner); 
+    event Funded(uint256 indexed cheqId, address indexed from, uint256 amount);
+    event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
+    event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted);
     
-    modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker)==msg.sender, "Only Cheq's broker");_;}
+    modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker) == _msgSender(), "Only Cheq's broker");_;}
     modifier onlyWhitelist(ICheqBroker broker){require(brokerWhitelist[broker], "Only whitelisted broker");_;}
 
     /*//////////////////////////////////////////////////////////////
@@ -102,7 +106,7 @@ contract CRX is ERC721, Ownable {
             broker: ICheqBroker(_msgSender())
         });
         _safeMint(owner, totalSupply);
-        emit Written(totalSupply, amount, escrow, _token, from, recipient, ICheqBroker(_msgSender()));
+        emit Written(totalSupply, _token, amount, escrow, from, recipient, ICheqBroker(_msgSender()), owner);
         totalSupply += 1;
         return totalSupply-1;
     }
@@ -124,7 +128,7 @@ contract CRX is ERC721, Ownable {
         _safeTransfer(from, to, cheqId, data);
     }
 
-    function fund(uint256 cheqId, address from, uint256 amount) external onlyCheqBroker(cheqId) {
+    function fund(uint256 cheqId, address from, uint256 amount) external onlyCheqBroker(cheqId) {  // `From` can originate from anyone, broker specifies whose balance it is removing from though
         Cheq storage cheq = cheqInfo[cheqId]; 
         IERC20 _token = cheq.token;
         require(amount <= deposits[from][_token], "INSUF_BAL");
@@ -138,13 +142,11 @@ contract CRX is ERC721, Ownable {
         require(cheq.escrowed>=cashAmount, "Can't cash more than available");
         unchecked {cheq.escrowed -= cashAmount;}
         require(cheq.token.transfer(to, cashAmount), "Transfer failed");
-        emit Cashed(to, cheqId, cashAmount);
+        emit Cashed(cheqId, to, cashAmount);
     }
-
     function _isApprovedOrOwner(address spender, uint256 cheqId) internal view override returns (bool) {
         return spender == address(cheqInfo[cheqId].broker);  // delegate checks/functionality to cheq broker
     }
-
     /*//////////////////////////////////////////////////////////////
                             VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -202,15 +204,13 @@ interface ICheqBroker {
     // function cash() external returns (bool);
 }
 
-// TODO: add pausable for write()
-// TODO: add early release
 contract SelfSignTimeLock is ICheqBroker, Ownable {  
     CRX public cheq;
     mapping(uint256 => address) public cheqFunder;
     mapping(uint256 => address) public cheqReceiver;
     mapping(uint256 => uint256) public cheqCreated;
     mapping(uint256 => uint256) public cheqInspectionPeriod;
-    mapping(uint256 => bool) public isEarlyReleased;
+    mapping(uint256 => bool) public isEarlyReleased;  // TODO: add early release
     mapping(IERC20 => bool) public tokenWhitelist;
 
     function whitelistToken(IERC20 token, bool isAccepted) public onlyOwner {
@@ -223,7 +223,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         return true;
     }
 
-    function writeCheq(   // Possible integer overflows if block.timestamp+inspectionPeriod too large, solidity 0.8 reverts
+    function writeCheq(   // Integer overflows if block.timestamp+inspectionPeriod too large, solidity 0.8 reverts
         IERC20 _token,
         uint256 amount,
         uint256 escrow,
@@ -259,7 +259,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
     }
 
     function fundable(uint256 cheqId, address, uint256) public view returns(uint256) {
-        if (cheq.cheqEscrowed(cheqId) == 0) {  // Invoice  // && caller == cheqReciever[cheqId]÷
+        if (cheq.cheqEscrowed(cheqId) == 0) {  // Invoice  // && caller == cheqReciever[cheqId]
             return cheq.cheqAmount(cheqId);
         } else {  // Cheq
             return 0;
@@ -268,10 +268,10 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
 
     function fundCheq(uint256 cheqId, uint256 amount) public {  
         uint256 fundableAmount = fundable(cheqId, msg.sender, amount);
-        // require(fundableAmount > 0, "Not fundable"); 
+        require(fundableAmount > 0, "Not fundable"); 
         require(fundableAmount == amount, "Cant fund this amount");
         cheq.fund(cheqId, msg.sender, amount);
-        cheqCreated[cheqId] = block.timestamp;  // If it can be funded its an invoice, reset creation date for job start
+        cheqCreated[cheqId] = block.timestamp;  // BUG: can update with 0 at any time- If it can be funded its an invoice, reset creation date for job start
     }
 
     // BUG what if funder doesnt fund the invoice for too long??
@@ -408,19 +408,19 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
 //     "Transfer disallowed"
 // );
 
-    // function depositWrite(
-    //     address from,
-    //     IERC20 _token,
-    //     uint256 amount,
-    //     uint256 escrowed,
-    //     address recipient,
-    //     address owner
-    //     ) external
-    //     returns (uint256){
-    //     require(deposit(from, _token, amount), "deposit failed");
-    //     return write(from, recipient, _token, amount, escrowed, owner);
+//     function depositWrite(
+//         address from,
+//         IERC20 _token,
+//         uint256 amount,
+//         uint256 escrowed,
+//         address recipient,
+//         address owner
+//         ) external
+//         returns (uint256){
+//         require(deposit(from, _token, amount), "deposit failed");
+//         return write(from, recipient, _token, amount, escrowed, owner);
 
-    // }
+//     }
 
 contract SimpleBank is ICheqBroker, Ownable {  
     CRX public cheq;
@@ -497,8 +497,10 @@ contract PseudoChain is ICheqBroker {
     CRX public cheq;
     mapping(uint256 => uint256) public blockCashTime;
 
+
     constructor(CRX _cheq){
         cheq = _cheq;
+        blockCashTime[0] = block.timestamp;
     }
     function isWriteable(address, IERC20, uint256, uint256, address, address) public pure returns(bool) { 
         return true;
@@ -507,7 +509,7 @@ contract PseudoChain is ICheqBroker {
     function writeCheq(IERC20 _token, uint256 amount, uint256, address) public returns(uint256){
         // require(blockCashTime[]);
         uint256 cheqId = cheq.write(msg.sender, address(this), _token, amount, amount, address(this));
-        uint256 lastCreated = block.timestamp;
+        blockCashTime[cheqId] = blockCashTime[cheqId-1] + 1 days;
         return cheqId;
     }
 
