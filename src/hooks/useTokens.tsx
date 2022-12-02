@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
 
+// Cheqs that are being audited by the specified account
 const auditorTokenQuery = `
 query accounts($account: String ){
   accounts(where: { id: $account })  {

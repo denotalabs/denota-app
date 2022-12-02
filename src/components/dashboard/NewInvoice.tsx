@@ -7,19 +7,13 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useState } from "react";
 import NewCheqModal from "../write/NewCheqModal";
 
 function NewInvoice() {
-  const {
-    isOpen: isInvoiceOpen,
-    onOpen: onInvoiceOpen,
-    onClose: onInvoiceClose,
-  } = useDisclosure();
-  const {
-    isOpen: isCheqOpen,
-    onOpen: onCheqOpen,
-    onClose: onCheqClose,
-  } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [isInvoice, setIsInvoice] = useState(false);
 
   return (
     <Box width="100%" mx={10}>
@@ -27,7 +21,10 @@ function NewInvoice() {
         <ButtonGroup gap="4">
           <Button
             w="min(40vw, 200px)"
-            onClick={onCheqOpen}
+            onClick={() => {
+              setIsInvoice(false);
+              onOpen();
+            }}
             colorScheme="blue"
             size="lg"
             borderRadius={5}
@@ -38,7 +35,10 @@ function NewInvoice() {
           </Button>
           <Button
             w="min(40vw, 200px)"
-            onClick={onInvoiceOpen}
+            onClick={() => {
+              setIsInvoice(true);
+              onOpen();
+            }}
             colorScheme="blue"
             size="lg"
             borderRadius={5}
@@ -49,16 +49,7 @@ function NewInvoice() {
           </Button>
         </ButtonGroup>
 
-        <NewCheqModal
-          isOpen={isCheqOpen}
-          onClose={onCheqClose}
-          isInvoice={false}
-        />
-        <NewCheqModal
-          isOpen={isInvoiceOpen}
-          onClose={onInvoiceClose}
-          isInvoice
-        />
+        <NewCheqModal isOpen={isOpen} onClose={onClose} isInvoice={isInvoice} />
       </Center>
     </Box>
   );

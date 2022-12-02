@@ -117,11 +117,9 @@ export const BlockchainDataProvider = memo(
         (window as any).ethereum
       ); // console.log(provider) //, window.ethereum, 5777 'http://localhost:8545'
       await provider.send("eth_requestAccounts", []);
-      provider.on("network", (newNetwork, oldNetwork) => {
-        if (oldNetwork) {
-          window.location.reload();
-        }
-      }); // Reload on network change
+      (window as any).ethereum.on("chainChanged", (chainId: any) => {
+        window.location.reload();
+      }); // Reload if chain changed
       const signer = provider.getSigner(); //console.log(provider)
       const account = await signer.getAddress(); //console.log(account)
       const netId = "5777";

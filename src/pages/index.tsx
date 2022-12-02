@@ -1,5 +1,4 @@
 import { Stack, Center } from "@chakra-ui/react";
-
 import HomeScreen from "../components/dashboard/HomeScreen";
 
 function HomePage() {

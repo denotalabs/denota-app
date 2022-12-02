@@ -8,36 +8,54 @@ import {
   Text,
   VStack,
   Image,
+  useDisclosure,
+  Tooltip,
 } from "@chakra-ui/react";
+import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
+import DetailsModal from "./details/DetailsModal";
+import ApproveAndPayModal from "./pay/ApproveAndPayModal";
+
+export type CheqStatus = "cashed" | "voided" | "pending" | "cashable";
 
 interface Props {
   sender: string;
-  status: string;
-  token: string;
+  status: CheqStatus;
+  token: CheqCurrency;
   amount: string;
 }
 
-const colorForStatus = (status: string) => {
-  switch (status) {
-    case "cashed":
-      return "blue.900";
-    case "cashable":
-      return "green.900";
-    case "voided":
-      return "gray.600";
-    case "pending":
-      return "purple.900";
-    default:
-      return "gray.600";
-  }
+const STATUS_COLOR_MAP = {
+  cashed: "blue.900",
+  cashable: "green.900",
+  voided: "gray.600",
+  pending: "purple.900",
+};
+
+const TOOLTIP_MESSAGE_MAP = {
+  cashed: "Payment has been cashed",
+  cashable: "Payment can be cashed",
+  voided: "Payment is cancelled",
+  pending: "Payment will be cashable on {date}",
 };
 
 function CheqCardV2({ sender, amount, token, status }: Props) {
+  const {
+    isOpen: isDetailsOpen,
+    onOpen: onOpenDetails,
+    onClose: onCloseDetails,
+  } = useDisclosure();
+
+  const {
+    isOpen: isPayOpen,
+    onOpen: onOpenPay,
+    onClose: onClosePay,
+  } = useDisclosure();
+
   return (
     <GridItem
       w="100%"
       h="180"
-      bg={colorForStatus(status)}
+      bg={STATUS_COLOR_MAP[status]}
       p={3}
       borderRadius={20}
     >
@@ -51,29 +69,20 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
               {amount} {token}
             </Text>
 
-            {token === "USDC" ? (
-              <Image
-                borderRadius="full"
-                boxSize="20px"
-                src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023"
-                alt="USDC"
-              />
-            ) : (
-              <Image
-                borderRadius="full"
-                boxSize="20px"
-                src="https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png?v=023"
-                alt="DAI"
-              />
-            )}
+            <CurrencyIcon currency={token} />
           </HStack>
         </Flex>
 
         <VStack alignItems="flex-start" w="100%">
-          <Text fontWeight={400} fontSize={"xl"}>
-            {"Status: "}
-            {status}
-          </Text>
+          <Tooltip
+            label={TOOLTIP_MESSAGE_MAP[status]}
+            aria-label="status tooltip"
+            placement="right"
+          >
+            <Text fontWeight={600} fontSize={"xl"}>
+              {status}
+            </Text>
+          </Tooltip>
           <Center w="100%">
             <ButtonGroup gap="4">
               {status === "cashable" ? (
@@ -90,17 +99,25 @@ function CheqCardV2({ sender, amount, token, status }: Props) {
                   w="min(40vw, 100px)"
                   borderRadius={5}
                   colorScheme="teal"
+                  onClick={onOpenPay}
                 >
                   Pay
                 </Button>
               ) : null}
-              <Button w="min(40vw, 100px)" borderRadius={5} colorScheme="teal">
+              <Button
+                w="min(40vw, 100px)"
+                borderRadius={5}
+                colorScheme="teal"
+                onClick={onOpenDetails}
+              >
                 Details
               </Button>
             </ButtonGroup>
           </Center>
         </VStack>
       </VStack>
+      <DetailsModal isOpen={isDetailsOpen} onClose={onCloseDetails} />
+      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} />
     </GridItem>
   );
 }

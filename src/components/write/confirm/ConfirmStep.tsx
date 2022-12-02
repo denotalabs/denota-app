@@ -54,6 +54,11 @@ function CheqConfirmStep({ isInvoice }: Props) {
         initialValues={{}}
         onSubmit={async (values, actions) => {
           if (needsApproval) {
+            // Disabling infinite approvals until audit it complete
+            // To enable:
+            // BigNumber.from(
+            //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+            // );
             const tx = await token?.functions.approve(
               blockchainState.cheqAddress,
               amountWei
