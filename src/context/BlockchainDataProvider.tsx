@@ -8,6 +8,7 @@ import React, {
 import { useContext } from "react";
 import { BigNumber, ethers } from "ethers";
 import Cheq from "../out/Cheq.sol/Cheq.json";
+import SelfSignedBroker from "../out/CheqV2.sol/SelfSignTimeLock.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
 
 export const APIURL = "http://localhost:8000/subgraphs/name/Cheq/Cheq";
@@ -18,6 +19,7 @@ interface BlockchainDataInterface {
   cheq: null | ethers.Contract;
   dai: null | ethers.Contract;
   weth: null | ethers.Contract;
+  selfSignBroker: null | ethers.Contract;
   daiAllowance: BigNumber;
   wethAllowance: BigNumber;
   cheqAddress: string;
@@ -37,12 +39,41 @@ export const CheqAddress = "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A";
 export const DaiAddress = "0x982723cb1272271b5ee405A5F14E9556032d9308";
 export const WethAddress = "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e";
 
+const AddressMapping = {
+  mumbai: {
+    crx: "0xA0A78F3Ba39E57047A35D6931eC3869962191e8c",
+    cheq: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
+    dai: "0x982723cb1272271b5ee405A5F14E9556032d9308",
+    weth: "0xAA6DA55ba764428e1C4c492c6db5FDe3ccf57332",
+    selfSignedBroker: "0x8Df6c6fb81d3d1DAAFCd5FD5564038b0d9006FbB",
+  },
+  local: {
+    crx: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
+    cheq: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
+    dai: "0x982723cb1272271b5ee405A5F14E9556032d9308",
+    weth: "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e",
+    selfSignedBroker: "0x8Df6c6fb81d3d1DAAFCd5FD5564038b0d9006FbB",
+  },
+};
+
+const mappingForChainId = (chainId: number) => {
+  switch (chainId) {
+    case 80001:
+      return AddressMapping.mumbai;
+    case 31337:
+      return AddressMapping.local;
+    default:
+      return AddressMapping.mumbai;
+  }
+};
+
 const BlockchainDataContext = createContext<BlockchainDataInterface>({
   account: "",
   userType: "Customer",
   cheq: null,
   dai: null,
   weth: null,
+  selfSignBroker: null,
   daiAllowance: BigNumber.from(0),
   wethAllowance: BigNumber.from(0),
   cheqAddress: "",
@@ -66,6 +97,7 @@ export const BlockchainDataProvider = memo(
         cheq: null,
         dai: null,
         weth: null,
+        selfSignBroker: null,
         daiAllowance: BigNumber.from(0),
         wethAllowance: BigNumber.from(0),
         cheqAddress: "",
@@ -85,11 +117,9 @@ export const BlockchainDataProvider = memo(
         (window as any).ethereum
       ); // console.log(provider) //, window.ethereum, 5777 'http://localhost:8545'
       await provider.send("eth_requestAccounts", []);
-      provider.on("network", (newNetwork, oldNetwork) => {
-        if (oldNetwork) {
-          window.location.reload();
-        }
-      }); // Reload on network change
+      (window as any).ethereum.on("chainChanged", (chainId: any) => {
+        window.location.reload();
+      }); // Reload if chain changed
       const signer = provider.getSigner(); //console.log(provider)
       const account = await signer.getAddress(); //console.log(account)
       const netId = "5777";
@@ -111,10 +141,18 @@ export const BlockchainDataProvider = memo(
             ? "Merchant"
             : "Auditor";
         try {
+          const { chainId } = await provider.getNetwork();
+          const mapping = mappingForChainId(chainId);
+
           // Load contracts
-          const cheq = new ethers.Contract(CheqAddress, Cheq.abi, signer);
-          const weth = new ethers.Contract(WethAddress, erc20.abi, signer);
-          const dai = new ethers.Contract(DaiAddress, erc20.abi, signer);
+          const cheq = new ethers.Contract(mapping.cheq, Cheq.abi, signer);
+          const selfSignBroker = new ethers.Contract(
+            mapping.selfSignedBroker,
+            SelfSignedBroker.abi,
+            signer
+          );
+          const weth = new ethers.Contract(mapping.weth, erc20.abi, signer);
+          const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
 
           const daiBalance = await dai.balanceOf(CheqAddress); // Cheq's Dai balance
           const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
@@ -130,14 +168,15 @@ export const BlockchainDataProvider = memo(
           const cheqTotalSupply = await cheq.totalSupply();
 
           setBlockchainState({
-            signer: signer,
-            account: account,
-            userType: userType,
-            cheq: cheq,
-            dai: dai,
-            weth: weth,
-            daiAllowance: daiAllowance,
-            wethAllowance: wethAllowance,
+            signer,
+            account,
+            userType,
+            cheq,
+            dai,
+            weth,
+            selfSignBroker,
+            daiAllowance,
+            wethAllowance,
             cheqAddress: CheqAddress,
             cheqBalance: ethers.utils.formatEther(cheqBalance).slice(0, -2),
             qDAI: ethers.utils.formatUnits(qDAI),

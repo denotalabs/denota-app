@@ -1,11 +1,15 @@
 import CheqCard from "./CheqCard";
-import { DaiAddress } from "../context/BlockchainDataProvider";
-import { useTokens } from "../hooks/useTokens";
+import { DaiAddress } from "../../context/BlockchainDataProvider";
+import { useTokens } from "../../hooks/useTokens";
 import { ethers } from "ethers";
 import { Skeleton, Stack } from "@chakra-ui/react";
 
-function VoidTab() {
-  const tokenData = useTokens("tokensAuditing", false);
+interface Props {
+  isTokenSelect: string;
+}
+
+function CashTab({ isTokenSelect }: Props) {
+  const tokenData = useTokens(isTokenSelect, true);
 
   if (tokenData) {
     const cheqs = tokenData.map((token: any, index: number) => {
@@ -46,17 +50,25 @@ function VoidTab() {
           created={created}
           expiry={expiration}
           isCashable={isCashable}
-          isUser={false}
+          isUser={true}
         />
       );
     });
-
     return (
       <div>
         You have {tokenData.length} cheq(s):
         <br></br>
         <br></br>
         {cheqs}
+      </div>
+    );
+  } else if (tokenData == null) {
+    return (
+      <div>
+        You have 0 cheq(s):
+        <br></br>
+        <br></br>
+        No cheqs yet
       </div>
     );
   } else {
@@ -70,4 +82,4 @@ function VoidTab() {
   }
 }
 
-export default VoidTab;
+export default CashTab;

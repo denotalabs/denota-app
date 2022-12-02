@@ -4,12 +4,12 @@ import { Box, Button, Flex, Stack, Skeleton } from "@chakra-ui/react";
 
 import RadioButtonField from "./RadioButtonField";
 import AccountField from "./input/AccountField";
-import { useBlockchainData } from "../context/BlockchainDataProvider";
-import { useHandshakes } from "../hooks/useHandshakes";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import { useHandshakes } from "../../hooks/useHandshakes";
 
-function UsersTab() {
+function AuditorsTab() {
   const blockchainState = useBlockchainData();
-  const handshakeData = useHandshakes(false);
+  const handshakeData = useHandshakes(true);
 
   if (!handshakeData) {
     return (
@@ -20,38 +20,35 @@ function UsersTab() {
       </>
     );
   } else {
-    let auditorsUsers: any = handshakeData["completed"].map(
-      (user: any, index: number) => {
-        if (user) {
-          return <li key={index}>{user}</li>;
-        }
-      }
+    let userAuditors: any = handshakeData["completed"].map(
+      (auditor: any, index: number) => <li key={index}>{auditor}</li>
     );
-    auditorsUsers = auditorsUsers.length ? (
-      auditorsUsers
+    userAuditors = userAuditors.length ? (
+      userAuditors
     ) : (
-      <li key={0}>Accept a user below</li>
+      <li>Request an auditor below</li>
     );
 
-    let auditorsRequested = handshakeData["requested"].map(
-      (user: any, index: number) => <li key={index}>{user}</li>
+    let usersRequested = handshakeData["requested"].map(
+      (auditor: any, index: number) => <li key={index}>{auditor}</li>
     );
-    auditorsRequested = auditorsRequested.length ? (
-      auditorsRequested
+
+    usersRequested = usersRequested.length ? (
+      usersRequested
     ) : (
-      <li key={0}>Not Waiting On Any Users' Approval</li>
+      <li>Not Waiting On Any Auditors' Approval</li>
     );
 
     return (
       <div>
         <br></br>
-        Your current users:
+        Your current auditors:
         <br></br>
         <br></br>
         <Box
           key={1}
           p={6}
-          maxW={"455px"}
+          maxW={"460px"}
           w={"full"}
           boxShadow="sm"
           rounded={"lg"}
@@ -59,24 +56,21 @@ function UsersTab() {
           borderRadius="lg"
           zIndex={1}
         >
-          {auditorsUsers}
+          {userAuditors}
         </Box>
         <br></br>
         <Formik
           initialValues={{ address: "", accountType: "add" }}
           onSubmit={(values, actions) => {
-            if (values.accountType === "add") {
-              blockchainState.cheq?.acceptUser(values.address, true);
-            } else {
-              blockchainState.cheq?.acceptUser(values.address, false);
-            }
+            let bool = true ? values.accountType === "add" : false;
+            blockchainState.cheq?.acceptAuditor(values.address, bool);
           }}
         >
           {(props) => (
             <Form>
               <RadioButtonField
                 fieldName="accountType"
-                label="Add or remove user?"
+                label="Add or remove auditor?"
                 values={["add", "remove"]}
               />
               <br />
@@ -90,7 +84,7 @@ function UsersTab() {
           )}
         </Formik>
         <br></br>
-        Your requested users:
+        Your requested auditors:
         <br></br>
         <br></br>
         <Box
@@ -104,11 +98,11 @@ function UsersTab() {
           borderRadius="lg"
           zIndex={1}
         >
-          {auditorsRequested}
+          {usersRequested}
         </Box>
       </div>
     );
   }
 }
 
-export default UsersTab;
+export default AuditorsTab;

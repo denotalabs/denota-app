@@ -6,7 +6,7 @@ import { Button, Flex, FormLabel } from "@chakra-ui/react";
 
 import TokenField from "./input/TokenField";
 import AmountField from "./input/AmountField";
-import { useBlockchainData } from "../context/BlockchainDataProvider";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 function DepositTab() {
   const blockchainState = useBlockchainData();

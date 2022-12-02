@@ -3,36 +3,38 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Cheq
+    name: CRX
     network: mumbai
     source:
-      address: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A"
-      abi: Cheq
-      startBlock: 28446172
+      address: "0x30FA11E6FEe4dcf6D418B32b8EED245e7fF4D11c"
+      abi: CRX
+      startBlock: 29421574
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Token
+        - Ownership
+        - Escrow
         - ERC20
         - Account
-        - Handshake
+        - Broker
       abis:
-        - name: Cheq
-          file: ../out/Cheq.sol/Cheq.json
+        - name: CRX
+          file: ../out/CheqV2.sol/CRX.json
       eventHandlers:
-        - event: WriteCheque(indexed uint256,uint256,uint256,address,address,indexed address,indexed
-            address)
+        - event: Deposited(indexed address,indexed address,uint256)
+          handler: handleDeposit
+        - event: Written(indexed uint256,address,uint256,uint256,indexed address,address,indexed
+            address,address)
           handler: handleWrite
-        - event: Cash(indexed address,indexed uint256)
-          handler: handleCash
-        - event: Void(indexed address,indexed uint256)
-          handler: handleVoid
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-        - event: ShakeAuditor(indexed address,indexed address,bool)
-          handler: handleShakeAuditor
-        - event: ShakeUser(indexed address,indexed address,bool)
-          handler: handleShakeUser
-      file: Cheq/Cheq.wasm
+        - event: Funded(indexed uint256,indexed address,uint256)
+          handler: handleFund
+        - event: Cashed(indexed uint256,indexed address,uint256)
+          handler: handleCash
+        - event: BrokerWhitelisted(indexed address,bool)
+          handler: handleBrokerWhitelist
+      file: CRX/CRX.wasm

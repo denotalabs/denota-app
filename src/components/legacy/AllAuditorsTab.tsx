@@ -2,8 +2,11 @@ import { Form, Formik } from "formik";
 
 import { Box, Button, Flex, Stack, Skeleton } from "@chakra-ui/react";
 
-import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
-import { useUsers } from "../hooks/useUsers";
+import {
+  useBlockchainData,
+  APIURL,
+} from "../../context/BlockchainDataProvider";
+import { useUsers } from "../../hooks/useUsers";
 
 function AllAuditorsTab() {
   const blockchainState = useBlockchainData();

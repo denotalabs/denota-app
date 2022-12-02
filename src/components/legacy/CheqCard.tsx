@@ -2,7 +2,7 @@ import { Box, Center, Button, Text, Stack } from "@chakra-ui/react";
 import {
   DaiAddress,
   useBlockchainData,
-} from "../context/BlockchainDataProvider";
+} from "../../context/BlockchainDataProvider";
 
 interface Props {
   cheqId: number;
