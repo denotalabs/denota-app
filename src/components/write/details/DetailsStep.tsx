@@ -11,18 +11,17 @@ interface Props {
 }
 
 function CheqDetailsStep({ isInvoice }: Props) {
-  const { next, appendFormData } = useStep();
+  const { next, appendFormData, formData } = useStep();
   return (
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          token: "DAI",
-          amount: 0,
-          address: "",
-          mode: isInvoice ? "invoice" : "pay",
+          token: formData.token ?? "DAI",
+          amount: formData.amount ? Number(formData.amount) : 0,
+          address: formData.address ?? "",
+          mode: formData.mode ?? isInvoice ? "invoice" : "pay",
         }}
         onSubmit={(values, actions) => {
-          console.log({ token: values.token });
           appendFormData({
             token: values.token,
             amount: values.amount.toString(),

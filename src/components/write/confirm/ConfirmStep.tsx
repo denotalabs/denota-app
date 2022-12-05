@@ -14,7 +14,7 @@ interface Props {
 }
 
 function CheqConfirmStep({ isInvoice }: Props) {
-  const { onClose, formData } = useStep();
+  const { onClose, formData, back } = useStep();
   const blockchainState = useBlockchainData();
 
   const [needsApproval, setNeedsApproval] = useState(formData.mode === "pay");
@@ -109,6 +109,13 @@ function CheqConfirmStep({ isInvoice }: Props) {
             <ConfirmDetails></ConfirmDetails>
             <RoundedButton type="submit" isLoading={props.isSubmitting}>
               {buttonText}
+            </RoundedButton>
+            <RoundedButton
+              onClick={() => {
+                back?.();
+              }}
+            >
+              {"Back"}
             </RoundedButton>
           </Form>
         )}
