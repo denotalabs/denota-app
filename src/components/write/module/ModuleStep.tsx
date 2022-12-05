@@ -33,13 +33,6 @@ function CheqModuleStep({ isInvoice }: Props) {
           <Form>
             <ModuleInfo />
             <RoundedButton type="submit">{"Next"}</RoundedButton>
-            <RoundedButton
-              onClick={() => {
-                back?.();
-              }}
-            >
-              {"Back"}
-            </RoundedButton>
           </Form>
         )}
       </Formik>

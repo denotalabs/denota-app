@@ -12,6 +12,8 @@ import {
   useState,
 } from "react";
 import { Text } from "@chakra-ui/react";
+import StepperHeader from "./StepperHeader";
+import { stat } from "fs";
 
 interface StepperProps {
   children: ReactNode;
@@ -96,9 +98,11 @@ function Stepper({ children, onClose }: StepperProps) {
         appendFormData,
       }}
     >
-      <Text fontWeight={600} fontSize={"xl"} mb={4}>
-        Step {state.currentIndex + 1}
-      </Text>
+      <StepperHeader
+        back={back}
+        onClose={onClose}
+        currentIndex={state.currentIndex}
+      />
       {state.currentScreen}
     </StepperContext.Provider>
   );

@@ -110,13 +110,6 @@ function CheqConfirmStep({ isInvoice }: Props) {
             <RoundedButton type="submit" isLoading={props.isSubmitting}>
               {buttonText}
             </RoundedButton>
-            <RoundedButton
-              onClick={() => {
-                back?.();
-              }}
-            >
-              {"Back"}
-            </RoundedButton>
           </Form>
         )}
       </Formik>

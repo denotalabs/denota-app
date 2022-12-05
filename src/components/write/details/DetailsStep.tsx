@@ -33,7 +33,6 @@ function CheqDetailsStep({ isInvoice }: Props) {
       >
         {(props) => (
           <Form>
-            {/* <CurrencySelector></CurrencySelector> */}
             <CurrencySelectorV2></CurrencySelectorV2>
             <DetailsBox isInvoice={isInvoice}></DetailsBox>
             <RoundedButton type="submit">{"Next"}</RoundedButton>
