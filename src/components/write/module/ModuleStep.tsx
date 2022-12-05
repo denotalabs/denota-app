@@ -10,14 +10,16 @@ interface Props {
 }
 
 function CheqModuleStep({ isInvoice }: Props) {
-  const { next, appendFormData } = useStep();
+  const { next, appendFormData, formData } = useStep();
 
   return (
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          inspection: 604800,
-          module: "self",
+          inspection: formData.inspection
+            ? Number(formData.inspection)
+            : 604800,
+          module: formData.module ?? "self",
         }}
         onSubmit={(values, actions) => {
           appendFormData({
