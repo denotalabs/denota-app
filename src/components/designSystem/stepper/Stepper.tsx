@@ -21,6 +21,7 @@ interface StepperProps {
 enum StepperActionKind {
   SET_SCREEN = "SET_SCREEN",
   NEXT = "NEXT",
+  BACK = "BACK",
 }
 
 interface StepperAction {
@@ -31,13 +32,18 @@ interface StepperAction {
 function reducer(state: StepperReducerInterface, action: StepperAction) {
   const { type, screenKey } = action;
   switch (type) {
-    default:
     case StepperActionKind.NEXT: {
       const length = state.allScreens?.length ?? 0;
       const currentIndex =
         state.currentIndex < length - 1
           ? state.currentIndex + 1
           : state.currentIndex;
+      const currentScreen = state.allScreens?.[currentIndex];
+      return { ...state, currentIndex, currentScreen };
+    }
+    case StepperActionKind.BACK: {
+      const currentIndex =
+        state.currentIndex > 0 ? state.currentIndex - 1 : state.currentIndex;
       const currentScreen = state.allScreens?.[currentIndex];
       return { ...state, currentIndex, currentScreen };
     }
@@ -48,6 +54,8 @@ function reducer(state: StepperReducerInterface, action: StepperAction) {
       const currentIndex = state.allScreens?.indexOf(currentScreen) ?? 0;
       return { ...state, currentIndex, currentScreen };
     }
+    default:
+      return { ...state };
   }
 }
 
@@ -64,6 +72,9 @@ function Stepper({ children, onClose }: StepperProps) {
   const next = () => {
     dispatch({ type: StepperActionKind.NEXT });
   };
+  const back = () => {
+    dispatch({ type: StepperActionKind.BACK });
+  };
   const goToStep = (screenKey: string) => {
     dispatch({ type: StepperActionKind.SET_SCREEN, screenKey });
   };
@@ -75,7 +86,15 @@ function Stepper({ children, onClose }: StepperProps) {
   };
   return (
     <StepperContext.Provider
-      value={{ ...state, next, goToStep, onClose, formData, appendFormData }}
+      value={{
+        ...state,
+        next,
+        back,
+        goToStep,
+        onClose,
+        formData,
+        appendFormData,
+      }}
     >
       <Text fontWeight={600} fontSize={"xl"} mb={4}>
         Step {state.currentIndex + 1}
