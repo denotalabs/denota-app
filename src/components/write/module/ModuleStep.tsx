@@ -10,7 +10,7 @@ interface Props {
 }
 
 function CheqModuleStep({ isInvoice }: Props) {
-  const { next, back, appendFormData, formData } = useStep();
+  const { next, appendFormData, formData } = useStep();
 
   return (
     <Box w="100%" p={4}>

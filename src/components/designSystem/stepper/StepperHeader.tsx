@@ -1,4 +1,4 @@
-import { ArrowBackIcon, CloseIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, SmallCloseIcon } from "@chakra-ui/icons";
 import { Flex, IconButton } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react";
 
@@ -20,7 +20,11 @@ function StepperHeader({ onClose, back, currentIndex }: Props) {
       <Text fontWeight={600} fontSize={"xl"} mb={4}>
         Step {currentIndex + 1}
       </Text>
-      <IconButton aria-label="Next" icon={<CloseIcon />} onClick={onClose} />
+      <IconButton
+        aria-label="Next"
+        icon={<SmallCloseIcon />}
+        onClick={onClose}
+      />
     </Flex>
   );
 }
