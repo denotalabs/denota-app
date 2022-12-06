@@ -3,7 +3,7 @@ import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
 
 export const useHandshakes = (isUser: boolean) => {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
   const [handshakeData, setHandshakeData] = useState<any>();
   const userTypeField = isUser ? "userAccount" : "auditorAccount";

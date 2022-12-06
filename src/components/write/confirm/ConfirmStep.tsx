@@ -15,7 +15,7 @@ interface Props {
 
 function CheqConfirmStep({ isInvoice }: Props) {
   const { onClose, formData } = useStep();
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
 
   const [needsApproval, setNeedsApproval] = useState(formData.mode === "pay");
 

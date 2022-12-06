@@ -13,7 +13,7 @@ interface Props {
   sender: string;
   auditor: string;
   created: string;
-  isCashable: Boolean;
+  isCashable: boolean;
   isUser: boolean;
 }
 
@@ -29,7 +29,7 @@ export default function CheqCard({
   isCashable,
   isUser,
 }: Props) {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
 
   let button;
   if (isUser) {

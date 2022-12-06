@@ -8,7 +8,7 @@ import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { useHandshakes } from "../../hooks/useHandshakes";
 
 function AuditorsTab() {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
   const handshakeData = useHandshakes(true);
 
   if (!handshakeData) {

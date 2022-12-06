@@ -52,7 +52,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 );
 
 export default function NavbarUser() {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
 
   const imageURL =
     blockchainState.userType == "Auditor"
