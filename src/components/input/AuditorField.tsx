@@ -9,7 +9,7 @@ interface Props {
 }
 
 function AuditorField({ fieldName, placeholder }: Props) {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
   // const handshakeData = useHandshakes(true);
 
   let auditorSelect: any; // Validate merchant address, pull their handshakes, compare handshakes and yield intersection

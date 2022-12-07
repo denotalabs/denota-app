@@ -3,7 +3,7 @@ import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
 
 export const useUsers = (getUser: boolean) => {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
   const [userData, setUserData] = useState<any>();
   const userTypeField = getUser ? "userAccount" : "auditorAccount";

@@ -25,7 +25,11 @@
     "react-dom": "^18.2.0",
     "solhint": "^3.3.7",
     "solhint-plugin-prettier": "^0.0.5",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "web3modal": "1.9.5",
+    "walletlink": "2.5.0",
+    "@walletconnect/web3-provider": "1.7.3",
+    "@coinbase/wallet-sdk": "3.0.1"
   },
   "scripts": {
     "dev": "next dev",
@@ -36,13 +40,11 @@
     "prettier:solidity": "./node_modules/.bin/prettier --write **/*.sol",
     "prettier:ts": "./node_modules/.bin/prettier --write **/*.tsx",
     "prepare": "husky install",
-
     "clean-graph-node": "rm -rf src/graph/graph-node/data/",
     "run-graph-node": "cd src/graph/graph-node && docker-compose up",
     "graph-build": "cd src/graph/subgraph && graph build",
     "create-local": "graph create --node http://localhost:8020/ CheqV2/CRX",
     "graph-ship-local": "cd src/graph/subgraph && npm run codegen && npm run deploy-local",
-
     "remove-graph-node": "cd src/graph/graph-node && docker-compose down",
     "remove-local": "graph remove --node http://localhost:8020/ Cheq/Cheq",
     "deploy-local": "cd src/graph/subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 CheqV2/CRX",
