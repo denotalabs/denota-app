@@ -12,11 +12,9 @@ import {
   Center,
   useColorModeValue,
 } from "@chakra-ui/react";
-import {
-  DaiAddress,
-  useBlockchainData,
-  WethAddress,
-} from "../../context/BlockchainDataProvider";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import Web3Modal from "web3modal";
+import { providerOptions } from "../../context/providerOptions";
 
 const addToken = async (tokenAddress: string, symbol: string) => {
   try {
@@ -81,11 +79,28 @@ export default function NavbarUser() {
           <p>{blockchainState.userType}</p>
         </Center>
         <MenuDivider />
-        <MenuItem onClick={() => addToken(DaiAddress, "DAI")}>Add DAI</MenuItem>
-        <MenuItem onClick={() => addToken(WethAddress, "WETH")}>
+        <MenuItem
+          onClick={() => addToken(blockchainState.dai?.address ?? "", "DAI")}
+        >
+          Add DAI
+        </MenuItem>
+        <MenuItem
+          onClick={() => addToken(blockchainState.weth?.address ?? "", "WETH")}
+        >
           Add WETH
         </MenuItem>
-        <MenuItem>Logout</MenuItem>
+        <MenuItem
+          onClick={async () => {
+            const web3Modal = new Web3Modal({
+              cacheProvider: true, // optional
+              providerOptions, // required
+            });
+            web3Modal.clearCachedProvider();
+            window.location.reload();
+          }}
+        >
+          Logout
+        </MenuItem>
       </MenuList>
     </Menu>
   );
