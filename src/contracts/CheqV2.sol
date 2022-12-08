@@ -4,8 +4,14 @@ import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
+// TODO Ensure Write/Deposit supports ERC20 interface
+// TODO Make all functions external
+// TODO Allow escrowing of NFTs
 // TODO Make sure OpenSea integration works
+//// See how OS tracks metadata
 // TODO Enable URI editing
+//// have tokenURI() call to cheqBroker tokenURI (which sets its baseURI and the token's URI)
+// TODO Make modules ERC721 compatible?
 // TODO Allow brokers to modify deposits freely?? May allow yield from their end
 contract CRX is ERC721, Ownable {
 
@@ -35,7 +41,7 @@ contract CRX is ERC721, Ownable {
     event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
     event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted);
     
-    modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker) == _msgSender(), "Only Cheq's broker");_;}
+    modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker) == _msgSender(), "Only cheq's broker");_;}
     modifier onlyWhitelist(ICheqBroker broker){require(brokerWhitelist[broker], "Only whitelisted broker");_;}
 
     /*//////////////////////////////////////////////////////////////
@@ -147,6 +153,10 @@ contract CRX is ERC721, Ownable {
     function _isApprovedOrOwner(address spender, uint256 cheqId) internal view override returns (bool) {
         return spender == address(cheqInfo[cheqId].broker);  // delegate checks/functionality to cheq broker
     }
+
+    // function tokenURI(uint256 cheqId) public view virtual override returns (string memory) {
+    //     return ICheqBroker(cheqInfo[cheqId].broker).tokenURI(cheqId);
+    // }
     /*//////////////////////////////////////////////////////////////
                             VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -194,9 +204,13 @@ interface ICheqBroker {
     
     function cashable(uint256 cheqId, address caller, uint256 amount) external view returns(uint256);  // How much can be cashed
     function cashCheq(uint256 cheqId, uint256 amount) external;
+    // function tokenURI(uint256 tokenId) external view returns (string memory);
+    // baseURI
+    // _setTokenURI
+    // _setBaseURI
+    
     // Checks if caller is the owner [INTERFACE: broker]
     // Checks if is cashable [INTERFACE: broker]
-    // Sets as cashed [CHEQ OR INTERFACE?]
     // Transfers the cashing amount [Cheq]
     // Emits Cash event [Cheq]
     // Checks if caller is auditor [INTERFACE]
@@ -212,6 +226,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
     mapping(uint256 => uint256) public cheqInspectionPeriod;
     mapping(uint256 => bool) public isEarlyReleased;  // TODO: add early release
     mapping(IERC20 => bool) public tokenWhitelist;
+    string private _baseURI;
 
     function whitelistToken(IERC20 token, bool isAccepted) public onlyOwner {
         tokenWhitelist[token] = isAccepted;
@@ -313,6 +328,37 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         isEarlyReleased[cheqId] = isReleased;
 
     }
+
+    // function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    //     _exists(tokenId);
+
+    //     // string memory _tokenURI = _tokenURIs[tokenId];
+    //     string memory base = _baseURI();
+
+    //     // If there is no base URI, return the token URI.
+    //     if (bytes(base).length == 0) {
+    //         return string(tokenId);
+    //     }
+    //     // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+    //     if (bytes(_tokenURI).length > 0) {
+    //         return string(abi.encodePacked(base, _tokenURI));
+    //     }
+
+    //     return super.tokenURI(tokenId);
+    // }
+
+    // function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+    //     require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
+    //     _tokenURIs[tokenId] = _tokenURI;
+    // }
+
+    // function _setBaseURI(string calldata __baseURI) public {
+    //     _baseURI = __baseURI;
+    // }
+
+    // function baseURI() public view returns (string memory){
+    //     return _baseURI;
+    // }
 }
 
 // contract HandshakeTimeLock is ICheqBroker {

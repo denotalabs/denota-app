@@ -14,12 +14,13 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Token  # Cheqs
-        - Ownership  # Transfers (TODO okay to double track here and Token?)
+        - Cheq  # Cheqs
+        - Transfer  # Write/Transfers
         - Escrow  # Fund/Cash
-        - ERC20  # 
+        - ERC20  # ERC20s that have interacted with the protocol
         - Account  # Accounts that have interacted with CRX
-        - Broker  #
+        - Broker  # Payment modules
+        - SelfSignTimeLock
       abis:
         - name: CRX
           file: ../../out/CheqV2.sol/CRX.json

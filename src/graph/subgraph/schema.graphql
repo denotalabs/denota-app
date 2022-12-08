@@ -1,49 +1,252 @@
-type Account @entity {
+type ERC20 @entity(immutable: true) {
   id: ID!
-  tokensOwned: [Token!]! @derivedFrom(field: "owner")
-  numTokensOwned: BigInt!
-
-  tokensSent: [Token!]! @derivedFrom(field: "drawer")
-  numTokensSent: BigInt!
-  
-  tokensReceived: [Token!]! @derivedFrom(field: "recipient")
-  numTokensReceived: BigInt!
-}
-type Broker @entity {
-  id: ID!
-  tokensManaged: [Token!]! @derivedFrom(field: "broker")
-  numTokensManaged: BigInt!
+  # name: String
+	# symbol: String
+	# decimals: Int!
+  # totalSupply: 
 }
 
-type Token @entity {
+type Transaction @entity {
   id: ID!
-  createdAt: BigInt!
-  ercToken: ERC20!
-  amount: BigInt!
-
-  escrowed: BigInt!
-  
-  drawer: Account!
-  recipient: Account!
-  module: Module!
-  
-  owner: Account!
-  
+  timestamp: BigInt!
+  blockNumber: BigInt!
   transactionHash: String!
+  events: [Event!]! @derivedFrom(field: "transaction")
 }
-type Ownership @entity(immutable: true) {
+interface Event {
   id: ID!
-  tokenId: BigInt!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+}
+# type Deposit implements Event @entity {
+#   id: ID!
+#   emitter: Account!
+#   transaction: Transaction!
+#   timestamp: BigInt!
+#   ercToken: ERC20!
+#   amount: BigInt!
+#   from: Account!
+# }
+type Transfer implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  cheq: Cheq!
   from: Account!
   to: Account!
 }
-type Escrow @entity(immutable: true) {
+type Escrow implements Event @entity(immutable: true) {
   id: ID!
-  tokenId: BigInt!
-  caller: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  cheq: Cheq!  # Erc20 token can only be static for now
+  from: Account!
   amount: BigInt!
 }
-
-type ERC20 @entity(immutable: true) {
+type Account @entity {
   id: ID!
+# TODO need to query every new user's token balances for future modules that may depend on token balance logic
+  # ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
+  # deposits: [Deposit]!
+  cheqsOwned: [Cheq!]! @derivedFrom(field: "owner")
+  numCheqsOwned: BigInt!
+  cheqsSent: [Cheq!]! @derivedFrom(field: "drawer")
+  numCheqsSent: BigInt!
+  cheqsReceived: [Cheq!]! @derivedFrom(field: "recipient")
+  numCheqsReceived: BigInt!
+  transfersFrom: [Transfer!]! @derivedFrom(field: "from")
+  transfersTo: [Transfer!]! @derivedFrom(field: "to")
+# TODO approvals happen on the broker side
+  # approvalsOwner: [Approval!]! @derivedFrom(field: "owner")
+  # approvalsApproved: [Approval!]! @derivedFrom(field: "approved")
+  # approvalsForAllOwner: [ApprovalForAll!]! @derivedFrom(field: "owner")
+  # approvalsForAllOperator: [ApprovalForAll!]! @derivedFrom(field: "operator")
+	events: [Event!]! @derivedFrom(field: "emitter")
 }
+type Cheq @entity {
+  id: ID!
+  createdAt: BigInt!
+  erc20: ERC20!
+  amount: BigDecimal!
+  amountExact: BigInt!
+  drawer: Account!
+  recipient: Account!
+  broker: Broker!
+  # Mutable attributes
+  uri: String
+  escrowed: BigDecimal!
+  escrowedExact: BigInt!
+  owner: Account!
+  transfers: [Transfer!]! @derivedFrom(field: "cheq")
+  escrows: [Escrow!]! @derivedFrom(field: "cheq")
+  # approval: Account!
+  # approvals: [Approval!]! @derivedFrom(field: "token")
+}
+# type TokenRegistry @entity {
+#   id: ID!
+#   name: String
+#   symbol: String
+#   tokens: [Token!]! @derivedFrom(field: "registry")
+# }
+# type Token @entity {
+#   id: ID!
+#   registry: TokenRegistry!
+#   identifier: BigInt!
+# }
+
+type BrokerRegistry @entity {
+  id: ID!  # Should this be the brokers' address?
+  # name: String
+  # symbol: String
+  module: Broker! @derivedFrom(field: "registry")
+}
+interface Broker {  # Allows new modules to inherit from Broker interface
+  id: ID!
+  registry: BrokerRegistry!  # The broker's registration number
+  cheqsManaged: [Cheq!]! @derivedFrom(field: "broker")
+  numCheqsManaged: BigInt!
+}
+# How to detect the module type based on address??
+type SelfSignTimeLock implements Broker @entity {
+  id: ID!
+  registry: BrokerRegistry!
+  cheqsManaged: [Cheq!]! @derivedFrom(field: "broker")
+  numCheqsManaged: BigInt!
+  cheqFunder: Account!
+  cheqReceiver: Account!
+  cheqCreated: BigInt!  # Is redundant?
+  cheqInspectionPeriod: BigInt!
+  isEarlyReleased: Boolean!
+  earlyReleasedTime: BigInt
+  tokenWhitelist: [ERC20!]!
+}
+
+# type ERC20Balance @entity {  # Might want to query token balances to prevent user from using token-gated functions
+# 	id: ID!
+# 	contract: ERC20Contract!
+# 	account: Account
+# 	value: BigDecimal!
+# 	valueExact: BigInt!
+# 	# transferFromEvent: [ERC20Transfer!]! @derivedFrom(field: "fromBalance")
+# 	# transferToEvent: [ERC20Transfer!]! @derivedFrom(field: "toBalance")
+# }
+# type ERC20Approval @entity {  # Maybe this is where deposits can be tracked?
+# 	id: ID!
+# 	contract: ERC20Contract!
+# 	owner: Account!
+# 	spender: Account!
+# 	value: BigDecimal!
+# 	valueExact: BigInt!
+# }
+# type ERC721Operator @entity {  # Operator can transfer any one of their tokens
+# 	id: ID!
+# 	contract: ERC721Contract!
+# 	owner: Account!
+# 	operator: Account!
+# 	approved: Boolean!
+# }
+
+############################################# Github implementation #####################################################
+# https://github.com/sunguru98/erc-721-subgraph/blob/master/src/schema.gql
+# type OperatorDelegation @entity {
+#   id: ID!
+#  # registry: TokenRegistry!
+#   owner: Account!
+#   operator: Account!
+#   approved: Boolean!
+#   events: [ApprovalForAll!]! @derivedFrom(field: "delegation")
+# }
+# type Approval implements Event @entity {
+#   id: ID!
+#   transaction: Transaction!
+#   timestamp: BigInt!
+#   token: Token!
+#   owner: Account!
+#   approved: Account!
+# }
+# type ApprovalForAll implements Event @entity {
+#   id: ID!
+#   transaction: Transaction!
+#   timestamp: BigInt!
+#   delegation: OperatorDelegation!
+#   owner: Account!
+#   operator: Account!
+#   approved: Boolean!
+# }
+
+############################################# OpenZeppelin official entities ############################################
+# type ERC20Contract @entity(immutable: true) {
+# 	id: Bytes!
+# 	asAccount: Account!
+# 	name: String
+# 	symbol: String
+# 	decimals: Int!
+# 	totalSupply: ERC20Balance!
+# 	balances: [ERC20Balance!]! @derivedFrom(field: "contract")
+# 	approvals: [ERC20Approval!]! @derivedFrom(field: "contract")
+# 	transfers: [ERC20Transfer!]! @derivedFrom(field: "contract")
+# }
+# type ERC721Contract @entity(immutable: true) {
+# 	id: Bytes!
+# 	asAccount: Account!
+# 	supportsMetadata: Boolean
+# 	name: String
+# 	symbol: String
+# 	tokens: [ERC721Token!]! @derivedFrom(field: "contract")
+# 	operators: [ERC721Operator!]! @derivedFrom(field: "contract")
+# 	transfers: [ERC721Transfer!]! @derivedFrom(field: "contract")
+# }
+# type ERC721Token @entity {
+# 	id: ID!
+# 	# contract: ERC721Contract!
+# 	# identifier: BigInt!
+# 	owner: Account!
+# 	approval: Account!
+# 	uri: String
+# 	transfers: [ERC721Transfer!]! @derivedFrom(field: "token")
+# }
+# type Account @entity { # 20
+# 	# id: Bytes!
+# 	# asERC20: ERC20Contract
+# 	ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
+# 	# ERC20approvalsOwner: [ERC20Approval!]! @derivedFrom(field: "owner")
+# 	# ERC20approvalsSpender: [ERC20Approval!]! @derivedFrom(field: "spender")
+# 	# ERC20transferFromEvent: [ERC20Transfer!]! @derivedFrom(field: "from")
+# 	# ERC20transferToEvent: [ERC20Transfer!]! @derivedFrom(field: "to")
+# 	# events: [Event!]! @derivedFrom(field: "emitter")
+# }
+# type Account @entity { # 721
+# 	# id: Bytes!
+# 	# asERC721: ERC721Contract
+# 	# ERC721tokens: [ERC721Token!]! @derivedFrom(field: "owner")
+# 	ERC721operatorOwner: [ERC721Operator!]! @derivedFrom(field: "owner")
+# 	ERC721operatorOperator: [ERC721Operator!]! @derivedFrom(field: "operator")
+# 	# ERC721transferFromEvent: [ERC721Transfer!]! @derivedFrom(field: "from")
+# 	# ERC721transferToEvent: [ERC721Transfer!]! @derivedFrom(field: "to")
+# 	# events: [Event!]! @derivedFrom(field: "emitter")
+# }
+# type ERC721Transfer implements Event @entity(immutable: true) {
+# 	id: ID!
+# 	emitter: Account!
+# 	transaction: Transaction!
+# 	timestamp: BigInt!
+# 	contract: ERC721Contract!
+# 	token: ERC721Token!
+# 	from: Account!
+# 	to: Account!
+# }
+# type ERC20Transfer implements Event @entity(immutable: true) {
+# 	id: ID!
+# 	emitter: Account!
+# 	transaction: Transaction!
+# 	timestamp: BigInt!
+# 	contract: ERC20Contract!
+# 	from: Account
+# 	fromBalance: ERC20Balance
+# 	to: Account
+# 	toBalance: ERC20Balance
+# 	value: BigDecimal!
+# 	valueExact: BigInt!
+# }

@@ -10,6 +10,7 @@
     "@chakra-ui/react": "^2.2.9",
     "@graphprotocol/graph-cli": "^0.22.1",
     "@graphprotocol/graph-ts": "^0.22.1",
+    "@openzeppelin/subgraphs": "^0.1.8-5",
     "@types/node": "^18.7.13",
     "dotenv": "8.2.0",
     "eslint-plugin-import": "^2.26.0",
@@ -36,13 +37,11 @@
     "prettier:solidity": "./node_modules/.bin/prettier --write **/*.sol",
     "prettier:ts": "./node_modules/.bin/prettier --write **/*.tsx",
     "prepare": "husky install",
-
     "clean-graph-node": "rm -rf src/graph/graph-node/data/",
     "run-graph-node": "cd src/graph/graph-node && docker-compose up",
     "graph-build": "cd src/graph/subgraph && graph build",
     "create-local": "graph create --node http://localhost:8020/ CheqV2/CRX",
     "graph-ship-local": "cd src/graph/subgraph && npm run codegen && npm run deploy-local",
-
     "remove-graph-node": "cd src/graph/graph-node && docker-compose down",
     "remove-local": "graph remove --node http://localhost:8020/ Cheq/Cheq",
     "deploy-local": "cd src/graph/subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 CheqV2/CRX",

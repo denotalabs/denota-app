@@ -1,7 +1,23 @@
-// import { fromEntries } from "@chakra-ui/utils"
-import { BigInt } from "@graphprotocol/graph-ts"
-import { Written, Transfer, Funded, Cashed } from "../subgraph/generated/CRX/CRX"  // Events to import
-import { Token, Ownership, Escrow, ERC20, Account, Broker} from "../subgraph/generated/schema"  // Entities that contain the event info
+// import { fetchERC20, fetchERC20Balance, fetchERC20Approval } from "@openzeppelin/subgraphs/src/fetch/erc20"
+import { BigInt, Address } from "@graphprotocol/graph-ts"
+import { Written as WrittenEvent, 
+         Transfer as TransferEvent, 
+         Funded as FundedEvent,
+         Cashed as CashedEvent } from "../subgraph/generated/CRX/CRX"  // Events to import
+import { ERC20,
+         Transaction,
+         Escrow,
+         Transfer,
+         Account,
+         Cheq,
+         SelfSignTimeLock, 
+         BrokerRegistry } from "../subgraph/generated/schema"  // Entities that contain the event info
+import {
+        decimals,
+        events,
+        transactions,
+      } from '@amxx/graphprotocol-utils'
+        
 
 function saveNewAccount(account: string): Account{
   let newAccount = new Account(account)
@@ -11,7 +27,7 @@ function saveNewAccount(account: string): Account{
 
 export function handleWrite(event: Written): void {
   // Load event parameters
-  let tokenId = event.params.cheqId.toHexString()
+  let cheqId = event.params.cheqId.toHexString()
   let erc20 = event.params.token.toHexString()
   let amount = event.params.amount
   let escrowed = event.params.escrowed
@@ -20,36 +36,43 @@ export function handleWrite(event: Written): void {
   let broker = event.params.broker.toHexString()
 
   // Load entities if they exist, else create them
-  let ERC20Token = ERC20.load(erc20)
-  let brokerModule = Broker.load(broker)
   let drawingAccount = Account.load(drawer)
   let receivingAccount = Account.load(recipient)
-
+  let ERC20Token = ERC20.load(erc20)
   if (ERC20Token==null){
     ERC20Token = new ERC20(erc20)
     ERC20Token.save()
   }
-  if (brokerModule==null){
-    brokerModule = new Broker(broker)
-    brokerModule.save()
-  }
   drawingAccount = drawingAccount == null ? saveNewAccount(drawer) : drawingAccount
   receivingAccount = receivingAccount == null ? saveNewAccount(recipient) : receivingAccount
 
-  // Create new cheq
-  let token = new Token(tokenId)
-  token.createdAt = event.block.timestamp
-  token.transactionHash = event.block.hash.toHexString()
-  token.ercToken = ERC20Token.id
-  token.amount = amount
-  token.escrowed = escrowed
-  token.drawer = drawingAccount.id
-  // token.owner = receivingAccount.id // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
-  token.recipient = receivingAccount.id
-  token.broker = broker
-  token.save()
+  let newEscrow = new Escrow(events.id(event))  // How OZ does IDs entities that implements Event
+  newEscrow.cheq = event.params.cheqId
+  newEscrow.timestamp = event.block.timestamp
+  newEscrow.from = escrowed == BigInt.zero() ? receivingAccount.id : drawingAccount.id  // Shouldnt this depend on module?
+  newEscrow.amount = event.params.escrowed
+  newEscrow.transaction = transactions.log(event).id
 
+  // Create new cheq
+  let cheq = new Cheq(cheqId)
+  cheq.createdAt = event.block.timestamp
+  // token.transactionHash = event.block.hash.toHexString()
+  // token.ercToken = ERC20Token.id
+  cheq.amount = amount
+  cheq.escrowed = escrowed
+  cheq.drawer = drawingAccount.id
+  // token.owner = receivingAccount.id // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
+  cheq.recipient = receivingAccount.id
+  cheq.broker = broker
+  cheq.save()
+
+  let brokerRegistration = BrokerRegistry.load(broker)  // How to fetch correct broker module?
+  if (brokerRegistration==null){
+    brokerRegistration = new BrokerRegistry(broker)
+    brokerRegistration.save()
+  }
   // Increment broker's token count
+  let brokerModule = brokerRegistration.module
   brokerModule.numTokensManaged = brokerModule.numTokensManaged.plus(BigInt.fromI32(1))
   brokerModule.save()
   // Increment each Account's token counts
@@ -58,11 +81,6 @@ export function handleWrite(event: Written): void {
   // Increment each Account's token counts
   receivingAccount.numTokensReceived = receivingAccount.numTokensReceived.plus(BigInt.fromI32(1))
   receivingAccount.save()
-
-  let newEscrow = new Escrow(event.block.timestamp.toString())
-  newEscrow.caller = escrowed == BigInt.zero() ? receivingAccount.id : drawingAccount.id
-  newEscrow.tokenId = event.params.cheqId
-  newEscrow.amount = event.params.escrowed
 }
 
 export function handleTransfer(event: Transfer): void {  // Need to save all transfer events in Transfer table  
