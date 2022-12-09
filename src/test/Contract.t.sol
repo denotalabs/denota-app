@@ -36,10 +36,10 @@ contract ContractTest is Test {
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);  // How to test successful deployment
 
         assertFalse(cheq.brokerWhitelist(selfSignedTL), "Unauthorized whitelist");
-        cheq.whitelistBroker(selfSignedTL, true);
+        cheq.whitelistBroker(selfSignedTL, true, "SelfSignTimeLock");
         assertTrue(cheq.brokerWhitelist(selfSignedTL), "Whitelisting failed");
 
-        cheq.whitelistBroker(selfSignedTL, false);
+        cheq.whitelistBroker(selfSignedTL, false, "SelfSignTimeLock");
         assertFalse(cheq.brokerWhitelist(selfSignedTL), "Un-whitelisting failed");
     }
 
@@ -47,14 +47,14 @@ contract ContractTest is Test {
         vm.assume(caller != address(this));  // Deployer can whitelist, test others accounts
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
         vm.prank(caller);
-        cheq.whitelistBroker(selfSignedTL, true);
+        cheq.whitelistBroker(selfSignedTL, true, "SelfSignTimeLock");
         assertFalse(cheq.brokerWhitelist(selfSignedTL), "Unauthorized whitelist");
     }
 
     function setUpTimelock() public returns (SelfSignTimeLock){  // Deploy and whitelist timelock broker
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
         vm.label(address(selfSignedTL), "SelfSignTimeLock");
-        cheq.whitelistBroker(selfSignedTL, true);
+        cheq.whitelistBroker(selfSignedTL, true, "SelfSignTimeLock");
         return selfSignedTL;
     }
 

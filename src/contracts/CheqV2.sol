@@ -39,7 +39,7 @@ contract CRX is ERC721, Ownable {
     event Written(uint256 indexed cheqId, IERC20 token, uint256 amount, uint256 escrowed, address indexed drawer, address recipient, ICheqBroker indexed broker, address owner); 
     event Funded(uint256 indexed cheqId, address indexed from, uint256 amount);
     event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
-    event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted);
+    event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted, string brokerName);
     
     modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker) == _msgSender(), "Only cheq's broker");_;}
     modifier onlyWhitelist(ICheqBroker broker){require(brokerWhitelist[broker], "Only whitelisted broker");_;}
@@ -49,9 +49,9 @@ contract CRX is ERC721, Ownable {
     //////////////////////////////////////////////////////////////*/
     constructor() ERC721("CheqProtocol", "CHEQ") {}
 
-    function whitelistBroker(ICheqBroker broker, bool isAccepted) external onlyOwner {
+    function whitelistBroker(ICheqBroker broker, bool isAccepted, string memory brokerName) external onlyOwner {
         brokerWhitelist[broker] = isAccepted;
-        emit BrokerWhitelisted(broker, isAccepted);
+        emit BrokerWhitelisted(broker, isAccepted, brokerName);
     }
     /*//////////////////////////////////////////////////////////////
                             USER DEPOSITS

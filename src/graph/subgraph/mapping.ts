@@ -3,7 +3,8 @@ import { BigInt, Address } from "@graphprotocol/graph-ts"
 import { Written as WrittenEvent, 
          Transfer as TransferEvent, 
          Funded as FundedEvent,
-         Cashed as CashedEvent } from "../subgraph/generated/CRX/CRX"  // Events to import
+         Cashed as CashedEvent,
+         BrokerWhitelisted } from "../subgraph/generated/CRX/CRX"  // Events to import
 import { ERC20,
          Transaction,
          Escrow,
@@ -16,8 +17,7 @@ import {
         decimals,
         events,
         transactions,
-      } from '@amxx/graphprotocol-utils'
-        
+        } from '@amxx/graphprotocol-utils'
 
 function saveNewAccount(account: string): Account{
   let newAccount = new Account(account)
@@ -25,9 +25,9 @@ function saveNewAccount(account: string): Account{
   return newAccount
 }
 
-export function handleWrite(event: Written): void {
+export function handleWrite(event: WrittenEvent): void {
   // Load event parameters
-  let cheqId = event.params.cheqId.toHexString()
+  let cheqId = event.params.cheqId.toString()
   let erc20 = event.params.token.toHexString()
   let amount = event.params.amount
   let escrowed = event.params.escrowed
@@ -47,7 +47,7 @@ export function handleWrite(event: Written): void {
   receivingAccount = receivingAccount == null ? saveNewAccount(recipient) : receivingAccount
 
   let newEscrow = new Escrow(events.id(event))  // How OZ does IDs entities that implements Event
-  newEscrow.cheq = event.params.cheqId
+  newEscrow.cheq = event.params.cheqId.toString()
   newEscrow.timestamp = event.block.timestamp
   newEscrow.from = escrowed == BigInt.zero() ? receivingAccount.id : drawingAccount.id  // Shouldnt this depend on module?
   newEscrow.amount = event.params.escrowed
@@ -56,8 +56,8 @@ export function handleWrite(event: Written): void {
   // Create new cheq
   let cheq = new Cheq(cheqId)
   cheq.createdAt = event.block.timestamp
-  // token.transactionHash = event.block.hash.toHexString()
-  // token.ercToken = ERC20Token.id
+  // cheq.transactionHash = event.block.hash.toHexString()
+  // cheq.ercToken = ERC20Token.id
   cheq.amount = amount
   cheq.escrowed = escrowed
   cheq.drawer = drawingAccount.id
@@ -72,18 +72,22 @@ export function handleWrite(event: Written): void {
     brokerRegistration.save()
   }
   // Increment broker's token count
-  let brokerModule = brokerRegistration.module
-  brokerModule.numTokensManaged = brokerModule.numTokensManaged.plus(BigInt.fromI32(1))
+  let brokerModule = SelfSignTimeLock.load(brokerRegistration.module)
+  if (brokerModule == null){
+    brokerModule = new SelfSignTimeLock(broker)
+    brokerModule.save()
+  }
+  brokerModule.numCheqsManaged = brokerModule.numCheqsManaged.plus(BigInt.fromI32(1))
   brokerModule.save()
   // Increment each Account's token counts
-  drawingAccount.numTokensSent = drawingAccount.numTokensSent.plus(BigInt.fromI32(1))
+  drawingAccount.numCheqsSent = drawingAccount.numCheqsSent.plus(BigInt.fromI32(1))
   drawingAccount.save()
   // Increment each Account's token counts
-  receivingAccount.numTokensReceived = receivingAccount.numTokensReceived.plus(BigInt.fromI32(1))
+  receivingAccount.numCheqsReceived = receivingAccount.numCheqsReceived.plus(BigInt.fromI32(1))
   receivingAccount.save()
 }
 
-export function handleTransfer(event: Transfer): void {  // Need to save all transfer events in Transfer table  
+export function handleTransfer(event: TransferEvent): void {  // Need to save all transfer events in Transfer table  
   let from = event.params.from.toHexString()
   let to = event.params.to.toHexString()
   let tokenId = event.params.tokenId.toHexString()
@@ -114,7 +118,7 @@ export function handleTransfer(event: Transfer): void {  // Need to save all tra
   newOwnership.save()
 }
 
-export function handleFund(event: Funded): void {  // Save in Escrow table
+export function handleFund(event: FundedEvent): void {  // Save in Escrow table
   let token = Token.load(event.params.cheqId.toHexString())
   let fromAccount = Account.load(event.params.from.toHexString())
   let amount = event.params.amount
@@ -134,7 +138,7 @@ export function handleFund(event: Funded): void {  // Save in Escrow table
   newEscrow.amount = amount
 }
 
-export function handleCash(event: Cashed): void {
+export function handleCash(event: CashedEvent): void {
   let token = Token.load(event.params.cheqId.toHexString())
   let ownerAccount = Account.load(event.params.to.toHexString())
   ownerAccount = ownerAccount==null ? saveNewAccount(event.params.to.toHexString()) : ownerAccount
@@ -148,4 +152,9 @@ export function handleCash(event: Cashed): void {
   // newEscrow.caller = escrowed == BigInt.zero() ? receivingAccount.id : drawingAccount.id
   // newEscrow.tokenId = event.params.cheqId
   // newEscrow.amount = event.params.escrowed
+}
+export function handleWhitelist(event: BrokerWhitelisted): void {
+  let broker = event.params.broker
+  let isAccepted = event.params.isAccepted
+  let brokerName = event.params.brokerName
 }
