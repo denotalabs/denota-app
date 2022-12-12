@@ -1,8 +1,5 @@
 import { Box, Center, Button, Text, Stack } from "@chakra-ui/react";
-import {
-  DaiAddress,
-  useBlockchainData,
-} from "../../context/BlockchainDataProvider";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 interface Props {
   cheqId: number;
@@ -13,7 +10,7 @@ interface Props {
   sender: string;
   auditor: string;
   created: string;
-  isCashable: Boolean;
+  isCashable: boolean;
   isUser: boolean;
 }
 
@@ -29,7 +26,7 @@ export default function CheqCard({
   isCashable,
   isUser,
 }: Props) {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
 
   let button;
   if (isUser) {

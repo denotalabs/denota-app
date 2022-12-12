@@ -9,7 +9,7 @@ import {
 import { useUsers } from "../../hooks/useUsers";
 
 function AllAuditorsTab() {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
   const allAuditors = useUsers(false);
 
   if (!allAuditors) {

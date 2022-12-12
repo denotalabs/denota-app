@@ -10,6 +10,7 @@ export interface StepperReducerInterface {
 
 export interface StepperContextInterface extends StepperReducerInterface {
   next?: () => void;
+  back?: () => void;
   goToStep?: (screenKey: string) => void;
   onClose?: () => void;
   formData: StringMap;

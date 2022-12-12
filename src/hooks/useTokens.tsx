@@ -32,7 +32,7 @@ query accounts($account: String ){
 `;
 
 export const useTokens = (tokenField: string, isUser: boolean) => {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
   const [tokenData, setTokenData] = useState<any>();
 

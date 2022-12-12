@@ -15,7 +15,7 @@ interface Props {
 
 function CheqConfirmStep({ isInvoice }: Props) {
   const { onClose, formData } = useStep();
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
 
   const [needsApproval, setNeedsApproval] = useState(formData.mode === "pay");
 
@@ -28,7 +28,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
     if (needsApproval) {
       return "Approve " + formData.token;
     }
-    return isInvoice ? "Create Invoice" : "Confirm Payment";
+    return formData.mode === "invoice" ? "Create Invoice" : "Confirm Payment";
   }, [needsApproval]);
 
   useEffect(() => {
@@ -103,7 +103,9 @@ function CheqConfirmStep({ isInvoice }: Props) {
       >
         {(props) => (
           <Form>
-            <ConfirmNotice isInvoice={isInvoice}></ConfirmNotice>
+            <ConfirmNotice
+              isInvoice={formData.mode === "invoice"}
+            ></ConfirmNotice>
             <ConfirmDetails></ConfirmDetails>
             <RoundedButton type="submit" isLoading={props.isSubmitting}>
               {buttonText}

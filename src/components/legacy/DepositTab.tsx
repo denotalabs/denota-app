@@ -9,7 +9,7 @@ import AmountField from "./input/AmountField";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 function DepositTab() {
-  const blockchainState = useBlockchainData();
+  const { blockchainState } = useBlockchainData();
 
   return (
     <Formik
@@ -28,15 +28,15 @@ function DepositTab() {
           // console.log(depositToken, weiAmount);
           // console.log(weiAmount, weiAmount.lte(blockchainState.daiAllowance));
 
-          if (weiAmount.lte(blockchainState.daiAllowance)) {
+          if (weiAmount.lte(blockchainState.daiAllowance ?? 0)) {
             blockchainState.cheq.functions["deposit(address,uint256)"](
-              depositToken.address,
+              depositToken?.address,
               weiAmount
             ).then((message) => {
               alert(message);
             });
           } else {
-            depositToken.approve(blockchainState.cheqAddress, weiAmount);
+            depositToken?.approve(blockchainState.cheqAddress, weiAmount);
             // alert(values);
           }
           // console.log(depositToken, weiAmount);
