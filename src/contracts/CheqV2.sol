@@ -4,15 +4,21 @@ import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
+// TODO: Allow escrowing of NFTs- Can create an isFungible splitter in Cheq struct
+//// point to a deployed NFTOwnershipContract with
+//// mapping(uint256(index) => address(NFTAddr)), mapping(uint256(index) => uint256(tokenId)), maxIndex
+//// That way the Cheq Struct can store amount and escrowed for both and the IERC20 address is either the ERC20 or the NFTOwnershipContract
+//// Essentially an adapter between erc20 and erc721 (transforms tokenIds to a fungible `amount`)
+
 // TODO Ensure Write/Deposit supports ERC20 interface
 // TODO Make all functions external
-// TODO Allow escrowing of NFTs
 // TODO Make sure OpenSea integration works
 //// See how OS tracks metadata
+// TODO Make modules ERC721 compatible?
 // TODO Enable URI editing
 //// have tokenURI() call to cheqBroker tokenURI (which sets its baseURI and the token's URI)
-// TODO Make modules ERC721 compatible?
-// TODO Allow brokers to modify deposits freely?? May allow yield from their end
+// TODO Allow modules to modify deposits freely?? May allow yield from their end. Or just give them their own deposits
+// TODO have PayModules emit their own events since the registry is the standard, dApps can query for relevant modules themselves
 contract CRX is ERC721, Ownable {
 
     struct Cheq {
@@ -39,7 +45,7 @@ contract CRX is ERC721, Ownable {
     event Written(uint256 indexed cheqId, IERC20 token, uint256 amount, uint256 escrowed, address indexed drawer, address recipient, ICheqBroker indexed broker, address owner); 
     event Funded(uint256 indexed cheqId, address indexed from, uint256 amount);
     event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
-    event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted);
+    event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted, string brokerName);
     
     modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker) == _msgSender(), "Only cheq's broker");_;}
     modifier onlyWhitelist(ICheqBroker broker){require(brokerWhitelist[broker], "Only whitelisted broker");_;}
@@ -49,9 +55,9 @@ contract CRX is ERC721, Ownable {
     //////////////////////////////////////////////////////////////*/
     constructor() ERC721("CheqProtocol", "CHEQ") {}
 
-    function whitelistBroker(ICheqBroker broker, bool isAccepted) external onlyOwner {
+    function whitelistBroker(ICheqBroker broker, bool isAccepted, string memory brokerName) external onlyOwner {
         brokerWhitelist[broker] = isAccepted;
-        emit BrokerWhitelisted(broker, isAccepted);
+        emit BrokerWhitelisted(broker, isAccepted, brokerName);
     }
     /*//////////////////////////////////////////////////////////////
                             USER DEPOSITS
@@ -264,7 +270,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         }
     }
 
-    function isTransferable(uint256 cheqId, address caller, address to) public view returns(bool){
+    function isTransferable(uint256 cheqId, address caller, address /* to */) public view returns(bool){
         return cheq.ownerOf(cheqId)==caller;  // Would caller ever be addres(0)
     }
 
@@ -290,7 +296,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
     }
 
     // BUG what if funder doesnt fund the invoice for too long??
-    function cashable(uint256 cheqId, address caller, uint256 amount) public view returns(uint256) {  // Invoice funder can cash before period, cheq writer can cash before period
+    function cashable(uint256 cheqId, address caller, uint256 /* amount */) public view returns(uint256) {  // Invoice funder can cash before period, cheq writer can cash before period
         // Chargeback case
         if (cheqFunder[cheqId] == caller && (block.timestamp < cheqCreated[cheqId] + cheqInspectionPeriod[cheqId])){  // Funding party can rescind before the inspection period elapses
             return cheq.cheqEscrowed(cheqId);
@@ -314,7 +320,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         cashCheq(cheqId, cashableAmount);
     }
 
-    function isApprovable(uint256 cheqId, address caller, address to) public view returns(bool){
+    function isApprovable(uint256 cheqId, address caller, address /* to */) public view returns(bool){
         return cheq.ownerOf(cheqId)==caller;  // 
     }
     
@@ -559,7 +565,7 @@ contract PseudoChain is ICheqBroker {
         return cheqId;
     }
 
-    function isTransferable(uint256 cheqId, address caller, address to) public view returns(bool){
+    function isTransferable(uint256 /* cheqId */, address /* caller */, address /* to */) public pure returns(bool){
         return false;
     }
 
@@ -568,7 +574,7 @@ contract PseudoChain is ICheqBroker {
         cheq.transferFrom(msg.sender, to, cheqId);
     }
 
-    function fundable(uint256 cheqId, address, uint256) public view returns(uint256) {
+    function fundable(uint256 /* cheqId */, address, uint256) public pure returns(uint256) {
         return 0;
     }
 
@@ -578,7 +584,7 @@ contract PseudoChain is ICheqBroker {
         cheq.fund(cheqId, msg.sender, amount);
     }
 
-    function cashable(uint256 cheqId, address caller, uint256 blockHash) public view returns(uint256) {
+    function cashable(uint256 cheqId, address /* caller */, uint256 /* blockHash */) public view returns(uint256) {
         if (false) { // "0"*n+"..." == keccack((keccack(cheqId) + hash)
             return cheq.cheqEscrowed(cheqId);
         } else {

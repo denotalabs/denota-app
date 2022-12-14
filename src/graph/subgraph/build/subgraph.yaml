@@ -14,12 +14,13 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Token
-        - Ownership
+        - Cheq
+        - Transfer
         - Escrow
         - ERC20
         - Account
         - Broker
+        - SelfSignTimeLock
       abis:
         - name: CRX
           file: ../out/CheqV2.sol/CRX.json
@@ -35,6 +36,6 @@ dataSources:
           handler: handleFund
         - event: Cashed(indexed uint256,indexed address,uint256)
           handler: handleCash
-        - event: BrokerWhitelisted(indexed address,bool)
+        - event: BrokerWhitelisted(indexed address,bool,string)
           handler: handleBrokerWhitelist
       file: CRX/CRX.wasm

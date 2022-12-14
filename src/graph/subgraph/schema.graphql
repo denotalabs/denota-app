@@ -39,6 +39,7 @@ type Transfer implements Event @entity(immutable: true) {
 }
 type Escrow implements Event @entity(immutable: true) {
   id: ID!
+  emitter: Account!
   transaction: Transaction!
   timestamp: BigInt!
   cheq: Cheq!  # Erc20 token can only be static for now
@@ -84,22 +85,9 @@ type Cheq @entity {
   # approval: Account!
   # approvals: [Approval!]! @derivedFrom(field: "token")
 }
-# type TokenRegistry @entity {
-#   id: ID!
-#   name: String
-#   symbol: String
-#   tokens: [Token!]! @derivedFrom(field: "registry")
-# }
-# type Token @entity {
-#   id: ID!
-#   registry: TokenRegistry!
-#   identifier: BigInt!
-# }
-
 type BrokerRegistry @entity {
   id: ID!  # Should this be the brokers' address?
-  # name: String
-  # symbol: String
+  name: String!
   module: Broker! @derivedFrom(field: "registry")
 }
 interface Broker {  # Allows new modules to inherit from Broker interface
@@ -108,7 +96,7 @@ interface Broker {  # Allows new modules to inherit from Broker interface
   cheqsManaged: [Cheq!]! @derivedFrom(field: "broker")
   numCheqsManaged: BigInt!
 }
-# How to detect the module type based on address??
+# TODO How scalable is creating a module for each module?
 type SelfSignTimeLock implements Broker @entity {
   id: ID!
   registry: BrokerRegistry!
@@ -147,7 +135,17 @@ type SelfSignTimeLock implements Broker @entity {
 # 	operator: Account!
 # 	approved: Boolean!
 # }
-
+# type TokenRegistry @entity {
+#   id: ID!
+#   name: String
+#   symbol: String
+#   tokens: [Token!]! @derivedFrom(field: "registry")
+# }
+# type Token @entity {
+#   id: ID!
+#   registry: TokenRegistry!
+#   identifier: BigInt!
+# }
 ############################################# Github implementation #####################################################
 # https://github.com/sunguru98/erc-721-subgraph/blob/master/src/schema.gql
 # type OperatorDelegation @entity {
