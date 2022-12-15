@@ -4,21 +4,6 @@ import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
-// TODO: Allow escrowing of NFTs- Can create an isFungible splitter in Cheq struct
-//// point to a deployed NFTOwnershipContract with
-//// mapping(uint256(index) => address(NFTAddr)), mapping(uint256(index) => uint256(tokenId)), maxIndex
-//// That way the Cheq Struct can store amount and escrowed for both and the IERC20 address is either the ERC20 or the NFTOwnershipContract
-//// Essentially an adapter between erc20 and erc721 (transforms tokenIds to a fungible `amount`)
-
-// TODO Ensure Write/Deposit supports ERC20 interface
-// TODO Make all functions external
-// TODO Make sure OpenSea integration works
-//// See how OS tracks metadata
-// TODO Make modules ERC721 compatible?
-// TODO Enable URI editing
-//// have tokenURI() call to cheqBroker tokenURI (which sets its baseURI and the token's URI)
-// TODO Allow modules to modify deposits freely?? May allow yield from their end. Or just give them their own deposits
-// TODO have PayModules emit their own events since the registry is the standard, dApps can query for relevant modules themselves
 contract CRX is ERC721, Ownable {
 
     struct Cheq {
@@ -37,6 +22,7 @@ contract CRX is ERC721, Ownable {
     mapping(ICheqBroker => bool) public brokerWhitelist; // Total user deposits
     uint256 public totalSupply; // Total cheqs created
     // uint256 public chainId;
+    // uint256 public version;
 
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
@@ -47,7 +33,7 @@ contract CRX is ERC721, Ownable {
     event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
     event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted, string brokerName);
     
-    modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker) == _msgSender(), "Only cheq's broker");_;}
+    modifier onlyCheqBroker(uint256 cheqId){require(_msgSender() == address(cheqInfo[cheqId].broker), "Only cheq's broker");_;}
     modifier onlyWhitelist(ICheqBroker broker){require(brokerWhitelist[broker], "Only whitelisted broker");_;}
 
     /*//////////////////////////////////////////////////////////////
@@ -104,6 +90,12 @@ contract CRX is ERC721, Ownable {
     ) public onlyWhitelist(ICheqBroker(_msgSender()))
         returns (uint256)
     {
+        /* 
+        require(_msgSender().supportInterface('0xffffffff'), "INVAL_MODULE")  // TODO Finalize this standard
+        if (from != _msgSender()){ // The module is trying to use `from` deposit on their behalf instead of its own
+            require(_cheqUserAllowlist(_msgSender()), "User didn't allow this module") // See if user allows this
+        }
+        */
         require(
             escrow <= deposits[from][_token],  // Trust broker to not take from arbitrary user balance (whitelist)
             "INSUF_BAL"
@@ -120,7 +112,7 @@ contract CRX is ERC721, Ownable {
         _safeMint(owner, totalSupply);
         emit Written(totalSupply, _token, amount, escrow, from, recipient, ICheqBroker(_msgSender()), owner);
         totalSupply += 1;
-        return totalSupply-1;
+        return totalSupply - 1;
     }
 
     function transferFrom(
@@ -151,7 +143,7 @@ contract CRX is ERC721, Ownable {
 
     function cash(uint256 cheqId, address to, uint256 cashAmount) external onlyCheqBroker(cheqId) {
         Cheq storage cheq = cheqInfo[cheqId]; 
-        require(cheq.escrowed>=cashAmount, "Can't cash more than available");
+        require(cheq.escrowed >= cashAmount, "Can't cash more than available");
         unchecked {cheq.escrowed -= cashAmount;}
         require(cheq.token.transfer(to, cashAmount), "Transfer failed");
         emit Cashed(cheqId, to, cashAmount);
@@ -160,9 +152,21 @@ contract CRX is ERC721, Ownable {
         return spender == address(cheqInfo[cheqId].broker);  // delegate checks/functionality to cheq broker
     }
 
-    // function tokenURI(uint256 cheqId) public view virtual override returns (string memory) {
-    //     return ICheqBroker(cheqInfo[cheqId].broker).tokenURI(cheqId);
-    // }
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        _requireMinted(tokenId);
+        return ICheqBroker(cheqInfo[tokenId].broker).tokenURI(tokenId);
+    }
+
+    function approve(address to, uint256 tokenId) public virtual override onlyCheqBroker(tokenId) {
+        // address owner = ERC721.ownerOf(tokenId);
+        // require(to != owner, "ERC721: approval to current owner");
+        // require(
+        //     _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
+        //     "ERC721: approve caller is not token owner or approved for all"
+        // );
+        _approve(to, tokenId);
+    }
+
     /*//////////////////////////////////////////////////////////////
                             VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -185,7 +189,6 @@ contract CRX is ERC721, Ownable {
         return cheqInfo[cheqId].broker;
     }
 }
-
 
 interface ICheqBroker {
     //// function isWriteable(address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) external view returns(bool);
@@ -210,7 +213,7 @@ interface ICheqBroker {
     
     function cashable(uint256 cheqId, address caller, uint256 amount) external view returns(uint256);  // How much can be cashed
     function cashCheq(uint256 cheqId, uint256 amount) external;
-    // function tokenURI(uint256 tokenId) external view returns (string memory);
+    function tokenURI(uint256 tokenId) external view returns (string memory);
     // baseURI
     // _setTokenURI
     // _setBaseURI
@@ -324,7 +327,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         return cheq.ownerOf(cheqId)==caller;  // 
     }
     
-    function approve(address to, uint256 cheqId) public {
+    function approveCheq(address to, uint256 cheqId) public {
         require(isApprovable(cheqId, msg.sender, to), "");
         cheq.approve(to, cheqId);
     }
@@ -335,6 +338,9 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
 
     }
 
+    function tokenURI(uint256 tokenId) external view returns (string memory){
+        return string(abi.encodePacked("", tokenId));
+    }
     // function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
     //     _exists(tokenId);
 
@@ -542,6 +548,9 @@ contract SimpleBank is ICheqBroker, Ownable {
         require(cashableAmount == amount, "Cant cash this amount");
         cheq.cash(cheqId, msg.sender, amount);
     }
+    function tokenURI(uint256 tokenId) external view returns (string memory){
+        return string(abi.encodePacked("", tokenId));
+    }
 }
 
 
@@ -597,5 +606,31 @@ contract PseudoChain is ICheqBroker {
         require(cashableAmount == amount, "Cant cash this amount");
         cheq.cash(cheqId, msg.sender, amount);
     }
-
+    function tokenURI(uint256 tokenId) external view returns (string memory){
+        return string(abi.encodePacked("", tokenId));
+    }
 }
+
+//// function writeCheq(IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) external returns(uint256);
+//[Module]: 
+// Checks if caller is allowed to write the cheq (isWriteable)
+//[CRX]:
+// Checks if CRX allows this broker 
+// Checks if caller has enough balance
+// Deducts user balance
+// Initializes cheqInfo
+// Emits Written
+// Mints Cheq
+// Increments totalSupply
+// Returns cheqId
+//[Module]: 
+// Updates the broker contract's variables
+
+
+// Checks if caller is the owner [INTERFACE: broker]
+// Checks if is cashable [INTERFACE: broker]
+// Transfers the cashing amount [Cheq]
+// Emits Cash event [Cheq]
+// Checks if caller is auditor [INTERFACE]
+// Cashes balance back to drawer
+// function cash() external returns (bool);
