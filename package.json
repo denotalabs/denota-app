@@ -47,7 +47,7 @@
     "create-local": "graph create --node http://localhost:8020/ CheqV2/CRX",
     "graph-ship-local": "cd src/graph/subgraph && npm run codegen && npm run deploy-local",
     "remove-graph-node": "cd src/graph/graph-node && docker-compose down",
-    "remove-local": "graph remove --node http://localhost:8020/ Cheq/Cheq",
+    "remove-local": "graph remove --node http://localhost:8020/ CheqV2/CRX",
     "deploy-local": "cd src/graph/subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 CheqV2/CRX",
     "codegen": "cd src/graph/subgraph && graph codegen",
     "graph-prepare": "mustache src/graph/subgraph/src/subgraph.template.yaml > src/graph/subgraph/subgraph.yaml"

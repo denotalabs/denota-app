@@ -9,56 +9,23 @@ interface Props {
 export const useCheqs = ({ cheqField }: Props) => {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
-  const [cheqsReceived, setCheqReceived] = useState<any>();
-  const [cheqsSent, setCheqsSent] = useState<any>();
+  const [cheqsReceived, setCheqReceived] = useState<any[]>([]);
+  const [cheqsSent, setCheqsSent] = useState<any[]>([]);
 
   useEffect(() => {
+    console.log({ account });
     if (account) {
       // TODO: replace with where _or clause on cheqs
       const tokenQuery = `
       query accounts($account: String ){
-        accounts(where: { id: $account }, first: 1)  {
+        accounts(first: 1)  {
           cheqsSent {
             id
-            createdAt
-            amount
-            expiry
-            ercToken {
-              id
-            }
-            status
-            transactionHash
-            drawer {
-              id
-            }
-            recipient {
-              id
-            }
-            auditor {
-              id
-            }
           }
           cheqsReceived {
             id
-            createdAt
-            amount
-            expiry
-            ercToken {
-              id
-            }
-            status
-            transactionHash
-            drawer {
-              id
-            }
-            recipient {
-              id
-            }
-            auditor {
-              id
-            }
           }
-        }
+       }
       }
       `;
 
@@ -74,12 +41,14 @@ export const useCheqs = ({ cheqField }: Props) => {
           },
         })
         .then((data) => {
+          console.log({ data });
           if (data["data"]["accounts"][0]) {
-            setCheqsSent(data["data"]["accounts"][0]["cheqsSent"]);
-            setCheqReceived(data["data"]["accounts"][0]["cheqsReceived"]);
+            console.log({ data });
+            // setCheqsSent(data["data"]["accounts"][0]["cheqsSent"]);
+            // setCheqReceived(data["data"]["accounts"][0]["cheqsReceived"]);
           } else {
-            setCheqsSent(null);
-            setCheqReceived(null);
+            setCheqsSent([]);
+            setCheqReceived([]);
           }
         })
         .catch((err) => {

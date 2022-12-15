@@ -89,7 +89,8 @@ function CheqConfirmStep({ isInvoice }: Props) {
                   formData.address,
                   formData.inspection
                 );
-                alert("TX hash " + tx.hash);
+                await tx.wait();
+                alert("Transaction succeeded");
               } catch (error) {
                 alert("Transaction failed");
               } finally {
