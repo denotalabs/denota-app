@@ -11,6 +11,7 @@ import {
   useDisclosure,
   Tooltip,
 } from "@chakra-ui/react";
+import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
@@ -18,10 +19,8 @@ import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 export type CheqStatus = "cashed" | "voided" | "pending" | "cashable";
 
 interface Props {
-  sender: string;
+  cheq: Cheq;
   status: CheqStatus;
-  token: CheqCurrency;
-  amount: string;
 }
 
 const STATUS_COLOR_MAP = {
@@ -38,7 +37,9 @@ const TOOLTIP_MESSAGE_MAP = {
   pending: "Payment will be cashable on {date}",
 };
 
-function CheqCardV2({ sender, amount, token, status }: Props) {
+function CheqCardV2({ cheq, status }: Props) {
+  const { sender, amount, token } = cheq;
+
   const {
     isOpen: isDetailsOpen,
     onOpen: onOpenDetails,
