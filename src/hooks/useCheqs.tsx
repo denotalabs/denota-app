@@ -13,6 +13,7 @@ export interface Cheq {
   escrowed: number;
   sender: string;
   recipient: string;
+  owner: string;
   token: CheqCurrency;
 }
 
@@ -34,6 +35,7 @@ const mapField = (gqlCheq: any): Cheq => {
     token: currencyForTokenId(gqlCheq.erc20.id),
     recipient: gqlCheq.recipient.id as string,
     sender: gqlCheq.drawer.id as string,
+    owner: gqlCheq.owner.id as string,
   };
 };
 
@@ -61,6 +63,9 @@ export const useCheqs = ({ cheqField }: Props) => {
             recipient {
               id
             }
+            owner {
+              id
+            }
             erc20 {
               id
             }
@@ -74,6 +79,9 @@ export const useCheqs = ({ cheqField }: Props) => {
               id
             }
             recipient {
+              id
+            }
+            owner {
               id
             }
             erc20 {

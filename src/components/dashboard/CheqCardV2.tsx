@@ -10,35 +10,104 @@ import {
   Image,
   useDisclosure,
   Tooltip,
+  Skeleton,
 } from "@chakra-ui/react";
+import { useEffect, useMemo, useState } from "react";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
-export type CheqStatus = "cashed" | "voided" | "pending" | "cashable";
+export type CheqStatus =
+  | "cashed"
+  | "voidable"
+  | "payable"
+  | "cashable"
+  | "paid";
 
 interface Props {
   cheq: Cheq;
-  status: CheqStatus;
 }
 
 const STATUS_COLOR_MAP = {
   cashed: "blue.900",
   cashable: "green.900",
-  voided: "gray.600",
+  voidable: "gray.600",
+  payable: "blue.900",
+  paid: "green.900",
   pending: "purple.900",
 };
 
 const TOOLTIP_MESSAGE_MAP = {
   cashed: "Payment has been cashed",
   cashable: "Payment can be cashed",
-  voided: "Payment is cancelled",
-  pending: "Payment will be cashable on {date}",
+  voidable: "Payment has been made but can be cancelled",
+  payable: "Payment is pending",
+  paid: "Payment has been made",
+  pending: "Payment is pending",
 };
 
-function CheqCardV2({ cheq, status }: Props) {
+function CheqCardV2({ cheq }: Props) {
   const { sender, amount, token } = cheq;
+  const { blockchainState } = useBlockchainData();
+
+  const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
+
+  const status = useMemo(() => {
+    if (isCashable === undefined) {
+      return undefined;
+    }
+
+    if (cheq.owner === cheq.sender) {
+      // Invoice
+      if (
+        blockchainState.account.toLowerCase() === cheq.recipient.toLowerCase()
+      ) {
+        // BUG: will appear as payable after it's been cashed
+        if (cheq.escrowed === 0) {
+          return "payable";
+        } else if (isCashable) {
+          return "voidable";
+        } else {
+          return "paid";
+        }
+      } else {
+        if (isCashable) {
+          return "cashable";
+        } else {
+          return "pending";
+        }
+      }
+    } else {
+      // Cheq
+      if (blockchainState.account.toLowerCase() === cheq.sender.toLowerCase()) {
+        // BUG: will appear as payable after it's been cashed
+        if (isCashable) {
+          return "voidable";
+        } else {
+          return "paid";
+        }
+      } else {
+        if (isCashable) {
+          return "cashable";
+        } else {
+          return "pending";
+        }
+      }
+    }
+  }, [blockchainState.account, cheq, isCashable]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const cheqId = Number(cheq.id);
+      const caller = blockchainState.account;
+      const cashableAmount: number =
+        await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
+      setIsCashable(cashableAmount > 0);
+    }
+    fetchData();
+  }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
 
   const {
     isOpen: isDetailsOpen,
@@ -51,6 +120,10 @@ function CheqCardV2({ cheq, status }: Props) {
     onOpen: onOpenPay,
     onClose: onClosePay,
   } = useDisclosure();
+
+  if (status === undefined) {
+    return <Skeleton w="100%" maxW={"400px"} h="180" borderRadius={"10px"} />;
+  }
 
   return (
     <GridItem
