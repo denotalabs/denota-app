@@ -16,6 +16,27 @@ export interface Cheq {
   token: CheqCurrency;
 }
 
+const currencyForTokenId = (tokenId: any): CheqCurrency => {
+  // TODO: Map token addresses
+  return "DAI";
+};
+
+const convertExponent = (amountExact: number) => {
+  // Use right exponent
+  return Number(BigInt(amountExact) / BigInt(10 ** 18));
+};
+
+const mapField = (gqlCheq: any): Cheq => {
+  return {
+    id: gqlCheq.id as string,
+    amount: convertExponent(gqlCheq.amountExact as number),
+    escrowed: gqlCheq.escrowed as number,
+    token: currencyForTokenId(gqlCheq.erc20.id),
+    recipient: gqlCheq.recipient.id as string,
+    sender: gqlCheq.drawer.id as string,
+  };
+};
+
 export const useCheqs = ({ cheqField }: Props) => {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
@@ -77,9 +98,15 @@ export const useCheqs = ({ cheqField }: Props) => {
         .then((data) => {
           console.log({ data });
           if (data["data"]["accounts"][0]) {
-            console.log({ data });
-            // setCheqsSent(data["data"]["accounts"][0]["cheqsSent"]);
-            // setCheqReceived(data["data"]["accounts"][0]["cheqsReceived"]);
+            console.log("hello");
+            const gqlCheqsSent = data["data"]["accounts"][0][
+              "cheqsSent"
+            ] as any[];
+            const gqlCheqsReceived = data["data"]["accounts"][0][
+              "cheqsReceived"
+            ] as any[];
+            setCheqsSent(gqlCheqsSent.map(mapField));
+            setCheqReceived(gqlCheqsReceived.map(mapField));
           } else {
             setCheqsSent([]);
             setCheqReceived([]);
@@ -100,7 +127,7 @@ export const useCheqs = ({ cheqField }: Props) => {
       default:
         return cheqsReceived.concat(cheqsSent);
     }
-  }, [cheqField]);
+  }, [cheqField, cheqsReceived, cheqsSent]);
 
   return { cheqs };
 };

@@ -55,14 +55,21 @@ function CheqCardV2({ cheq, status }: Props) {
   return (
     <GridItem
       w="100%"
+      maxW={"400px"}
       h="180"
       bg={STATUS_COLOR_MAP[status]}
       p={3}
       borderRadius={20}
     >
       <VStack alignItems="flex-start" justifyContent="space-between" h="100%">
-        <Flex alignItems="flex-start" flexDirection="column">
-          <Text fontWeight={600} fontSize={"xl"}>
+        <Flex alignItems="flex-start" flexDirection="column" maxW="100%">
+          <Text
+            fontWeight={600}
+            fontSize={"xl"}
+            textOverflow="clip"
+            maxW="50%"
+            noOfLines={1}
+          >
             {sender}
           </Text>
           <HStack>
