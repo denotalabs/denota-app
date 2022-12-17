@@ -12,6 +12,7 @@ import {
   Tooltip,
   Skeleton,
 } from "@chakra-ui/react";
+import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { Cheq } from "../../hooks/useCheqs";
@@ -110,7 +111,7 @@ function CheqCardV2({ cheq }: Props) {
   }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
 
   const cashCheq = useCallback(async () => {
-    const cheqId = Number(cheq.id);
+    const cheqId = BigNumber.from(cheq.id);
     const caller = blockchainState.account;
     const cashableAmount: number =
       await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
@@ -214,7 +215,7 @@ function CheqCardV2({ cheq }: Props) {
         </VStack>
       </VStack>
       <DetailsModal isOpen={isDetailsOpen} onClose={onCloseDetails} />
-      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} />
+      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
     </GridItem>
   );
 }

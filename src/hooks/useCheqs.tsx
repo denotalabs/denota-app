@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
+import { BigNumber } from "ethers";
 
 interface Props {
   cheqField: string;
@@ -10,7 +11,7 @@ interface Props {
 export interface Cheq {
   id: string;
   amount: number;
-  amountRaw: bigint;
+  amountRaw: BigNumber;
   escrowed: number;
   sender: string;
   recipient: string;
@@ -32,7 +33,7 @@ const mapField = (gqlCheq: any): Cheq => {
   return {
     id: gqlCheq.id as string,
     amount: convertExponent(gqlCheq.amountExact as number),
-    amountRaw: BigInt(gqlCheq.amountExact),
+    amountRaw: BigNumber.from(gqlCheq.amountExact),
     escrowed: gqlCheq.escrowed as number,
     token: currencyForTokenId(gqlCheq.erc20.id),
     recipient: gqlCheq.recipient.id as string,
