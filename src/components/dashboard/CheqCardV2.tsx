@@ -12,7 +12,7 @@ import {
   Tooltip,
   Skeleton,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
@@ -109,6 +109,21 @@ function CheqCardV2({ cheq }: Props) {
     fetchData();
   }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
 
+  const cashCheq = useCallback(async () => {
+    const cheqId = Number(cheq.id);
+    const caller = blockchainState.account;
+    const cashableAmount: number =
+      await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
+
+    const tx = await blockchainState.selfSignBroker?.cashCheq(
+      cheqId,
+      cashableAmount
+    );
+    await tx.wait();
+
+    // TODO: update state correctly
+  }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
+
   const {
     isOpen: isDetailsOpen,
     onOpen: onOpenDetails,
@@ -171,11 +186,12 @@ function CheqCardV2({ cheq }: Props) {
                   w="min(40vw, 100px)"
                   borderRadius={5}
                   colorScheme="teal"
+                  onClick={cashCheq}
                 >
                   Cash
                 </Button>
               ) : null}
-              {status === "pending" ? (
+              {status === "payable" ? (
                 <Button
                   w="min(40vw, 100px)"
                   borderRadius={5}

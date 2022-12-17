@@ -10,6 +10,7 @@ interface Props {
 export interface Cheq {
   id: string;
   amount: number;
+  amountRaw: bigint;
   escrowed: number;
   sender: string;
   recipient: string;
@@ -31,6 +32,7 @@ const mapField = (gqlCheq: any): Cheq => {
   return {
     id: gqlCheq.id as string,
     amount: convertExponent(gqlCheq.amountExact as number),
+    amountRaw: BigInt(gqlCheq.amountExact),
     escrowed: gqlCheq.escrowed as number,
     token: currencyForTokenId(gqlCheq.erc20.id),
     recipient: gqlCheq.recipient.id as string,
