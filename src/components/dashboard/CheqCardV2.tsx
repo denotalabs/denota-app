@@ -55,6 +55,8 @@ function CheqCardV2({ cheq }: Props) {
 
   const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
 
+  const [cashingInProgress, setCashingInProgress] = useState(false);
+
   const status = useMemo(() => {
     if (isCashable === undefined) {
       return undefined;
@@ -111,18 +113,24 @@ function CheqCardV2({ cheq }: Props) {
   }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
 
   const cashCheq = useCallback(async () => {
-    const cheqId = BigNumber.from(cheq.id);
-    const caller = blockchainState.account;
-    const cashableAmount: number =
-      await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
+    setCashingInProgress(true);
 
-    const tx = await blockchainState.selfSignBroker?.cashCheq(
-      cheqId,
-      cashableAmount
-    );
-    await tx.wait();
+    try {
+      const cheqId = BigNumber.from(cheq.id);
+      const caller = blockchainState.account;
+      const cashableAmount: number =
+        await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
 
-    // TODO: update state correctly
+      const tx = await blockchainState.selfSignBroker?.cashCheq(
+        cheqId,
+        cashableAmount
+      );
+      await tx.wait();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setCashingInProgress(false);
+    }
   }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
 
   const {
@@ -188,6 +196,7 @@ function CheqCardV2({ cheq }: Props) {
                   borderRadius={5}
                   colorScheme="teal"
                   onClick={cashCheq}
+                  isLoading={cashingInProgress}
                 >
                   Cash
                 </Button>

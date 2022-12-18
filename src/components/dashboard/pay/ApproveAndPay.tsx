@@ -15,6 +15,8 @@ function ApproveAndPay({ cheq }: Props) {
 
   const [needsApproval, setNeedsApproval] = useState(true);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   // TODO: Handle all tokens correctly
   const token =
     cheq.token == "DAI" ? blockchainState.dai : blockchainState.weth;
@@ -47,6 +49,7 @@ function ApproveAndPay({ cheq }: Props) {
   }, [cheq.token, needsApproval]);
 
   const handlePay = useCallback(async () => {
+    setIsLoading(true);
     if (needsApproval) {
       // Disabling infinite approvals until audit it complete
       // To enable:
@@ -59,7 +62,6 @@ function ApproveAndPay({ cheq }: Props) {
       );
       await tx.wait();
       setNeedsApproval(false);
-      // TODO: handle loading state
     } else {
       const cheqId = Number(cheq.id);
       const tx = await blockchainState.selfSignBroker?.fundCheq(
@@ -68,6 +70,7 @@ function ApproveAndPay({ cheq }: Props) {
       );
       await tx.wait();
     }
+    setIsLoading(false);
   }, [
     blockchainState.cheqAddress,
     blockchainState.selfSignBroker,
@@ -84,7 +87,9 @@ function ApproveAndPay({ cheq }: Props) {
           {"You have 30 days to request a refund"}
         </Text>
       </RoundedBox>
-      <RoundedButton onClick={handlePay}>{buttonText}</RoundedButton>
+      <RoundedButton isLoading={isLoading} onClick={handlePay}>
+        {buttonText}
+      </RoundedButton>
     </Box>
   );
 }
