@@ -15,7 +15,7 @@ import { providerOptions } from "./providerOptions";
 import { mappingForChainId } from "./chainInfo";
 import { useColorMode } from "@chakra-ui/react";
 
-export const APIURL = "http://localhost:8000/subgraphs/name/Cheq/Cheq";
+export const APIURL = "http://localhost:8000/subgraphs/name/CheqV2/CRX";
 
 interface BlockchainDataInterface {
   account: string;

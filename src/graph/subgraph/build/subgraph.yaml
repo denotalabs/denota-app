@@ -6,7 +6,7 @@ dataSources:
     name: CRX
     network: mumbai
     source:
-      address: "0x30FA11E6FEe4dcf6D418B32b8EED245e7fF4D11c"
+      address: "0x98E39bC9849131187cbC6a180a321Cc88fF264Ed"
       abi: CRX
       startBlock: 29421574
     mapping:
@@ -14,12 +14,13 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Token
-        - Ownership
+        - Cheq
+        - Transfer
         - Escrow
         - ERC20
         - Account
         - Broker
+        - SelfSignTimeLock
       abis:
         - name: CRX
           file: ../out/CheqV2.sol/CRX.json
@@ -35,6 +36,4 @@ dataSources:
           handler: handleFund
         - event: Cashed(indexed uint256,indexed address,uint256)
           handler: handleCash
-        - event: BrokerWhitelisted(indexed address,bool)
-          handler: handleBrokerWhitelist
       file: CRX/CRX.wasm

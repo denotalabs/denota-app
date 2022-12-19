@@ -1,15 +1,17 @@
+import { Cheq } from "../../../hooks/useCheqs";
 import SimpleModal from "../../designSystem/SimpleModal";
 import ApproveAndPay from "./ApproveAndPay";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  cheq: Cheq;
 }
 
 function ApproveAndPayModal(props: Props) {
   return (
     <SimpleModal {...props}>
-      <ApproveAndPay></ApproveAndPay>
+      <ApproveAndPay cheq={props.cheq}></ApproveAndPay>
     </SimpleModal>
   );
 }

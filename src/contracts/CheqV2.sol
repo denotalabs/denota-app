@@ -4,9 +4,6 @@ import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 
-// TODO Make sure OpenSea integration works
-// TODO Enable URI editing
-// TODO Allow brokers to modify deposits freely?? May allow yield from their end
 contract CRX is ERC721, Ownable {
 
     struct Cheq {
@@ -25,6 +22,7 @@ contract CRX is ERC721, Ownable {
     mapping(ICheqBroker => bool) public brokerWhitelist; // Total user deposits
     uint256 public totalSupply; // Total cheqs created
     // uint256 public chainId;
+    // uint256 public version;
 
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
@@ -33,9 +31,9 @@ contract CRX is ERC721, Ownable {
     event Written(uint256 indexed cheqId, IERC20 token, uint256 amount, uint256 escrowed, address indexed drawer, address recipient, ICheqBroker indexed broker, address owner); 
     event Funded(uint256 indexed cheqId, address indexed from, uint256 amount);
     event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
-    event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted);
+    event BrokerWhitelisted(ICheqBroker indexed broker, bool isAccepted, string brokerName);
     
-    modifier onlyCheqBroker(uint256 cheqId){require(address(cheqInfo[cheqId].broker) == _msgSender(), "Only Cheq's broker");_;}
+    modifier onlyCheqBroker(uint256 cheqId){require(_msgSender() == address(cheqInfo[cheqId].broker), "Only cheq's broker");_;}
     modifier onlyWhitelist(ICheqBroker broker){require(brokerWhitelist[broker], "Only whitelisted broker");_;}
 
     /*//////////////////////////////////////////////////////////////
@@ -43,9 +41,9 @@ contract CRX is ERC721, Ownable {
     //////////////////////////////////////////////////////////////*/
     constructor() ERC721("CheqProtocol", "CHEQ") {}
 
-    function whitelistBroker(ICheqBroker broker, bool isAccepted) external onlyOwner {
+    function whitelistBroker(ICheqBroker broker, bool isAccepted, string memory brokerName) external onlyOwner {
         brokerWhitelist[broker] = isAccepted;
-        emit BrokerWhitelisted(broker, isAccepted);
+        emit BrokerWhitelisted(broker, isAccepted, brokerName);
     }
     /*//////////////////////////////////////////////////////////////
                             USER DEPOSITS
@@ -92,6 +90,12 @@ contract CRX is ERC721, Ownable {
     ) public onlyWhitelist(ICheqBroker(_msgSender()))
         returns (uint256)
     {
+        /* 
+        require(_msgSender().supportInterface('0xffffffff'), "INVAL_MODULE")  // TODO Finalize this standard
+        if (from != _msgSender()){ // The module is trying to use `from` deposit on their behalf instead of its own
+            require(_cheqUserAllowlist(_msgSender()), "User didn't allow this module") // See if user allows this
+        }
+        */
         require(
             escrow <= deposits[from][_token],  // Trust broker to not take from arbitrary user balance (whitelist)
             "INSUF_BAL"
@@ -108,7 +112,7 @@ contract CRX is ERC721, Ownable {
         _safeMint(owner, totalSupply);
         emit Written(totalSupply, _token, amount, escrow, from, recipient, ICheqBroker(_msgSender()), owner);
         totalSupply += 1;
-        return totalSupply-1;
+        return totalSupply - 1;
     }
 
     function transferFrom(
@@ -139,7 +143,7 @@ contract CRX is ERC721, Ownable {
 
     function cash(uint256 cheqId, address to, uint256 cashAmount) external onlyCheqBroker(cheqId) {
         Cheq storage cheq = cheqInfo[cheqId]; 
-        require(cheq.escrowed>=cashAmount, "Can't cash more than available");
+        require(cheq.escrowed >= cashAmount, "Can't cash more than available");
         unchecked {cheq.escrowed -= cashAmount;}
         require(cheq.token.transfer(to, cashAmount), "Transfer failed");
         emit Cashed(cheqId, to, cashAmount);
@@ -147,6 +151,22 @@ contract CRX is ERC721, Ownable {
     function _isApprovedOrOwner(address spender, uint256 cheqId) internal view override returns (bool) {
         return spender == address(cheqInfo[cheqId].broker);  // delegate checks/functionality to cheq broker
     }
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        _requireMinted(tokenId);
+        return ICheqBroker(cheqInfo[tokenId].broker).tokenURI(tokenId);
+    }
+
+    function approve(address to, uint256 tokenId) public virtual override onlyCheqBroker(tokenId) {
+        // address owner = ERC721.ownerOf(tokenId);
+        // require(to != owner, "ERC721: approval to current owner");
+        // require(
+        //     _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
+        //     "ERC721: approve caller is not token owner or approved for all"
+        // );
+        _approve(to, tokenId);
+    }
+
     /*//////////////////////////////////////////////////////////////
                             VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -169,7 +189,6 @@ contract CRX is ERC721, Ownable {
         return cheqInfo[cheqId].broker;
     }
 }
-
 
 interface ICheqBroker {
     //// function isWriteable(address sender, IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) external view returns(bool);
@@ -194,9 +213,13 @@ interface ICheqBroker {
     
     function cashable(uint256 cheqId, address caller, uint256 amount) external view returns(uint256);  // How much can be cashed
     function cashCheq(uint256 cheqId, uint256 amount) external;
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+    // baseURI
+    // _setTokenURI
+    // _setBaseURI
+    
     // Checks if caller is the owner [INTERFACE: broker]
     // Checks if is cashable [INTERFACE: broker]
-    // Sets as cashed [CHEQ OR INTERFACE?]
     // Transfers the cashing amount [Cheq]
     // Emits Cash event [Cheq]
     // Checks if caller is auditor [INTERFACE]
@@ -212,6 +235,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
     mapping(uint256 => uint256) public cheqInspectionPeriod;
     mapping(uint256 => bool) public isEarlyReleased;  // TODO: add early release
     mapping(IERC20 => bool) public tokenWhitelist;
+    string private _baseURI;
 
     function whitelistToken(IERC20 token, bool isAccepted) public onlyOwner {
         tokenWhitelist[token] = isAccepted;
@@ -249,7 +273,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         }
     }
 
-    function isTransferable(uint256 cheqId, address caller, address to) public view returns(bool){
+    function isTransferable(uint256 cheqId, address caller, address /* to */) public view returns(bool){
         return cheq.ownerOf(cheqId)==caller;  // Would caller ever be addres(0)
     }
 
@@ -275,7 +299,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
     }
 
     // BUG what if funder doesnt fund the invoice for too long??
-    function cashable(uint256 cheqId, address caller, uint256 amount) public view returns(uint256) {  // Invoice funder can cash before period, cheq writer can cash before period
+    function cashable(uint256 cheqId, address caller, uint256 /* amount */) public view returns(uint256) {  // Invoice funder can cash before period, cheq writer can cash before period
         // Chargeback case
         if (cheqFunder[cheqId] == caller && (block.timestamp < cheqCreated[cheqId] + cheqInspectionPeriod[cheqId])){  // Funding party can rescind before the inspection period elapses
             return cheq.cheqEscrowed(cheqId);
@@ -299,11 +323,11 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         cashCheq(cheqId, cashableAmount);
     }
 
-    function isApprovable(uint256 cheqId, address caller, address to) public view returns(bool){
+    function isApprovable(uint256 cheqId, address caller, address /* to */) public view returns(bool){
         return cheq.ownerOf(cheqId)==caller;  // 
     }
     
-    function approve(address to, uint256 cheqId) public {
+    function approveCheq(address to, uint256 cheqId) public {
         require(isApprovable(cheqId, msg.sender, to), "");
         cheq.approve(to, cheqId);
     }
@@ -313,6 +337,40 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         isEarlyReleased[cheqId] = isReleased;
 
     }
+
+    function tokenURI(uint256 tokenId) external view returns (string memory){
+        return string(abi.encodePacked("", tokenId));
+    }
+    // function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    //     _exists(tokenId);
+
+    //     // string memory _tokenURI = _tokenURIs[tokenId];
+    //     string memory base = _baseURI();
+
+    //     // If there is no base URI, return the token URI.
+    //     if (bytes(base).length == 0) {
+    //         return string(tokenId);
+    //     }
+    //     // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+    //     if (bytes(_tokenURI).length > 0) {
+    //         return string(abi.encodePacked(base, _tokenURI));
+    //     }
+
+    //     return super.tokenURI(tokenId);
+    // }
+
+    // function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+    //     require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
+    //     _tokenURIs[tokenId] = _tokenURI;
+    // }
+
+    // function _setBaseURI(string calldata __baseURI) public {
+    //     _baseURI = __baseURI;
+    // }
+
+    // function baseURI() public view returns (string memory){
+    //     return _baseURI;
+    // }
 }
 
 // contract HandshakeTimeLock is ICheqBroker {
@@ -490,6 +548,9 @@ contract SimpleBank is ICheqBroker, Ownable {
         require(cashableAmount == amount, "Cant cash this amount");
         cheq.cash(cheqId, msg.sender, amount);
     }
+    function tokenURI(uint256 tokenId) external view returns (string memory){
+        return string(abi.encodePacked("", tokenId));
+    }
 }
 
 
@@ -513,7 +574,7 @@ contract PseudoChain is ICheqBroker {
         return cheqId;
     }
 
-    function isTransferable(uint256 cheqId, address caller, address to) public view returns(bool){
+    function isTransferable(uint256 /* cheqId */, address /* caller */, address /* to */) public pure returns(bool){
         return false;
     }
 
@@ -522,7 +583,7 @@ contract PseudoChain is ICheqBroker {
         cheq.transferFrom(msg.sender, to, cheqId);
     }
 
-    function fundable(uint256 cheqId, address, uint256) public view returns(uint256) {
+    function fundable(uint256 /* cheqId */, address, uint256) public pure returns(uint256) {
         return 0;
     }
 
@@ -532,7 +593,7 @@ contract PseudoChain is ICheqBroker {
         cheq.fund(cheqId, msg.sender, amount);
     }
 
-    function cashable(uint256 cheqId, address caller, uint256 blockHash) public view returns(uint256) {
+    function cashable(uint256 cheqId, address /* caller */, uint256 /* blockHash */) public view returns(uint256) {
         if (false) { // "0"*n+"..." == keccack((keccack(cheqId) + hash)
             return cheq.cheqEscrowed(cheqId);
         } else {
@@ -545,5 +606,31 @@ contract PseudoChain is ICheqBroker {
         require(cashableAmount == amount, "Cant cash this amount");
         cheq.cash(cheqId, msg.sender, amount);
     }
-
+    function tokenURI(uint256 tokenId) external view returns (string memory){
+        return string(abi.encodePacked("", tokenId));
+    }
 }
+
+//// function writeCheq(IERC20 _token, uint256 amount, uint256 escrowed, address recipient, address owner) external returns(uint256);
+//[Module]: 
+// Checks if caller is allowed to write the cheq (isWriteable)
+//[CRX]:
+// Checks if CRX allows this broker 
+// Checks if caller has enough balance
+// Deducts user balance
+// Initializes cheqInfo
+// Emits Written
+// Mints Cheq
+// Increments totalSupply
+// Returns cheqId
+//[Module]: 
+// Updates the broker contract's variables
+
+
+// Checks if caller is the owner [INTERFACE: broker]
+// Checks if is cashable [INTERFACE: broker]
+// Transfers the cashing amount [Cheq]
+// Emits Cash event [Cheq]
+// Checks if caller is auditor [INTERFACE]
+// Cashes balance back to drawer
+// function cash() external returns (bool);

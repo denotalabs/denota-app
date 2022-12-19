@@ -29,7 +29,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
       return "Approve " + formData.token;
     }
     return formData.mode === "invoice" ? "Create Invoice" : "Confirm Payment";
-  }, [needsApproval]);
+  }, [formData.mode, formData.token, needsApproval]);
 
   useEffect(() => {
     const fetchAllowance = async () => {
@@ -89,7 +89,8 @@ function CheqConfirmStep({ isInvoice }: Props) {
                   formData.address,
                   formData.inspection
                 );
-                alert("TX hash " + tx.hash);
+                await tx.wait();
+                alert("Transaction succeeded");
               } catch (error) {
                 alert("Transaction failed");
               } finally {
