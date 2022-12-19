@@ -34,7 +34,7 @@ const mapField = (gqlCheq: any): Cheq => {
     id: gqlCheq.id as string,
     amount: convertExponent(gqlCheq.amountExact as number),
     amountRaw: BigNumber.from(gqlCheq.amountExact),
-    escrowed: gqlCheq.escrowed as number,
+    escrowed: Number(gqlCheq.escrowedExact),
     token: currencyForTokenId(gqlCheq.erc20.id),
     recipient: gqlCheq.recipient.id as string,
     sender: gqlCheq.drawer.id as string,
@@ -109,7 +109,6 @@ export const useCheqs = ({ cheqField }: Props) => {
         .then((data) => {
           console.log({ data });
           if (data["data"]["accounts"][0]) {
-            console.log("hello");
             const gqlCheqsSent = data["data"]["accounts"][0][
               "cheqsSent"
             ] as any[];
