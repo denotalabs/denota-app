@@ -1,3 +1,4 @@
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
   Button,
   ButtonGroup,
@@ -11,6 +12,7 @@ import {
   useDisclosure,
   Tooltip,
   Skeleton,
+  Box,
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,11 +23,14 @@ import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
 export type CheqStatus =
+  | "pending"
   | "cashed"
   | "voidable"
   | "payable"
   | "cashable"
   | "paid";
+
+export type CheqType = "invoice" | "escrow";
 
 interface Props {
   cheq: Cheq;
@@ -49,57 +54,71 @@ const TOOLTIP_MESSAGE_MAP = {
   pending: "Payment is pending",
 };
 
+const formatAdress = (adress: string, account: string) => {
+  if (adress.toLowerCase() === account.toLowerCase()) {
+    return "You";
+  }
+  return adress.slice(0, 6) + "...";
+};
+
 function CheqCardV2({ cheq }: Props) {
-  const { sender, amount, token } = cheq;
+  const { sender, amount, token, recipient } = cheq;
   const { blockchainState } = useBlockchainData();
 
   const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
-  const status = useMemo(() => {
-    if (isCashable === undefined) {
-      return undefined;
-    }
+  const {
+    status,
+    type,
+  }: { status: CheqStatus | undefined; type: CheqType | undefined } =
+    useMemo(() => {
+      if (isCashable === undefined) {
+        return { status: undefined, type: undefined };
+      }
 
-    if (cheq.owner === cheq.sender) {
-      // Invoice
-      if (
-        blockchainState.account.toLowerCase() === cheq.recipient.toLowerCase()
-      ) {
-        // BUG: will appear as payable after it's been cashed
-        if (cheq.escrowed === 0) {
-          return "payable";
-        } else if (isCashable) {
-          return "voidable";
+      // TODO: use another method for determining invoice vs cheq
+      if (cheq.owner === cheq.sender) {
+        // Invoice
+        if (
+          blockchainState.account.toLowerCase() === cheq.recipient.toLowerCase()
+        ) {
+          // BUG: will appear as payable after it's been cashed
+          if (cheq.escrowed === 0) {
+            return { status: "payable", type: "invoice" };
+          } else if (isCashable) {
+            return { status: "voidable", type: "invoice" };
+          } else {
+            return { status: "paid", type: "invoice" };
+          }
         } else {
-          return "paid";
+          if (isCashable) {
+            return { status: "cashable", type: "invoice" };
+          } else {
+            return { status: "pending", type: "invoice" };
+          }
         }
       } else {
-        if (isCashable) {
-          return "cashable";
+        // Cheq
+        if (
+          blockchainState.account.toLowerCase() === cheq.sender.toLowerCase()
+        ) {
+          // BUG: will appear as payable after it's been cashed
+          if (isCashable) {
+            return { status: "voidable", type: "escrow" };
+          } else {
+            return { status: "paid", type: "escrow" };
+          }
         } else {
-          return "pending";
+          if (isCashable) {
+            return { status: "cashable", type: "escrow" };
+          } else {
+            return { status: "pending", type: "escrow" };
+          }
         }
       }
-    } else {
-      // Cheq
-      if (blockchainState.account.toLowerCase() === cheq.sender.toLowerCase()) {
-        // BUG: will appear as payable after it's been cashed
-        if (isCashable) {
-          return "voidable";
-        } else {
-          return "paid";
-        }
-      } else {
-        if (isCashable) {
-          return "cashable";
-        } else {
-          return "pending";
-        }
-      }
-    }
-  }, [blockchainState.account, cheq, isCashable]);
+    }, [blockchainState.account, cheq, isCashable]);
 
   useEffect(() => {
     async function fetchData() {
@@ -153,22 +172,61 @@ function CheqCardV2({ cheq }: Props) {
     <GridItem
       w="100%"
       maxW={"400px"}
-      h="180"
       bg={STATUS_COLOR_MAP[status]}
       p={3}
       borderRadius={20}
     >
-      <VStack alignItems="flex-start" justifyContent="space-between" h="100%">
-        <Flex alignItems="flex-start" flexDirection="column" maxW="100%">
-          <Text
-            fontWeight={600}
-            fontSize={"xl"}
-            textOverflow="clip"
-            maxW="50%"
-            noOfLines={1}
-          >
-            {sender}
-          </Text>
+      <VStack
+        alignItems="flex-start"
+        justifyContent="space-between"
+        h="100%"
+        gap={2}
+      >
+        <HStack maxW="100%">
+          <Box borderWidth="1px" borderRadius="full" boxShadow="md" p={2}>
+            <Text fontSize="sm" textAlign="center">
+              {type}
+            </Text>
+          </Box>
+          <Box borderWidth="1px" borderRadius="full" boxShadow="md" p={2}>
+            <Tooltip
+              label={TOOLTIP_MESSAGE_MAP[status]}
+              aria-label="status tooltip"
+              placement="right"
+            >
+              <Text fontSize="sm" textAlign="center">
+                {status}
+              </Text>
+            </Tooltip>
+          </Box>
+        </HStack>
+
+        <Flex
+          alignItems="flex-start"
+          flexDirection="column"
+          maxW="100%"
+          gap={1}
+        >
+          <HStack maxW="100%">
+            <Text
+              fontWeight={600}
+              fontSize={"xl"}
+              textOverflow="clip"
+              noOfLines={1}
+            >
+              {formatAdress(sender, blockchainState.account)}
+            </Text>
+            <ArrowForwardIcon mx={2} />
+            <Text
+              fontWeight={600}
+              fontSize={"xl"}
+              textOverflow="clip"
+              noOfLines={1}
+            >
+              {formatAdress(recipient, blockchainState.account)}
+            </Text>
+          </HStack>
+
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
               {amount} {token}
@@ -179,15 +237,6 @@ function CheqCardV2({ cheq }: Props) {
         </Flex>
 
         <VStack alignItems="flex-start" w="100%">
-          <Tooltip
-            label={TOOLTIP_MESSAGE_MAP[status]}
-            aria-label="status tooltip"
-            placement="right"
-          >
-            <Text fontWeight={600} fontSize={"xl"}>
-              {status}
-            </Text>
-          </Tooltip>
           <Center w="100%">
             <ButtonGroup gap="4">
               {status === "cashable" ? (
