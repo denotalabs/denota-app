@@ -12,6 +12,14 @@ interface Props {
 
 function CheqDetailsStep({ isInvoice }: Props) {
   const { next, appendFormData, formData } = useStep();
+  console.log({ mode: formData.mode });
+
+  let initialMode = formData.mode;
+
+  if (initialMode === undefined) {
+    initialMode = isInvoice ? "invoice" : "pay";
+  }
+
   return (
     <Box w="100%" p={4}>
       <Formik
@@ -19,7 +27,7 @@ function CheqDetailsStep({ isInvoice }: Props) {
           token: formData.token ?? "DAI",
           amount: formData.amount ? Number(formData.amount) : 0,
           address: formData.address ?? "",
-          mode: formData.mode ?? isInvoice ? "invoice" : "pay",
+          mode: initialMode,
         }}
         onSubmit={(values, actions) => {
           appendFormData({

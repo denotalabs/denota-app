@@ -8,9 +8,10 @@ import RoundedButton from "../../designSystem/RoundedButton";
 
 interface Props {
   cheq: Cheq;
+  onClose: () => void;
 }
 
-function ApproveAndPay({ cheq }: Props) {
+function ApproveAndPay({ cheq, onClose }: Props) {
   const { blockchainState } = useBlockchainData();
 
   const [needsApproval, setNeedsApproval] = useState(true);
@@ -71,6 +72,8 @@ function ApproveAndPay({ cheq }: Props) {
           amount
         );
         await tx.wait();
+        alert("Transaction succeeded");
+        onClose();
       }
     } finally {
       setIsLoading(false);
@@ -81,6 +84,7 @@ function ApproveAndPay({ cheq }: Props) {
     cheq.amountRaw,
     cheq.id,
     needsApproval,
+    onClose,
     token?.functions,
   ]);
 

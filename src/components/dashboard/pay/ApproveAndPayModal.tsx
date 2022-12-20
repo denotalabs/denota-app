@@ -11,7 +11,7 @@ interface Props {
 function ApproveAndPayModal(props: Props) {
   return (
     <SimpleModal {...props}>
-      <ApproveAndPay cheq={props.cheq}></ApproveAndPay>
+      <ApproveAndPay cheq={props.cheq} onClose={props.onClose}></ApproveAndPay>
     </SimpleModal>
   );
 }

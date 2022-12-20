@@ -19,6 +19,7 @@ function ModeSelect({ isInvoice }: Props) {
           w={120}
           {...field}
           onChange={(event) => {
+            console.log("mode changed");
             setFieldValue("mode", event.target.value);
           }}
           onBlur={() => setFieldTouched("mode", true)}
