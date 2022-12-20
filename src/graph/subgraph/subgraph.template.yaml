@@ -6,9 +6,9 @@ dataSources:
     name: CRX
     network: mumbai
     source:
-      address: "0x7eb1481f5C797ac23FdbE4a193a3Fb702ceDa0aF"
+      address: "0x77d43a2D94768a239e24B4abBC511A3c3Cc9d7a1"
       abi: CRX
-      startBlock: 29421574
+      startBlock: 29931082
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -25,8 +25,6 @@ dataSources:
         - name: CRX
           file: ../../out/CheqV2.sol/CRX.json
       eventHandlers:
-        - event: Deposited(indexed address,indexed address,uint256)
-          handler: handleDeposit
         - event: Written(indexed uint256,address,uint256,uint256,indexed address,address,indexed address,address)
           handler: handleWrite
         - event: Transfer(indexed address,indexed address,indexed uint256)

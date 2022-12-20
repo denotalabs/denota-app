@@ -91,10 +91,11 @@ function CheqConfirmStep({ isInvoice }: Props) {
                 );
                 await tx.wait();
                 alert("Transaction succeeded");
+                onClose?.();
               } catch (error) {
                 alert("Transaction failed");
               } finally {
-                onClose?.();
+                actions.setSubmitting(false);
               }
             } else {
               onClose?.();
