@@ -56,7 +56,15 @@ function CheqGrid({ cheqs }: CheqGridProps) {
   }
 
   return (
-    <Grid templateColumns="repeat(auto-fit, minmax(240px, 1fr))" gap={6}>
+    <Grid
+      templateColumns={[
+        "repeat(auto-fit, minmax(240px, 1fr))",
+        "repeat(auto-fit, minmax(240px, 1fr))",
+        "repeat(auto-fit, minmax(240px, 1fr))",
+        "repeat(3, 1fr)",
+      ]}
+      gap={6}
+    >
       {cheqs.map((cheq) => {
         return <CheqCardV2 key={cheq.id} cheq={cheq} />;
       })}

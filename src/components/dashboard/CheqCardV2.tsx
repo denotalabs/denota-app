@@ -165,17 +165,11 @@ function CheqCardV2({ cheq }: Props) {
   } = useDisclosure();
 
   if (status === undefined) {
-    return <Skeleton w="100%" maxW={"400px"} h="180" borderRadius={"10px"} />;
+    return <Skeleton h="200" borderRadius={"10px"} />;
   }
 
   return (
-    <GridItem
-      w="100%"
-      maxW={"400px"}
-      bg={STATUS_COLOR_MAP[status]}
-      p={3}
-      borderRadius={20}
-    >
+    <GridItem bg={STATUS_COLOR_MAP[status]} p={3} borderRadius={20}>
       <VStack
         alignItems="flex-start"
         justifyContent="space-between"
