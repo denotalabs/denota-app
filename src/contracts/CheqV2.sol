@@ -263,7 +263,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
             cheqReceiver[cheqId] = msg.sender;
             return cheqId;
         } else {  // Cheq
-            require(cheq.deposits(msg.sender, _token) + _token.balanceOf(msg.sender) >= amount, "Cant send partially funded cheq");
+            depositIfNeeded(_token, amount);
             uint256 cheqId = cheq.write(msg.sender, recipient, _token, amount, escrow, recipient);
             cheqCreated[cheqId] = block.timestamp;
             cheqInspectionPeriod[cheqId] = inspectionPeriod;
@@ -294,8 +294,17 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
         uint256 fundableAmount = fundable(cheqId, msg.sender, amount);
         require(fundableAmount > 0, "Not fundable"); 
         require(fundableAmount == amount, "Cant fund this amount");
+        IERC20 token = cheq.cheqToken(cheqId);
+        depositIfNeeded(token, amount);
         cheq.fund(cheqId, msg.sender, amount);
         cheqCreated[cheqId] = block.timestamp;  // BUG: can update with 0 at any time- If it can be funded its an invoice, reset creation date for job start
+    }
+
+    function depositIfNeeded(IERC20 _token, uint256 amount) private {
+        require(cheq.deposits(msg.sender, _token) + _token.balanceOf(msg.sender) >= amount, "Cant send partially funded cheq");
+        if (cheq.deposits(msg.sender, _token) < amount) {
+            cheq.deposit(_token, amount - _token.balanceOf(msg.sender));
+        }
     }
 
     // BUG what if funder doesnt fund the invoice for too long??
