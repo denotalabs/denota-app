@@ -165,7 +165,7 @@ function CheqCardV2({ cheq }: Props) {
   } = useDisclosure();
 
   if (status === undefined) {
-    return <Skeleton h="200" borderRadius={"10px"} />;
+    return <Skeleton h="200px" borderRadius={"10px"} />;
   }
 
   return (
