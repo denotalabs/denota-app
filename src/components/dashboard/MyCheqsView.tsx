@@ -1,13 +1,24 @@
-import { Box, Center, Grid, Select, Text, VStack } from "@chakra-ui/react";
+import { RepeatIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Center,
+  Grid,
+  HStack,
+  IconButton,
+  Select,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { Cheq, useCheqs } from "../../hooks/useCheqs";
+import RoundedButton from "../designSystem/RoundedButton";
 // import { useTokens } from "../../hooks/useTokens";
 import CheqCardV2 from "./CheqCardV2";
 import SkeletonGrid from "./SkeletonGrid";
 
 function MyCheqsView() {
   const [cheqField, setCheqField] = useState("all");
-  const { cheqs } = useCheqs({ cheqField });
+  const { cheqs, refresh } = useCheqs({ cheqField });
 
   return (
     <VStack
@@ -18,19 +29,28 @@ function MyCheqsView() {
       gap={6}
       align="stretch"
     >
-      <Select
-        defaultValue={"all"}
-        minW={0}
-        w="120px"
-        onChange={(event) => {
-          setCheqField(event.target.value);
-        }}
-        focusBorderColor="clear"
-      >
-        <option value="all">All</option>
-        <option value="cheqsReceived">Received</option>
-        <option value="cheqsSent">Sent</option>
-      </Select>
+      <HStack gap={2} justifyContent="space-between">
+        <Select
+          defaultValue={"all"}
+          minW={0}
+          w="120px"
+          onChange={(event) => {
+            setCheqField(event.target.value);
+          }}
+          focusBorderColor="clear"
+        >
+          <option value="all">All</option>
+          <option value="cheqsReceived">Received</option>
+          <option value="cheqsSent">Sent</option>
+        </Select>
+        <IconButton
+          size="lg"
+          aria-label="refresh"
+          icon={<RepeatIcon />}
+          onClick={refresh}
+        />
+      </HStack>
+
       <CheqGrid cheqs={cheqs} />
     </VStack>
   );

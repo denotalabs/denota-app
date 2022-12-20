@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
@@ -48,8 +48,7 @@ export const useCheqs = ({ cheqField }: Props) => {
   const [cheqsReceived, setCheqReceived] = useState<Cheq[]>([]);
   const [cheqsSent, setCheqsSent] = useState<Cheq[]>([]);
 
-  useEffect(() => {
-    console.log({ account });
+  const refresh = useCallback(() => {
     if (account) {
       // TODO: replace with where _or clause on cheqs
       const tokenQuery = `
@@ -128,6 +127,10 @@ export const useCheqs = ({ cheqField }: Props) => {
     }
   }, [account]);
 
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
   const cheqs = useMemo(() => {
     switch (cheqField) {
       case "cheqsSent":
@@ -139,5 +142,5 @@ export const useCheqs = ({ cheqField }: Props) => {
     }
   }, [cheqField, cheqsReceived, cheqsSent]);
 
-  return { cheqs };
+  return { cheqs, refresh };
 };
