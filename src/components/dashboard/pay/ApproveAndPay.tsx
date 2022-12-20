@@ -50,27 +50,31 @@ function ApproveAndPay({ cheq }: Props) {
 
   const handlePay = useCallback(async () => {
     setIsLoading(true);
-    if (needsApproval) {
-      // Disabling infinite approvals until audit it complete
-      // To enable:
-      // BigNumber.from(
-      //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      // );
-      const tx = await token?.functions.approve(
-        blockchainState.cheqAddress,
-        cheq.amountRaw
-      );
-      await tx.wait();
-      setNeedsApproval(false);
-    } else {
-      const cheqId = Number(cheq.id);
-      const tx = await blockchainState.selfSignBroker?.fundCheq(
-        cheqId,
-        cheq.amountRaw
-      );
-      await tx.wait();
+    try {
+      if (needsApproval) {
+        // Disabling infinite approvals until audit it complete
+        // To enable:
+        // BigNumber.from(
+        //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        // );
+        const tx = await token?.functions.approve(
+          blockchainState.cheqAddress,
+          cheq.amountRaw
+        );
+        await tx.wait();
+        setNeedsApproval(false);
+      } else {
+        const cheqId = Number(cheq.id);
+        const amount = BigNumber.from(cheq.amountRaw);
+        const tx = await blockchainState.selfSignBroker?.fundCheq(
+          cheqId,
+          amount
+        );
+        await tx.wait();
+      }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, [
     blockchainState.cheqAddress,
     blockchainState.selfSignBroker,
