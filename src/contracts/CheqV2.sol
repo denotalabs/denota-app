@@ -303,7 +303,7 @@ contract SelfSignTimeLock is ICheqBroker, Ownable {
     function depositIfNeeded(IERC20 _token, uint256 amount) private {
         require(cheq.deposits(msg.sender, _token) + _token.balanceOf(msg.sender) >= amount, "Cant send partially funded cheq");
         if (cheq.deposits(msg.sender, _token) < amount) {
-            cheq.deposit(_token, amount - _token.balanceOf(msg.sender));
+            cheq.deposit(_token, amount - cheq.deposits(msg.sender, _token));
         }
     }
 
