@@ -1,10 +1,10 @@
 export const AddressMapping = {
   mumbai: {
-    crx: "0x7eb1481f5C797ac23FdbE4a193a3Fb702ceDa0aF",
+    crx: "0x77d43a2D94768a239e24B4abBC511A3c3Cc9d7a1",
     cheq: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
     dai: "0x982723cb1272271b5ee405A5F14E9556032d9308",
     weth: "0xAA6DA55ba764428e1C4c492c6db5FDe3ccf57332",
-    selfSignedBroker: "0xBE1d6e5ed08030402aF3715Ba31c2d7B456d1E3c",
+    selfSignedBroker: "0x53b3c85ecCBAE718Aca4A84f63e2dBDfC279BECC",
   },
   local: {
     crx: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
