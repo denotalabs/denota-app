@@ -1,12 +1,11 @@
 import { Box, Center, Flex, Text } from "@chakra-ui/react";
-import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
   title: string;
   value: string;
 }
 
-function ConfirmDetailsRow({ title, value }: Props) {
+function DetailsRow({ title, value }: Props) {
   return (
     <Box py={4} w="100%">
       <Flex direction="row" justifyContent="space-between">
@@ -21,4 +20,4 @@ function ConfirmDetailsRow({ title, value }: Props) {
   );
 }
 
-export default ConfirmDetailsRow;
+export default DetailsRow;

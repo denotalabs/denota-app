@@ -276,7 +276,11 @@ function CheqCardV2({ cheq }: Props) {
           </Center>
         </VStack>
       </VStack>
-      <DetailsModal isOpen={isDetailsOpen} onClose={onCloseDetails} />
+      <DetailsModal
+        isOpen={isDetailsOpen}
+        onClose={onCloseDetails}
+        cheq={cheq}
+      />
       <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
     </GridItem>
   );
