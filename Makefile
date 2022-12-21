@@ -52,8 +52,8 @@ deploy:
 	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 10000000000000000000000000 weth WETH --json > ./src/out/ERC20.sol/WethAddress.json
 	
 	# Mumbai
-	# forge create src/contracts/CheqV2.sol:CRX --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com
-	# forge create src/contracts/CheqV2.sol:SelfSignTimeLock --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 0x98E39bC9849131187cbC6a180a321Cc88fF264Ed --gas-price 30gwei
+	# forge create src/contracts/CheqRegistrar.sol:CheqRegistrar --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com
+	# forge create src/contracts/CheqRegistrar.sol:SelfSignTimeLock --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 0x98E39bC9849131187cbC6a180a321Cc88fF264Ed --gas-price 30gwei
 	# forge create src/test/mock/erc20.sol:TestERC20 --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 10000000000000000000000000 dai DAI --gas-price 30gwei
 	# forge create src/test/mock/erc20.sol:TestERC20 --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 10000000000000000000000000 weth WETH --gas-price 30gwei
 	# cast send 0x98E39bC9849131187cbC6a180a321Cc88fF264Ed "whitelistBroker(address,bool,string)" 0x38C112ED27d421DDBC8069892e0614A39AAe72a1 "true" --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --gas-price 30gwei
@@ -64,6 +64,7 @@ graph:
 	# Requires docker to be running
 	npm run clean-graph-node # If node has run before remove the old subgraph
 	npm run run-graph-node  # (re)start the node [postgres & ipfs & blockchain ingester]
+	# npm run codegen
 	npm run graph-build  # Creates the instructions to transform block input to subgraph format to store in db (contract ABI -> typescript classes: for mapping.ts file to import)
 	npm run create-local # 
 

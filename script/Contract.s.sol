@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
-import "src/contracts/CheqV2.sol";
+import "src/contracts/CheqRegistrar.sol";
 import "src/test/mock/erc20.sol";
 import "forge-std/console.sol";
 

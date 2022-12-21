@@ -59,7 +59,7 @@ type Account @entity {
   numCheqsReceived: BigInt!
   transfersFrom: [Transfer!]! @derivedFrom(field: "from")
   transfersTo: [Transfer!]! @derivedFrom(field: "to")
-# TODO approvals happen on the broker side
+# TODO approvals happen on the module side
   # approvalsOwner: [Approval!]! @derivedFrom(field: "owner")
   # approvalsApproved: [Approval!]! @derivedFrom(field: "approved")
   # approvalsForAllOwner: [ApprovalForAll!]! @derivedFrom(field: "owner")
@@ -74,7 +74,7 @@ type Cheq @entity {
   amountExact: BigInt!
   drawer: Account!
   recipient: Account!
-  broker: Broker!
+  module: Module!
   # Mutable attributes
   uri: String
   escrowed: BigDecimal!
@@ -85,22 +85,22 @@ type Cheq @entity {
   # approval: Account!
   # approvals: [Approval!]! @derivedFrom(field: "token")
 }
-type BrokerRegistry @entity {
-  id: ID!  # Should this be the brokers' address?
+type ModuleRegistry @entity {
+  id: ID!  # Should this be the modules' address?
   name: String!
-  module: Broker! @derivedFrom(field: "registry")
+  module: Module! @derivedFrom(field: "registry")
 }
-interface Broker {  # Allows new modules to inherit from Broker interface
+interface Module {  # Allows new modules to inherit from Module interface
   id: ID!
-  registry: BrokerRegistry!  # The broker's registration number
-  cheqsManaged: [Cheq!]! @derivedFrom(field: "broker")
+  registry: ModuleRegistry!  # The module's registration number
+  cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
   numCheqsManaged: BigInt!
 }
 # TODO How scalable is creating a module for each module?
-type SelfSignTimeLock implements Broker @entity {
+type SelfSignTimeLock implements Module @entity {
   id: ID!
-  registry: BrokerRegistry!
-  cheqsManaged: [Cheq!]! @derivedFrom(field: "broker")
+  registry: ModuleRegistry!
+  cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
   numCheqsManaged: BigInt!
   cheqFunder: Account!
   cheqReceiver: Account!
