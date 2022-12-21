@@ -3,11 +3,11 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: CRX
+    name: CheqRegistrar
     network: mumbai
     source:
       address: "0x77d43a2D94768a239e24B4abBC511A3c3Cc9d7a1"
-      abi: CRX
+      abi: CheqRegistrar
       startBlock: 29931082
     mapping:
       kind: ethereum/events
@@ -18,12 +18,12 @@ dataSources:
         - Transfer  # Write/Transfers
         - Escrow  # Fund/Cash
         - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CRX
+        - Account  # Accounts that have interacted with CheqRegistrar
         - Broker  # Payment modules
         - SelfSignTimeLock
       abis:
-        - name: CRX
-          file: ../../out/CheqV2.sol/CRX.json
+        - name: CheqRegistrar
+          file: ../../out/CheqRegistrar.sol/CheqRegistrar.json
       eventHandlers:
         - event: Written(indexed uint256,address,uint256,uint256,indexed address,address,indexed address,address)
           handler: handleWrite

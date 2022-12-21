@@ -7,14 +7,15 @@ import React, {
 } from "react";
 import { useContext } from "react";
 import { BigNumber, ethers } from "ethers";
-import SelfSignedBroker from "../out/CheqV2.sol/SelfSignTimeLock.json";
+import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
+import SelfSignedBroker from "../out/SelfSignTimeLock.sol/SelfSignTimeLock.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
 import Web3Modal from "web3modal";
 import { providerOptions } from "./providerOptions";
 import { mappingForChainId } from "./chainInfo";
 import { useColorMode } from "@chakra-ui/react";
 
-export const APIURL = "http://localhost:8000/subgraphs/name/CheqV2/CRX";
+export const APIURL = "http://localhost:8000/subgraphs/name/CheqRegistrar/CheqRegistrar";
 
 interface BlockchainDataInterface {
   account: string;
@@ -100,6 +101,7 @@ export const BlockchainDataProvider = memo(
         const mapping = mappingForChainId(chainId);
 
         // Load contracts
+        const cheq = new ethers.Contract(mapping.cheq, CheqRegistrar.abi, signer);
         const selfSignBroker = new ethers.Contract(
           mapping.selfSignedBroker,
           SelfSignedBroker.abi,

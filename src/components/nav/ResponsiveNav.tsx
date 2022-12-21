@@ -26,7 +26,7 @@ const ResponsiveNav = (props: Props) => {
     >
       <Box>
         <Text fontSize="lg" fontWeight="bold">
-          CruxProtocol
+          CheqProtocol
         </Text>
       </Box>
 
