@@ -5,8 +5,8 @@ import {
   Transfer as TransferEvent,
   Funded as FundedEvent,
   Cashed as CashedEvent,
-  BrokerWhitelisted,
-} from "../subgraph/generated/CRX/CRX"; // Events to import
+  ModuleWhitelisted,
+} from "../subgraph/generated/CheqRegistrar/CheqRegistrar"; // Events to import
 import {
   ERC20,
   Transaction,
@@ -15,7 +15,7 @@ import {
   Account,
   Cheq,
   SelfSignTimeLock,
-  BrokerRegistry,
+  ModuleRegistry,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
 
 function saveNewAccount(account: string): Account {
@@ -50,7 +50,7 @@ export function handleWrite(event: WrittenEvent): void {
   let escrowed = event.params.escrowed;
   let drawer = event.params.drawer.toHexString();
   let recipient = event.params.recipient.toHexString();
-  let broker = event.params.broker.toHexString();
+  let module = event.params.module.toHexString();
   let owner = event.params.owner.toHexString();
   let transactionHexHash = event.transaction.hash.toHex();
 
@@ -76,7 +76,7 @@ export function handleWrite(event: WrittenEvent): void {
   cheq.amountExact = amount;
   cheq.drawer = drawingAccount.id;
   cheq.recipient = receivingAccount.id;
-  cheq.broker = broker;
+  cheq.module = module;
   cheq.uri = ""; // TODO Add URI here
   cheq.escrowed = escrowed.divDecimal(BigInt.fromI32(18).toBigDecimal());
   cheq.escrowedExact = escrowed;
@@ -100,9 +100,9 @@ export function handleWrite(event: WrittenEvent): void {
   );
 
   // TODO Let modules emit their own events and update them from there
-  // let brokerModule = fetchModule(broker)
-  // brokerModule.numCheqsManaged = brokerModule.numCheqsManaged.plus(BigInt.fromI32(1))
-  // brokerModule.save()
+  // let module = fetchModule(module)
+  // Module.numCheqsManaged = Module.numCheqsManaged.plus(BigInt.fromI32(1))
+  // Module.save()
   // // Increment each Account's token counts
   // drawingAccount.numCheqsSent = drawingAccount.numCheqsSent.plus(BigInt.fromI32(1))
   // drawingAccount.save()
@@ -230,41 +230,41 @@ export function handleCash(event: CashedEvent): void {
   escrow.amount = amount.neg(); // TODO may need more general differentiation of Cashing/Funding
 }
 
-export function handleWhitelist(event: BrokerWhitelisted): void {
-  let broker = event.params.broker;
+export function handleWhitelist(event: ModuleWhitelisted): void {
+  let module = event.params.module;
   let isAccepted = event.params.isAccepted;
-  let brokerName = event.params.brokerName;
+  let moduleName = event.params.moduleName;
 }
 
 // // let loadSSTL = (moduleAddress: string) => {
-// //   let brokerModule = SelfSignTimeLock.load(moduleAddress)
-// //     if (brokerModule == null){
-// //       brokerModule = new SelfSignTimeLock(moduleAddress)
-// //       brokerModule.save()
+// //   let module = SelfSignTimeLock.load(moduleAddress)
+// //     if (module == null){
+// //       module = new SelfSignTimeLock(moduleAddress)
+// //       module.save()
 // //     }
-// //     return brokerModule
+// //     return module
 // // }
 // // let moduleSwitch = {"SelfSignTimeLock": loadSSTL}
 
 // function fetchModule(moduleAddress: string) : SelfSignTimeLock {
-//   let brokerRegistration = BrokerRegistry.load(moduleAddress)  // How to fetch correct broker module?
-//   if (brokerRegistration==null){
-//     brokerRegistration = new BrokerRegistry(moduleAddress)
-//     brokerRegistration.save()
+//   let moduleRegistration = ModuleRegistry.load(moduleAddress)  // How to fetch correct module module?
+//   if (moduleRegistration==null){
+//     moduleRegistration = new ModuleRegistry(moduleAddress)
+//     moduleRegistration.save()
 //   }
-//   // Replace string with brokerRegistration.name
-//   // let brokerModule = moduleSwitch["SelfSignTimeLock"](brokerRegistration.module)
-//   let brokerModule = SelfSignTimeLock.load(brokerRegistration.module)
-//     if (brokerModule == null){
-//       brokerModule = new SelfSignTimeLock(moduleAddress)
-//       brokerModule.save()
+//   // Replace string with moduleRegistration.name
+//   // let moduleModule = moduleSwitch["SelfSignTimeLock"](moduleRegistration.module)
+//   let moduleModule = SelfSignTimeLock.load(moduleRegistration.module)
+//     if (moduleModule == null){
+//       moduleModule = new SelfSignTimeLock(moduleAddress)
+//       moduleModule.save()
 //     }
-//   return brokerModule
+//   return moduleModule
 //   // if (moduleAddress == "SelfSignTimeLock") {
-//   //   let brokerModule = SelfSignTimeLock.load(brokerRegistration.module)
-//   //   if (brokerModule == null){
-//   //     brokerModule = new SelfSignTimeLock(moduleAddress)
-//   //     brokerModule.save()
+//   //   let moduleModule = SelfSignTimeLock.load(moduleRegistration.module)
+//   //   if (moduleModule == null){
+//   //     moduleModule = new SelfSignTimeLock(moduleAddress)
+//   //     moduleModule.save()
 //   //   }
 //   //   return SelfSignTimeLock
 //   // } else if (moduleAddress == "Bank") {
@@ -272,7 +272,7 @@ export function handleWhitelist(event: BrokerWhitelisted): void {
 //   // }
 // }
 // function updateModule() : void {
-//   // cheqsManaged: [Cheq!]! @derivedFrom(field: "broker")
+//   // cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
 //   // numCheqsManaged: BigInt!
 //   // cheqFunder: Account!
 //   // cheqReceiver: Account!

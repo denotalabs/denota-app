@@ -3,17 +3,18 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "src/contracts/CheqV2.sol";
+import "src/contracts/CheqRegistrar.sol";
+import "../contracts/SelfSignTimeLock.sol";
 import "./mock/erc20.sol";
 
 contract ContractTest is Test {
-    CRX public cheq;
+    CheqRegistrar public cheq;
     TestERC20 public dai;
     TestERC20 public usdc;
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
 
     function setUp() public { 
-        cheq = new CRX();  // ContractTest is the owner
+        cheq = new CheqRegistrar();  // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI");  // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
 
@@ -21,7 +22,7 @@ contract ContractTest is Test {
         vm.label(address(this), "TestContract");
         vm.label(address(dai), "TestDai");
         vm.label(address(usdc), "TestUSDC");
-        vm.label(address(cheq), "CRXcontract");
+        vm.label(address(cheq), "CheqRegistrarContract");
     }
     function isContract(address _addr) public view returns (bool){
         uint32 size;
@@ -35,26 +36,26 @@ contract ContractTest is Test {
     function testWhitelist() public {
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);  // How to test successful deployment
 
-        assertFalse(cheq.brokerWhitelist(selfSignedTL), "Unauthorized whitelist");
-        cheq.whitelistBroker(selfSignedTL, true, "SelfSignTimeLock");
-        assertTrue(cheq.brokerWhitelist(selfSignedTL), "Whitelisting failed");
+        assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Unauthorized whitelist");
+        cheq.whitelistModule(selfSignedTL, true, "SelfSignTimeLock");
+        assertTrue(cheq.userModuleWhitelist(address(this), selfSignedTL), "Whitelisting failed");
 
-        cheq.whitelistBroker(selfSignedTL, false, "SelfSignTimeLock");
-        assertFalse(cheq.brokerWhitelist(selfSignedTL), "Un-whitelisting failed");
+        cheq.whitelistModule(selfSignedTL, false, "SelfSignTimeLock");
+        assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Un-whitelisting failed");
     }
 
     function testFailWhitelist(address caller) public {
         vm.assume(caller != address(this));  // Deployer can whitelist, test others accounts
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
         vm.prank(caller);
-        cheq.whitelistBroker(selfSignedTL, true, "SelfSignTimeLock");
-        assertFalse(cheq.brokerWhitelist(selfSignedTL), "Unauthorized whitelist");
+        cheq.whitelistModule(selfSignedTL, true, "SelfSignTimeLock");
+        assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Unauthorized whitelist");
     }
 
-    function setUpTimelock() public returns (SelfSignTimeLock){  // Deploy and whitelist timelock broker
+    function setUpTimelock() public returns (SelfSignTimeLock){  // Deploy and whitelist timelock module
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
         vm.label(address(selfSignedTL), "SelfSignTimeLock");
-        cheq.whitelistBroker(selfSignedTL, true, "SelfSignTimeLock");
+        cheq.whitelistModule(selfSignedTL, true, "SelfSignTimeLock");
         return selfSignedTL;
     }
 
@@ -128,15 +129,15 @@ contract ContractTest is Test {
         assertTrue(cheq.balanceOf(caller) == 0, "Sender got a cheq");
         assertTrue(cheq.balanceOf(recipient) == 1, "Recipient didnt get a cheq");
 
-        // ICheqBroker wrote correctly to CRX storage
-        (IERC20 token, uint256 amount1, /* uint256 escrowed */, address drawer, address recipient1, ICheqBroker broker) = cheq.cheqInfo(cheqId);
+        // ICheqModule wrote correctly to CheqRegistrar storage
+        (IERC20 token, uint256 amount1, /* uint256 escrowed */, address drawer, address recipient1, ICheqModule module) = cheq.cheqInfo(cheqId);
         assertTrue(amount1 == amount, "Incorrect amount");
         assertTrue(token == dai, "Incorrect token");
         assertTrue(drawer == caller, "Incorrect drawer");
         assertTrue(recipient1 == recipient, "Incorrect recipient");
-        assertTrue(address(broker) == address(sstl), "Incorrect broker");
+        assertTrue(address(module) == address(sstl), "Incorrect module");
         
-        // ICheqBroker wrote correctly to it's storage
+        // ICheqModule wrote correctly to it's storage
         assertTrue(sstl.cheqFunder(cheqId) == caller, "Incorrect funder");
         assertTrue(sstl.cheqReceiver(cheqId) == recipient, "Cheq reciever is not same as on SSTL");
         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Incorrect created");
@@ -164,16 +165,16 @@ contract ContractTest is Test {
         assertTrue(cheq.balanceOf(recipient) == 0, "Recipient gained a cheq");
         assertTrue(cheq.ownerOf(cheqId) == caller, "Invoicer isn't owner");
         
-        (IERC20 token, uint256 amount1, uint256 escrowed, address drawer, address recipient1, ICheqBroker broker) = cheq.cheqInfo(cheqId);
-        // ICheqBroker wrote correctly to CRX
+        (IERC20 token, uint256 amount1, uint256 escrowed, address drawer, address recipient1, ICheqModule module) = cheq.cheqInfo(cheqId);
+        // ICheqModule wrote correctly to CheqRegistrar
         assertTrue(token == dai, "Incorrect token");
         assertTrue(amount1 == amount, "Incorrect amount");
         assertTrue(escrowed == 0, "Incorrect escrowed amount");
         assertTrue(drawer == caller, "Incorrect drawer");
         assertTrue(recipient1 == recipient, "Incorrect recipient");
-        assertTrue(address(broker) == address(sstl), "Incorrect broker");
+        assertTrue(address(module) == address(sstl), "Incorrect module");
         
-        // ICheqBroker wrote correctly to it's storage
+        // ICheqModule wrote correctly to it's storage
         assertTrue(sstl.cheqFunder(cheqId) == recipient, "Cheq reciever is same as on cheq");
         assertTrue(sstl.cheqReceiver(cheqId) == caller, "Cheq reciever is same as on SSTL");
         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Cheq created not at block.timestamp");
@@ -213,15 +214,15 @@ contract ContractTest is Test {
     }
 
     function helperCheqInfo(uint256 cheqId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {  // BUG: too many local variables
-        (IERC20 token, uint256 amount1, uint256 escrowed, address drawer, address recipient1, ICheqBroker broker) = cheq.cheqInfo(cheqId);
-        // ICheqBroker wrote correctly to CRX
+        (IERC20 token, uint256 amount1, uint256 escrowed, address drawer, address recipient1, ICheqModule module) = cheq.cheqInfo(cheqId);
+        // ICheqModule wrote correctly to CheqRegistrar
         assertTrue(token == dai, "Incorrect token");
         assertTrue(amount1 == amount, "Incorrect amount");
         assertTrue(recipient1 == recipient, "Incorrect recipient");
         assertTrue(drawer == sender, "Incorrect drawer");
-        assertTrue(address(broker) == address(sstl), "Incorrect broker");
+        assertTrue(address(module) == address(sstl), "Incorrect module");
 
-        // ICheqBroker wrote correctly to it's storage
+        // ICheqModule wrote correctly to it's storage
         if (sstl.cheqFunder(cheqId) == sender){  // Cheq
             assertTrue(escrowed == amount, "Incorrect escrowed amount");
             assertTrue(sstl.cheqFunder(cheqId) == drawer, "Cheq funder is not the sender");
