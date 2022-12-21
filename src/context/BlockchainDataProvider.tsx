@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { useContext } from "react";
 import { BigNumber, ethers } from "ethers";
-import Cheq from "../out/Cheq.sol/Cheq.json";
 import SelfSignedBroker from "../out/CheqV2.sol/SelfSignTimeLock.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
 import Web3Modal from "web3modal";
@@ -20,18 +19,14 @@ export const APIURL = "http://localhost:8000/subgraphs/name/CheqV2/CRX";
 interface BlockchainDataInterface {
   account: string;
   userType: string;
-  cheq: null | ethers.Contract;
   dai: null | ethers.Contract;
   weth: null | ethers.Contract;
   selfSignBroker: null | ethers.Contract;
   daiAllowance: BigNumber;
   wethAllowance: BigNumber;
   cheqAddress: string;
-  qDAI: string;
-  qWETH: string;
   userDaiBalance: string;
   userWethBalance: string;
-  cheqTotalSupply: string;
 
   signer: null | ethers.providers.JsonRpcSigner;
 }
@@ -105,7 +100,6 @@ export const BlockchainDataProvider = memo(
         const mapping = mappingForChainId(chainId);
 
         // Load contracts
-        const cheq = new ethers.Contract(mapping.cheq, Cheq.abi, signer);
         const selfSignBroker = new ethers.Contract(
           mapping.selfSignedBroker,
           SelfSignedBroker.abi,
@@ -115,31 +109,23 @@ export const BlockchainDataProvider = memo(
         const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
 
         const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
-        const qDAI = await cheq.deposits(dai.address, account); // User's deposited dai balance
         const daiAllowance = await dai.allowance(account, mapping.cheq);
 
         const userWethBalance = await weth.balanceOf(account); // User's Weth balance
-        const qWETH = await cheq.deposits(weth.address, account); // User's deposited Weth balance
         const wethAllowance = await weth.allowance(account, mapping.cheq);
-
-        const cheqTotalSupply = await cheq.totalSupply();
 
         setBlockchainState({
           signer,
           account,
           userType,
-          cheq,
           dai,
           weth,
           selfSignBroker,
           daiAllowance,
           wethAllowance,
           cheqAddress: mapping.crx,
-          qDAI: ethers.utils.formatUnits(qDAI),
-          qWETH: ethers.utils.formatUnits(qWETH),
           userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
           userWethBalance: ethers.utils.formatUnits(userWethBalance),
-          cheqTotalSupply: String(cheqTotalSupply),
         });
         setIsInitializing(false);
       } catch (e) {
