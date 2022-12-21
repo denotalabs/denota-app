@@ -7,7 +7,7 @@ interface Props {
 
 function DetailsRow({ title, value }: Props) {
   return (
-    <Box py={4} w="100%">
+    <Box py={3} w="100%">
       <Flex direction="row" justifyContent="space-between">
         <Text fontWeight={600} fontSize="md" textAlign="center">
           {title}

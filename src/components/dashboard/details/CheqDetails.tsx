@@ -9,19 +9,27 @@ interface Props {
 
 function CheqDetails({ cheq }: Props) {
   return (
-    <RoundedBox mt={8} p={6}>
-      <VStack>
-        <DetailsRow title="Sender" value={cheq.sender} />
-        <DetailsRow title="Recipient" value={cheq.recipient} />
+    <VStack gap={4} mt={10} mb={6}>
+      <RoundedBox px={6}>
+        <VStack gap={0}>
+          <DetailsRow title="Sender" value={cheq.formattedSender} />
+          <DetailsRow title="Recipient" value={cheq.formattedRecipient} />
 
-        <DetailsRow
-          title="Payment Amount"
-          value={String(cheq.amount) + " " + cheq.token}
-        />
-        {/* TODO: show maturity date */}
-        <DetailsRow title="Broker" value="Self-signed timelock" />
-      </VStack>
-    </RoundedBox>
+          <DetailsRow
+            title="Payment Amount"
+            value={String(cheq.amount) + " " + cheq.token}
+          />
+          {/* TODO: show maturity date */}
+          <DetailsRow title="Broker" value="Self-signed timelock" />
+        </VStack>
+      </RoundedBox>
+      <RoundedBox p={4} mb={4}>
+        <Text fontWeight={600} textAlign={"center"}>
+          The self-signed broker allows the funder to void the cheq until the
+          maturity date (get better copy)
+        </Text>
+      </RoundedBox>
+    </VStack>
   );
 }
 
