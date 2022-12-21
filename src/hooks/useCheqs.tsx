@@ -28,7 +28,7 @@ const currencyForTokenId = (tokenId: any): CheqCurrency => {
 
 const convertExponent = (amountExact: number) => {
   // Use right exponent
-  return Number(BigInt(amountExact) / BigInt(10 ** 18));
+  return Number(BigInt(amountExact) / BigInt(10 ** 16)) / 100;
 };
 
 const formatAdress = (adress: string, account: string) => {
