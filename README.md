@@ -46,3 +46,22 @@ Check out the [Foundry Book](https://book.getfoundry.sh/) for more specifics.
 ### Testing
 ```forge test``` will run all tests.
 ```forge test -m nameOfTest``` will run a specific test.
+
+### Commands for Cheq subgraph
+
+In order: 
+
+```npm run codegen```
+
+```make graph (npm run run-graph-node runs in the background)```
+
+```npm run graph-build``` (in Makefile, doesn’t run atm bc above command runs)
+
+```npm run create-local``` (in Makefile)
+
+```npm run graph-ship-local``` (in Makefile)
+
+Later we can simplify this with another Make command.
+
+## Graph Resources/Links
+
