@@ -1,13 +1,35 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Text, VStack } from "@chakra-ui/react";
+import { Cheq } from "../../../hooks/useCheqs";
+import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
-function CheqDetails() {
+interface Props {
+  cheq: Cheq;
+}
+
+function CheqDetails({ cheq }: Props) {
   return (
-    <RoundedBox mt={8} p={4}>
-      <Text fontWeight={600} fontSize={"xl"} textAlign="center">
-        {"Information about the cheq module"}
-      </Text>
-    </RoundedBox>
+    <VStack gap={4} mt={10} mb={6}>
+      <RoundedBox px={6}>
+        <VStack gap={0}>
+          <DetailsRow title="Sender" value={cheq.formattedSender} />
+          <DetailsRow title="Recipient" value={cheq.formattedRecipient} />
+
+          <DetailsRow
+            title="Payment Amount"
+            value={String(cheq.amount) + " " + cheq.token}
+          />
+          {/* TODO: show maturity date */}
+          <DetailsRow title="Broker" value="Self-signed timelock" />
+        </VStack>
+      </RoundedBox>
+      <RoundedBox p={4} mb={4}>
+        <Text fontWeight={600} textAlign={"center"}>
+          The self-signed broker allows the funder to void the cheq until the
+          maturity date (get better copy)
+        </Text>
+      </RoundedBox>
+    </VStack>
   );
 }
 

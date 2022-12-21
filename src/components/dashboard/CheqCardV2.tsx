@@ -54,15 +54,15 @@ const TOOLTIP_MESSAGE_MAP = {
   pending: "Payment is pending",
 };
 
-const formatAdress = (adress: string, account: string) => {
-  if (adress.toLowerCase() === account.toLowerCase()) {
-    return "You";
-  }
-  return adress.slice(0, 6) + "...";
-};
-
 function CheqCardV2({ cheq }: Props) {
-  const { sender, amount, token, recipient } = cheq;
+  const {
+    sender,
+    amount,
+    token,
+    recipient,
+    formattedSender,
+    formattedRecipient,
+  } = cheq;
   const { blockchainState } = useBlockchainData();
 
   const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
@@ -208,7 +208,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formatAdress(sender, blockchainState.account)}
+              {formattedSender}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -217,7 +217,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formatAdress(recipient, blockchainState.account)}
+              {formattedRecipient}
             </Text>
           </HStack>
 
@@ -276,7 +276,11 @@ function CheqCardV2({ cheq }: Props) {
           </Center>
         </VStack>
       </VStack>
-      <DetailsModal isOpen={isDetailsOpen} onClose={onCloseDetails} />
+      <DetailsModal
+        isOpen={isDetailsOpen}
+        onClose={onCloseDetails}
+        cheq={cheq}
+      />
       <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
     </GridItem>
   );

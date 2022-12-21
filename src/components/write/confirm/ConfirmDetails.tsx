@@ -2,7 +2,7 @@ import { Center, VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { useStep } from "../../designSystem/stepper/Stepper";
 import RoundedBox from "../../designSystem/RoundedBox";
-import ConfirmDetailsRow from "./ConfirmDetailsRow";
+import DetailsRow from "../../designSystem/DetailsRow";
 
 function ConfirmDetails() {
   const { formData } = useStep();
@@ -14,12 +14,12 @@ function ConfirmDetails() {
   return (
     <RoundedBox p={6}>
       <VStack>
-        <ConfirmDetailsRow title="Client address" value={formData.address} />
-        <ConfirmDetailsRow
+        <DetailsRow title="Client address" value={formData.address} />
+        <DetailsRow
           title="Payment Amount"
           value={formData.amount + " " + formData.token}
         />
-        <ConfirmDetailsRow title="Maturity Date" value={maturityDate} />
+        <DetailsRow title="Maturity Date" value={maturityDate} />
       </VStack>
     </RoundedBox>
   );

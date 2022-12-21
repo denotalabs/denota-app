@@ -1,15 +1,17 @@
+import { Cheq } from "../../../hooks/useCheqs";
 import SimpleModal from "../../designSystem/SimpleModal";
 import CheqDetails from "./CheqDetails";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  cheq: Cheq;
 }
 
 function DetailsModal(props: Props) {
   return (
     <SimpleModal {...props}>
-      <CheqDetails></CheqDetails>
+      <CheqDetails cheq={props.cheq}></CheqDetails>
     </SimpleModal>
   );
 }

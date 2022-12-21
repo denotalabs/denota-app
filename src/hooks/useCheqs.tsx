@@ -17,6 +17,8 @@ export interface Cheq {
   recipient: string;
   owner: string;
   token: CheqCurrency;
+  formattedSender: string;
+  formattedRecipient: string;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -26,20 +28,14 @@ const currencyForTokenId = (tokenId: any): CheqCurrency => {
 
 const convertExponent = (amountExact: number) => {
   // Use right exponent
-  return Number(BigInt(amountExact) / BigInt(10 ** 18));
+  return Number(BigInt(amountExact) / BigInt(10 ** 16)) / 100;
 };
 
-const mapField = (gqlCheq: any): Cheq => {
-  return {
-    id: gqlCheq.id as string,
-    amount: convertExponent(gqlCheq.amountExact as number),
-    amountRaw: BigNumber.from(gqlCheq.amountExact),
-    escrowed: Number(gqlCheq.escrowedExact),
-    token: currencyForTokenId(gqlCheq.erc20.id),
-    recipient: gqlCheq.recipient.id as string,
-    sender: gqlCheq.drawer.id as string,
-    owner: gqlCheq.owner.id as string,
-  };
+const formatAdress = (adress: string, account: string) => {
+  if (adress.toLowerCase() === account.toLowerCase()) {
+    return "You";
+  }
+  return adress.slice(0, 8) + "...";
 };
 
 export const useCheqs = ({ cheqField }: Props) => {
@@ -47,6 +43,30 @@ export const useCheqs = ({ cheqField }: Props) => {
   const account = blockchainState.account;
   const [cheqsReceived, setCheqReceived] = useState<Cheq[]>([]);
   const [cheqsSent, setCheqsSent] = useState<Cheq[]>([]);
+
+  const mapField = useCallback(
+    (gqlCheq: any) => {
+      return {
+        id: gqlCheq.id as string,
+        amount: convertExponent(gqlCheq.amountExact as number),
+        amountRaw: BigNumber.from(gqlCheq.amountExact),
+        escrowed: Number(gqlCheq.escrowedExact),
+        token: currencyForTokenId(gqlCheq.erc20.id),
+        recipient: gqlCheq.recipient.id as string,
+        sender: gqlCheq.drawer.id as string,
+        owner: gqlCheq.owner.id as string,
+        formattedSender: formatAdress(
+          gqlCheq.drawer.id as string,
+          blockchainState.account
+        ),
+        formattedRecipient: formatAdress(
+          gqlCheq.recipient.id as string,
+          blockchainState.account
+        ),
+      };
+    },
+    [blockchainState.account]
+  );
 
   const refresh = useCallback(() => {
     if (account) {
