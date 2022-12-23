@@ -6,12 +6,16 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   cheq: Cheq;
+  maturityDate: string;
 }
 
 function DetailsModal(props: Props) {
   return (
     <SimpleModal {...props}>
-      <CheqDetails cheq={props.cheq}></CheqDetails>
+      <CheqDetails
+        cheq={props.cheq}
+        maturityDate={props.maturityDate}
+      ></CheqDetails>
     </SimpleModal>
   );
 }

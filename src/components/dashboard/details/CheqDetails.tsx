@@ -5,16 +5,21 @@ import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
   cheq: Cheq;
+  maturityDate: string;
 }
 
-function CheqDetails({ cheq }: Props) {
+function CheqDetails({ cheq, maturityDate }: Props) {
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
         <VStack gap={0}>
           <DetailsRow title="Sender" value={cheq.formattedSender} />
           <DetailsRow title="Recipient" value={cheq.formattedRecipient} />
-
+          <DetailsRow
+            title="Created On"
+            value={cheq.createdDate.toDateString()}
+          />
+          <DetailsRow title="Maturity Date" value={maturityDate} />
           <DetailsRow
             title="Payment Amount"
             value={String(cheq.amount) + " " + cheq.token}

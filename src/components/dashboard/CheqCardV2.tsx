@@ -69,6 +69,12 @@ function CheqCardV2({ cheq }: Props) {
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
+  const [maturityDate, setMaturityDate] = useState("");
+
+  const createdLocaleDate = useMemo(() => {
+    return cheq.createdDate.toLocaleDateString();
+  }, [cheq.createdDate]);
+
   const {
     status,
     type,
@@ -122,14 +128,29 @@ function CheqCardV2({ cheq }: Props) {
 
   useEffect(() => {
     async function fetchData() {
-      const cheqId = Number(cheq.id);
-      const caller = blockchainState.account;
-      const cashableAmount: number =
-        await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
-      setIsCashable(cashableAmount > 0);
+      try {
+        const cheqId = Number(cheq.id);
+        const caller = blockchainState.account;
+        const cashableAmount: number =
+          await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
+        setIsCashable(cashableAmount > 0);
+
+        const maturity: BigNumber =
+          await blockchainState.selfSignBroker?.cheqInspectionPeriod(cheqId);
+        const date = new Date(cheq.createdDate);
+        date.setDate(date.getDate() + maturity.toNumber() / 86400);
+        setMaturityDate(date.toDateString());
+      } catch (error) {
+        console.log(error);
+      }
     }
     fetchData();
-  }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
+  }, [
+    blockchainState.account,
+    blockchainState.selfSignBroker,
+    cheq.createdDate,
+    cheq.id,
+  ]);
 
   const cashCheq = useCallback(async () => {
     setCashingInProgress(true);
@@ -201,6 +222,9 @@ function CheqCardV2({ cheq }: Props) {
           maxW="100%"
           gap={1}
         >
+          <Text textOverflow="clip" noOfLines={1}>
+            {createdLocaleDate}
+          </Text>
           <HStack maxW="100%">
             <Text
               fontWeight={600}
@@ -280,6 +304,7 @@ function CheqCardV2({ cheq }: Props) {
         isOpen={isDetailsOpen}
         onClose={onCloseDetails}
         cheq={cheq}
+        maturityDate={maturityDate}
       />
       <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
     </GridItem>
