@@ -12,6 +12,7 @@ contract SimpleBank is ICheqModule, Ownable {
     mapping(address => bool) public userWhitelist;
     mapping(IERC20 => bool) public tokenWhitelist;
     uint256 public settlementPeriod;
+    string private _baseURI;
 
     constructor(CheqRegistrar _cheq, uint256 settlementTime){
         cheq = _cheq;
@@ -74,11 +75,16 @@ contract SimpleBank is ICheqModule, Ownable {
         cheq.cash(cheqId, _msgSender(), amount);
     }
     function tokenURI(uint256 tokenId) external view returns (string memory){
-        return string(abi.encodePacked("", tokenId));
+        return string(abi.encodePacked(_baseURI, tokenId));
     }
 
-    function isApprovable(uint256 cheqId, address caller, address to) external view returns(bool){
-        return true;
+    function isApprovable(uint256 tokenId, address caller, address /* to */) public view returns(bool){
+        return cheq.ownerOf(tokenId) == caller;
+    }
+
+    function approveCheq(address to, uint256 cheqId) public {
+        require(isApprovable(cheqId, _msgSender(), to), "");
+        cheq.approve(to, cheqId);
     }
 }
 
