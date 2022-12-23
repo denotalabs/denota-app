@@ -40,7 +40,7 @@
     "prettier:solidity": "./node_modules/.bin/prettier --write **/*.sol",
     "prettier:ts": "./node_modules/.bin/prettier --write **/*.tsx",
     "prepare": "husky install",
-    "clean-graph-node": "sudo rm -rf src/graph/graph-node/data/",
+    "clean-graph-node": "rm -rf src/graph/graph-node/data/",
     "run-graph-node": "cd src/graph/graph-node && docker-compose up",
     "graph-build": "cd src/graph/subgraph && graph build",
     "create-local": "graph create --node http://localhost:8020/ CheqRegistrar/CheqRegistrar",
