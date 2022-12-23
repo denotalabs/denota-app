@@ -40,7 +40,7 @@
     "prettier:solidity": "./node_modules/.bin/prettier --write **/*.sol",
     "prettier:ts": "./node_modules/.bin/prettier --write **/*.tsx",
     "prepare": "husky install",
-    "clean-graph-node": "rm -rf src/graph/graph-node/data/",
+    "clean-graph-node": "sudo rm -rf src/graph/graph-node/data/",
     "run-graph-node": "cd src/graph/graph-node && docker-compose up",
     "graph-build": "cd src/graph/subgraph && graph build",
     "create-local": "graph create --node http://localhost:8020/ CheqRegistrar/CheqRegistrar",
@@ -49,7 +49,12 @@
     "remove-local": "graph remove --node http://localhost:8020/ CheqRegistrar/CheqRegistrar",
     "deploy-local": "cd src/graph/subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 CheqRegistrar/CheqRegistrar",
     "codegen": "cd src/graph/subgraph && graph codegen",
-    "graph-prepare": "mustache src/graph/subgraph/src/subgraph.template.yaml > src/graph/subgraph/subgraph.yaml"
+    "graph-prepare": "mustache src/graph/subgraph/src/subgraph.template.yaml > src/graph/subgraph/subgraph.yaml",
+    "graph-create-remote": "graph create --node ${GQL_HOST}:8020/ CheqRegistrar/CheqRegistrar",
+    "graph-ship-remote": "cd src/graph/subgraph && npm run codegen && npm run deploy-local",
+    "graph-remove-node-remote": "cd src/graph/graph-node && docker-compose down",
+    "graph-remove-remote": "graph remove --node ${GQL_HOST}:8020/ CheqRegistrar/CheqRegistrar",
+    "graph-deploy-remote": "cd src/graph/subgraph && graph deploy --node ${GQL_HOST}:8020/ --ipfs ${GQL_HOST}:5001 CheqRegistrar/CheqRegistrar"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.30.6",
