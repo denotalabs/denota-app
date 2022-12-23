@@ -51,7 +51,7 @@
     "codegen": "cd src/graph/subgraph && graph codegen",
     "graph-prepare": "mustache src/graph/subgraph/src/subgraph.template.yaml > src/graph/subgraph/subgraph.yaml",
     "graph-create-remote": "graph create --node ${GQL_HOST}:8020/ CheqRegistrar/CheqRegistrar",
-    "graph-ship-remote": "cd src/graph/subgraph && npm run codegen && npm run deploy-local",
+    "graph-ship-remote": "cd src/graph/subgraph && npm run codegen && npm run graph-deploy-remote",
     "graph-remove-node-remote": "cd src/graph/graph-node && docker-compose down",
     "graph-remove-remote": "graph remove --node ${GQL_HOST}:8020/ CheqRegistrar/CheqRegistrar",
     "graph-deploy-remote": "cd src/graph/subgraph && graph deploy --node ${GQL_HOST}:8020/ --ipfs ${GQL_HOST}:5001 CheqRegistrar/CheqRegistrar"
