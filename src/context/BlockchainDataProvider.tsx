@@ -15,7 +15,8 @@ import { providerOptions } from "./providerOptions";
 import { mappingForChainId } from "./chainInfo";
 import { useColorMode } from "@chakra-ui/react";
 
-export const APIURL = "http://localhost:8000/subgraphs/name/CheqRegistrar/CheqRegistrar";
+export const APIURL =
+  "http://ec2-3-88-32-213.compute-1.amazonaws.com/subgraphs/name/CheqRegistrar/CheqRegistrar";
 
 interface BlockchainDataInterface {
   account: string;
@@ -101,7 +102,11 @@ export const BlockchainDataProvider = memo(
         const mapping = mappingForChainId(chainId);
 
         // Load contracts
-        const cheq = new ethers.Contract(mapping.cheq, CheqRegistrar.abi, signer);
+        const cheq = new ethers.Contract(
+          mapping.cheq,
+          CheqRegistrar.abi,
+          signer
+        );
         const selfSignBroker = new ethers.Contract(
           mapping.selfSignedBroker,
           SelfSignedBroker.abi,
