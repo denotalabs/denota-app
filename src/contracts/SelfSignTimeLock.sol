@@ -113,7 +113,7 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
     }
 
     function isApprovable(uint256 cheqId, address caller, address /* to */) public view returns(bool){
-        return cheq.ownerOf(cheqId)==caller;  // 
+        return cheq.ownerOf(cheqId) == caller;  // 
     }
     
     function approveCheq(address to, uint256 cheqId) public {
