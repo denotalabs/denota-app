@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
@@ -19,6 +19,7 @@ export interface Cheq {
   token: CheqCurrency;
   formattedSender: string;
   formattedRecipient: string;
+  createdDate: Date;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -63,6 +64,7 @@ export const useCheqs = ({ cheqField }: Props) => {
           gqlCheq.recipient.id as string,
           blockchainState.account
         ),
+        createdDate: new Date(Number(gqlCheq.createdAt) * 1000),
       };
     },
     [blockchainState.account]
@@ -74,7 +76,7 @@ export const useCheqs = ({ cheqField }: Props) => {
       const tokenQuery = `
       query accounts($account: String ){
         accounts(where: { id: $account }, first: 1)  {
-          cheqsSent {
+          cheqsSent(orderBy: createdAt, orderDirection: desc) {
             id
             amountExact
             escrowedExact
@@ -92,7 +94,7 @@ export const useCheqs = ({ cheqField }: Props) => {
               id
             }
           }
-          cheqsReceived {
+          cheqsReceived(orderBy: createdAt, orderDirection: desc) {
             id
             amountExact
             escrowedExact
@@ -145,7 +147,7 @@ export const useCheqs = ({ cheqField }: Props) => {
           console.log("Error fetching data: ", err);
         });
     }
-  }, [account]);
+  }, [account, mapField]);
 
   useEffect(() => {
     refresh();
@@ -158,7 +160,9 @@ export const useCheqs = ({ cheqField }: Props) => {
       case "cheqsReceived":
         return cheqsReceived;
       default:
-        return cheqsReceived.concat(cheqsSent);
+        return cheqsReceived.concat(cheqsSent).sort((a, b) => {
+          return b.createdDate.getTime() - a.createdDate.getTime();
+        });
     }
   }, [cheqField, cheqsReceived, cheqsSent]);
 
