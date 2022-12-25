@@ -14,12 +14,12 @@ import {
   Transfer,
   Account,
   Cheq,
-  SelfSignTimeLock,
-  ModuleRegistry,
+  // SelfSignTimeLock,
+  // ModuleRegistry,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
 
 function saveNewAccount(account: string): Account {
-  let newAccount = new Account(account);
+  const newAccount = new Account(account);
   newAccount.save();
   return newAccount;
 }
@@ -27,7 +27,10 @@ function saveNewAccount(account: string): Account {
 function saveTransaction(
   transactionHexHash: string,
   cheqId: string,
+  // TODO figure out BigInt vs bigint literal eslint issue
+  // eslint-disable-next-line @typescript-eslint/ban-types
   timestamp: BigInt,
+  // eslint-disable-next-line @typescript-eslint/ban-types
   blockNumber: BigInt
 ): Transaction {
   // TODO not sure if the ID structure is best
@@ -44,15 +47,15 @@ function saveTransaction(
 
 export function handleWrite(event: WrittenEvent): void {
   // Load event parameters
-  let cheqId = event.params.cheqId.toString();
-  let erc20 = event.params.token.toHexString();
-  let amount = event.params.amount;
-  let escrowed = event.params.escrowed;
-  let drawer = event.params.drawer.toHexString();
-  let recipient = event.params.recipient.toHexString();
-  let module = event.params.module.toHexString();
-  let owner = event.params.owner.toHexString();
-  let transactionHexHash = event.transaction.hash.toHex();
+  const cheqId = event.params.cheqId.toString();
+  const erc20 = event.params.token.toHexString();
+  const amount = event.params.amount;
+  const escrowed = event.params.escrowed;
+  const drawer = event.params.drawer.toHexString();
+  const recipient = event.params.recipient.toHexString();
+  const module = event.params.module.toHexString();
+  const owner = event.params.owner.toHexString();
+  const transactionHexHash = event.transaction.hash.toHex();
 
   // Load entities if they exist, else create them
   let drawingAccount = Account.load(drawer);
@@ -69,7 +72,7 @@ export function handleWrite(event: WrittenEvent): void {
     receivingAccount == null ? saveNewAccount(recipient) : receivingAccount;
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
 
-  let cheq = new Cheq(cheqId);
+  const cheq = new Cheq(cheqId);
   cheq.createdAt = event.block.timestamp;
   cheq.erc20 = ERC20Token.id;
   cheq.amount = amount.divDecimal(BigInt.fromI32(18).toBigDecimal()); // TODO save the erc20's decimals by querying it instead of assuming
@@ -83,7 +86,7 @@ export function handleWrite(event: WrittenEvent): void {
   cheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
   cheq.save();
 
-  let escrow = new Escrow(transactionHexHash + "/" + cheqId); // How OZ does IDs entities that implements Event?
+  const escrow = new Escrow(transactionHexHash + "/" + cheqId); // How OZ does IDs entities that implements Event?
   escrow.emitter = drawingAccount.id;
   escrow.cheq = event.params.cheqId.toString();
   escrow.timestamp = event.block.timestamp;
@@ -92,7 +95,7 @@ export function handleWrite(event: WrittenEvent): void {
   escrow.transaction = transactionHexHash; // TODO How OZ does it, how does it work?
   // transaction.events.concat(event)  // TODO How does OZ do this? Need to add TransferEvent & FundedEvent
 
-  let transaction = saveTransaction(
+  const transaction = saveTransaction(
     transactionHexHash,
     cheqId,
     event.block.timestamp,
@@ -113,10 +116,10 @@ export function handleWrite(event: WrittenEvent): void {
 
 export function handleTransfer(event: TransferEvent): void {
   // Load event params
-  let from = event.params.from.toHexString();
-  let to = event.params.to.toHexString();
-  let cheqId = event.params.tokenId.toHexString();
-  let transactionHexHash = event.transaction.hash.toHex();
+  const from = event.params.from.toHexString();
+  const to = event.params.to.toHexString();
+  const cheqId = event.params.tokenId.toHexString();
+  const transactionHexHash = event.transaction.hash.toHex();
 
   // Load from and to Accounts
   let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
@@ -142,14 +145,14 @@ export function handleTransfer(event: TransferEvent): void {
   toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
   toAccount.save();
 
-  let transaction = saveTransaction(
+  const transaction = saveTransaction(
     transactionHexHash,
     cheqId,
     event.block.timestamp,
     event.block.number
   );
 
-  let transfer = new Transfer(transactionHexHash + "/" + cheqId);
+  const transfer = new Transfer(transactionHexHash + "/" + cheqId);
   transfer.emitter = fromAccount.id;
   transfer.transaction = transactionHexHash;
   transfer.timestamp = event.block.timestamp;
@@ -167,9 +170,9 @@ export function handleFund(event: FundedEvent): void {
     fromAccount == null
       ? saveNewAccount(event.params.from.toHexString())
       : fromAccount;
-  let amount = event.params.amount;
-  let transactionHexHash = event.transaction.hash.toHex();
-  let cheqId = event.params.cheqId.toString();
+  const amount = event.params.amount;
+  const transactionHexHash = event.transaction.hash.toHex();
+  const cheqId = event.params.cheqId.toString();
 
   // Load cheq
   let cheq = Cheq.load(cheqId);
@@ -178,14 +181,14 @@ export function handleFund(event: FundedEvent): void {
     cheq = new Cheq(cheqId);
     cheq.save();
   }
-  let transaction = saveTransaction(
+  const transaction = saveTransaction(
     transactionHexHash,
     cheqId,
     event.block.timestamp,
     event.block.number
   );
 
-  let escrow = new Escrow(transactionHexHash + "/" + cheqId);
+  const escrow = new Escrow(transactionHexHash + "/" + cheqId);
   escrow.emitter = fromAccount.id;
   escrow.transaction = transactionHexHash;
   escrow.timestamp = event.block.timestamp;
@@ -201,9 +204,9 @@ export function handleCash(event: CashedEvent): void {
     toAccount == null
       ? saveNewAccount(event.params.to.toHexString())
       : toAccount;
-  let amount = event.params.amount;
-  let transactionHexHash = event.transaction.hash.toHex();
-  let cheqId = event.params.cheqId.toString();
+  const amount = event.params.amount;
+  const transactionHexHash = event.transaction.hash.toHex();
+  const cheqId = event.params.cheqId.toString();
 
   // Load cheq
   let cheq = Cheq.load(cheqId);
@@ -214,14 +217,14 @@ export function handleCash(event: CashedEvent): void {
   }
 
   // Load transaction
-  let transaction = saveTransaction(
+  const transaction = saveTransaction(
     transactionHexHash,
     cheqId,
     event.block.timestamp,
     event.block.number
   );
 
-  let escrow = new Escrow(transactionHexHash + "/" + cheqId);
+  const escrow = new Escrow(transactionHexHash + "/" + cheqId);
   escrow.emitter = toAccount.id;
   escrow.transaction = transactionHexHash;
   escrow.timestamp = event.block.timestamp;
@@ -231,9 +234,9 @@ export function handleCash(event: CashedEvent): void {
 }
 
 export function handleWhitelist(event: ModuleWhitelisted): void {
-  let module = event.params.module;
-  let isAccepted = event.params.isAccepted;
-  let moduleName = event.params.moduleName;
+  const module = event.params.module;
+  const isAccepted = event.params.isAccepted;
+  const moduleName = event.params.moduleName;
 }
 
 // // let loadSSTL = (moduleAddress: string) => {
