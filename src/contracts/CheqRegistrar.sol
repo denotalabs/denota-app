@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import "openzeppelin/token/ERC721/ERC721.sol";
-import "openzeppelin/token/ERC20/IERC20.sol";
+import "openzeppelin/token/ERC20/IERC20.sol";  // TODO change to safe ERC20? Check interface?
 import "openzeppelin/access/Ownable.sol";
 import "./ICheqModule.sol";
+import "./ERC721r.sol";
 
 // TODO: Burning?
 // TODO: UpgradableProxy?
@@ -11,7 +11,7 @@ import "./ICheqModule.sol";
 // TODO: Have the write function attempt deposit if insufficient balance?
 // TODO: _transfer() calls _beforeTokenTransfer, _afterTokenTransfer functions. Necessary?
 // TODO: Are operators too dangerous?!?
-// TODO: WHY DOES REGISTRAR NEED TO BE ERC721 COMPATIBLE?? WHY NOT JUST MODULES?
+// TODO: WHY DOES REGISTRAR NEED TO BE ERC721 COMPLIANT?? WHY NOT JUST MODULES?
 //// Enable EOAs to call in from registrar or not needed?
 
 // 1. Allow escrowing of NFTs- Can create an isFungible splitter in Cheq *struct* point to a deployed NFTOwnershipContract with mapping(uint256(index) => address(NFTAddr)), mapping(uint256(index) => uint256(tokenId)), maxIndex. That way the Cheq Struct can store amount and escrowed for both and the IERC20 address is either the ERC20 or the NFTOwnershipContract. Essentially an adapter between erc20 and erc721 (transforms tokenIds to a fungible `amount`)
@@ -32,8 +32,8 @@ ERC721 Inherits these variables:
 mapping(uint256 => address) private _tokenApprovals; // Mapping from token ID to approved address
 mapping(address => mapping(address => bool)) private _operatorApprovals; // Mapping from owner to operator approvals
 
-_tokenApprovals are outsourced to the payment module
-_operatorApprovals are (probably) DISALLOWED, as is is/setApprovedForAll()
+TODO _tokenApprovals are outsourced to the payment module
+TODO _operatorApprovals are (probably) DISALLOWED, as is is/setApprovedForAll()
  */
 /**
 * @title The cheq registration contract
@@ -41,21 +41,21 @@ _operatorApprovals are (probably) DISALLOWED, as is is/setApprovedForAll()
 * @notice This contract assigns cheq's their IDs, associated metadata and escrowed funds
 * @dev All functions except tokenURI(), approve(), and deposit() must be called by the cheq's payment module
 */
-contract CheqRegistrar is ERC721, Ownable {
+contract CheqRegistrar is ERC721r, Ownable {
 
     struct Cheq {
-        IERC20 token;  // IMMUTABLE [not settable]
-        uint256 amount;  // ? Module can modify ?
-        uint256 escrowed;  // Module can modify [MOST VULNERABLE, corresponds to registrar deposits]
-        address drawer; // IMMUTABLE [settable]  !INTENDED DRAWER
-        address recipient; // IMMUTABLE [settable]  !INTENDED ?FIRST OWNER
-        ICheqModule module;  // IMMUTABLE [not settable]
+        IERC20 token;  // Immutable
+        uint256 amount;  // Immutable & arbitrarily settable
+        uint256 escrowed;  // Mutable but invariant w.r.t deposits [MOST VULNERABLE]
+        address drawer; // Immutable & arbitrarily settable [intended sender]
+        address recipient; // Immutable & arbitrarily settable [intended claimer]
+        ICheqModule module;  // Immutable & not settable
     }
     /*//////////////////////////////////////////////////////////////
                            STORAGE VARIABLES
     //////////////////////////////////////////////////////////////*/
     mapping(uint256 => Cheq) private cheqInfo; // Cheq information
-    mapping(address => mapping(IERC20 => uint256)) private _deposits; // Total user deposits
+    mapping(address => mapping(IERC20 => uint256)) private _deposits; // Total user deposits (NOTE: change to escrows? users may not deposit separate from write())
     mapping(address => mapping(ICheqModule => bool)) private _userModuleWhitelist; // Total user deposits
     uint256 private totalSupply; // Total cheqs created
     uint256 private writeFlatFee;
@@ -63,16 +63,18 @@ contract CheqRegistrar is ERC721, Ownable {
     uint256 private fundFlatFee;
     uint256 private cashFlatFee;
     uint256 private depositFlatFee;
-    // uint256 private approveFlatFee;
-    // uint256 public chainId;
-    // uint256 public version;
+    // How to set version and/or chain deployment? 
+    // Options: 
+    //// Each deployment is it's own int. 
+    //// Each chain is it's own int.
+    //// Some combination of the two
 
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
     //////////////////////////////////////////////////////////////*/
     event Deposited(IERC20 indexed token, address indexed to, uint256 amount);
     event Written(uint256 indexed cheqId, IERC20 token, uint256 amount, uint256 escrowed, address indexed drawer, address recipient, ICheqModule indexed module, address owner); 
-    // event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+    // event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);  // NOTE: Modules don't need this
     event Funded(uint256 indexed cheqId, address indexed from, uint256 amount);
     event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
     event ModuleWhitelisted(address indexed user, ICheqModule indexed module, bool isAccepted);
@@ -99,49 +101,43 @@ contract CheqRegistrar is ERC721, Ownable {
         depositFlatFee = _depositFlatFee;
     }
 
-    function whitelistModule(ICheqModule module, bool isAccepted) external {
+    function whitelistModule(ICheqModule module, bool isAccepted) external {  // Allow non-_msgSender()?
         _userModuleWhitelist[_msgSender()][module] = isAccepted;
         emit ModuleWhitelisted(_msgSender(), module, isAccepted);
     }
     /*//////////////////////////////////////////////////////////////
-                            USER DEPOSITS
+                              FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    
-    // How to track whitelisted deposits VS module deposits?
-    // Need ability for user's to deposit on user's behalf
-    function _deposit(  // Allow modules to deposit on their user's behalf
+
+    function _deposit(
         IERC20 token,
         address to,
         uint256 amount
     ) private {
         require(msg.value > depositFlatFee, "INSUF_FEE");  // TODO do internal function calls preserve msg.value?
         require(token.transferFrom(
-            to,
+            _msgSender(),  // transfers from `_msgSender()` to `address(this)` first checking if  _msgSender() approves address(this)
             address(this),
             amount
         ), "Transfer failed");
         _deposits[to][token] += amount;
-        emit Deposited(token, to, amount);
+        emit Deposited(token, to, amount);  // TODO: is this needed? Assumes people will deposit onto registrar
     }
 
-    function deposit(IERC20 _token, uint256 _amount) public payable returns (bool) {  // make one external and use other in depositWrite()?
-        _deposit(_token, _msgSender(), _amount);
+    function deposit(IERC20 _token, uint256 _amount) external payable returns (bool) {
+        _deposit(_token, _msgSender(), _amount);  // Only makes sense for
         return true;
     }
 
-    function deposit(  
-        address to,
+    function deposit(  // Deposit to another account
         IERC20 token,
+        address to,
         uint256 amount
-    ) public payable returns (bool) {
+    ) external payable returns (bool) {
         _deposit(token, to, amount);
         return true;
     }
 
-    /*//////////////////////////////////////////////////////////////
-                        ERC-721 FUNCTION USAGE
-    //////////////////////////////////////////////////////////////*/
-    // TODO: User whitelist of Module functionality
     function write(
         address from,
         address recipient,
@@ -153,9 +149,10 @@ contract CheqRegistrar is ERC721, Ownable {
         returns (uint256)
     {
         require(msg.value > writeFlatFee, "INSUF_FEE");
+        ICheqModule module = ICheqModule(_msgSender());
         // require(_msgSender().supportInterface("0xffffffff"), "INVAL_MODULE");
         if (from != _msgSender()){ // The module is trying to use `from` deposit on their behalf instead of its own
-            require(_userModuleWhitelist[from][ICheqModule(_msgSender())], "UNAPP_MODULE"); // See if user allows this
+            require(_userModuleWhitelist[from][module], "UNAPP_MODULE"); // See if user allows this
         }
         require(
             escrow <= _deposits[from][_token],
@@ -168,22 +165,32 @@ contract CheqRegistrar is ERC721, Ownable {
             escrowed: escrow, 
             drawer: from,
             recipient: recipient,
-            module: ICheqModule(_msgSender())
+            module: module
         });
         _safeMint(owner, totalSupply);
-        emit Written(totalSupply, _token, amount, escrow, from, recipient, ICheqModule(_msgSender()), owner);
+        emit Written(totalSupply, _token, amount, escrow, from, recipient, module, owner);
         totalSupply += 1;
         return totalSupply - 1;
     }
 
-// BUG can't make function payable
-// TODO: Make transfers callable by approved accounts
-    function transferFrom(
+    function depositWrite(
+        address payer,  // Person putting up the escrow
+        address drawer,  // Person sending the cheq. If `payer`!=`drawer`, payer must approve module
+        address recipient,
+        IERC20 _token,
+        uint256 amount,
+        uint256 escrow,
+        address owner) external payable returns (uint256){
+        _deposit(_token, payer, escrow); // Make a require with bool success?
+        return write(drawer, recipient, _token, amount, escrow, owner);
+    }
+
+    function transferFrom(  // TODO ensure the override is correct
         address from,
         address to,
         uint256 cheqId
-    ) public onlyModule(cheqId) virtual override {
-        // require(msg.value > transferFlatFee, "INSUF_FEE");
+    ) public onlyModule(cheqId) virtual override payable {
+        require(msg.value > transferFlatFee, "INSUF_FEE");
         _transfer(from, to, cheqId);
     }
 
@@ -191,29 +198,10 @@ contract CheqRegistrar is ERC721, Ownable {
         address from,
         address to,
         uint256 cheqId
-    ) public onlyModule(cheqId) virtual override {
-        // require(msg.value > transferFlatFee, "INSUF_FEE");
+    ) public onlyModule(cheqId) virtual override payable {
+        require(msg.value > transferFlatFee, "INSUF_FEE");
         _safeTransfer(from, to, cheqId, "");
     }
-    
-    function getApproved(uint256 tokenId) public view virtual override returns (address) {
-        _requireMinted(tokenId);
-        ICheqModule module = cheqInfo[tokenId].module;
-
-        return module.isApprovable(tokenId, _msgSender());
-    }
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual override returns (bool) {
-        address owner = ERC721.ownerOf(tokenId);
-        return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
-    }
-    /**
-    Options:
-    Allow approved to call into CheqRegistrar to transferFrom but don't allow anyone else to
-    1. return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
-    2. return (isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
-    3. return (getApproved(tokenId) == spender);
-    4. return ICheqModule(tokenId).isApproved();
-    */
 
     function fund(uint256 cheqId, address from, uint256 amount) external payable onlyModule(cheqId) {  // `From` can originate from anyone, module specifies whose balance it is removing from though
         require(msg.value > fundFlatFee, "INSUF_FEE");
@@ -234,16 +222,9 @@ contract CheqRegistrar is ERC721, Ownable {
         emit Cashed(cheqId, to, cashAmount);
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {  // TODO: make this registrar's URI? contractURI?
         _requireMinted(tokenId);
         return ICheqModule(cheqInfo[tokenId].module).tokenURI(tokenId);
-    }
-
-    function approve(address to, uint256 tokenId) public virtual override {
-        // require(msg.value > approveFlatFee, "INSUF_FEE");
-        require(ICheqModule(cheqInfo[tokenId].module).isApprovable(tokenId, _msgSender(), to), "NOT_APPROVABLE");
-        _approve(to, tokenId);
-        require(); // Update module variables
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -274,102 +255,3 @@ contract CheqRegistrar is ERC721, Ownable {
         return _userModuleWhitelist[user][module];
     }
 }
-
-
-// contract Test is ERC721 {
-//     // Why does transferFrom check isApprovedOrOwner() and _tranfer checks owner again?
-//     function _transfer(
-//         address from,
-//         address to,
-//         uint256 tokenId
-//     ) internal virtual {  // If this is called only check is `to` is not address(0)
-//         // require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
-//         require(to != address(0), "ERC721: transfer to the zero address");
-//         // _beforeTokenTransfer(from, to, tokenId, 1);
-//         // // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
-//         // require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
-//         // Clear approvals from the previous owner
-//         delete _tokenApprovals[tokenId];
-//         unchecked {
-//             _balances[from] -= 1;
-//             _balances[to] += 1;
-//         }
-//         _owners[tokenId] = to;
-//         emit Transfer(from, to, tokenId);
-//         // _afterTokenTransfer(from, to, tokenId, 1);
-//     }
-//     function _safeTransfer( // _safeTransfer -> _transfer
-//         address from,
-//         address to,
-//         uint256 tokenId,
-//         bytes memory data
-//     ) internal virtual {
-//         _transfer(from, to, tokenId);
-//         require(_checkOnERC721Received(from, to, tokenId, data), "ERC721: transfer to non ERC721Receiver implementer");
-//     }
-//     function transferFrom( // transferFrom:[iAO] -> _transfer
-//         address from,
-//         address to,
-//         uint256 tokenId
-//     ) public virtual override {
-//         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
-//         _transfer(from, to, tokenId);
-//     }
-//     function safeTransferFrom( // safeTransferFrom:[iAO] -> _safeTransfer -> _transfer
-//         address from,
-//         address to,
-//         uint256 tokenId,
-//         bytes memory data
-//     ) public virtual override {
-//         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
-//         _safeTransfer(from, to, tokenId, data);
-//     }
-//     function safeTransferFrom(  // safeTransferFrom -> safeTransferFrom:[iAO] -> _safeTransfer -> _transfer
-//         address from,
-//         address to,
-//         uint256 tokenId
-//     ) public virtual override {
-//         safeTransferFrom(from, to, tokenId, "");  
-//     }
-
-    
-//     // ?? Modules can opt-in to approvals by allowing approve() ??
-
-//     // Maybe the module vs approved check should be on [iAO]
-//     // [iAO] checks 
-
-//     //                                          transferFrom:[iAO] -> _transfer
-//     //                     safeTransferFrom:[iAO] -> _safeTransfer -> _transfer
-//     // safeTransferFrom -> safeTransferFrom:[iAO] -> _safeTransfer -> _transfer
-
-//     /**
-
-//     // ERC721 ASSUMES: 
-//         Owner is allowed to transfer AND _msgSender() == ownerOf OR
-//         _msgSender() isApproved || isOperator
-//     // We WANT:
-//         Outsource all transfer logic to the module
-
-//     // dApps EXPECT to call: 
-//         CheqRegistrar.approve()
-//         CheqRegistrar.transferFrom()
-//     // dApps PROBABLY:
-//         Check approvals on the front-end then
-//         Call approve() if not approved and transferFrom() if they are
-
-
-//     transferFrom(){
-//         ICheqModule module = cheqInfo[cheqId].module;
-
-//         if(_msgSender() == address(module)){
-//             _transfer();
-//         } else{
-//             require(isApprovedOrOwner(_msgSender())); // Which only checks approvals, EOA owner must call from Module
-//             module.beforeTransfer(); // are before and after necessary??
-//             _transfer();
-//             module.afterTransfer();
-//         }
-//     }
-
-//      */
-// }
