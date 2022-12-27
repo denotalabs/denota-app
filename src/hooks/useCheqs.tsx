@@ -12,7 +12,6 @@ export interface Cheq {
   id: string;
   amount: number;
   amountRaw: BigNumber;
-  escrowed: number;
   sender: string;
   recipient: string;
   owner: string;
@@ -21,6 +20,7 @@ export interface Cheq {
   formattedRecipient: string;
   createdDate: Date;
   isCashed: boolean;
+  hasEscrow: boolean;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -49,14 +49,19 @@ export const useCheqs = ({ cheqField }: Props) => {
   const mapField = useCallback(
     (gqlCheq: any) => {
       const isCashed = gqlCheq.escrows.reduce(
-        (_: boolean, escrow: any) => BigInt(escrow.amount) < 0,
+        (current: boolean, escrow: any) => {
+          return current || BigInt(escrow.amount) < 0;
+        },
+        false
+      );
+      const hasEscrow = gqlCheq.escrows.reduce(
+        (current: boolean, escrow: any) => current || BigInt(escrow.amount) > 0,
         false
       );
       return {
         id: gqlCheq.id as string,
         amount: convertExponent(gqlCheq.amountExact as number),
         amountRaw: BigNumber.from(gqlCheq.amountExact),
-        escrowed: Number(gqlCheq.escrowedExact),
         token: currencyForTokenId(gqlCheq.erc20.id),
         recipient: gqlCheq.recipient.id as string,
         sender: gqlCheq.drawer.id as string,
@@ -71,6 +76,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         ),
         createdDate: new Date(Number(gqlCheq.createdAt) * 1000),
         isCashed,
+        hasEscrow,
       };
     },
     [blockchainState.account]

@@ -94,6 +94,7 @@ export function handleWrite(event: WrittenEvent): void {
   escrow.amount = event.params.escrowed;
   escrow.transaction = transactionHexHash; // TODO How OZ does it, how does it work?
   // transaction.events.concat(event)  // TODO How does OZ do this? Need to add TransferEvent & FundedEvent
+  escrow.save();
 
   const transaction = saveTransaction(
     transactionHexHash,
@@ -195,6 +196,7 @@ export function handleFund(event: FundedEvent): void {
   escrow.cheq = cheqId;
   escrow.from = fromAccount.id;
   escrow.amount = amount;
+  escrow.save();
 }
 
 export function handleCash(event: CashedEvent): void {
