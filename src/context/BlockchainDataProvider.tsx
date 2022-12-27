@@ -15,8 +15,13 @@ import { providerOptions } from "./providerOptions";
 import { mappingForChainId } from "./chainInfo";
 import { useColorMode } from "@chakra-ui/react";
 
-export const APIURL =
+export const APIURL_REMOTE =
   "http://ec2-3-88-32-213.compute-1.amazonaws.com/subgraphs/name/CheqRegistrar/CheqRegistrar";
+
+export const APIURL_LOCAL =
+  "http://localhost:8000/subgraphs/name/CheqRegistrar/CheqRegistrar";
+
+export const APIURL = APIURL_REMOTE;
 
 interface BlockchainDataInterface {
   account: string;

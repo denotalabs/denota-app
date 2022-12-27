@@ -28,7 +28,8 @@ import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 import { Spinner } from "@chakra-ui/react";
 
 export type CheqStatus =
-  | "pending"
+  | "pending_escrow"
+  | "pending_maturity"
   | "cashed"
   | "voidable"
   | "payable"
@@ -47,7 +48,8 @@ const STATUS_COLOR_MAP = {
   voidable: "gray.600",
   payable: "blue.900",
   paid: "green.900",
-  pending: "purple.900",
+  pending_escrow: "purple.900",
+  pending_maturity: "gray.600",
 };
 
 const TOOLTIP_MESSAGE_MAP = {
@@ -56,7 +58,8 @@ const TOOLTIP_MESSAGE_MAP = {
   voidable: "Payment has been made but can be cancelled",
   payable: "Payment is pending",
   paid: "Payment has been made",
-  pending: "Payment is pending",
+  pending_escrow: "Payment is pending",
+  pending_maturity: "Payment is pending",
 };
 
 function CheqCardV2({ cheq }: Props) {
@@ -76,6 +79,10 @@ function CheqCardV2({ cheq }: Props) {
     undefined
   );
 
+  const [isFunder, setIsFunder] = useState<boolean | undefined>(undefined);
+
+  const [isInvoice, setIsInvoice] = useState<boolean | undefined>(undefined);
+
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
   const [releaseInProgress, setReleaseInProgress] = useState(false);
@@ -86,69 +93,51 @@ function CheqCardV2({ cheq }: Props) {
     return cheq.createdDate.toLocaleDateString();
   }, [cheq.createdDate]);
 
-  const {
-    status,
-    type,
-  }: { status: CheqStatus | undefined; type: CheqType | undefined } =
-    useMemo(() => {
-      if (isCashable === undefined || isEarlyReleased === undefined) {
-        return { status: undefined, type: undefined };
-      }
+  const type = isInvoice ? "invoice" : "escrow";
 
-      // TODO: use another method for determining invoice vs cheq
-      if (cheq.owner === cheq.sender) {
-        if (cheq.isCashed) {
-          return { status: "cashed", type: "invoice" };
-        }
-        // Invoice
-        if (
-          blockchainState.account.toLowerCase() === cheq.recipient.toLowerCase()
-        ) {
-          if (isCashable) {
-            return { status: "voidable", type: "invoice" };
-          } else if (cheq.escrowed === 0) {
-            return { status: "payable", type: "invoice" };
-          } else {
-            return { status: "paid", type: "invoice" };
-          }
-        } else {
-          if (isCashable) {
-            return { status: "cashable", type: "invoice" };
-          } else {
-            return { status: "pending", type: "invoice" };
-          }
-        }
+  const status: CheqStatus | undefined = useMemo(() => {
+    if (
+      isCashable === undefined ||
+      isEarlyReleased === undefined ||
+      isFunder === undefined
+    ) {
+      return undefined;
+    }
+
+    if (cheq.isCashed) {
+      if (isFunder) {
+        return "paid";
       } else {
-        // Cheq
-        if (
-          blockchainState.account.toLowerCase() === cheq.sender.toLowerCase()
-        ) {
-          if (cheq.isCashed) {
-            return { status: "cashed", type: "escrow" };
-          }
-          if (isCashable) {
-            return { status: "voidable", type: "escrow" };
-          } else {
-            return { status: "paid", type: "escrow" };
-          }
-        } else {
-          if (isCashable) {
-            return { status: "cashable", type: "escrow" };
-          } else {
-            return { status: "pending", type: "escrow" };
-          }
-        }
+        return "cashed";
       }
-    }, [
-      blockchainState.account,
-      cheq.escrowed,
-      cheq.isCashed,
-      cheq.owner,
-      cheq.recipient,
-      cheq.sender,
-      isCashable,
-      isEarlyReleased,
-    ]);
+    }
+
+    if (isEarlyReleased && isFunder) {
+      return "paid";
+    }
+
+    if (isCashable) {
+      if (isFunder) {
+        return "voidable";
+      } else {
+        return "cashable";
+      }
+    }
+
+    if (!cheq.hasEscrow) {
+      if (isFunder) {
+        return "payable";
+      } else {
+        return "pending_escrow";
+      }
+    }
+
+    if (isFunder) {
+      return "paid";
+    }
+
+    return "pending_maturity";
+  }, [cheq.hasEscrow, cheq.isCashed, isCashable, isEarlyReleased, isFunder]);
 
   useEffect(() => {
     async function fetchData() {
@@ -168,6 +157,12 @@ function CheqCardV2({ cheq }: Props) {
         const isEarlyReleased =
           await blockchainState.selfSignBroker?.isEarlyReleased(cheqId);
         setIsEarlyReleased(isEarlyReleased);
+
+        const funder = await blockchainState.selfSignBroker?.cheqFunder(cheqId);
+        setIsFunder(
+          blockchainState.account.toLowerCase() === funder.toLowerCase()
+        );
+        setIsInvoice(cheq.recipient.toLowerCase() === funder.toLowerCase());
       } catch (error) {
         console.log(error);
       }
@@ -178,6 +173,7 @@ function CheqCardV2({ cheq }: Props) {
     blockchainState.selfSignBroker,
     cheq.createdDate,
     cheq.id,
+    cheq.recipient,
   ]);
 
   const cashCheq = useCallback(async () => {
