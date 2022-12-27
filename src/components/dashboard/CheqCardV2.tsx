@@ -13,6 +13,10 @@ import {
   Tooltip,
   Skeleton,
   Box,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,6 +25,7 @@ import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
+import { Spinner } from "@chakra-ui/react";
 
 export type CheqStatus =
   | "pending"
@@ -37,7 +42,7 @@ interface Props {
 }
 
 const STATUS_COLOR_MAP = {
-  cashed: "blue.900",
+  cashed: "orange.900",
   cashable: "green.900",
   voidable: "gray.600",
   payable: "blue.900",
@@ -67,7 +72,13 @@ function CheqCardV2({ cheq }: Props) {
 
   const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
 
+  const [isEarlyReleased, setIsEarlyReleased] = useState<boolean | undefined>(
+    undefined
+  );
+
   const [cashingInProgress, setCashingInProgress] = useState(false);
+
+  const [releaseInProgress, setReleaseInProgress] = useState(false);
 
   const [maturityDate, setMaturityDate] = useState("");
 
@@ -80,12 +91,15 @@ function CheqCardV2({ cheq }: Props) {
     type,
   }: { status: CheqStatus | undefined; type: CheqType | undefined } =
     useMemo(() => {
-      if (isCashable === undefined) {
+      if (isCashable === undefined || isEarlyReleased === undefined) {
         return { status: undefined, type: undefined };
       }
 
       // TODO: use another method for determining invoice vs cheq
       if (cheq.owner === cheq.sender) {
+        if (cheq.isCashed) {
+          return { status: "cashed", type: "invoice" };
+        }
         // Invoice
         if (
           blockchainState.account.toLowerCase() === cheq.recipient.toLowerCase()
@@ -110,6 +124,9 @@ function CheqCardV2({ cheq }: Props) {
         if (
           blockchainState.account.toLowerCase() === cheq.sender.toLowerCase()
         ) {
+          if (cheq.isCashed) {
+            return { status: "cashed", type: "escrow" };
+          }
           // BUG: will appear as payable after it's been cashed
           if (isCashable) {
             return { status: "voidable", type: "escrow" };
@@ -124,7 +141,16 @@ function CheqCardV2({ cheq }: Props) {
           }
         }
       }
-    }, [blockchainState.account, cheq, isCashable]);
+    }, [
+      blockchainState.account,
+      cheq.escrowed,
+      cheq.isCashed,
+      cheq.owner,
+      cheq.recipient,
+      cheq.sender,
+      isCashable,
+      isEarlyReleased,
+    ]);
 
   useEffect(() => {
     async function fetchData() {
@@ -140,6 +166,10 @@ function CheqCardV2({ cheq }: Props) {
         const date = new Date(cheq.createdDate);
         date.setDate(date.getDate() + maturity.toNumber() / 86400);
         setMaturityDate(date.toDateString());
+
+        const isEarlyReleased =
+          await blockchainState.selfSignBroker?.isEarlyReleased(cheqId);
+        setIsEarlyReleased(isEarlyReleased);
       } catch (error) {
         console.log(error);
       }
@@ -156,22 +186,38 @@ function CheqCardV2({ cheq }: Props) {
     setCashingInProgress(true);
 
     try {
-      const cheqId = BigNumber.from(cheq.id);
-      const caller = blockchainState.account;
-      const cashableAmount: number =
-        await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
-
-      const tx = await blockchainState.selfSignBroker?.cashCheq(
-        cheqId,
-        cashableAmount
-      );
-      await tx.wait();
+      if (blockchainState.selfSignBroker) {
+        const cheqId = BigNumber.from(cheq.id);
+        const tx = await blockchainState.selfSignBroker["cashCheq(uint256)"](
+          cheqId
+        );
+        await tx.wait();
+      }
     } catch (error) {
       console.log(error);
     } finally {
       setCashingInProgress(false);
     }
-  }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
+  }, [blockchainState.selfSignBroker, cheq.id]);
+
+  const earlyRelease = useCallback(async () => {
+    setReleaseInProgress(true);
+
+    try {
+      const cheqId = BigNumber.from(cheq.id);
+
+      const tx = await blockchainState.selfSignBroker?.earlyRelease(
+        cheqId,
+        true
+      );
+      await tx.wait();
+      setIsEarlyReleased(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setReleaseInProgress(false);
+    }
+  }, [blockchainState.selfSignBroker, cheq.id]);
 
   const {
     isOpen: isDetailsOpen,
@@ -256,7 +302,7 @@ function CheqCardV2({ cheq }: Props) {
 
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
-            <ButtonGroup gap="4">
+            <ButtonGroup colorScheme="teal">
               {status === "cashable" ? (
                 <Button
                   w="min(40vw, 100px)"
@@ -278,15 +324,24 @@ function CheqCardV2({ cheq }: Props) {
                   Pay
                 </Button>
               ) : null}
-              {status === "voidable" ? (
-                <Button
-                  w="min(40vw, 100px)"
-                  borderRadius={5}
-                  colorScheme="teal"
-                  onClick={cashCheq}
-                >
-                  Void
-                </Button>
+
+              {status === "voidable" && !isEarlyReleased ? (
+                <Menu>
+                  <MenuButton
+                    disabled={releaseInProgress || cashingInProgress}
+                    as={Button}
+                    minW={0}
+                  >
+                    Options{" "}
+                    {releaseInProgress || cashingInProgress ? (
+                      <Spinner size="xs" />
+                    ) : null}
+                  </MenuButton>
+                  <MenuList alignItems={"center"}>
+                    <MenuItem onClick={earlyRelease}>Release</MenuItem>
+                    <MenuItem onClick={cashCheq}>Void</MenuItem>
+                  </MenuList>
+                </Menu>
               ) : null}
               <Button
                 w="min(40vw, 100px)"

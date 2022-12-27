@@ -20,6 +20,7 @@ export interface Cheq {
   formattedSender: string;
   formattedRecipient: string;
   createdDate: Date;
+  isCashed: boolean;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -47,6 +48,10 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const mapField = useCallback(
     (gqlCheq: any) => {
+      const isCashed = gqlCheq.escrows.reduce(
+        (_: boolean, escrow: any) => BigInt(escrow.amount) < 0,
+        false
+      );
       return {
         id: gqlCheq.id as string,
         amount: convertExponent(gqlCheq.amountExact as number),
@@ -65,6 +70,7 @@ export const useCheqs = ({ cheqField }: Props) => {
           blockchainState.account
         ),
         createdDate: new Date(Number(gqlCheq.createdAt) * 1000),
+        isCashed,
       };
     },
     [blockchainState.account]
@@ -93,6 +99,10 @@ export const useCheqs = ({ cheqField }: Props) => {
             erc20 {
               id
             }
+            escrows {
+              id
+              amount
+            }
           }
           cheqsReceived(orderBy: createdAt, orderDirection: desc) {
             id
@@ -110,6 +120,10 @@ export const useCheqs = ({ cheqField }: Props) => {
             }
             erc20 {
               id
+            }
+            escrows {
+              id
+              amount
             }
           }
        }
