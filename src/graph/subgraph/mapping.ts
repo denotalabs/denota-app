@@ -231,6 +231,7 @@ export function handleCash(event: CashedEvent): void {
   escrow.cheq = cheqId;
   escrow.from = toAccount.id;
   escrow.amount = amount.neg(); // TODO may need more general differentiation of Cashing/Funding
+  escrow.save();
 }
 
 export function handleWhitelist(event: ModuleWhitelisted): void {

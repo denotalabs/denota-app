@@ -42,7 +42,7 @@ interface Props {
 }
 
 const STATUS_COLOR_MAP = {
-  cashed: "blue.900",
+  cashed: "orange.900",
   cashable: "green.900",
   voidable: "gray.600",
   payable: "blue.900",
@@ -97,6 +97,9 @@ function CheqCardV2({ cheq }: Props) {
 
       // TODO: use another method for determining invoice vs cheq
       if (cheq.owner === cheq.sender) {
+        if (cheq.isCashed) {
+          return { status: "cashed", type: "invoice" };
+        }
         // Invoice
         if (
           blockchainState.account.toLowerCase() === cheq.recipient.toLowerCase()
@@ -121,6 +124,9 @@ function CheqCardV2({ cheq }: Props) {
         if (
           blockchainState.account.toLowerCase() === cheq.sender.toLowerCase()
         ) {
+          if (cheq.isCashed) {
+            return { status: "cashed", type: "escrow" };
+          }
           // BUG: will appear as payable after it's been cashed
           if (isCashable) {
             return { status: "voidable", type: "escrow" };
@@ -138,6 +144,7 @@ function CheqCardV2({ cheq }: Props) {
     }, [
       blockchainState.account,
       cheq.escrowed,
+      cheq.isCashed,
       cheq.owner,
       cheq.recipient,
       cheq.sender,
@@ -179,22 +186,19 @@ function CheqCardV2({ cheq }: Props) {
     setCashingInProgress(true);
 
     try {
-      const cheqId = BigNumber.from(cheq.id);
-      const caller = blockchainState.account;
-      const cashableAmount: number =
-        await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
-
-      const tx = await blockchainState.selfSignBroker?.cashCheq(
-        cheqId,
-        cashableAmount
-      );
-      await tx.wait();
+      if (blockchainState.selfSignBroker) {
+        const cheqId = BigNumber.from(cheq.id);
+        const tx = await blockchainState.selfSignBroker["cashCheq(uint256)"](
+          cheqId
+        );
+        await tx.wait();
+      }
     } catch (error) {
       console.log(error);
     } finally {
       setCashingInProgress(false);
     }
-  }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
+  }, [blockchainState.selfSignBroker, cheq.id]);
 
   const earlyRelease = useCallback(async () => {
     setReleaseInProgress(true);
