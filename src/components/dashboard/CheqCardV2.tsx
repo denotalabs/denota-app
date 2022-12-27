@@ -13,6 +13,10 @@ import {
   Tooltip,
   Skeleton,
   Box,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,6 +25,7 @@ import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
+import { Spinner } from "@chakra-ui/react";
 
 export type CheqStatus =
   | "pending"
@@ -67,7 +72,13 @@ function CheqCardV2({ cheq }: Props) {
 
   const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
 
+  const [isEarlyReleased, setIsEarlyReleased] = useState<boolean | undefined>(
+    undefined
+  );
+
   const [cashingInProgress, setCashingInProgress] = useState(false);
+
+  const [releaseInProgress, setReleaseInProgress] = useState(false);
 
   const [maturityDate, setMaturityDate] = useState("");
 
@@ -80,7 +91,7 @@ function CheqCardV2({ cheq }: Props) {
     type,
   }: { status: CheqStatus | undefined; type: CheqType | undefined } =
     useMemo(() => {
-      if (isCashable === undefined) {
+      if (isCashable === undefined || isEarlyReleased === undefined) {
         return { status: undefined, type: undefined };
       }
 
@@ -124,7 +135,15 @@ function CheqCardV2({ cheq }: Props) {
           }
         }
       }
-    }, [blockchainState.account, cheq, isCashable]);
+    }, [
+      blockchainState.account,
+      cheq.escrowed,
+      cheq.owner,
+      cheq.recipient,
+      cheq.sender,
+      isCashable,
+      isEarlyReleased,
+    ]);
 
   useEffect(() => {
     async function fetchData() {
@@ -140,6 +159,10 @@ function CheqCardV2({ cheq }: Props) {
         const date = new Date(cheq.createdDate);
         date.setDate(date.getDate() + maturity.toNumber() / 86400);
         setMaturityDate(date.toDateString());
+
+        const isEarlyReleased =
+          await blockchainState.selfSignBroker?.isEarlyReleased(cheqId);
+        setIsEarlyReleased(isEarlyReleased);
       } catch (error) {
         console.log(error);
       }
@@ -172,6 +195,25 @@ function CheqCardV2({ cheq }: Props) {
       setCashingInProgress(false);
     }
   }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
+
+  const earlyRelease = useCallback(async () => {
+    setReleaseInProgress(true);
+
+    try {
+      const cheqId = BigNumber.from(cheq.id);
+
+      const tx = await blockchainState.selfSignBroker?.earlyRelease(
+        cheqId,
+        true
+      );
+      await tx.wait();
+      setIsEarlyReleased(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setReleaseInProgress(false);
+    }
+  }, [blockchainState.selfSignBroker, cheq.id]);
 
   const {
     isOpen: isDetailsOpen,
@@ -256,7 +298,7 @@ function CheqCardV2({ cheq }: Props) {
 
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
-            <ButtonGroup gap="4">
+            <ButtonGroup colorScheme="teal">
               {status === "cashable" ? (
                 <Button
                   w="min(40vw, 100px)"
@@ -278,15 +320,24 @@ function CheqCardV2({ cheq }: Props) {
                   Pay
                 </Button>
               ) : null}
-              {status === "voidable" ? (
-                <Button
-                  w="min(40vw, 100px)"
-                  borderRadius={5}
-                  colorScheme="teal"
-                  onClick={cashCheq}
-                >
-                  Void
-                </Button>
+
+              {status === "voidable" && !isEarlyReleased ? (
+                <Menu>
+                  <MenuButton
+                    disabled={releaseInProgress || cashingInProgress}
+                    as={Button}
+                    minW={0}
+                  >
+                    Options{" "}
+                    {releaseInProgress || cashingInProgress ? (
+                      <Spinner size="xs" />
+                    ) : null}
+                  </MenuButton>
+                  <MenuList alignItems={"center"}>
+                    <MenuItem onClick={earlyRelease}>Release</MenuItem>
+                    <MenuItem onClick={cashCheq}>Void</MenuItem>
+                  </MenuList>
+                </Menu>
               ) : null}
               <Button
                 w="min(40vw, 100px)"
