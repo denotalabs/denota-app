@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "src/contracts/CheqRegistrar.sol";
+import { CheqRegistrar } from "src/contracts/CheqRegistrar.sol";
 import "../contracts/SelfSignTimeLock.sol";
 import "./mock/erc20.sol";
 
@@ -14,7 +14,7 @@ contract ContractTest is Test {
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
 
     function setUp() public { 
-        cheq = new CheqRegistrar();  // ContractTest is the owner
+        cheq = new CheqRegistrar(0, 0, 0, 0, 0);  // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI");  // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
 
@@ -37,25 +37,26 @@ contract ContractTest is Test {
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);  // How to test successful deployment
 
         assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Unauthorized whitelist");
-        cheq.whitelistModule(selfSignedTL, true, "SelfSignTimeLock");
+        cheq.whitelistModule(selfSignedTL, true);
         assertTrue(cheq.userModuleWhitelist(address(this), selfSignedTL), "Whitelisting failed");
 
-        cheq.whitelistModule(selfSignedTL, false, "SelfSignTimeLock");
+        cheq.whitelistModule(selfSignedTL, false);
         assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Un-whitelisting failed");
     }
 
-    function testFailWhitelist(address caller) public {
-        vm.assume(caller != address(this));  // Deployer can whitelist, test others accounts
-        SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
-        vm.prank(caller);
-        cheq.whitelistModule(selfSignedTL, true, "SelfSignTimeLock");
-        assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Unauthorized whitelist");
-    }
+    // function testFailWhitelist(address caller) public {
+    //     vm.assume(caller == address(0));  // Deployer can whitelist, test others accounts
+    //     SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
+    //     vm.prank(caller);
+    //     cheq.whitelistModule(selfSignedTL, true);
+    //     assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Unauthorized whitelist");
+    // }
 
-    function setUpTimelock() public returns (SelfSignTimeLock){  // Deploy and whitelist timelock module
+    function setUpTimelock(address caller) public returns (SelfSignTimeLock){  // Deploy and whitelist timelock module
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
         vm.label(address(selfSignedTL), "SelfSignTimeLock");
-        cheq.whitelistModule(selfSignedTL, true, "SelfSignTimeLock");
+        vm.prank(caller);
+        cheq.whitelistModule(selfSignedTL, true);
         return selfSignedTL;
     }
 
@@ -87,7 +88,7 @@ contract ContractTest is Test {
         dai.approve(address(cheq), amount);
 
         assertTrue(dai.balanceOf(address(cheq)) == 0);
-        cheq.deposit(_to, dai, amount);
+        cheq.deposit(dai, _to, amount);
         assertTrue(dai.balanceOf(address(cheq)) == amount);
         assertTrue(cheq.deposits(_to, dai) == amount, "Dai didn't deposit to _to");
     }
@@ -106,7 +107,8 @@ contract ContractTest is Test {
     }
 
     function testWriteCheq(address caller, uint256 amount, address recipient, uint256 duration) public {
-        vm.assume(amount > 0  && amount <= dai.totalSupply());
+        vm.assume(amount <= dai.totalSupply());
+        vm.assume(amount > 0);
         vm.assume(caller != recipient);
         vm.assume(caller != address(0));
         vm.assume(recipient != address(0));
@@ -114,7 +116,7 @@ contract ContractTest is Test {
         vm.assume(caller != recipient);
         vm.assume(duration < type(uint256).max);
 
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, caller);
 
         assertTrue(cheq.balanceOf(caller) == 0, "Caller already had a cheq");
@@ -130,12 +132,11 @@ contract ContractTest is Test {
         assertTrue(cheq.balanceOf(recipient) == 1, "Recipient didnt get a cheq");
 
         // ICheqModule wrote correctly to CheqRegistrar storage
-        (IERC20 token, uint256 amount1, /* uint256 escrowed */, address drawer, address recipient1, ICheqModule module) = cheq.cheqInfo(cheqId);
-        assertTrue(amount1 == amount, "Incorrect amount");
-        assertTrue(token == dai, "Incorrect token");
-        assertTrue(drawer == caller, "Incorrect drawer");
-        assertTrue(recipient1 == recipient, "Incorrect recipient");
-        assertTrue(address(module) == address(sstl), "Incorrect module");
+        assertTrue(cheq.cheqAmount(cheqId) == amount, "Incorrect amount");
+        assertTrue(cheq.cheqToken(cheqId) == dai, "Incorrect token");
+        assertTrue(cheq.cheqDrawer(cheqId) == caller, "Incorrect drawer");
+        assertTrue(cheq.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
+        assertTrue(address(cheq.cheqModule(cheqId)) == address(sstl), "Incorrect module");
         
         // ICheqModule wrote correctly to it's storage
         assertTrue(sstl.cheqFunder(cheqId) == caller, "Incorrect funder");
@@ -145,7 +146,7 @@ contract ContractTest is Test {
     }
 
     function testWriteInvoice(address caller, address recipient, uint256 duration, uint256 amount) public {
-        vm.assume(amount == 0);
+        vm.assume(amount != 0);
         vm.assume(caller != recipient);
         vm.assume(caller != address(0));
         vm.assume(recipient != address(0));
@@ -156,7 +157,7 @@ contract ContractTest is Test {
         assertTrue(cheq.balanceOf(recipient) == 0);
         assertTrue(cheq.totalSupply() == 0, "Cheq supply non-zero");
         
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         vm.prank(caller);
         uint256 cheqId = sstl.writeCheq(dai, amount, 0, recipient, duration);
         assertTrue(cheq.deposits(caller, dai) == 0, "Writer gained a deposit");
@@ -165,14 +166,12 @@ contract ContractTest is Test {
         assertTrue(cheq.balanceOf(recipient) == 0, "Recipient gained a cheq");
         assertTrue(cheq.ownerOf(cheqId) == caller, "Invoicer isn't owner");
         
-        (IERC20 token, uint256 amount1, uint256 escrowed, address drawer, address recipient1, ICheqModule module) = cheq.cheqInfo(cheqId);
-        // ICheqModule wrote correctly to CheqRegistrar
-        assertTrue(token == dai, "Incorrect token");
-        assertTrue(amount1 == amount, "Incorrect amount");
-        assertTrue(escrowed == 0, "Incorrect escrowed amount");
-        assertTrue(drawer == caller, "Incorrect drawer");
-        assertTrue(recipient1 == recipient, "Incorrect recipient");
-        assertTrue(address(module) == address(sstl), "Incorrect module");
+        // ICheqModule wrote correctly to CheqRegistrar storage
+        assertTrue(cheq.cheqAmount(cheqId) == amount, "Incorrect amount");
+        assertTrue(cheq.cheqToken(cheqId) == dai, "Incorrect token");
+        assertTrue(cheq.cheqDrawer(cheqId) == caller, "Incorrect drawer");
+        assertTrue(cheq.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
+        assertTrue(address(cheq.cheqModule(cheqId)) == address(sstl), "Incorrect module");
         
         // ICheqModule wrote correctly to it's storage
         assertTrue(sstl.cheqFunder(cheqId) == recipient, "Cheq reciever is same as on cheq");
@@ -183,7 +182,7 @@ contract ContractTest is Test {
 
     function testFailWriteCheq(address caller, uint256 amount, address recipient, uint256 duration) public {
         vm.assume(amount <= dai.totalSupply());
-        vm.assume(amount >0);
+        vm.assume(amount > 0);
         vm.assume(caller != recipient);
         vm.assume(caller != address(0));
         vm.assume(recipient != address(0));
@@ -191,7 +190,7 @@ contract ContractTest is Test {
         vm.assume(caller != recipient);
         vm.assume(duration < type(uint256).max);
 
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         // Can't write cheq without a deposit on crx
         vm.prank(caller);
         sstl.writeCheq(dai, amount, amount, recipient, duration);
@@ -214,23 +213,22 @@ contract ContractTest is Test {
     }
 
     function helperCheqInfo(uint256 cheqId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {  // BUG: too many local variables
-        (IERC20 token, uint256 amount1, uint256 escrowed, address drawer, address recipient1, ICheqModule module) = cheq.cheqInfo(cheqId);
-        // ICheqModule wrote correctly to CheqRegistrar
-        assertTrue(token == dai, "Incorrect token");
-        assertTrue(amount1 == amount, "Incorrect amount");
-        assertTrue(recipient1 == recipient, "Incorrect recipient");
-        assertTrue(drawer == sender, "Incorrect drawer");
-        assertTrue(address(module) == address(sstl), "Incorrect module");
+        // ICheqModule wrote correctly to CheqRegistrar storage
+        assertTrue(cheq.cheqAmount(cheqId) == amount, "Incorrect amount");
+        assertTrue(cheq.cheqToken(cheqId) == dai, "Incorrect token");
+        assertTrue(cheq.cheqDrawer(cheqId) == sender, "Incorrect drawer");
+        assertTrue(cheq.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
+        assertTrue(address(cheq.cheqModule(cheqId)) == address(sstl), "Incorrect module");
 
         // ICheqModule wrote correctly to it's storage
         if (sstl.cheqFunder(cheqId) == sender){  // Cheq
-            assertTrue(escrowed == amount, "Incorrect escrowed amount");
-            assertTrue(sstl.cheqFunder(cheqId) == drawer, "Cheq funder is not the sender");
+            assertTrue(cheq.cheqEscrowed(cheqId) == amount, "Incorrect escrowed amount");
+            assertTrue(sstl.cheqFunder(cheqId) == cheq.cheqDrawer(cheqId), "Cheq funder is not the sender");
             assertTrue(sstl.cheqReceiver(cheqId) == recipient, "Cheq reciever is not recipient"); 
         } else {  // Invoice
-            assertTrue(escrowed == 0, "Incorrect escrowed amount");
-            assertTrue(sstl.cheqFunder(cheqId) == recipient1, "Cheq reciever is same as on cheq");
-            assertTrue(sstl.cheqReceiver(cheqId) == drawer, "Cheq reciever is same as on SSTL"); 
+            assertTrue(cheq.cheqEscrowed(cheqId) == 0, "Incorrect escrowed amount");
+            assertTrue(sstl.cheqFunder(cheqId) == cheq.cheqRecipient(cheqId), "Cheq reciever is same as on cheq");
+            assertTrue(sstl.cheqReceiver(cheqId) == cheq.cheqDrawer(cheqId), "Cheq reciever is same as on SSTL"); 
         }
         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Cheq created not at block.timestamp");
         assertTrue(sstl.cheqInspectionPeriod(cheqId) == duration, "Expired");
@@ -274,7 +272,7 @@ contract ContractTest is Test {
         vm.assume(caller != recipient);
         vm.assume(duration < type(uint256).max);
 
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, caller);
         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
         vm.prank(recipient);
@@ -282,7 +280,7 @@ contract ContractTest is Test {
     }
 
     function testFailTransferCheq(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, caller);  // caller is writer
         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
         // Non-owner transfer
@@ -305,7 +303,7 @@ contract ContractTest is Test {
         vm.assume(caller != recipient);
         vm.assume(duration < type(uint256).max);
 
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, caller);
         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
         vm.prank(caller);
@@ -313,7 +311,7 @@ contract ContractTest is Test {
     }
 
     function testFailTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, caller);
         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 
@@ -347,7 +345,7 @@ contract ContractTest is Test {
         vm.assume(caller != recipient);
         vm.assume(duration < type(uint256).max);
 
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, recipient);  // Recipient will be the funder
         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
         vm.prank(recipient);  // This can be anybody
@@ -360,7 +358,7 @@ contract ContractTest is Test {
     function testFailFundInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
         vm.assume(random != 0);
 
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, recipient);  // Recipient will be the funder
         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
         vm.prank(recipient); 
@@ -389,12 +387,11 @@ contract ContractTest is Test {
         vm.assume(caller != recipient);
         vm.assume(duration < type(uint256).max);
 
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         // Write cheq from: caller, owner: recipient, to: recipient
         depositHelper(amount, caller);  
         console.log("Supply", cheq.totalSupply());
         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
-        console.log("ID", cheqId);
         
         vm.startPrank(recipient);
         vm.warp(block.timestamp + duration);
@@ -403,7 +400,7 @@ contract ContractTest is Test {
     }
 
     function testCashInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {
-        vm.assume(amount <= dai.totalSupply());  //amount > 0  && 
+        vm.assume(amount > 0  && amount <= dai.totalSupply());  //
         vm.assume(caller != recipient);
         vm.assume(caller != address(0));
         vm.assume(recipient != address(0));
@@ -412,7 +409,7 @@ contract ContractTest is Test {
         vm.assume(caller != recipient);
         vm.assume(duration < type(uint256).max);
 
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, recipient);
         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 
@@ -427,7 +424,7 @@ contract ContractTest is Test {
 
     function testFailCashCheq(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
         vm.assume(amount != 0);
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, recipient);
         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
         // Can't cash until its time
@@ -443,7 +440,7 @@ contract ContractTest is Test {
     function testFailCashInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
         vm.assume(random != 0);
         vm.assume(amount != 0);
-        vm.assume(amount <= dai.totalSupply());  //amount > 0  && 
+        vm.assume(amount > 0  && amount <= dai.totalSupply()); 
         vm.assume(caller != recipient);
         vm.assume(caller != address(0));
         vm.assume(recipient != address(0));
@@ -454,7 +451,7 @@ contract ContractTest is Test {
         // if (!cheqWriteCondition(caller, amount, recipient, duration) || amount != 0){
         //     require(false, "bad fuzzing");
         // }
-        SelfSignTimeLock sstl = setUpTimelock();
+        SelfSignTimeLock sstl = setUpTimelock(caller);
         depositHelper(amount, recipient);  
         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 

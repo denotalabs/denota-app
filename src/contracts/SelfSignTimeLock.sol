@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.14;
-import "../contracts/CheqRegistrar.sol";
+
+import { CheqRegistrar } from "./CheqRegistrar.sol";
+import "./ICheqModule.sol";
+import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
-import "./ICheqModule.sol";
 
-contract SelfSignTimeLock is ICheqModule, Ownable {  
+contract SelfSignTimeLock is ICheqModule, Ownable, ERC721 {  
     CheqRegistrar public cheq;
     mapping(uint256 => address) public cheqFunder;
     mapping(uint256 => address) public cheqReceiver;
@@ -13,18 +15,18 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
     mapping(uint256 => uint256) public cheqInspectionPeriod;
     mapping(uint256 => bool) public isEarlyReleased;  // TODO: add early release
     mapping(IERC20 => bool) public tokenWhitelist;
-    string private _baseURI;
+    string private baseURI;
 
     function whitelistToken(IERC20 token, bool isAccepted) public onlyOwner {
         tokenWhitelist[token] = isAccepted;
     }
-    constructor(CheqRegistrar _cheq){
+    constructor(CheqRegistrar _cheq) ERC721("", ""){
         cheq = _cheq;
     }
+
     function isWriteable(address, IERC20, uint256, uint256, address, address) public pure returns(bool) { 
         return true;
     }
-
     function writeCheq(   // Integer overflows if block.timestamp+inspectionPeriod too large, solidity 0.8 reverts
         IERC20 _token,
         uint256 amount,
@@ -34,7 +36,7 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
         ) public returns(uint256){  // If no escrow its an invoice
 
         require(recipient != _msgSender(), "Can't self send");
-
+        require(amount > 0, "Can't send cheq with 0 value");
         if (escrow == 0){  // Invoice
             uint256 cheqId = cheq.write(_msgSender(), recipient, _token, amount, escrow, _msgSender());  // Sender is owner
             cheqCreated[cheqId] = block.timestamp;
@@ -45,7 +47,7 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
         } else {  // Cheq
             if (cheq.deposits(_msgSender(), _token) < escrow){
                 uint256 shortfall = escrow - cheq.deposits(_msgSender(), _token);
-                require(cheq.deposit(_msgSender(), _token, shortfall), "Deposit failed");
+                require(cheq.deposit(_token, _msgSender(), shortfall), "Deposit failed");
             }
             // require(cheq.deposits(_msgSender(), _token) + _token.balanceOf(_msgSender()) >= amount, "Must have reserves to send partial");
             uint256 cheqId = cheq.write(_msgSender(), recipient, _token, amount, escrow, recipient);
@@ -60,7 +62,6 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
     function isTransferable(uint256 cheqId, address caller, address /* to */) public view returns(bool){
         return cheq.ownerOf(cheqId)==caller;  // Would caller ever be addres(0)
     }
-
     function transferCheq(uint256 cheqId, address to) public {
         require(isTransferable(cheqId, _msgSender(), to), "Not owner");
         cheq.transferFrom(_msgSender(), to, cheqId);
@@ -73,15 +74,14 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
             return 0;
         }
     }
-
     function fundCheq(uint256 cheqId, uint256 amount) public {  
         uint256 fundableAmount = fundable(cheqId, _msgSender(), amount);
-        require(fundableAmount > 0, "Not fundable"); 
+        // require(fundableAmount > 0, "Not fundable");  // Are 
         require(fundableAmount == amount, "Cant fund this amount");
         IERC20 _token = cheq.cheqToken(cheqId);
         if (cheq.deposits(_msgSender(), _token) < amount){
             uint256 shortfall = amount - cheq.deposits(_msgSender(), _token);
-            require(cheq.deposit(_msgSender(), _token, shortfall), "Deposit failed");
+            require(cheq.deposit(_token, _msgSender(), shortfall), "Deposit failed");
         }
         cheq.fund(cheqId, _msgSender(), amount);
         cheqCreated[cheqId] = block.timestamp;  // BUG: can update with 0 at any time- If it can be funded its an invoice, reset creation date for job start
@@ -100,41 +100,35 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
             return 0;
         }
     }
-
     function cashCheq(uint256 cheqId, uint256 amount) public {  // TODO: allow anyone to cash for someone?
         uint256 cashableAmount = cashable(cheqId, _msgSender(), amount);
         require(cashableAmount == amount, "Cant cash this amount");
         cheq.cash(cheqId, _msgSender(), amount);
     }
-
     function cashCheq(uint256 cheqId) public {
         uint256 cashableAmount = cashable(cheqId, _msgSender(), 0);
         cashCheq(cheqId, cashableAmount);
     }
-
     function isApprovable(uint256 cheqId, address caller, address /* to */) public view returns(bool){
         return cheq.ownerOf(cheqId) == caller;  // 
     }
-    
-    function approveCheq(address to, uint256 cheqId) public {
+    function getApproved(uint256 cheqId) public view override(ERC721, ICheqModule) returns (address){
+        return address(0);
+    }
+    function approveCheq(uint256 cheqId, address to) public returns (bool) {
         require(isApprovable(cheqId, _msgSender(), to), "");
-        cheq.approve(to, cheqId);
+        return true;
+    }
+    function tokenURI(uint256 tokenId) public view override(ERC721, ICheqModule) returns (string memory){
+        return string(abi.encodePacked(baseURI, tokenId));
+    }
+    function setBaseURI(string calldata _baseURI) external onlyOwner {
+        baseURI = _baseURI;
     }
 
     function earlyRelease(uint256 cheqId, bool isReleased) public {
         require(cheqFunder[cheqId]==_msgSender(), "only funder can release early");
         isEarlyReleased[cheqId] = isReleased;
-    }
-
-    function tokenURI(uint256 tokenId) external view returns (string memory){
-        return string(abi.encodePacked(_baseURI, tokenId));
-    }
-
-    function baseURI() public view returns (string memory){
-        return _baseURI;
-    }
-    function setBaseURI(string calldata baseURI_) external onlyOwner {
-        _baseURI = baseURI_;
     }
     // function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
     //     _exists(tokenId);
