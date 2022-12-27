@@ -8,6 +8,7 @@ services:
       - "8020:8020"
       - "8030:8030"
       - "8040:8040"
+      - "80:8000"
     depends_on:
       - ipfs
       - postgres
@@ -19,6 +20,10 @@ services:
       ipfs: "ipfs:5001"
       ethereum: "mumbai:https://matic-mumbai.chainstacklabs.com"
       GRAPH_LOG: info
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2048m"
   ipfs:
     image: ipfs/go-ipfs:v0.4.23
     ports:
