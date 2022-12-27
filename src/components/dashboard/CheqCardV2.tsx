@@ -104,7 +104,6 @@ function CheqCardV2({ cheq }: Props) {
         if (
           blockchainState.account.toLowerCase() === cheq.recipient.toLowerCase()
         ) {
-          // BUG: will appear as payable after it's been cashed
           if (isCashable) {
             return { status: "voidable", type: "invoice" };
           } else if (cheq.escrowed === 0) {
@@ -127,7 +126,6 @@ function CheqCardV2({ cheq }: Props) {
           if (cheq.isCashed) {
             return { status: "cashed", type: "escrow" };
           }
-          // BUG: will appear as payable after it's been cashed
           if (isCashable) {
             return { status: "voidable", type: "escrow" };
           } else {
