@@ -85,6 +85,8 @@ function CheqCardV2({ cheq }: Props) {
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
+  const [cashingComplete, setCashingComplete] = useState<boolean>(false);
+
   const [releaseInProgress, setReleaseInProgress] = useState(false);
 
   const [maturityDate, setMaturityDate] = useState("");
@@ -104,7 +106,7 @@ function CheqCardV2({ cheq }: Props) {
       return undefined;
     }
 
-    if (cheq.isCashed) {
+    if (cheq.isCashed || cashingComplete) {
       if (isFunder) {
         return "paid";
       } else {
@@ -186,6 +188,7 @@ function CheqCardV2({ cheq }: Props) {
           cheqId
         );
         await tx.wait();
+        setCashingComplete(true);
       }
     } catch (error) {
       console.log(error);
