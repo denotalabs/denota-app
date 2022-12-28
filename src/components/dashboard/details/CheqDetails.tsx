@@ -25,12 +25,12 @@ function CheqDetails({ cheq, maturityDate }: Props) {
             value={String(cheq.amount) + " " + cheq.token}
           />
           {/* TODO: show maturity date */}
-          <DetailsRow title="Broker" value="Self-signed timelock" />
+          <DetailsRow title="Module" value="Self-signed timelock" />
         </VStack>
       </RoundedBox>
       <RoundedBox p={4} mb={4}>
         <Text fontWeight={600} textAlign={"center"}>
-          The self-signed broker allows the funder to void the cheq until the
+          The self-signed module allows the funder to void the cheq until the
           maturity date (get better copy)
         </Text>
       </RoundedBox>
