@@ -23,13 +23,17 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "2048m"
+        max-size: "10m"
   ipfs:
     image: ipfs/go-ipfs:v0.4.23
     ports:
       - "5001:5001"
     volumes:
       - ./data/ipfs:/data/ipfs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
   postgres:
     image: postgres
     ports:
@@ -41,3 +45,7 @@ services:
       POSTGRES_DB: graph-node
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
