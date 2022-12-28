@@ -3,6 +3,7 @@ import { Form, Formik } from "formik";
 import { useStep } from "../../designSystem/stepper/Stepper";
 import RoundedButton from "../../designSystem/RoundedButton";
 import ModuleInfo from "./ModuleInfo";
+import ModuleBlurb from "./ModuleBlurb";
 
 interface Props {
   screenKey: string;
@@ -32,6 +33,7 @@ function CheqModuleStep({ isInvoice }: Props) {
         {(props) => (
           <Form>
             <ModuleInfo />
+            <ModuleBlurb module={props.values.module} />
             <RoundedButton type="submit">{"Next"}</RoundedButton>
           </Form>
         )}
