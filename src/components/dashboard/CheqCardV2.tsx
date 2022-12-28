@@ -105,6 +105,7 @@ function CheqCardV2({ cheq }: Props) {
     }
 
     if (cheq.isCashed) {
+      // TODO: handle voided state
       if (isFunder) {
         return "paid";
       } else {
