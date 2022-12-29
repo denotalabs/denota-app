@@ -85,6 +85,8 @@ function CheqCardV2({ cheq }: Props) {
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
+  const [cashingComplete, setCashingComplete] = useState<boolean>(false);
+
   const [releaseInProgress, setReleaseInProgress] = useState(false);
 
   const [maturityDate, setMaturityDate] = useState("");
@@ -104,7 +106,7 @@ function CheqCardV2({ cheq }: Props) {
       return undefined;
     }
 
-    if (cheq.isCashed) {
+    if (cheq.isCashed || cashingComplete) {
       // TODO: handle voided state
       if (isFunder) {
         return "paid";
@@ -138,7 +140,14 @@ function CheqCardV2({ cheq }: Props) {
     }
 
     return "pending_maturity";
-  }, [cheq.hasEscrow, cheq.isCashed, isCashable, isEarlyReleased, isFunder]);
+  }, [
+    cashingComplete,
+    cheq.hasEscrow,
+    cheq.isCashed,
+    isCashable,
+    isEarlyReleased,
+    isFunder,
+  ]);
 
   useEffect(() => {
     async function fetchData() {
@@ -149,6 +158,7 @@ function CheqCardV2({ cheq }: Props) {
           await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
         setIsCashable(cashableAmount > 0);
 
+        // BUG: maturity should be based on funded time not original creation time
         const maturity: BigNumber =
           await blockchainState.selfSignBroker?.cheqInspectionPeriod(cheqId);
         const date = new Date(cheq.createdDate);
@@ -187,6 +197,7 @@ function CheqCardV2({ cheq }: Props) {
           cheqId
         );
         await tx.wait();
+        setCashingComplete(true);
       }
     } catch (error) {
       console.log(error);
