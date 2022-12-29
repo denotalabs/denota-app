@@ -201,7 +201,7 @@ contract ContractTest is Test {
 
         // Can't write directly from cheq
         vm.prank(caller);
-        cheq.write(caller, recipient, dai, amount, amount, recipient);
+        cheq.write(caller, caller, recipient, dai, amount, amount, recipient);
         
         // Can't write a 0 amount cheq??
         vm.prank(caller);
@@ -212,7 +212,7 @@ contract ContractTest is Test {
         sstl.writeCheq(dai, amount, amount + 1, recipient, duration);
     }
 
-    function helperCheqInfo(uint256 cheqId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {  // BUG: too many local variables
+    function helperCheqInfo(uint256 cheqId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {
         // ICheqModule wrote correctly to CheqRegistrar storage
         assertTrue(cheq.cheqAmount(cheqId) == amount, "Incorrect amount");
         assertTrue(cheq.cheqToken(cheqId) == dai, "Incorrect token");
