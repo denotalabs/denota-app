@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Text, useToast } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
@@ -12,6 +12,8 @@ interface Props {
 }
 
 function ApproveAndPay({ cheq, onClose }: Props) {
+  const toast = useToast();
+
   const { blockchainState } = useBlockchainData();
 
   const [needsApproval, setNeedsApproval] = useState(true);
@@ -72,7 +74,13 @@ function ApproveAndPay({ cheq, onClose }: Props) {
           amount
         );
         await tx.wait();
-        alert("Transaction succeeded");
+        toast({
+          title: "Transaction succeeded",
+          description: "Invoice paid",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
         onClose();
       }
     } finally {
@@ -85,6 +93,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     cheq.id,
     needsApproval,
     onClose,
+    toast,
     token?.functions,
   ]);
 

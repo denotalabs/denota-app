@@ -158,6 +158,7 @@ function CheqCardV2({ cheq }: Props) {
           await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
         setIsCashable(cashableAmount > 0);
 
+        // BUG: maturity should be based on funded time not original creation time
         const maturity: BigNumber =
           await blockchainState.selfSignBroker?.cheqInspectionPeriod(cheqId);
         const date = new Date(cheq.createdDate);
