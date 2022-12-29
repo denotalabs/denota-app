@@ -7,6 +7,7 @@ import { useStep } from "../../designSystem/stepper/Stepper";
 import RoundedButton from "../../designSystem/RoundedButton";
 import ConfirmDetails from "./ConfirmDetails";
 import ConfirmNotice from "./ConfirmNotice";
+import { useToast } from "@chakra-ui/react";
 
 interface Props {
   screenKey: string;
@@ -14,6 +15,8 @@ interface Props {
 }
 
 function CheqConfirmStep({ isInvoice }: Props) {
+  const toast = useToast();
+
   const { onClose, formData } = useStep();
   const { blockchainState } = useBlockchainData();
 
@@ -90,10 +93,25 @@ function CheqConfirmStep({ isInvoice }: Props) {
                   formData.inspection
                 );
                 await tx.wait();
-                alert("Transaction succeeded");
+                const message =
+                  formData.mode === "invoice"
+                    ? "Invoice created"
+                    : "Cheq created";
+                toast({
+                  title: "Transaction succeeded",
+                  description: message,
+                  status: "success",
+                  duration: 3000,
+                  isClosable: true,
+                });
                 onClose?.();
               } catch (error) {
-                alert("Transaction failed");
+                toast({
+                  title: "Transaction failed",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                });
               } finally {
                 actions.setSubmitting(false);
               }
