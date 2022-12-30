@@ -46,8 +46,8 @@ const formatAdress = (adress: string, account: string) => {
 export const useCheqs = ({ cheqField }: Props) => {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
-  const [cheqsReceived, setCheqReceived] = useState<Cheq[]>([]);
-  const [cheqsSent, setCheqsSent] = useState<Cheq[]>([]);
+  const [cheqsReceived, setCheqReceived] = useState<Cheq[] | undefined>([]);
+  const [cheqsSent, setCheqsSent] = useState<Cheq[] | undefined>([]);
 
   const mapField = useCallback(
     (gqlCheq: any) => {
@@ -193,6 +193,9 @@ export const useCheqs = ({ cheqField }: Props) => {
   }, [refresh]);
 
   const cheqs = useMemo(() => {
+    if (cheqsReceived === undefined || cheqsSent === undefined) {
+      return undefined;
+    }
     switch (cheqField) {
       case "cheqsSent":
         return cheqsSent;
