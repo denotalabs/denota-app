@@ -61,7 +61,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         cashedCheqs.length > 0
           ? {
               isCashed: true,
-              casher: cashedCheqs[0].emitter,
+              casher: cashedCheqs[0].emitter.id,
               cashedDate: new Date(Number(cashedCheqs[0].timestamp) * 1000),
             }
           : { isCashed: false, casher: null, cashedDate: null };
@@ -130,7 +130,9 @@ export const useCheqs = ({ cheqField }: Props) => {
       escrows {
         id
         amount
-        emitter
+        emitter {
+          id
+        }
         timestamp
       }
       `;
@@ -190,6 +192,7 @@ export const useCheqs = ({ cheqField }: Props) => {
     if (cheqsReceived === undefined || cheqsSent === undefined) {
       return undefined;
     }
+    console.log(cheqsReceived);
     switch (cheqField) {
       case "cheqsSent":
         return cheqsSent;
