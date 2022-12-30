@@ -6,9 +6,10 @@ import RoundedBox from "../../designSystem/RoundedBox";
 interface Props {
   cheq: Cheq;
   maturityDate?: Date;
+  isVoided?: boolean;
 }
 
-function CheqDetails({ cheq, maturityDate }: Props) {
+function CheqDetails({ cheq, maturityDate, isVoided }: Props) {
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
@@ -25,10 +26,16 @@ function CheqDetails({ cheq, maturityDate }: Props) {
               value={cheq.fundedDate.toDateString()}
             />
           )}
-          {maturityDate && (
+          {!cheq.isCashed && maturityDate && (
             <DetailsRow
               title="Maturity Date"
               value={maturityDate.toDateString()}
+            />
+          )}
+          {cheq.isCashed && cheq.cashedDate && (
+            <DetailsRow
+              title={isVoided ? "Voided Date" : "Cashed Date"}
+              value={cheq.cashedDate?.toDateString()}
             />
           )}
           <DetailsRow

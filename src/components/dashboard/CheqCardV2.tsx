@@ -86,6 +86,8 @@ function CheqCardV2({ cheq }: Props) {
 
   const [isInvoice, setIsInvoice] = useState<boolean | undefined>(undefined);
 
+  const [isVoided, setIsVoided] = useState<boolean | undefined>(undefined);
+
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
   const [cashingComplete, setCashingComplete] = useState<boolean>(false);
@@ -110,9 +112,7 @@ function CheqCardV2({ cheq }: Props) {
     }
 
     if (cheq.isCashed || cashingComplete) {
-      if (
-        cheq.casher?.toLowerCase() === blockchainState.account.toLowerCase()
-      ) {
+      if (isVoided) {
         return "voided";
       }
       if (isFunder) {
@@ -148,14 +148,13 @@ function CheqCardV2({ cheq }: Props) {
 
     return "pending_maturity";
   }, [
-    blockchainState.account,
     cashingComplete,
-    cheq.casher,
     cheq.hasEscrow,
     cheq.isCashed,
     isCashable,
     isEarlyReleased,
     isFunder,
+    isVoided,
   ]);
 
   useEffect(() => {
@@ -184,6 +183,7 @@ function CheqCardV2({ cheq }: Props) {
           blockchainState.account.toLowerCase() === funder.toLowerCase()
         );
         setIsInvoice(cheq.recipient.toLowerCase() === funder.toLowerCase());
+        setIsVoided(cheq.casher?.toLowerCase() === funder.toLowerCase());
       } catch (error) {
         console.log(error);
       }
@@ -192,6 +192,7 @@ function CheqCardV2({ cheq }: Props) {
   }, [
     blockchainState.account,
     blockchainState.selfSignBroker,
+    cheq.casher,
     cheq.createdDate,
     cheq.fundedDate,
     cheq.fundedTimestamp,

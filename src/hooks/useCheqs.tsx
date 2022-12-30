@@ -24,6 +24,7 @@ export interface Cheq {
   fundedDate: Date | null;
   fundedTimestamp: number;
   casher: string | null;
+  cashedDate: Date | null;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -51,14 +52,17 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const mapField = useCallback(
     (gqlCheq: any) => {
-      // casher === funder -> cheq voided
       const cashedCheqs = gqlCheq.escrows.filter(
         (gqlCheq: any) => BigInt(gqlCheq.amount) < 0
       );
-      const { isCashed, casher } =
+      const { isCashed, casher, cashedDate } =
         cashedCheqs.length > 0
-          ? { isCashed: true, casher: cashedCheqs[0].emitter }
-          : { isCashed: false, casher: null };
+          ? {
+              isCashed: true,
+              casher: cashedCheqs[0].emitter,
+              cashedDate: new Date(Number(cashedCheqs[0].timestamp) * 1000),
+            }
+          : { isCashed: false, casher: null, cashedDate: null };
       const escrowedCheqs = gqlCheq.escrows.filter(
         (gqlCheq: any) => BigInt(gqlCheq.amount) > 0
       );
@@ -69,7 +73,11 @@ export const useCheqs = ({ cheqField }: Props) => {
               fundedDate: new Date(Number(escrowedCheqs[0].timestamp) * 1000),
               fundedTimestamp: Number(escrowedCheqs[0].timestamp),
             }
-          : { hasEscrow: false, fundedDate: null, fundedTimestamp: 0 };
+          : {
+              hasEscrow: false,
+              fundedDate: null,
+              fundedTimestamp: 0,
+            };
       return {
         id: gqlCheq.id as string,
         amount: convertExponent(gqlCheq.amountExact as number),
@@ -92,6 +100,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         fundedDate,
         casher,
         fundedTimestamp,
+        cashedDate,
       };
     },
     [blockchainState.account]
