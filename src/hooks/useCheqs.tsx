@@ -47,8 +47,10 @@ const formatAdress = (adress: string, account: string) => {
 export const useCheqs = ({ cheqField }: Props) => {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
-  const [cheqsReceived, setCheqReceived] = useState<Cheq[] | undefined>([]);
-  const [cheqsSent, setCheqsSent] = useState<Cheq[] | undefined>([]);
+  const [cheqsReceived, setCheqReceived] = useState<Cheq[] | undefined>(
+    undefined
+  );
+  const [cheqsSent, setCheqsSent] = useState<Cheq[] | undefined>(undefined);
 
   const mapField = useCallback(
     (gqlCheq: any) => {
@@ -108,57 +110,40 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const refresh = useCallback(() => {
     if (account) {
-      // TODO: replace with where _or clause on cheqs
+      const tokenFields = `      
+      id
+      amountExact
+      escrowedExact
+      createdAt
+      drawer {
+        id
+      }
+      recipient {
+        id
+      }
+      owner {
+        id
+      }
+      erc20 {
+        id
+      }
+      escrows {
+        id
+        amount
+        emitter
+        timestamp
+      }
+      `;
+
+      // TODO: pagination
       const tokenQuery = `
       query accounts($account: String ){
         accounts(where: { id: $account }, first: 1)  {
           cheqsSent(orderBy: createdAt, orderDirection: desc) {
-            id
-            amountExact
-            escrowedExact
-            createdAt
-            drawer {
-              id
-            }
-            recipient {
-              id
-            }
-            owner {
-              id
-            }
-            erc20 {
-              id
-            }
-            escrows {
-              id
-              amount
-              emitter
-              timestamp
-            }
+            ${tokenFields}
           }
           cheqsReceived(orderBy: createdAt, orderDirection: desc) {
-            id
-            amountExact
-            escrowedExact
-            createdAt
-            drawer {
-              id
-            }
-            recipient {
-              id
-            }
-            owner {
-              id
-            }
-            erc20 {
-              id
-            }
-            escrows {
-              id
-              amount
-              emitter
-              timestamp
-            }
+            ${tokenFields}
           }
        }
       }

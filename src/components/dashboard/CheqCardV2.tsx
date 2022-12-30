@@ -200,24 +200,28 @@ function CheqCardV2({ cheq }: Props) {
     cheq.recipient,
   ]);
 
-  const cashCheq = useCallback(async () => {
-    setCashingInProgress(true);
+  const cashCheq = useCallback(
+    async (isVoid = false) => {
+      setCashingInProgress(true);
 
-    try {
-      if (blockchainState.selfSignBroker) {
-        const cheqId = BigNumber.from(cheq.id);
-        const tx = await blockchainState.selfSignBroker["cashCheq(uint256)"](
-          cheqId
-        );
-        await tx.wait();
-        setCashingComplete(true);
+      try {
+        if (blockchainState.selfSignBroker) {
+          const cheqId = BigNumber.from(cheq.id);
+          const tx = await blockchainState.selfSignBroker["cashCheq(uint256)"](
+            cheqId
+          );
+          await tx.wait();
+          setCashingComplete(true);
+          setIsVoided(isVoid);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setCashingInProgress(false);
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setCashingInProgress(false);
-    }
-  }, [blockchainState.selfSignBroker, cheq.id]);
+    },
+    [blockchainState.selfSignBroker, cheq.id]
+  );
 
   const earlyRelease = useCallback(async () => {
     setReleaseInProgress(true);
@@ -327,7 +331,9 @@ function CheqCardV2({ cheq }: Props) {
                   w="min(40vw, 100px)"
                   borderRadius={5}
                   colorScheme="teal"
-                  onClick={cashCheq}
+                  onClick={() => {
+                    cashCheq();
+                  }}
                   isLoading={cashingInProgress}
                 >
                   Cash
@@ -358,7 +364,13 @@ function CheqCardV2({ cheq }: Props) {
                   </MenuButton>
                   <MenuList alignItems={"center"}>
                     <MenuItem onClick={earlyRelease}>Release</MenuItem>
-                    <MenuItem onClick={cashCheq}>Void</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        cashCheq(true);
+                      }}
+                    >
+                      Void
+                    </MenuItem>
                   </MenuList>
                 </Menu>
               ) : null}
