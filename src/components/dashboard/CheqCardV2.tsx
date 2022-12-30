@@ -34,7 +34,8 @@ export type CheqStatus =
   | "voidable"
   | "payable"
   | "cashable"
-  | "paid";
+  | "paid"
+  | "voided";
 
 export type CheqType = "invoice" | "escrow";
 
@@ -50,6 +51,7 @@ const STATUS_COLOR_MAP = {
   paid: "green.900",
   pending_escrow: "purple.900",
   pending_maturity: "gray.600",
+  voided: "gray.600",
 };
 
 const TOOLTIP_MESSAGE_MAP = {
@@ -60,6 +62,7 @@ const TOOLTIP_MESSAGE_MAP = {
   paid: "Payment has been made",
   pending_escrow: "Payment is pending",
   pending_maturity: "Payment is pending",
+  voided: "Payment was cancelled",
 };
 
 function CheqCardV2({ cheq }: Props) {
@@ -89,7 +92,7 @@ function CheqCardV2({ cheq }: Props) {
 
   const [releaseInProgress, setReleaseInProgress] = useState(false);
 
-  const [maturityDate, setMaturityDate] = useState("");
+  const [maturityDate, setMaturityDate] = useState<Date | undefined>(undefined);
 
   const createdLocaleDate = useMemo(() => {
     return cheq.createdDate.toLocaleDateString();
@@ -107,7 +110,11 @@ function CheqCardV2({ cheq }: Props) {
     }
 
     if (cheq.isCashed || cashingComplete) {
-      // TODO: handle voided state
+      if (
+        cheq.casher?.toLowerCase() === blockchainState.account.toLowerCase()
+      ) {
+        return "voided";
+      }
       if (isFunder) {
         return "paid";
       } else {
@@ -141,7 +148,9 @@ function CheqCardV2({ cheq }: Props) {
 
     return "pending_maturity";
   }, [
+    blockchainState.account,
     cashingComplete,
+    cheq.casher,
     cheq.hasEscrow,
     cheq.isCashed,
     isCashable,
@@ -158,12 +167,13 @@ function CheqCardV2({ cheq }: Props) {
           await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
         setIsCashable(cashableAmount > 0);
 
-        // BUG: maturity should be based on funded time not original creation time
         const maturity: BigNumber =
           await blockchainState.selfSignBroker?.cheqInspectionPeriod(cheqId);
-        const date = new Date(cheq.createdDate);
-        date.setDate(date.getDate() + maturity.toNumber() / 86400);
-        setMaturityDate(date.toDateString());
+
+        if (cheq.fundedDate) {
+          const maturityTime = cheq.fundedTimestamp + maturity.toNumber();
+          setMaturityDate(new Date(maturityTime * 1000));
+        }
 
         const isEarlyReleased =
           await blockchainState.selfSignBroker?.isEarlyReleased(cheqId);
@@ -183,6 +193,8 @@ function CheqCardV2({ cheq }: Props) {
     blockchainState.account,
     blockchainState.selfSignBroker,
     cheq.createdDate,
+    cheq.fundedDate,
+    cheq.fundedTimestamp,
     cheq.id,
     cheq.recipient,
   ]);

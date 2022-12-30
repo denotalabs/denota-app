@@ -21,6 +21,9 @@ export interface Cheq {
   createdDate: Date;
   isCashed: boolean;
   hasEscrow: boolean;
+  fundedDate: Date | null;
+  fundedTimestamp: number;
+  casher: string | null;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -48,16 +51,25 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const mapField = useCallback(
     (gqlCheq: any) => {
-      const isCashed = gqlCheq.escrows.reduce(
-        (current: boolean, escrow: any) => {
-          return current || BigInt(escrow.amount) < 0;
-        },
-        false
+      // casher === funder -> cheq voided
+      const cashedCheqs = gqlCheq.escrows.filter(
+        (gqlCheq: any) => BigInt(gqlCheq.amount) < 0
       );
-      const hasEscrow = gqlCheq.escrows.reduce(
-        (current: boolean, escrow: any) => current || BigInt(escrow.amount) > 0,
-        false
+      const { isCashed, casher } =
+        cashedCheqs.length > 0
+          ? { isCashed: true, casher: cashedCheqs[0].emitter }
+          : { isCashed: false, casher: null };
+      const escrowedCheqs = gqlCheq.escrows.filter(
+        (gqlCheq: any) => BigInt(gqlCheq.amount) > 0
       );
+      const { hasEscrow, fundedDate, fundedTimestamp } =
+        cashedCheqs.length > 0
+          ? {
+              hasEscrow: true,
+              fundedDate: new Date(Number(escrowedCheqs[0].timestamp) * 1000),
+              fundedTimestamp: Number(escrowedCheqs[0].timestamp),
+            }
+          : { hasEscrow: false, fundedDate: null, fundedTimestamp: 0 };
       return {
         id: gqlCheq.id as string,
         amount: convertExponent(gqlCheq.amountExact as number),
@@ -77,6 +89,9 @@ export const useCheqs = ({ cheqField }: Props) => {
         createdDate: new Date(Number(gqlCheq.createdAt) * 1000),
         isCashed,
         hasEscrow,
+        fundedDate,
+        casher,
+        fundedTimestamp,
       };
     },
     [blockchainState.account]
@@ -108,6 +123,8 @@ export const useCheqs = ({ cheqField }: Props) => {
             escrows {
               id
               amount
+              emitter
+              timestamp
             }
           }
           cheqsReceived(orderBy: createdAt, orderDirection: desc) {
@@ -130,6 +147,8 @@ export const useCheqs = ({ cheqField }: Props) => {
             escrows {
               id
               amount
+              emitter
+              timestamp
             }
           }
        }

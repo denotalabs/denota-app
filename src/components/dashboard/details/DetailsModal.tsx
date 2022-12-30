@@ -6,7 +6,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   cheq: Cheq;
-  maturityDate: string;
+  maturityDate?: Date;
 }
 
 function DetailsModal(props: Props) {

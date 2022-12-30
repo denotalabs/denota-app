@@ -5,7 +5,7 @@ import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
   cheq: Cheq;
-  maturityDate: string;
+  maturityDate?: Date;
 }
 
 function CheqDetails({ cheq, maturityDate }: Props) {
@@ -19,12 +19,22 @@ function CheqDetails({ cheq, maturityDate }: Props) {
             title="Created On"
             value={cheq.createdDate.toDateString()}
           />
-          <DetailsRow title="Maturity Date" value={maturityDate} />
+          {cheq.fundedDate && (
+            <DetailsRow
+              title="Funded Date"
+              value={cheq.fundedDate.toDateString()}
+            />
+          )}
+          {maturityDate && (
+            <DetailsRow
+              title="Maturity Date"
+              value={maturityDate.toDateString()}
+            />
+          )}
           <DetailsRow
             title="Payment Amount"
             value={String(cheq.amount) + " " + cheq.token}
           />
-          {/* TODO: show maturity date */}
           <DetailsRow title="Module" value="Self-signed timelock" />
         </VStack>
       </RoundedBox>
