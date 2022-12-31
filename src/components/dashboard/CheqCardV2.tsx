@@ -391,6 +391,7 @@ function CheqCardV2({ cheq }: Props) {
         onClose={onCloseDetails}
         cheq={cheq}
         maturityDate={maturityDate}
+        isVoided={isVoided}
       />
       <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
     </GridItem>

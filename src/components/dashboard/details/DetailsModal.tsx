@@ -7,6 +7,7 @@ interface Props {
   onClose: () => void;
   cheq: Cheq;
   maturityDate?: Date;
+  isVoided?: boolean;
 }
 
 function DetailsModal(props: Props) {
@@ -15,6 +16,7 @@ function DetailsModal(props: Props) {
       <CheqDetails
         cheq={props.cheq}
         maturityDate={props.maturityDate}
+        isVoided={props.isVoided}
       ></CheqDetails>
     </SimpleModal>
   );

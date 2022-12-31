@@ -69,7 +69,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         (gqlCheq: any) => BigInt(gqlCheq.amount) > 0
       );
       const { hasEscrow, fundedDate, fundedTimestamp } =
-        cashedCheqs.length > 0
+        escrowedCheqs.length > 0
           ? {
               hasEscrow: true,
               fundedDate: new Date(Number(escrowedCheqs[0].timestamp) * 1000),
