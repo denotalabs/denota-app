@@ -192,7 +192,6 @@ export const useCheqs = ({ cheqField }: Props) => {
     if (cheqsReceived === undefined || cheqsSent === undefined) {
       return undefined;
     }
-    console.log(cheqsReceived);
     switch (cheqField) {
       case "cheqsSent":
         return cheqsSent;
