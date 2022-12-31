@@ -1,20 +1,18 @@
 import { RepeatIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Center,
   Grid,
   HStack,
   IconButton,
   Select,
+  Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Cheq, useCheqs } from "../../hooks/useCheqs";
-import RoundedButton from "../designSystem/RoundedButton";
 // import { useTokens } from "../../hooks/useTokens";
 import CheqCardV2 from "./CheqCardV2";
-import SkeletonGrid from "./SkeletonGrid";
 
 function MyCheqsView() {
   const [cheqField, setCheqField] = useState("all");
@@ -62,7 +60,11 @@ interface CheqGridProps {
 
 function CheqGrid({ cheqs }: CheqGridProps) {
   if (cheqs === undefined) {
-    return <SkeletonGrid />;
+    return (
+      <Center flexDirection={"column"} w="100%" px={5}>
+        <Spinner size="xl" />
+      </Center>
+    );
   }
 
   if (cheqs.length === 0) {

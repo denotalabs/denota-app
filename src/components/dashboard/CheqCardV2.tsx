@@ -34,7 +34,8 @@ export type CheqStatus =
   | "voidable"
   | "payable"
   | "cashable"
-  | "paid";
+  | "paid"
+  | "voided";
 
 export type CheqType = "invoice" | "escrow";
 
@@ -50,6 +51,7 @@ const STATUS_COLOR_MAP = {
   paid: "green.900",
   pending_escrow: "purple.900",
   pending_maturity: "gray.600",
+  voided: "gray.600",
 };
 
 const TOOLTIP_MESSAGE_MAP = {
@@ -60,6 +62,7 @@ const TOOLTIP_MESSAGE_MAP = {
   paid: "Payment has been made",
   pending_escrow: "Payment is pending",
   pending_maturity: "Payment is pending",
+  voided: "Payment was cancelled",
 };
 
 function CheqCardV2({ cheq }: Props) {
@@ -83,13 +86,15 @@ function CheqCardV2({ cheq }: Props) {
 
   const [isInvoice, setIsInvoice] = useState<boolean | undefined>(undefined);
 
+  const [isVoided, setIsVoided] = useState<boolean | undefined>(undefined);
+
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
   const [cashingComplete, setCashingComplete] = useState<boolean>(false);
 
   const [releaseInProgress, setReleaseInProgress] = useState(false);
 
-  const [maturityDate, setMaturityDate] = useState("");
+  const [maturityDate, setMaturityDate] = useState<Date | undefined>(undefined);
 
   const createdLocaleDate = useMemo(() => {
     return cheq.createdDate.toLocaleDateString();
@@ -107,7 +112,9 @@ function CheqCardV2({ cheq }: Props) {
     }
 
     if (cheq.isCashed || cashingComplete) {
-      // TODO: handle voided state
+      if (isVoided) {
+        return "voided";
+      }
       if (isFunder) {
         return "paid";
       } else {
@@ -147,6 +154,7 @@ function CheqCardV2({ cheq }: Props) {
     isCashable,
     isEarlyReleased,
     isFunder,
+    isVoided,
   ]);
 
   useEffect(() => {
@@ -158,12 +166,13 @@ function CheqCardV2({ cheq }: Props) {
           await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
         setIsCashable(cashableAmount > 0);
 
-        // BUG: maturity should be based on funded time not original creation time
         const maturity: BigNumber =
           await blockchainState.selfSignBroker?.cheqInspectionPeriod(cheqId);
-        const date = new Date(cheq.createdDate);
-        date.setDate(date.getDate() + maturity.toNumber() / 86400);
-        setMaturityDate(date.toDateString());
+
+        if (cheq.fundedDate) {
+          const maturityTime = cheq.fundedTimestamp + maturity.toNumber();
+          setMaturityDate(new Date(maturityTime * 1000));
+        }
 
         const isEarlyReleased =
           await blockchainState.selfSignBroker?.isEarlyReleased(cheqId);
@@ -174,6 +183,7 @@ function CheqCardV2({ cheq }: Props) {
           blockchainState.account.toLowerCase() === funder.toLowerCase()
         );
         setIsInvoice(cheq.recipient.toLowerCase() === funder.toLowerCase());
+        setIsVoided(cheq.casher?.toLowerCase() === funder.toLowerCase());
       } catch (error) {
         console.log(error);
       }
@@ -182,29 +192,36 @@ function CheqCardV2({ cheq }: Props) {
   }, [
     blockchainState.account,
     blockchainState.selfSignBroker,
+    cheq.casher,
     cheq.createdDate,
+    cheq.fundedDate,
+    cheq.fundedTimestamp,
     cheq.id,
     cheq.recipient,
   ]);
 
-  const cashCheq = useCallback(async () => {
-    setCashingInProgress(true);
+  const cashCheq = useCallback(
+    async (isVoid = false) => {
+      setCashingInProgress(true);
 
-    try {
-      if (blockchainState.selfSignBroker) {
-        const cheqId = BigNumber.from(cheq.id);
-        const tx = await blockchainState.selfSignBroker["cashCheq(uint256)"](
-          cheqId
-        );
-        await tx.wait();
-        setCashingComplete(true);
+      try {
+        if (blockchainState.selfSignBroker) {
+          const cheqId = BigNumber.from(cheq.id);
+          const tx = await blockchainState.selfSignBroker["cashCheq(uint256)"](
+            cheqId
+          );
+          await tx.wait();
+          setCashingComplete(true);
+          setIsVoided(isVoid);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setCashingInProgress(false);
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setCashingInProgress(false);
-    }
-  }, [blockchainState.selfSignBroker, cheq.id]);
+    },
+    [blockchainState.selfSignBroker, cheq.id]
+  );
 
   const earlyRelease = useCallback(async () => {
     setReleaseInProgress(true);
@@ -314,7 +331,9 @@ function CheqCardV2({ cheq }: Props) {
                   w="min(40vw, 100px)"
                   borderRadius={5}
                   colorScheme="teal"
-                  onClick={cashCheq}
+                  onClick={() => {
+                    cashCheq();
+                  }}
                   isLoading={cashingInProgress}
                 >
                   Cash
@@ -345,7 +364,13 @@ function CheqCardV2({ cheq }: Props) {
                   </MenuButton>
                   <MenuList alignItems={"center"}>
                     <MenuItem onClick={earlyRelease}>Release</MenuItem>
-                    <MenuItem onClick={cashCheq}>Void</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        cashCheq(true);
+                      }}
+                    >
+                      Void
+                    </MenuItem>
                   </MenuList>
                 </Menu>
               ) : null}
