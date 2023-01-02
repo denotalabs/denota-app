@@ -15,8 +15,8 @@ import { providerOptions } from "./providerOptions";
 import { mappingForChainId } from "./chainInfo";
 import { useColorMode } from "@chakra-ui/react";
 
-export const APIURL_REMOTE =
-  "http://ec2-3-88-32-213.compute-1.amazonaws.com/subgraphs/name/CheqRegistrar/CheqRegistrar";
+// TODO: Use cheq subdomain
+export const APIURL_REMOTE = "https://klymr.me/api";
 
 export const APIURL_LOCAL =
   "http://localhost:8000/subgraphs/name/CheqRegistrar/CheqRegistrar";
