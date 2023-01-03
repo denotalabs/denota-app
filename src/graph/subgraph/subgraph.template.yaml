@@ -33,6 +33,4 @@ dataSources:
           handler: handleFund
         - event: Cashed(indexed uint256,indexed address,uint256)
           handler: handleCash
-        - event: ModuleWhitelisted(indexed address,indexed address,bool,string)
-          handler: handleWhitelist
       file: mapping.ts

@@ -115,52 +115,48 @@ export function handleWrite(event: WrittenEvent): void {
   // receivingAccount.save()
 }
 
+// TODO: Transfer event being fired before write event is causing problems
 export function handleTransfer(event: TransferEvent): void {
-  // Load event params
-  const from = event.params.from.toHexString();
-  const to = event.params.to.toHexString();
-  const cheqId = event.params.tokenId.toHexString();
-  const transactionHexHash = event.transaction.hash.toHex();
-
-  // Load from and to Accounts
-  let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
-  let toAccount = Account.load(to);
-  fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
-  toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
-
-  // Load Cheq
-  let cheq = Cheq.load(cheqId); // Write event fires before Transfer event: cheq should exist
-  if (cheq == null) {
-    // SHOULDN'T BE THE CASE
-    cheq = new Cheq(cheqId);
-    cheq.save();
-  }
-
-  // Update accounts' cheq balances
-  if (event.params.from != Address.zero()) {
-    fromAccount.numCheqsOwned = fromAccount.numCheqsSent.minus(
-      BigInt.fromI32(1)
-    );
-    fromAccount.save();
-  }
-  toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
-  toAccount.save();
-
-  const transaction = saveTransaction(
-    transactionHexHash,
-    cheqId,
-    event.block.timestamp,
-    event.block.number
-  );
-
-  const transfer = new Transfer(transactionHexHash + "/" + cheqId);
-  transfer.emitter = fromAccount.id;
-  transfer.transaction = transactionHexHash;
-  transfer.timestamp = event.block.timestamp;
-  transfer.cheq = cheqId;
-  transfer.from = fromAccount.id;
-  transfer.to = toAccount.id;
-  transfer.save();
+  // // Load event params
+  // const from = event.params.from.toHexString();
+  // const to = event.params.to.toHexString();
+  // const cheqId = event.params.tokenId.toHexString();
+  // const transactionHexHash = event.transaction.hash.toHex();
+  // // Load from and to Accounts
+  // let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
+  // let toAccount = Account.load(to);
+  // fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
+  // toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
+  // // Load Cheq
+  // let cheq = Cheq.load(cheqId); // Write event fires before Transfer event: cheq should exist
+  // if (cheq == null) {
+  //   // SHOULDN'T BE THE CASE
+  //   cheq = new Cheq(cheqId);
+  //   cheq.save();
+  // }
+  // // Update accounts' cheq balances
+  // if (event.params.from != Address.zero()) {
+  //   fromAccount.numCheqsOwned = fromAccount.numCheqsSent.minus(
+  //     BigInt.fromI32(1)
+  //   );
+  //   fromAccount.save();
+  // }
+  // toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
+  // toAccount.save();
+  // const transaction = saveTransaction(
+  //   transactionHexHash,
+  //   cheqId,
+  //   event.block.timestamp,
+  //   event.block.number
+  // );
+  // const transfer = new Transfer(transactionHexHash + "/" + cheqId);
+  // transfer.emitter = fromAccount.id;
+  // transfer.transaction = transactionHexHash;
+  // transfer.timestamp = event.block.timestamp;
+  // transfer.cheq = cheqId;
+  // transfer.from = fromAccount.id;
+  // transfer.to = toAccount.id;
+  // transfer.save();
 }
 
 export function handleFund(event: FundedEvent): void {
