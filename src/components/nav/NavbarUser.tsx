@@ -1,4 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
+
+import jazzicon from "jazzicon-ts";
 
 import {
   Avatar,
@@ -52,12 +54,21 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 export default function NavbarUser() {
   const { blockchainState } = useBlockchainData();
 
-  const imageURL =
-    blockchainState.userType == "Auditor"
-      ? "https://cdn-icons-png.flaticon.com/512/2352/2352184.png"
-      : blockchainState.userType == "Merchant"
-      ? "https://img.favpng.com/3/8/14/computer-icons-merchant-clip-art-portable-network-graphics-vector-graphics-png-favpng-GVS1Me5FzY2iJ9HwQPFgNwhdH.jpg"
-      : "https://mpng.subpng.com/20190419/cus/kisspng-computer-icons-single-customer-view-vector-graphic-faberlic-5cba3294f07246.5572284215557065169849.jpg";
+  const avatarRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const element = avatarRef.current;
+    if (element && blockchainState.account) {
+      const addr = blockchainState.account.slice(2, 10);
+      const seed = parseInt(addr, 16);
+      const icon = jazzicon(30, seed); //generates a size 20 icon
+      if (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+      element.appendChild(icon);
+    }
+  }, [blockchainState.account, avatarRef]);
+
   return (
     <Menu>
       <MenuButton
@@ -67,18 +78,9 @@ export default function NavbarUser() {
         cursor={"pointer"}
         minW={0}
       >
-        <Avatar size={"sm"} src={imageURL} />
+        <div ref={avatarRef}></div>
       </MenuButton>
       <MenuList alignItems={"center"}>
-        <br />
-        <Center>
-          <Avatar size={"2xl"} src={imageURL} />
-        </Center>
-        <br />
-        <Center>
-          <p>{blockchainState.userType}</p>
-        </Center>
-        <MenuDivider />
         <MenuItem
           onClick={() => addToken(blockchainState.dai?.address ?? "", "DAI")}
         >

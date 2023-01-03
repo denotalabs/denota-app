@@ -25,7 +25,6 @@ export const APIURL = APIURL_REMOTE;
 
 interface BlockchainDataInterface {
   account: string;
-  userType: string;
   dai: null | ethers.Contract;
   weth: null | ethers.Contract;
   selfSignBroker: null | ethers.Contract;
@@ -46,7 +45,6 @@ interface BlockchainDataContextInterface {
 
 const defaultBlockchainState = {
   account: "",
-  userType: "Customer",
   cheq: null,
   dai: null,
   weth: null,
@@ -97,13 +95,16 @@ export const BlockchainDataProvider = memo(
       setIsInitializing(true);
       try {
         const [provider, signer, account] = await connectWalletWeb3Modal(); // console.log(provider, signer, account)
-        const userType =
-          account == "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-            ? "Customer"
-            : account == "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
-            ? "Merchant"
-            : "Auditor";
         const { chainId } = await provider.getNetwork();
+
+        window.ethereum.on("chainChanged", () => {
+          document.location.reload();
+        });
+
+        window.ethereum.on("accountsChanged", () => {
+          window.location.reload();
+        });
+
         const mapping = mappingForChainId(chainId);
 
         // Load contracts
@@ -129,7 +130,6 @@ export const BlockchainDataProvider = memo(
         setBlockchainState({
           signer,
           account,
-          userType,
           dai,
           weth,
           selfSignBroker,
@@ -157,7 +157,7 @@ export const BlockchainDataProvider = memo(
       } else {
         setIsInitializing(false);
       }
-    }, []);
+    }, [loadBlockchainData]);
 
     return (
       <BlockchainDataContext.Provider
