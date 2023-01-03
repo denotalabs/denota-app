@@ -35,6 +35,7 @@ interface BlockchainDataInterface {
   userWethBalance: string;
 
   signer: null | ethers.providers.JsonRpcSigner;
+  explorer: string;
 }
 
 interface BlockchainDataContextInterface {
@@ -58,6 +59,7 @@ const defaultBlockchainState = {
   userWethBalance: "",
   cheqTotalSupply: "",
   signer: null,
+  explorer: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -138,6 +140,7 @@ export const BlockchainDataProvider = memo(
           cheqAddress: mapping.crx,
           userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
           userWethBalance: ethers.utils.formatUnits(userWethBalance),
+          explorer: mapping.explorer,
         });
         setIsInitializing(false);
       } catch (e) {
