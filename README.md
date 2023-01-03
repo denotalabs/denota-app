@@ -47,21 +47,17 @@ Check out the [Foundry Book](https://book.getfoundry.sh/) for more specifics.
 ```forge test``` will run all tests.
 ```forge test -m nameOfTest``` will run a specific test.
 
-### Commands for Cheq subgraph
+### Cheq subgraph (local)
 
-In order: 
+Install [Docker](https://docs.docker.com/desktop/install/mac-install/)
 
-```npm run codegen```
+To boostrap the local graph node, run: 
 
-```make graph (npm run run-graph-node runs in the background)```
+```make graph-start```
 
-```npm run graph-build``` (in Makefile, doesn’t run atm bc above command runs)
+In another tab, build and deploy the subgraph by running:
 
-```npm run create-local``` (in Makefile)
-
-```npm run graph-ship-local``` (in Makefile)
-
-Later we can simplify this with another Make command.
+```graph-deploy-local```
 
 ## Graph Resources/Links
-
+[AssemblyScript API](https://thegraph.com/docs/en/developing/assemblyscript-api/)
