@@ -49,7 +49,7 @@
     "remove-local": "graph remove --node http://localhost:8020/ CheqRegistrar/CheqRegistrar",
     "deploy-local": "cd src/graph/subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 CheqRegistrar/CheqRegistrar",
     "codegen": "cd src/graph/subgraph && graph codegen",
-    "graph-prepare": "mustache src/graph/subgraph/src/subgraph.template.yaml > src/graph/subgraph/subgraph.yaml",
+    "graph-prepare-mumbai": "mustache src/graph/subgraph/config/mumbai.json src/graph/subgraph/subgraph.template.yaml > src/graph/subgraph/subgraph.yaml",
     "graph-create-remote": "graph create --node ${GQL_HOST}:8020/ CheqRegistrar/CheqRegistrar",
     "graph-ship-remote": "cd src/graph/subgraph && npm run codegen && npm run graph-deploy-remote",
     "graph-remove-node-remote": "cd src/graph/graph-node && docker-compose down",

@@ -67,18 +67,11 @@ graph-start:
 	# npm run codegen
 
 graph-deploy-local:
-	npm run codegen
-	npm run graph-build  # Creates the instructions to transform block input to subgraph format to store in db (contract ABI -> typescript classes: for mapping.ts file to import)
-	npm run codegen
+	npm run graph-prepare-mumbai
 	npm run create-local # 
-
-	# cd src/graph/subgraph && npm run codegen && npm run deploy-local
 	npm run graph-ship-local  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
 
 graph-deploy-remote:
-	npm run codegen
-	npm run graph-build  # Creates the instructions to transform block input to subgraph format to store in db (contract ABI -> typescript classes: for mapping.ts file to import)
+	npm run graph-prepare-mumbai
 	npm run graph-create-remote # 
-
-	# cd src/graph/subgraph && npm run codegen && npm run deploy-local
 	npm run graph-ship-remote  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)

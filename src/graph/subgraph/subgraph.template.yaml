@@ -4,9 +4,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: CheqRegistrar
-    network: mumbai
+    network: {{network}}
     source:
-      address: "0x77d43a2D94768a239e24B4abBC511A3c3Cc9d7a1"
+      address: "{{address}}"
       abi: CheqRegistrar
       startBlock: 29931082
     mapping:
