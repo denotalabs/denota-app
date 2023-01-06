@@ -5,29 +5,46 @@ import "openzeppelin/access/Ownable.sol";
 import "./ICheqModule.sol";
 import "./ERC721r.sol";
 
+/**
+Implications of:
+Changing 721
+User module whitelist
+Architecture structure (inside-out OR outside-in)
+Why have a deposits variable? Legal ramification of storing deposits, are we a bank?
+ */
+// TODO: No way to remove deposits without writing a check
 // TODO: Burning?
 // TODO: UpgradableProxy?
 // TODO: Implement and check ICheqModule interface on write()
-// TODO: Add delay ability to delay fee change for registrar
+// TODO: Implement codeHash whitelisting to enable redeployment of modules
+// TODO: Need to add withdraw functions for protocol fees
+// TODO: change to `_escrows`? users may not deposit independent of write()
 // TODO: Consider adding "zones" where zone operators can approve a bundle of modules for users who trust them. Can user only trust one at a time? How to approve new modules without operator doing so then?
+// How to set version and/or chain deployment?
+// Options:
+//// Each deployment is it's own int.
+//// Each chain is it's own int.
+//// Some combination of the two
+
 // 1. Ensure Write/Deposit checks ERC20 *interface* support
 // 2. Make sure OpenSea integration works (see how OS tracks metadata)
-// 3. Make modules ERC721 compatible?
-// 4. Enable URI editing
-//     1. Have tokenURI() call to cheqBroker tokenURI (which sets its baseURI and the token's URI)
-// 5. Have PayModules emit their own events since the registry is the standard, dApps can query for relevant modules themselves
+
 // Assumes the module is paying for user, otherwise the user approved the module to use their funds
 // but also requires:
 // 1. token approve the registrar 2. deposit on user account 3. whitelist the module 4. module takes user funds on writeCheq() OR
 // 1. approve module 2. module deposits to the user's account and writes cheq
 
 /**
- * @title The cheq registration contract
+ * @title The Cheq Protocol registration contract
  * @author Alejandro Almaraz
- * @notice This contract assigns cheq's their IDs, associated metadata and escrowed funds
- * @dev All functions except tokenURI(), write(), and deposit() must be called by the cheq's payment module
+ * @notice This contract executes writing, transfering, funding, and cashing of cheqs. It stores each cheq's metadata, user's their cheq ownership, escrowing of funds, and module whitelisting
+ * @dev All functions except tokenURI(), write(), and deposit() can only be called by the cheq's payment module
  */
 contract CheqRegistrar is ERC721r, Ownable {
+    /** 
+     * @notice Each cheq's metadata such as: the drawer, recipient, token, face value, escrowed amount, and the payment terms module address.
+     * @dev The metadata is stored in the _cheqInfo variable and queryable using the relevant getter functions 
+    */
     struct Cheq {
         IERC20 token; // Immutable
         uint256 amount; // Immutable & arbitrarily settable
@@ -40,10 +57,17 @@ contract CheqRegistrar is ERC721r, Ownable {
     /*//////////////////////////////////////////////////////////////
                            STORAGE VARIABLES
     //////////////////////////////////////////////////////////////*/
+    /** 
+     * @dev The cheq ID to cheq metadata mapping set upon cheq writing and partly modifiable by the module defined in the module field. IDs are incremented by one with no cap
+    */
     mapping(uint256 => Cheq) private _cheqInfo; // Cheq information
-    // TODO: change to `_escrows`? users may not deposit independent of write()
+    /** 
+     * @dev the user's token deposits which are accessed by modules to write cheqs
+    */
     mapping(address => mapping(IERC20 => uint256)) private _deposits; // Total user deposits
-    // TODO: consider a module registry system where user whitelists bundles of modules created by addresses they trust
+    /** 
+     * @dev the whitelist that enables CheqModules to WTFC cheqs. Currently, whitelisting is performed by users who grant each module access to their deposits
+    */
     mapping(address => mapping(ICheqModule => bool))
         private _userModuleWhitelist; // Total user deposits
     uint256 private feeChangeDate;
@@ -54,16 +78,14 @@ contract CheqRegistrar is ERC721r, Ownable {
     uint256 private fundFlatFee;
     uint256 private cashFlatFee;
     uint256 private depositFlatFee;
-    // How to set version and/or chain deployment?
-    // Options:
-    //// Each deployment is it's own int.
-    //// Each chain is it's own int.
-    //// Some combination of the two
-
+    
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
     //////////////////////////////////////////////////////////////*/
     event Deposited(IERC20 indexed token, address indexed to, uint256 amount);
+    /** 
+     * @dev the amount, drawer, recipient, and payer can be arbitrarily set by the module but not modified afterwards
+    */
     event Written(
         uint256 indexed cheqId,
         IERC20 token,
@@ -73,7 +95,7 @@ contract CheqRegistrar is ERC721r, Ownable {
         address recipient,
         address payer, 
         ICheqModule indexed module
-    );  // Note :payer can be any address
+    );
     // event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Funded(uint256 indexed cheqId, address indexed from, uint256 amount);
     event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
@@ -83,6 +105,9 @@ contract CheqRegistrar is ERC721r, Ownable {
         bool isAccepted
     );
 
+    /** 
+     * @dev modifier that prevents WTFC from accounts that aren't the specified cheq's module address
+    */
     modifier onlyModule(uint256 cheqId) {
         require(
             _msgSender() == address(_cheqInfo[cheqId].module),
@@ -101,6 +126,9 @@ contract CheqRegistrar is ERC721r, Ownable {
     /*//////////////////////////////////////////////////////////////
                         ONLY OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+    /**
+     * @dev Initializes the contract by setting`name`, `symbol` and protocol fee variables.
+     */
     constructor(
         uint256 _writeFlatFee,
         uint256 _transferFlatFee,
@@ -116,7 +144,9 @@ contract CheqRegistrar is ERC721r, Ownable {
         feeChangeDate = block.timestamp;
         feeChangeCooldown = 52 weeks;
     }
-
+    /**
+     * @dev Allows the owner to set the fee parameters for WTFCD and can modify the fee change cooldown
+     */
     function changeFees(
         uint256 _writeFlatFee,
         uint256 _transferFlatFee,
@@ -138,12 +168,17 @@ contract CheqRegistrar is ERC721r, Ownable {
     /*//////////////////////////////////////////////////////////////
                         OWNERSHIP FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    function whitelistModule(ICheqModule module, bool isAccepted) external {
-        // Allow non-_msgSender()?
+    /**
+     * @dev This allows any module that is whitelisted to access the user's deposit pool. This is equivalent to giving them an infinite approval but is better UX
+     */
+    function whitelistModule(ICheqModule module, bool isAccepted) external { // Allow non-_msgSender()?
         _userModuleWhitelist[_msgSender()][module] = isAccepted;
         emit ModuleWhitelisted(_msgSender(), module, isAccepted);
     }
 
+    /**
+     * @dev takes fee, checks if funder allows this module, deducts their balance, initializes the cheqInfo struct using the totalSupply int, mints the cheq using ERC721 _mint(), and updates the total supply
+     */
     function write(  // Add `payer` address to differentiate the balance being removed
         address payer,
         address drawer,
@@ -155,9 +190,10 @@ contract CheqRegistrar is ERC721r, Ownable {
     ) public payable returns (uint256) {
         require(msg.value >= writeFlatFee, "INSUF_FEE");
         // ICheqModule module = ICheqModule(_msgSender());  // TODO Does this work on an EOA?  // TODO: stack too deep
-        // require(_msgSender().supportInterface("0xffffffff"), "INVAL_MODULE");
+        // require(module.supportInterface("0xffffffff"), "INVAL_MODULE");
         if (payer != _msgSender()) {
             // The module is trying to use `from` deposit on their behalf instead of its own
+            // TODO: explaining this is important
             require(_userModuleWhitelist[payer][ICheqModule(_msgSender())], "UNAPP_MODULE"); // See if user allows this
         }
         require(escrow <= _deposits[payer][_token], "INSUF_BAL");
@@ -170,7 +206,7 @@ contract CheqRegistrar is ERC721r, Ownable {
             recipient: recipient,
             module: ICheqModule(_msgSender())
         });
-        _safeMint(owner, _totalSupply);
+        _safeMint(owner, _totalSupply);  // TODO: safeMint()?
         emit Written(
             _totalSupply,
             _token,
@@ -186,7 +222,9 @@ contract CheqRegistrar is ERC721r, Ownable {
         }
         return _totalSupply - 1;
     }
-
+    /**
+     * @dev checks if caller is the cheq's module, takes the transfer fee, calls ERC721's _transfer() function
+     */
     function transferFrom(
         // TODO ensure the override is correct
         address from,
@@ -209,11 +247,14 @@ contract CheqRegistrar is ERC721r, Ownable {
     /*//////////////////////////////////////////////////////////////
                           ESCROW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+    /**
+     * @dev checks if caller is the cheq's module, takes fund fee, deducts balance from the funders token deposit, increments the cheq's escrow amount
+     */
     function fund(
         uint256 cheqId,
         address from,
         uint256 amount
-    ) external payable onlyModule(cheqId) {
+    ) external payable onlyModule(cheqId) {  // TODO: maybe fund using a new deposit()?
         // `From` can originate from anyone, module specifies whose balance it is removing from though
         require(msg.value >= fundFlatFee, "INSUF_FEE");
         Cheq storage cheq = _cheqInfo[cheqId];
@@ -225,7 +266,9 @@ contract CheqRegistrar is ERC721r, Ownable {
         cheq.escrowed += amount;
         emit Funded(cheqId, from, amount);
     }
-
+    /**
+     * @dev checks if caller is the cheq's module, takes cash fee, deducts the cheq's escrow amount, transfers the `to` address the cashAmount of their token
+     */
     function cash(
         uint256 cheqId,
         address to,
@@ -237,16 +280,18 @@ contract CheqRegistrar is ERC721r, Ownable {
         unchecked {
             cheq.escrowed -= cashAmount;
         }
-        require(cheq.token.transfer(to, cashAmount), "Transfer failed");
+        require(cheq.token.transfer(to, cashAmount), "Transfer failed");  // TODO: safeCash()?
         emit Cashed(cheqId, to, cashAmount);
     }
-
+    /**
+     * @dev internal function for depositing to the `to` address. Takes deposit fee, calls token.transferFrom from `from` to the registrar, adds to the user's deposits balance. Assumes people will deposit onto registrar separate from escrowing cheqs which may be deprecated
+     */
     function _deposit(
         IERC20 token,
         address to,
         uint256 amount
     ) private {
-        require(msg.value >= depositFlatFee, "INSUF_FEE"); // TODO do internal function calls preserve msg.value?
+        require(msg.value >= depositFlatFee, "INSUF_FEE");
         require(
             token.transferFrom(
                 _msgSender(), // transfers from `_msgSender()` to `address(this)` first checking if  _msgSender() approves address(this)
@@ -256,9 +301,11 @@ contract CheqRegistrar is ERC721r, Ownable {
             "Transfer failed"
         );
         _deposits[to][token] += amount;
-        emit Deposited(token, to, amount); // TODO: is this needed? Assumes people will deposit onto registrar
+        emit Deposited(token, to, amount);
     }
-
+    /**
+     * @dev deposits to _msgSender()'s deposits
+     */
     function deposit(IERC20 _token, uint256 _amount)
         external
         payable
@@ -267,9 +314,10 @@ contract CheqRegistrar is ERC721r, Ownable {
         _deposit(_token, _msgSender(), _amount); // Only makes sense for
         return true;
     }
-
+    /**
+     * @dev deposits from the _msgSender() to the `to` account's deposits
+     */
     function deposit(
-        // Deposit to another account
         IERC20 token,
         address to,
         uint256 amount
@@ -277,7 +325,9 @@ contract CheqRegistrar is ERC721r, Ownable {
         _deposit(token, to, amount);
         return true;
     }
-
+    /**
+     * @dev convenience function for modules to write a check when the payer has no balance on the registrar
+     */
     function depositWrite(
         address payer, // Person putting up the escrow
         address drawer, // Person sending the cheq. If `payer`!=`drawer`, payer must approve module
@@ -339,7 +389,9 @@ contract CheqRegistrar is ERC721r, Ownable {
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }
-
+    /**
+     * @dev returns the cheqInfo metadata in JSON format. Enables OpenSea and other marketplaces to pull the cheq's information independent to it's module
+     */
     function buildMetadata(uint256 _tokenId)
         private
         view
@@ -356,7 +408,7 @@ contract CheqRegistrar is ERC721r, Ownable {
                                 "{\"name\":",
                                     "Cheq serial number #", _tokenId,
                                     // '", "description":"',
-                                    // cheq.description,
+                                    // CheqProtocol is a marketplace of payment terms to help you transact your way!,
                                     // '", "image": "',
                                     // "data:image/svg+xml;base64,",
                                     // buildImage(_tokenId),
