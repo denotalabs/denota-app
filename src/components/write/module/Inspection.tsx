@@ -1,4 +1,4 @@
-import { Select } from "@chakra-ui/react";
+import { Input, Select } from "@chakra-ui/react";
 import { Field } from "formik";
 
 function Inspection() {
@@ -11,17 +11,24 @@ function Inspection() {
         field,
         form: { setFieldValue, setFieldTouched, errors, touched, values },
       }: any) => (
-        <Select
-          w={120}
+        // <Select
+        //   w={120}
+        //   {...field}
+        //   onChange={(event) => setFieldValue("inspection", event.target.value)}
+        //   onBlur={() => setFieldTouched("inspection", true)}
+        //   value={values.inspection}
+        // >
+        //   <option value={86400}>1 day</option>
+        //   <option value={604800}>1 week</option>
+        //   <option value={18144000}>1 month</option>
+        // </Select>
+        <Input
+          type="date"
           {...field}
-          onChange={(event) => setFieldValue("inspection", event.target.value)}
-          onBlur={() => setFieldTouched("inspection", true)}
-          value={values.inspection}
-        >
-          <option value={86400}>1 day</option>
-          <option value={604800}>1 week</option>
-          <option value={18144000}>1 month</option>
-        </Select>
+          onChange={(event) => {
+            console.log(event);
+          }}
+        />
       )}
     </Field>
   );

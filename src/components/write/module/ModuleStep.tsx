@@ -17,9 +17,7 @@ function CheqModuleStep({ isInvoice }: Props) {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          inspection: formData.inspection
-            ? Number(formData.inspection)
-            : 604800,
+          inspection: "2023-01-04",
           module: formData.module ?? "self",
         }}
         onSubmit={(values, actions) => {

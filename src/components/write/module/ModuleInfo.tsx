@@ -21,7 +21,7 @@ function ModuleInfo() {
         <GridItem>
           <Flex alignItems={"center"}>
             <FormLabel noOfLines={1} flexShrink={0} mb={0}>
-              Inspection Period
+              Release Date
             </FormLabel>
             <Inspection />
           </Flex>
