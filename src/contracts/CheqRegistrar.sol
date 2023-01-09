@@ -1,38 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import "openzeppelin/token/ERC20/IERC20.sol"; // TODO change to safe ERC20? Check interface?
+import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 import "./ICheqModule.sol";
 import "./ERC721r.sol";
 
 /**
-Implications of:
-Changing 721
-User module whitelist
-Architecture structure (inside-out OR outside-in)
-Why have a deposits variable? Legal ramification of storing deposits, are we a bank?
+Get rid of depositing
+Get rid of amount??
+Add token whitelist
  */
-// TODO: No way to remove deposits without writing a check
-// TODO: Burning?
-// TODO: UpgradableProxy?
-// TODO: Implement and check ICheqModule interface on write()
-// TODO: Implement codeHash whitelisting to enable redeployment of modules
-// TODO: Need to add withdraw functions for protocol fees
-// TODO: change to `_escrows`? users may not deposit independent of write()
-// TODO: Consider adding "zones" where zone operators can approve a bundle of modules for users who trust them. Can user only trust one at a time? How to approve new modules without operator doing so then?
-// How to set version and/or chain deployment?
-// Options:
-//// Each deployment is it's own int.
-//// Each chain is it's own int.
-//// Some combination of the two
-
-// 1. Ensure Write/Deposit checks ERC20 *interface* support
-// 2. Make sure OpenSea integration works (see how OS tracks metadata)
-
-// Assumes the module is paying for user, otherwise the user approved the module to use their funds
-// but also requires:
-// 1. token approve the registrar 2. deposit on user account 3. whitelist the module 4. module takes user funds on writeCheq() OR
-// 1. approve module 2. module deposits to the user's account and writes cheq
 
 /**
  * @title The Cheq Protocol registration contract
@@ -43,16 +20,16 @@ Why have a deposits variable? Legal ramification of storing deposits, are we a b
 contract CheqRegistrar is ERC721r, Ownable {
     /** 
      * @notice Each cheq's metadata such as: the drawer, recipient, token, face value, escrowed amount, and the payment terms module address.
-     * @dev The metadata is stored in the _cheqInfo variable and queryable using the relevant getter functions 
+     * @dev The metadata is stored in the _cheqInfo variable and queryable using the relevant getter functions. `token`, `amount`, `drawer`, and `recipient` are settable by the module on write() while `escrowed` is modifiable on cash() or fund().
     */
     struct Cheq {
-        IERC20 token; // Immutable
-        uint256 amount; // Immutable & arbitrarily settable
-        uint256 escrowed; // Mutable but invariant w.r.t deposits [MOST VULNERABLE]
-        address drawer; // Immutable & arbitrarily settable [intended sender]
-        address recipient; // Immutable & arbitrarily settable [intended claimer]
-        ICheqModule module; // Immutable & not settable
-        // bool isFungible; // to allow escrowing a single NFT. Multiple would be more difficult since amount/escrowed == tokenId
+        IERC20 token;
+        uint256 amount;
+        uint256 escrowed;
+        address drawer; 
+        address recipient;
+        ICheqModule module;
+        // bool isFungible;
     }
     /*//////////////////////////////////////////////////////////////
                            STORAGE VARIABLES
@@ -68,8 +45,11 @@ contract CheqRegistrar is ERC721r, Ownable {
     /** 
      * @dev the whitelist that enables CheqModules to WTFC cheqs. Currently, whitelisting is performed by users who grant each module access to their deposits
     */
-    mapping(address => mapping(ICheqModule => bool))
-        private _userModuleWhitelist; // Total user deposits
+    /** 
+     * @dev the whitelist of module bytecodes (modifyable by the governance)
+    */
+    mapping(bytes32 => bool) private _bytecodeWhitelist;  // Bytecode of redeployable modules
+    mapping(ICheqModule => bool) private _moduleWhitelist; // Address of non-redeployable modules
     uint256 private feeChangeDate;
     uint256 private feeChangeCooldown;
     uint256 private _totalSupply; // Total cheqs created
@@ -100,25 +80,33 @@ contract CheqRegistrar is ERC721r, Ownable {
     event Funded(uint256 indexed cheqId, address indexed from, uint256 amount);
     event Cashed(uint256 indexed cheqId, address indexed to, uint256 amount);
     event ModuleWhitelisted(
-        address indexed user,
         ICheqModule indexed module,
         bool isAccepted
     );
+    event BytecodeWhitelisted(
+        bytes32 indexed moduleBytecode,
+        bool isAccepted
+    );
 
+    /** 
+     * @dev modifier that prevents non-whitelisted module code from writing cheqs
+    */
+    modifier moduleWhitelisted(address module) {
+        bytes32 codeHash;
+        assembly { codeHash := extcodehash(module) }
+        require(
+            _bytecodeWhitelist[codeHash] || _moduleWhitelist[module],
+            "NOT_WHITELISTED"
+        );
+        _;
+    }
     /** 
      * @dev modifier that prevents WTFC from accounts that aren't the specified cheq's module address
     */
     modifier onlyModule(uint256 cheqId) {
         require(
             _msgSender() == address(_cheqInfo[cheqId].module),
-            "Only cheq's module"
-        );
-        _;
-    }
-    modifier userWhitelisted(ICheqModule module) {
-        require(
-            _userModuleWhitelist[_msgSender()][module],
-            "Only whitelisted modules"
+            "ONLY_CHEQ_MODULE"
         );
         _;
     }
@@ -171,33 +159,27 @@ contract CheqRegistrar is ERC721r, Ownable {
     /**
      * @dev This allows any module that is whitelisted to access the user's deposit pool. This is equivalent to giving them an infinite approval but is better UX
      */
+    function whitelistBytecode(bytes32 moduleBytecode, bool isAccepted) external onlyOwner {
+        _bytecodeWhitelist[moduleBytecode] = isAccepted;
+        emit BytecodeWhitelisted(moduleBytecode, isAccepted);
+    }
     function whitelistModule(ICheqModule module, bool isAccepted) external { // Allow non-_msgSender()?
-        _userModuleWhitelist[_msgSender()][module] = isAccepted;
-        emit ModuleWhitelisted(_msgSender(), module, isAccepted);
+        _moduleWhitelist[module] = isAccepted;
+        emit ModuleWhitelisted(module, isAccepted);
     }
 
-    /**
-     * @dev takes fee, checks if funder allows this module, deducts their balance, initializes the cheqInfo struct using the totalSupply int, mints the cheq using ERC721 _mint(), and updates the total supply
-     */
-    function write(  // Add `payer` address to differentiate the balance being removed
-        address payer,
+    function _deductBalance(address payer, IERC20 _token, uint256 escrow) private{
+        require(_deposits[payer][_token] >= escrow, "INSUF_BAL");
+        unchecked { _deposits[payer][_token] -= escrow; }
+    }
+
+    function _write(address payer,
         address drawer,
         address recipient,
         IERC20 _token,
         uint256 amount,
         uint256 escrow,
-        address owner
-    ) public payable returns (uint256) {
-        require(msg.value >= writeFlatFee, "INSUF_FEE");
-        // ICheqModule module = ICheqModule(_msgSender());  // TODO Does this work on an EOA?  // TODO: stack too deep
-        // require(module.supportInterface("0xffffffff"), "INVAL_MODULE");
-        if (payer != _msgSender()) {
-            // The module is trying to use `from` deposit on their behalf instead of its own
-            // TODO: explaining this is important
-            require(_userModuleWhitelist[payer][ICheqModule(_msgSender())], "UNAPP_MODULE"); // See if user allows this
-        }
-        require(escrow <= _deposits[payer][_token], "INSUF_BAL");
-        unchecked {_deposits[payer][_token] -= escrow;} // Deduct address balance
+        address owner) private {
         _cheqInfo[_totalSupply] = Cheq({
             token: _token,
             amount: amount,
@@ -207,7 +189,7 @@ contract CheqRegistrar is ERC721r, Ownable {
             module: ICheqModule(_msgSender())
         });
         _safeMint(owner, _totalSupply);  // TODO: safeMint()?
-        emit Written(
+        emit Written(  // Use the cheq struct here?
             _totalSupply,
             _token,
             amount,
@@ -217,10 +199,27 @@ contract CheqRegistrar is ERC721r, Ownable {
             payer,
             ICheqModule(_msgSender())
         );
-        unchecked {
-            _totalSupply += 1;
+    }
+
+    /**
+     * @dev takes fee, checks if funder allows this module, deducts their balance, initializes the cheqInfo struct using the totalSupply int, mints the cheq using ERC721 _mint(), and updates the total supply. `payer` address funds the escrow and can be different to `drawer`
+     */
+    function write( // Stack too deep. 
+        address payer,
+        address drawer,
+        address recipient,
+        IERC20 _token,
+        uint256 amount,
+        uint256 escrow,
+        address owner
+    ) public payable moduleWhitelisted(_msgSender()) returns (uint256) {
+        require(msg.value >= writeFlatFee, "INSUF_FEE");
+        _deductBalance(payer, _token, escrow);
+        _write(payer, drawer, recipient, _token, amount, escrow, owner);
+        unchecked { 
+            _totalSupply += 1; 
+            return _totalSupply - 1;
         }
-        return _totalSupply - 1;
     }
     /**
      * @dev checks if caller is the cheq's module, takes the transfer fee, calls ERC721's _transfer() function
@@ -254,7 +253,7 @@ contract CheqRegistrar is ERC721r, Ownable {
         uint256 cheqId,
         address from,
         uint256 amount
-    ) external payable onlyModule(cheqId) {  // TODO: maybe fund using a new deposit()?
+    ) external payable onlyModule(cheqId) {
         // `From` can originate from anyone, module specifies whose balance it is removing from though
         require(msg.value >= fundFlatFee, "INSUF_FEE");
         Cheq storage cheq = _cheqInfo[cheqId];
@@ -298,7 +297,7 @@ contract CheqRegistrar is ERC721r, Ownable {
                 address(this),
                 amount
             ),
-            "Transfer failed"
+            "ERC20: Transfer failed"
         );
         _deposits[to][token] += amount;
         emit Deposited(token, to, amount);
@@ -311,7 +310,7 @@ contract CheqRegistrar is ERC721r, Ownable {
         payable
         returns (bool)
     {
-        _deposit(_token, _msgSender(), _amount); // Only makes sense for
+        _deposit(_token, _msgSender(), _amount); 
         return true;
     }
     /**
@@ -379,12 +378,19 @@ contract CheqRegistrar is ERC721r, Ownable {
     {
         return _deposits[user][token];
     }
-    function userModuleWhitelist(address user, ICheqModule module)
+    function bytecodeWhitelisted(bytes32 moduleBytecode)
         public
         view
         returns (bool)
     {
-        return _userModuleWhitelist[user][module];
+        return _bytecodeWhitelist[moduleBytecode];
+    }
+    function moduleWhitelist(ICheqModule module)
+        public
+        view
+        returns (bool)
+    {
+        return _moduleWhitelist[module];
     }
     function totalSupply() public view returns (uint256) {
         return _totalSupply;

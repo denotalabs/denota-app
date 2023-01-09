@@ -35,13 +35,15 @@ contract ContractTest is Test {
     //////////////////////////////////////////////////////////////*/
     function testWhitelist() public {
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);  // How to test successful deployment
+        bytes32 SSTLBytecode;
+        assembly { SSTLBytecode := extcodehash(selfSignedTL) }
 
-        assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Unauthorized whitelist");
-        cheq.whitelistModule(selfSignedTL, true);
-        assertTrue(cheq.userModuleWhitelist(address(this), selfSignedTL), "Whitelisting failed");
+        assertFalse(cheq.bytecodeWhitelisted(SSTLBytecode), "Unauthorized whitelist");
+        cheq.whitelistBytecode(SSTLBytecode, true);
+        assertTrue(cheq.bytecodeWhitelisted(SSTLBytecode), "Whitelisting failed");
 
-        cheq.whitelistModule(selfSignedTL, false);
-        assertFalse(cheq.userModuleWhitelist(address(this), selfSignedTL), "Un-whitelisting failed");
+        cheq.whitelistBytecode(SSTLBytecode, false);
+        assertFalse(cheq.bytecodeWhitelisted(SSTLBytecode), "Un-whitelisting failed");
     }
 
     // function testFailWhitelist(address caller) public {
@@ -54,9 +56,11 @@ contract ContractTest is Test {
 
     function setUpTimelock(address caller) public returns (SelfSignTimeLock){  // Deploy and whitelist timelock module
         SelfSignTimeLock selfSignedTL = new SelfSignTimeLock(cheq);
+        bytes32 SSTLBytecode;
+        assembly { SSTLBytecode := extcodehash(selfSignedTL) }
         vm.label(address(selfSignedTL), "SelfSignTimeLock");
         vm.prank(caller);
-        cheq.whitelistModule(selfSignedTL, true);
+        cheq.whitelistBytecode(SSTLBytecode, true);
         return selfSignedTL;
     }
 
