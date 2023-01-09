@@ -56,15 +56,10 @@ dataSources:
         - SelfSignedCheqData
       abis:
         - name: SelfSignTimeLock
-          file: ../out/SelfSignTimeLock.sol/SelfSignTimeLock.json
+          file: ../../out/SelfSignTimeLock.sol/SelfSignTimeLock.json
       eventHandlers:
-        - event: Written(indexed uint256,address,uint256,uint256,indexed address,address,indexed
-            address,address)
-          handler: handleWrite
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
-        - event: Funded(indexed uint256,indexed address,uint256)
-          handler: handleFund
-        - event: Cashed(indexed uint256,indexed address,uint256)
-          handler: handleCash
+        - event: SelfSignedCheqWritten(indexed uint256,uint256,address)
+          handler: handleSelfSignedCheq
+        - event: SelfSignedCheqFunded(indexed uint256,uint256)
+          handler: handleSelfSignedFunded
       file: mapping.ts

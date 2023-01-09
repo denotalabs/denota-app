@@ -12,8 +12,10 @@ import {
   Cheq,
   ERC20,
   Escrow,
+  SelfSignedCheqData,
   Transaction,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
+import { SelfSignedCheqWritten as SSWritenEvent } from "../subgraph/generated/SelfSignedBroker/SelfSignTimeLock";
 
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
@@ -233,4 +235,26 @@ export function handleWhitelist(event: ModuleWhitelisted): void {
   const module = event.params.module;
   const isAccepted = event.params.isAccepted;
   const moduleName = event.params.moduleName;
+}
+
+export function handleSelfSignedCheq(event: SSWritenEvent): void {
+  const cheqId = event.params.cheqId.toString();
+  const funder = event.params.funder.toHexString();
+  const inspectionPeriod = event.params.inspectionPeriod;
+
+  const selfSigned = new SelfSignedCheqData("selfsigned/" + cheqId);
+  selfSigned.cheqFunder = funder;
+  selfSigned.isEarlyReleased = false;
+  selfSigned.cheqInspectionPeriod = inspectionPeriod;
+  selfSigned.save();
+
+  const cheq = Cheq.load(cheqId);
+  if (cheq) {
+    cheq.selfSignedData = "selfsigned/" + cheqId;
+    cheq.save();
+  }
+}
+
+export function handleSelfSignedFunded(): void {
+  //TODO
 }

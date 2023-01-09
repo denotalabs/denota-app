@@ -15,19 +15,16 @@ type Transaction @entity {
 }
 
 type SelfSignedCheqData @entity {
+  id: ID!
   cheqFunder: Account!
-  cheqReceiver: Account!
-  cheqCreated: BigInt!  # Is redundant?
   cheqInspectionPeriod: BigInt!
   isEarlyReleased: Boolean!
-  earlyReleasedTime: BigInt
 }
 
 type BYOAData @entity {
+  id: ID!
   cheqAuditor: Account!
 }
-
-union CheqData =  BYOAData | SelfSignedCheqData;
 
 interface Event {
   id: ID!
@@ -82,6 +79,10 @@ type Account @entity {
   # approvalsForAllOperator: [ApprovalForAll!]! @derivedFrom(field: "operator")
 	events: [Event!]! @derivedFrom(field: "emitter")
 }
+
+# TODO: figure out why unions aren't working
+# union CheqData =  BYOAData | SelfSignedCheqData
+
 type Cheq @entity {
   id: ID!
   createdAt: BigInt!
@@ -100,7 +101,7 @@ type Cheq @entity {
   escrows: [Escrow!]! @derivedFrom(field: "cheq")
   # approval: Account!
   # approvals: [Approval!]! @derivedFrom(field: "token")
-  moduleData: CheqData
+  selfSignedData: SelfSignedCheqData
 }
 type ModuleRegistry @entity {
   id: ID!  # Should this be the modules' address?

@@ -18,8 +18,8 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
     /*//////////////////////////////////////////////////////////////
                            EVENTS/MODIFIERS
     //////////////////////////////////////////////////////////////*/
-    event SelfSignedCheqWritten(bool isAccepted, string moduleName);
-    event SelfSignedCheqFunded(bool isAccepted, string moduleName);
+    event SelfSignedCheqWritten(uint256 indexed cheqId, uint256 inspectionPeriod, address funder);
+    event SelfSignedCheqFunded(uint256 indexed cheqId, uint256 amount);
 
     function whitelistToken(IERC20 token, bool isAccepted) public onlyOwner {
         tokenWhitelist[token] = isAccepted;

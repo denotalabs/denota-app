@@ -32,6 +32,10 @@ export interface Cheq {
   casher: string | null;
   cashedDate: Date | null;
   transactions: CheqTransactions;
+  isInvoice: boolean;
+  isVoided: boolean;
+  isFunder: boolean;
+  maturityDate: Date;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -148,6 +152,14 @@ export const useCheqs = ({ cheqField }: Props) => {
       }
       erc20 {
         id
+      }
+      selfSignedData {
+        id
+        cheqFunder {
+          id
+        }
+        cheqInspectionPeriod
+        isEarlyReleased
       }
       escrows {
         id
