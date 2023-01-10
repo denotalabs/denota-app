@@ -36,6 +36,7 @@ export interface Cheq {
   isVoided: boolean;
   isFunder: boolean;
   maturityDate: Date;
+  isEarlyReleased: boolean;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -65,6 +66,8 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const mapField = useCallback(
     (gqlCheq: any) => {
+      // TODO: Move this logic to graph (mappings.ts)
+
       const cashedCheqs = gqlCheq.escrows.filter(
         (gqlCheq: any) => BigInt(gqlCheq.amount) < 0
       );
@@ -96,10 +99,18 @@ export const useCheqs = ({ cheqField }: Props) => {
               fundedTx: null,
             };
 
-      const allCheqs = [...gqlCheq.escrows].sort((a: any, b: any) => {
+      const allEscrows = [...gqlCheq.escrows].sort((a: any, b: any) => {
         return Number(a.timestamp) - Number(b.timestamp);
       });
-      const createdTx = allCheqs.length > 0 ? allCheqs[0].transaction.id : null;
+      const createdTx =
+        allEscrows.length > 0 ? allEscrows[0].transaction.id : null;
+
+      const funder = gqlCheq.selfSignedData.cheqFunder.id;
+      const isInvoice = gqlCheq.recipient.id === funder;
+      const isVoided = casher === funder;
+      const isFunder = blockchainState.account === funder;
+      const maturityTime =
+        fundedTimestamp + Number(gqlCheq.selfSignedData.cheqInspectionPeriod);
 
       return {
         id: gqlCheq.id as string,
@@ -129,6 +140,11 @@ export const useCheqs = ({ cheqField }: Props) => {
           funded: fundedTx,
           cashed: cashedTx,
         },
+        isInvoice,
+        isVoided,
+        isFunder,
+        maturityDate: new Date(maturityTime * 1000),
+        isEarlyReleased: gqlCheq.selfSignedData.isEarlyReleased as boolean,
       };
     },
     [blockchainState.account]

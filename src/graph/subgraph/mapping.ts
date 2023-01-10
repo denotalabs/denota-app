@@ -15,7 +15,10 @@ import {
   SelfSignedCheqData,
   Transaction,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
-import { SelfSignedCheqWritten as SSWritenEvent } from "../subgraph/generated/SelfSignedBroker/SelfSignTimeLock";
+import {
+  SelfSignedCheqReleased as SelfSignedReleasedEvent,
+  SelfSignedCheqWritten as SelfSignedWritenEvent,
+} from "../subgraph/generated/SelfSignedBroker/SelfSignTimeLock";
 
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
@@ -237,7 +240,7 @@ export function handleWhitelist(event: ModuleWhitelisted): void {
   const moduleName = event.params.moduleName;
 }
 
-export function handleSelfSignedCheq(event: SSWritenEvent): void {
+export function handleSelfSignedCheq(event: SelfSignedWritenEvent): void {
   const cheqId = event.params.cheqId.toString();
   const funder = event.params.funder.toHexString();
   const inspectionPeriod = event.params.inspectionPeriod;
@@ -255,6 +258,11 @@ export function handleSelfSignedCheq(event: SSWritenEvent): void {
   }
 }
 
-export function handleSelfSignedFunded(): void {
-  //TODO
+export function handleSelfSignedReleased(event: SelfSignedReleasedEvent): void {
+  const cheqId = event.params.cheqId.toString();
+  const selfSigned = SelfSignedCheqData.load("selfsigned/" + cheqId);
+  if (selfSigned) {
+    selfSigned.isEarlyReleased = false;
+    selfSigned.save();
+  }
 }

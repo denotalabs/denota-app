@@ -19,7 +19,7 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
                            EVENTS/MODIFIERS
     //////////////////////////////////////////////////////////////*/
     event SelfSignedCheqWritten(uint256 indexed cheqId, uint256 inspectionPeriod, address funder);
-    event SelfSignedCheqFunded(uint256 indexed cheqId, uint256 amount);
+    event SelfSignedCheqReleased(uint256 indexed cheqId);
 
     function whitelistToken(IERC20 token, bool isAccepted) public onlyOwner {
         tokenWhitelist[token] = isAccepted;
@@ -47,6 +47,7 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
             cheqInspectionPeriod[cheqId] = inspectionPeriod;
             cheqFunder[cheqId] = recipient;
             cheqReceiver[cheqId] = _msgSender();
+            emit SelfSignedCheqWritten(cheqId, inspectionPeriod, recipient);
             return cheqId;
         } else {  // Cheq
             if (cheq.deposits(_msgSender(), _token) < escrow){
@@ -59,6 +60,7 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
             cheqInspectionPeriod[cheqId] = inspectionPeriod;
             cheqFunder[cheqId] = _msgSender();
             cheqReceiver[cheqId] = recipient;
+            emit SelfSignedCheqWritten(cheqId, inspectionPeriod, _msgSender());
             return cheqId;
         }
     }
@@ -130,6 +132,7 @@ contract SelfSignTimeLock is ICheqModule, Ownable {
     function earlyRelease(uint256 cheqId, bool isReleased) public {
         require(cheqFunder[cheqId]==_msgSender(), "only funder can release early");
         isEarlyReleased[cheqId] = isReleased;
+        emit SelfSignedCheqReleased(cheqId);
     }
 
     function tokenURI(uint256 tokenId) external view returns (string memory){

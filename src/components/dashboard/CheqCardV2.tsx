@@ -67,19 +67,24 @@ const TOOLTIP_MESSAGE_MAP = {
 };
 
 function CheqCardV2({ cheq }: Props) {
+  const {
+    amount,
+    token,
+    formattedSender,
+    formattedRecipient,
+    isFunder,
+    isInvoice,
+    maturityDate,
+  } = cheq;
   const { blockchainState } = useBlockchainData();
 
   const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
 
   const [isEarlyReleased, setIsEarlyReleased] = useState<boolean | undefined>(
-    undefined
+    cheq.isEarlyReleased
   );
 
-  const [isFunder, setIsFunder] = useState<boolean | undefined>(undefined);
-
-  const [isInvoice, setIsInvoice] = useState<boolean | undefined>(undefined);
-
-  const [isVoided, setIsVoided] = useState<boolean | undefined>(undefined);
+  const [isVoided, setIsVoided] = useState<boolean | undefined>(cheq.isVoided);
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
@@ -87,18 +92,12 @@ function CheqCardV2({ cheq }: Props) {
 
   const [releaseInProgress, setReleaseInProgress] = useState(false);
 
-  const [maturityDate, setMaturityDate] = useState<Date | undefined>(undefined);
-
   const createdLocaleDate = useMemo(() => {
     return cheq.createdDate.toLocaleDateString();
   }, [cheq.createdDate]);
 
   const status: CheqStatus | undefined = useMemo(() => {
-    if (
-      isCashable === undefined ||
-      isEarlyReleased === undefined ||
-      isFunder === undefined
-    ) {
+    if (isCashable === undefined) {
       return undefined;
     }
 
@@ -177,25 +176,6 @@ function CheqCardV2({ cheq }: Props) {
         const cashableAmount: number =
           await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
         setIsCashable(cashableAmount > 0);
-
-        const maturity: BigNumber =
-          await blockchainState.selfSignBroker?.cheqInspectionPeriod(cheqId);
-
-        if (cheq.fundedDate) {
-          const maturityTime = cheq.fundedTimestamp + maturity.toNumber();
-          setMaturityDate(new Date(maturityTime * 1000));
-        }
-
-        const isEarlyReleased =
-          await blockchainState.selfSignBroker?.isEarlyReleased(cheqId);
-        setIsEarlyReleased(isEarlyReleased);
-
-        const funder = await blockchainState.selfSignBroker?.cheqFunder(cheqId);
-        setIsFunder(
-          blockchainState.account.toLowerCase() === funder.toLowerCase()
-        );
-        setIsInvoice(cheq.recipient.toLowerCase() === funder.toLowerCase());
-        setIsVoided(cheq.casher?.toLowerCase() === funder.toLowerCase());
       } catch (error) {
         console.log(error);
       }

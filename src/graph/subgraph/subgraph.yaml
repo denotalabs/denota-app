@@ -60,6 +60,6 @@ dataSources:
       eventHandlers:
         - event: SelfSignedCheqWritten(indexed uint256,uint256,address)
           handler: handleSelfSignedCheq
-        - event: SelfSignedCheqFunded(indexed uint256,uint256)
-          handler: handleSelfSignedFunded
+        - event: SelfSignedCheqReleased(indexed uint256)
+          handler: handleSelfSignedReleased
       file: mapping.ts
