@@ -14,6 +14,15 @@ export interface CheqTransactions {
   cashed: string | null;
 }
 
+export interface CheqDates {
+  created: Date;
+}
+
+export interface CheqTransaction {
+  date: Date;
+  hash: string;
+}
+
 export interface Cheq {
   id: string;
   amount: number;
@@ -24,17 +33,16 @@ export interface Cheq {
   token: CheqCurrency;
   formattedSender: string;
   formattedRecipient: string;
-  createdDate: Date;
   isCashed: boolean;
   hasEscrow: boolean;
-  fundedDate: Date | null;
-  fundedTimestamp: number;
-  casher: string | null;
-  cashedDate: Date | null;
-  transactions: CheqTransactions;
   isInvoice: boolean;
   isVoided: boolean;
   isFunder: boolean;
+  fundedTimestamp: number;
+  casher: string | null;
+  createdTransaction: CheqTransaction;
+  fundedTransaction: CheqTransaction | null;
+  cashedTransaction: CheqTransaction | null;
   maturityDate: Date;
   isEarlyReleased: boolean;
 }
@@ -128,7 +136,6 @@ export const useCheqs = ({ cheqField }: Props) => {
           gqlCheq.recipient.id as string,
           blockchainState.account
         ),
-        createdDate: new Date(Number(gqlCheq.createdAt) * 1000),
         isCashed,
         hasEscrow,
         fundedDate,
@@ -140,6 +147,24 @@ export const useCheqs = ({ cheqField }: Props) => {
           funded: fundedTx,
           cashed: cashedTx,
         },
+        createdTransaction: {
+          date: new Date(Number(gqlCheq.createdAt) * 1000),
+          hash: createdTx,
+        },
+        fundedTransaction:
+          fundedDate && fundedTx
+            ? {
+                date: fundedDate,
+                hash: fundedTx,
+              }
+            : null,
+        cashedTransaction:
+          cashedDate && cashedTx
+            ? {
+                date: cashedDate,
+                hash: cashedTx,
+              }
+            : null,
         isInvoice,
         isVoided,
         isFunder,
@@ -252,7 +277,10 @@ export const useCheqs = ({ cheqField }: Props) => {
         return cheqsReceived;
       default:
         return cheqsReceived.concat(cheqsSent).sort((a, b) => {
-          return b.createdDate.getTime() - a.createdDate.getTime();
+          return (
+            b.createdTransaction.date.getTime() -
+            a.createdTransaction.date.getTime()
+          );
         });
     }
   }, [cheqField, cheqsReceived, cheqsSent]);

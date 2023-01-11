@@ -93,8 +93,8 @@ function CheqCardV2({ cheq }: Props) {
   const [releaseInProgress, setReleaseInProgress] = useState(false);
 
   const createdLocaleDate = useMemo(() => {
-    return cheq.createdDate.toLocaleDateString();
-  }, [cheq.createdDate]);
+    return cheq.createdTransaction.date.toLocaleDateString();
+  }, [cheq.createdTransaction.date]);
 
   const status: CheqStatus | undefined = useMemo(() => {
     if (isCashable === undefined) {
@@ -181,16 +181,7 @@ function CheqCardV2({ cheq }: Props) {
       }
     }
     fetchData();
-  }, [
-    blockchainState.account,
-    blockchainState.selfSignBroker,
-    cheq.casher,
-    cheq.createdDate,
-    cheq.fundedDate,
-    cheq.fundedTimestamp,
-    cheq.id,
-    cheq.recipient,
-  ]);
+  }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
 
   const cashCheq = useCallback(
     async (isVoid = false) => {
