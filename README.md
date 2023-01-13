@@ -21,9 +21,15 @@ anvil
 ```
 forge build
 ```
-Deploy the contracts to the blockchain
+Deploy the contracts to the blockchain (local)
 ```
-make deploy
+make deploy-local
+```
+
+Deploy the contracts to the blockchain (mumbai)
+```
+export PRIVATE_KEY=YOUR_KEY
+make deploy-mumbai
 ```
 
 Run the commands below to update dependencies:
