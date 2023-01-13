@@ -1,7 +1,9 @@
 # Cheq v0.2
-Deposit ETH and write cheques to others that are time locked and can be reversed
+Write cheques to others that are time locked and can be reversed
 
-Contract implementation located at [src/contracts](src/contracts)
+Contracts implementation located at [src/contracts](src/contracts)
+
+![Diagram](https://user-images.githubusercontent.com/10327933/212239333-5ca10e12-7572-4293-ba07-9986b025d0bd.png)
 
 ## Set up
 Run the command below to install from scratch:
