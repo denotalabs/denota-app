@@ -1,7 +1,7 @@
-# Cheq v0.0
+# Cheq v0.2
 Deposit ETH and write cheques to others that are time locked and can be reversed
 
-Contract implementation located at [src/contracts/Cheq.sol](src/contracts/Cheq.sol)
+Contract implementation located at [src/contracts](src/contracts)
 
 
 1. Deposit ETH into the dApp
