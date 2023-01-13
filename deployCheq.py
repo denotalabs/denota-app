@@ -19,7 +19,7 @@ if __name__ == "__main__":
     )
   
   if result.stderr:
-    print("Registrar error", result.stderr)
+    print("Registrar", result.stderr)
   registrar = extract_address(result.stdout)
   
   result = subprocess.run(
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
   
   if result.stderr:
-    print("SelfSigned error", result.stderr)
+    print("SelfSigned", result.stderr)
   self_signed = extract_address(result.stdout)
 
   result = subprocess.run(
@@ -37,6 +37,6 @@ if __name__ == "__main__":
   if (result.stdout): 
     print("Success")
   else: 
-    print("Cast Error", result.stderr)
+    print("Cast", result.stderr)
 
 
