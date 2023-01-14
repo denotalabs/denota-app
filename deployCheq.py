@@ -4,7 +4,7 @@ def extract_address(input):
   try:
       return re.search('Deployed to: (.*)', input).group(1)
   except AttributeError:
-      pass
+      sys.exit("Unable to parse contract address")
 
 if __name__ == "__main__":
   key = sys.argv[1]
@@ -16,7 +16,8 @@ if __name__ == "__main__":
     )
   
   if result.stderr:
-    print("Registrar", result.stderr)
+    print("Registrar error")
+    sys.exit(result.stderr)
   registrar = extract_address(result.stdout)
   
   result = subprocess.run(
@@ -24,7 +25,8 @@ if __name__ == "__main__":
     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
   
   if result.stderr:
-    print("SelfSigned", result.stderr)
+    print("SelfSigned error")
+    sys.exit(result.stderr)
   self_signed = extract_address(result.stdout)
 
   result = subprocess.run(
@@ -34,6 +36,7 @@ if __name__ == "__main__":
   if (result.stdout): 
     print("Success")
   else: 
-    print("Cast", result.stderr)
+    print("Whitelist broker error")
+    sys.exit(result.stderr)
 
 
