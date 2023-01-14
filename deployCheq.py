@@ -13,28 +13,33 @@ if __name__ == "__main__":
   result = subprocess.run(
     shlex.split(f'forge create src/contracts/CheqRegistrar.sol:CheqRegistrar --private-key {key} --rpc-url {rpc}'), 
     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
+  )
   
   if result.stderr:
     print("Registrar error")
     sys.exit(result.stderr)
+  
   registrar = extract_address(result.stdout)
   
   result = subprocess.run(
     shlex.split(f'forge create src/contracts/SelfSignTimeLock.sol:SelfSignTimeLock --private-key {key} --rpc-url {rpc} --constructor-args {registrar} --gas-price 30gwei'), 
-    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+  )
   
   if result.stderr:
     print("SelfSigned error")
     sys.exit(result.stderr)
+  
   self_signed = extract_address(result.stdout)
 
   result = subprocess.run(
     shlex.split(f'cast send {registrar} "whitelistModule(address,bool,string)" {self_signed} "true" "SelfSigned" --private-key {key} --rpc-url {rpc} --gas-price 30gwei'), 
-    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+  )
 
   if (result.stdout): 
-    print("Success")
+    print(f'Registrar address: {registrar}')
+    print(f'SelfSigned address: {self_signed}')
   else: 
     print("Whitelist broker error")
     sys.exit(result.stderr)
