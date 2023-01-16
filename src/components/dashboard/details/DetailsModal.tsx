@@ -6,6 +6,8 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   cheq: Cheq;
+  payer: string;
+  payee: string;
   maturityDate?: Date;
   isVoided?: boolean;
 }
@@ -17,7 +19,9 @@ function DetailsModal(props: Props) {
         cheq={props.cheq}
         maturityDate={props.maturityDate}
         isVoided={props.isVoided}
-      ></CheqDetails>
+        payee={props.payee}
+        payer={props.payer}
+      />
     </SimpleModal>
   );
 }

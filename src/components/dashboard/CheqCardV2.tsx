@@ -100,8 +100,6 @@ function CheqCardV2({ cheq }: Props) {
     return cheq.createdDate.toLocaleDateString();
   }, [cheq.createdDate]);
 
-  const type = isInvoice ? "invoice" : "escrow";
-
   const status: CheqStatus | undefined = useMemo(() => {
     if (
       isCashable === undefined ||
@@ -156,6 +154,26 @@ function CheqCardV2({ cheq }: Props) {
     isFunder,
     isVoided,
   ]);
+
+  const payer = useMemo(() => {
+    if (isInvoice === undefined) {
+      return undefined;
+    }
+    if (isInvoice) {
+      return cheq.formattedRecipient;
+    }
+    return cheq.formattedSender;
+  }, [cheq.formattedRecipient, cheq.formattedSender, isInvoice]);
+
+  const payee = useMemo(() => {
+    if (isInvoice === undefined) {
+      return undefined;
+    }
+    if (isInvoice) {
+      return cheq.formattedSender;
+    }
+    return cheq.formattedRecipient;
+  }, [cheq.formattedRecipient, cheq.formattedSender, isInvoice]);
 
   useEffect(() => {
     async function fetchData() {
@@ -254,7 +272,7 @@ function CheqCardV2({ cheq }: Props) {
     onClose: onClosePay,
   } = useDisclosure();
 
-  if (status === undefined) {
+  if (status === undefined || payer === undefined || payee === undefined) {
     return <Skeleton h="200px" borderRadius={"10px"} />;
   }
 
@@ -267,11 +285,6 @@ function CheqCardV2({ cheq }: Props) {
         gap={2}
       >
         <HStack maxW="100%">
-          <Box borderWidth="1px" borderRadius="full" boxShadow="md" p={2}>
-            <Text fontSize="sm" textAlign="center">
-              {type}
-            </Text>
-          </Box>
           <Box borderWidth="1px" borderRadius="full" boxShadow="md" p={2}>
             <Tooltip
               label={TOOLTIP_MESSAGE_MAP[status]}
@@ -301,7 +314,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formattedSender}
+              {payer}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -310,7 +323,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formattedRecipient}
+              {payee}
             </Text>
           </HStack>
 
@@ -392,6 +405,8 @@ function CheqCardV2({ cheq }: Props) {
         cheq={cheq}
         maturityDate={maturityDate}
         isVoided={isVoided}
+        payee={payee}
+        payer={payer}
       />
       <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
     </GridItem>

@@ -21,6 +21,9 @@ export const APIURL_REMOTE = "https://klymr.me/api";
 export const APIURL_LOCAL =
   "http://localhost:8000/subgraphs/name/CheqRegistrar/CheqRegistrar";
 
+export const APIURL_HOSTED =
+  "https://api.thegraph.com/subgraphs/name/soolaymahn/cheq-test";
+
 export const APIURL = APIURL_REMOTE;
 
 interface BlockchainDataInterface {
