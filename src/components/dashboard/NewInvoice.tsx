@@ -30,7 +30,7 @@ function NewInvoice() {
             borderRadius={5}
           >
             <Text fontWeight={400} fontSize={"4xl"}>
-              Send
+              Pay
             </Text>
           </Button>
           <Button

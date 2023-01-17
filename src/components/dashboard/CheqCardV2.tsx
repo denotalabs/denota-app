@@ -8,9 +8,7 @@ import {
   HStack,
   Text,
   VStack,
-  Image,
   useDisclosure,
-  Tooltip,
   Skeleton,
   Box,
   Menu,
@@ -22,7 +20,7 @@ import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { Cheq } from "../../hooks/useCheqs";
-import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
+import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 import { Spinner } from "@chakra-ui/react";
@@ -43,37 +41,32 @@ interface Props {
   cheq: Cheq;
 }
 
+// TODO: color coding should be part of design system
+// Gray -> complete
+// Purple -> pending
 const STATUS_COLOR_MAP = {
-  cashed: "orange.900",
-  cashable: "green.900",
-  voidable: "gray.600",
-  payable: "blue.900",
-  paid: "green.900",
+  cashed: "gray.600",
+  cashable: "purple.900",
+  voidable: "purple.900",
+  payable: "purple.900",
+  paid: "gray.600",
   pending_escrow: "purple.900",
-  pending_maturity: "gray.600",
+  pending_maturity: "purple.900",
   voided: "gray.600",
 };
 
 const TOOLTIP_MESSAGE_MAP = {
-  cashed: "Payment has been cashed",
-  cashable: "Payment can be cashed",
-  voidable: "Payment has been made but can be cancelled",
-  payable: "Payment is pending",
-  paid: "Payment has been made",
-  pending_escrow: "Payment is pending",
-  pending_maturity: "Payment is pending",
-  voided: "Payment was cancelled",
+  cashed: "complete",
+  cashable: "ready for payout",
+  voidable: "payment in escrow",
+  payable: "payment due",
+  paid: "complete",
+  pending_escrow: "awaiting payment",
+  pending_maturity: "payment in escrow",
+  voided: "cancelled",
 };
 
 function CheqCardV2({ cheq }: Props) {
-  const {
-    sender,
-    amount,
-    token,
-    recipient,
-    formattedSender,
-    formattedRecipient,
-  } = cheq;
   const { blockchainState } = useBlockchainData();
 
   const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
@@ -99,8 +92,6 @@ function CheqCardV2({ cheq }: Props) {
   const createdLocaleDate = useMemo(() => {
     return cheq.createdDate.toLocaleDateString();
   }, [cheq.createdDate]);
-
-  const type = isInvoice ? "invoice" : "escrow";
 
   const status: CheqStatus | undefined = useMemo(() => {
     if (
@@ -156,6 +147,26 @@ function CheqCardV2({ cheq }: Props) {
     isFunder,
     isVoided,
   ]);
+
+  const payer = useMemo(() => {
+    if (isInvoice === undefined) {
+      return undefined;
+    }
+    if (isInvoice) {
+      return cheq.formattedRecipient;
+    }
+    return cheq.formattedSender;
+  }, [cheq.formattedRecipient, cheq.formattedSender, isInvoice]);
+
+  const payee = useMemo(() => {
+    if (isInvoice === undefined) {
+      return undefined;
+    }
+    if (isInvoice) {
+      return cheq.formattedSender;
+    }
+    return cheq.formattedRecipient;
+  }, [cheq.formattedRecipient, cheq.formattedSender, isInvoice]);
 
   useEffect(() => {
     async function fetchData() {
@@ -254,7 +265,7 @@ function CheqCardV2({ cheq }: Props) {
     onClose: onClosePay,
   } = useDisclosure();
 
-  if (status === undefined) {
+  if (status === undefined || payer === undefined || payee === undefined) {
     return <Skeleton h="200px" borderRadius={"10px"} />;
   }
 
@@ -269,19 +280,8 @@ function CheqCardV2({ cheq }: Props) {
         <HStack maxW="100%">
           <Box borderWidth="1px" borderRadius="full" boxShadow="md" p={2}>
             <Text fontSize="sm" textAlign="center">
-              {type}
+              {TOOLTIP_MESSAGE_MAP[status]}
             </Text>
-          </Box>
-          <Box borderWidth="1px" borderRadius="full" boxShadow="md" p={2}>
-            <Tooltip
-              label={TOOLTIP_MESSAGE_MAP[status]}
-              aria-label="status tooltip"
-              placement="right"
-            >
-              <Text fontSize="sm" textAlign="center">
-                {status}
-              </Text>
-            </Tooltip>
           </Box>
         </HStack>
 
@@ -301,7 +301,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formattedSender}
+              {payer}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -310,16 +310,16 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formattedRecipient}
+              {payee}
             </Text>
           </HStack>
 
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
-              {amount} {token}
+              {cheq.amount} {cheq.token}
             </Text>
 
-            <CurrencyIcon currency={token} />
+            <CurrencyIcon currency={cheq.token} />
           </HStack>
         </Flex>
 
@@ -392,6 +392,8 @@ function CheqCardV2({ cheq }: Props) {
         cheq={cheq}
         maturityDate={maturityDate}
         isVoided={isVoided}
+        payee={payee}
+        payer={payer}
       />
       <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
     </GridItem>

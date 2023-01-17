@@ -6,21 +6,23 @@ import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
   cheq: Cheq;
+  payer: string;
+  payee: string;
   maturityDate?: Date;
   isVoided?: boolean;
 }
 
-function CheqDetails({ cheq, maturityDate, isVoided }: Props) {
+function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
   const { blockchainState } = useBlockchainData();
 
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
         <VStack gap={0}>
-          <DetailsRow title="Sender" value={cheq.formattedSender} />
-          <DetailsRow title="Recipient" value={cheq.formattedRecipient} />
+          <DetailsRow title="Payer" value={payer} />
+          <DetailsRow title="Receipient" value={payee} />
           <DetailsRow
-            title="Created On"
+            title="Created Date"
             value={cheq.createdDate.toDateString()}
             link={`${blockchainState.explorer}${cheq.transactions.created}`}
           />
