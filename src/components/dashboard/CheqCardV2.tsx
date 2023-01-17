@@ -41,14 +41,17 @@ interface Props {
   cheq: Cheq;
 }
 
+// TODO: color coding should be part of design system
+// Gray -> complete
+// Purple -> pending
 const STATUS_COLOR_MAP = {
-  cashed: "orange.900",
-  cashable: "green.900",
-  voidable: "gray.600",
-  payable: "blue.900",
-  paid: "orange.900",
+  cashed: "gray.600",
+  cashable: "purple.900",
+  voidable: "purple.900",
+  payable: "purple.900",
+  paid: "gray.600",
   pending_escrow: "purple.900",
-  pending_maturity: "gray.600",
+  pending_maturity: "purple.900",
   voided: "gray.600",
 };
 
