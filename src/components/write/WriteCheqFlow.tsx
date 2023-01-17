@@ -10,7 +10,7 @@ interface Props {
 
 function WriteCheqFlow({ onClose, isInvoice }: Props) {
   return (
-    <Stepper onClose={onClose}>
+    <Stepper onClose={onClose} flowName={isInvoice ? "Request" : "Pay"}>
       <CheqDetailsStep
         screenKey="write"
         isInvoice={isInvoice}

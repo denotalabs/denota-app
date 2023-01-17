@@ -12,7 +12,6 @@ function Inspection() {
         form: { setFieldValue, setFieldTouched, errors, touched, values },
       }: any) => (
         <Select
-          w={120}
           {...field}
           onChange={(event) => setFieldValue("inspection", event.target.value)}
           onBlur={() => setFieldTouched("inspection", true)}

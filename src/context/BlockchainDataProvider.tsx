@@ -21,6 +21,9 @@ export const APIURL_REMOTE = "https://klymr.me/api";
 export const APIURL_LOCAL =
   "http://localhost:8000/subgraphs/name/CheqRegistrar/CheqRegistrar";
 
+export const APIURL_HOSTED =
+  "https://api.thegraph.com/subgraphs/name/soolaymahn/cheq-test";
+
 export const APIURL = APIURL_REMOTE;
 
 interface BlockchainDataInterface {
@@ -35,6 +38,7 @@ interface BlockchainDataInterface {
   userWethBalance: string;
 
   signer: null | ethers.providers.JsonRpcSigner;
+  explorer: string;
 }
 
 interface BlockchainDataContextInterface {
@@ -58,6 +62,7 @@ const defaultBlockchainState = {
   userWethBalance: "",
   cheqTotalSupply: "",
   signer: null,
+  explorer: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -138,6 +143,7 @@ export const BlockchainDataProvider = memo(
           cheqAddress: mapping.crx,
           userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
           userWethBalance: ethers.utils.formatUnits(userWethBalance),
+          explorer: mapping.explorer,
         });
         setIsInitializing(false);
       } catch (e) {

@@ -1,13 +1,9 @@
-# Cheq v0.0
-Deposit ETH and write cheques to others that are time locked and can be reversed
+# Cheq v0.2
+Write cheques to others that are time locked and can be reversed
 
-Contract implementation located at [src/contracts/Cheq.sol](src/contracts/Cheq.sol)
+Contracts implementation located at [src/contracts](src/contracts)
 
-
-1. Deposit ETH into the dApp
-2. writeCheque() to an address for an amount specified
-3. The recipient can cashCheque() once the check matures and the dApp will transfer the ETH
-4. If the drawer of the cheque decides to void the payment, their trusted reviewer can do so on their behalf
+<img src="https://user-images.githubusercontent.com/10327933/212239333-5ca10e12-7572-4293-ba07-9986b025d0bd.png" alt="diagram" width="500"/>
 
 ## Set up
 Run the command below to install from scratch:
@@ -25,9 +21,15 @@ anvil
 ```
 forge build
 ```
-Deploy the contracts to the blockchain
+Deploy the contracts to the blockchain (local)
 ```
-make deploy
+make deploy-local
+```
+
+Deploy the contracts to the blockchain (mumbai)
+```
+export PRIVATE_KEY=YOUR_KEY
+make deploy-mumbai
 ```
 
 Run the commands below to update dependencies:
