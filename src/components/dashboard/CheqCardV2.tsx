@@ -8,9 +8,7 @@ import {
   HStack,
   Text,
   VStack,
-  Image,
   useDisclosure,
-  Tooltip,
   Skeleton,
   Box,
   Menu,
@@ -22,7 +20,7 @@ import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { Cheq } from "../../hooks/useCheqs";
-import CurrencyIcon, { CheqCurrency } from "../designSystem/CurrencyIcon";
+import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 import { Spinner } from "@chakra-ui/react";
@@ -66,14 +64,6 @@ const TOOLTIP_MESSAGE_MAP = {
 };
 
 function CheqCardV2({ cheq }: Props) {
-  const {
-    sender,
-    amount,
-    token,
-    recipient,
-    formattedSender,
-    formattedRecipient,
-  } = cheq;
   const { blockchainState } = useBlockchainData();
 
   const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
@@ -323,10 +313,10 @@ function CheqCardV2({ cheq }: Props) {
 
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
-              {amount} {token}
+              {cheq.amount} {cheq.token}
             </Text>
 
-            <CurrencyIcon currency={token} />
+            <CurrencyIcon currency={cheq.token} />
           </HStack>
         </Flex>
 
