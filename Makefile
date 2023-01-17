@@ -26,7 +26,7 @@ setup-yarn:
 
 build-forge:
 	curl -L https://foundry.paradigm.xyz | bash  # Need to reload PATH before foundryup
-	source /root/.bashrc
+	. /root/.bashrc
 	foundryup
 	forge build
 
