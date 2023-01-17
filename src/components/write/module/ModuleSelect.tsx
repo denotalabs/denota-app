@@ -12,7 +12,6 @@ function ModuleSelect() {
         form: { setFieldValue, setFieldTouched, errors, touched, values },
       }: any) => (
         <Select
-          w={120}
           {...field}
           onChange={(event) => setFieldValue("module", event.target.value)}
           onBlur={() => setFieldTouched("module", true)}

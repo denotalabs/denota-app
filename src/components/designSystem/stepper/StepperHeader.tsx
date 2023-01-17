@@ -6,9 +6,10 @@ interface Props {
   onClose?: () => void;
   back?: () => void;
   currentIndex: number;
+  flowName?: string;
 }
 
-function StepperHeader({ onClose, back, currentIndex }: Props) {
+function StepperHeader({ onClose, back, currentIndex, flowName }: Props) {
   return (
     <Flex direction="row" width="100%" justify="space-between">
       <IconButton
@@ -18,7 +19,7 @@ function StepperHeader({ onClose, back, currentIndex }: Props) {
         onClick={back}
       />
       <Text fontWeight={600} fontSize={"xl"} mb={4}>
-        Step {currentIndex + 1}
+        {flowName} Step {currentIndex + 1}
       </Text>
       <IconButton
         aria-label="Next"

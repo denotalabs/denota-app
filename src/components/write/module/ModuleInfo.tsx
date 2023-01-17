@@ -1,4 +1,13 @@
-import { Box, Flex, FormLabel, Grid, GridItem } from "@chakra-ui/react";
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Flex,
+  FormControl,
+  FormLabel,
+  Grid,
+  GridItem,
+  Tooltip,
+} from "@chakra-ui/react";
 import RoundedBox from "../../designSystem/RoundedBox";
 import Inspection from "./Inspection";
 import ModuleSelect from "./ModuleSelect";
@@ -14,16 +23,37 @@ function ModuleInfo() {
       >
         <GridItem>
           <Flex alignItems={"center"}>
-            <FormLabel mb={0}>Module</FormLabel>
-            <ModuleSelect />
+            <FormControl>
+              <FormLabel>
+                Module
+                <Tooltip
+                  label="The module specifies the payment conditions"
+                  aria-label="module tooltip"
+                  placement="right"
+                >
+                  <QuestionOutlineIcon ml={2} mb={1} />
+                </Tooltip>
+              </FormLabel>
+
+              <ModuleSelect />
+            </FormControl>
           </Flex>
         </GridItem>
         <GridItem>
           <Flex alignItems={"center"}>
-            <FormLabel noOfLines={1} flexShrink={0} mb={0}>
-              Inspection Period
-            </FormLabel>
-            <Inspection />
+            <FormControl>
+              <FormLabel noOfLines={1} flexShrink={0}>
+                Inspection Period
+                <Tooltip
+                  label="The amount of time the payer has to request a refund"
+                  aria-label="module tooltip"
+                  placement="right"
+                >
+                  <QuestionOutlineIcon ml={2} mb={1} />
+                </Tooltip>
+              </FormLabel>
+              <Inspection />
+            </FormControl>
           </Flex>
         </GridItem>
       </Grid>

@@ -3,7 +3,6 @@ import StepperContext, {
   StringMap,
 } from "./StepperContext";
 import {
-  useEffect,
   useReducer,
   Children,
   ReactNode,
@@ -11,13 +10,12 @@ import {
   useContext,
   useState,
 } from "react";
-import { Text } from "@chakra-ui/react";
 import StepperHeader from "./StepperHeader";
-import { stat } from "fs";
 
 interface StepperProps {
   children: ReactNode;
   onClose?: () => void;
+  flowName?: string;
 }
 
 enum StepperActionKind {
@@ -61,7 +59,7 @@ function reducer(state: StepperReducerInterface, action: StepperAction) {
   }
 }
 
-function Stepper({ children, onClose }: StepperProps) {
+function Stepper({ children, onClose, flowName }: StepperProps) {
   const allScreens: ReactNode[] = Children.toArray(children);
   const currentScreen: ReactNode =
     allScreens.length > 0 ? allScreens[0] : undefined;
@@ -102,6 +100,7 @@ function Stepper({ children, onClose }: StepperProps) {
         back={back}
         onClose={onClose}
         currentIndex={state.currentIndex}
+        flowName={flowName}
       />
       {state.currentScreen}
     </StepperContext.Provider>

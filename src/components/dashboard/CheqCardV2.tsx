@@ -48,21 +48,21 @@ const STATUS_COLOR_MAP = {
   cashable: "green.900",
   voidable: "gray.600",
   payable: "blue.900",
-  paid: "green.900",
+  paid: "orange.900",
   pending_escrow: "purple.900",
   pending_maturity: "gray.600",
   voided: "gray.600",
 };
 
 const TOOLTIP_MESSAGE_MAP = {
-  cashed: "Payment has been cashed",
-  cashable: "Payment can be cashed",
-  voidable: "Payment has been made but can be cancelled",
-  payable: "Payment is pending",
-  paid: "Payment has been made",
-  pending_escrow: "Payment is pending",
-  pending_maturity: "Payment is pending",
-  voided: "Payment was cancelled",
+  cashed: "complete",
+  cashable: "ready for payout",
+  voidable: "payment in escrow",
+  payable: "payment due",
+  paid: "complete",
+  pending_escrow: "awaiting payment",
+  pending_maturity: "payment in escrow",
+  voided: "cancelled",
 };
 
 function CheqCardV2({ cheq }: Props) {
@@ -286,15 +286,9 @@ function CheqCardV2({ cheq }: Props) {
       >
         <HStack maxW="100%">
           <Box borderWidth="1px" borderRadius="full" boxShadow="md" p={2}>
-            <Tooltip
-              label={TOOLTIP_MESSAGE_MAP[status]}
-              aria-label="status tooltip"
-              placement="right"
-            >
-              <Text fontSize="sm" textAlign="center">
-                {status}
-              </Text>
-            </Tooltip>
+            <Text fontSize="sm" textAlign="center">
+              {TOOLTIP_MESSAGE_MAP[status]}
+            </Text>
           </Box>
         </HStack>
 
