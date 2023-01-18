@@ -24,6 +24,12 @@ update:; forge update
 setup-yarn:
 	yarn 
 
+# TODO: fails on fleek due to "GLIBC_2.29 not found"
+build-forge:
+	curl -L https://foundry.paradigm.xyz | bash  # Need to reload PATH before foundryup
+	~/.foundry/bin/foundryup
+	~/.foundry/bin/forge build
+
 # Install Foundry, node packages, and foundry libraries
 fresh-install:
 	curl -L https://foundry.paradigm.xyz | bash  # Need to reload PATH before foundryup
