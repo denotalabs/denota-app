@@ -5,7 +5,7 @@ import ConnectWallet from "./ConnectWallet";
 import MyCheqsView from "./MyCheqsView";
 import NewInvoice from "./NewInvoice";
 import Cookies from "js-cookie";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function HomeScreen() {
   return (
@@ -17,6 +17,7 @@ function HomeScreen() {
 
 function HomeScreenContent() {
   const { blockchainState, isInitializing } = useBlockchainData();
+  const [hasShownNux, setHasShownNux] = useState(false);
 
   const {
     isOpen: isNuxOpen,
@@ -29,11 +30,18 @@ function HomeScreenContent() {
       !isInitializing &&
       blockchainState.account &&
       !Cookies.get(blockchainState.account) &&
-      isNuxOpen
+      !hasShownNux
     ) {
+      setHasShownNux(true);
       onOpenNux();
     }
-  }, [blockchainState.account, isInitializing, isNuxOpen, onOpenNux]);
+  }, [
+    blockchainState.account,
+    hasShownNux,
+    isInitializing,
+    isNuxOpen,
+    onOpenNux,
+  ]);
 
   if (isInitializing) {
     return (
