@@ -1,8 +1,11 @@
-import { Center, Spinner } from "@chakra-ui/react";
+import { Center, Spinner, useDisclosure } from "@chakra-ui/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import NewUserModal from "../nux/NewUserModal";
 import ConnectWallet from "./ConnectWallet";
 import MyCheqsView from "./MyCheqsView";
 import NewInvoice from "./NewInvoice";
+import Cookies from "js-cookie";
+import { useEffect } from "react";
 
 function HomeScreen() {
   return (
@@ -14,6 +17,23 @@ function HomeScreen() {
 
 function HomeScreenContent() {
   const { blockchainState, isInitializing } = useBlockchainData();
+
+  const {
+    isOpen: isNuxOpen,
+    onOpen: onOpenNux,
+    onClose: onCloseNux,
+  } = useDisclosure();
+
+  useEffect(() => {
+    if (
+      !isInitializing &&
+      blockchainState.account &&
+      !Cookies.get(blockchainState.account) &&
+      isNuxOpen
+    ) {
+      onOpenNux();
+    }
+  }, [blockchainState.account, isInitializing, isNuxOpen, onOpenNux]);
 
   if (isInitializing) {
     return (
@@ -27,6 +47,7 @@ function HomeScreenContent() {
     <ConnectWallet />
   ) : (
     <Center flexDirection={"column"} width="100%" px={5}>
+      <NewUserModal isOpen={isNuxOpen} onClose={onCloseNux} />
       <NewInvoice />
       <br />
       <MyCheqsView />

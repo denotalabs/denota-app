@@ -22,6 +22,7 @@
     "graphql": "^16.6.0",
     "husky": "^8.0.1",
     "jazzicon-ts": "^2.0.0",
+    "js-cookie": "^3.0.1",
     "next": "^12.2.5",
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-beta.24",
@@ -60,6 +61,7 @@
     "graph-deploy-remote": "cd src/graph/subgraph && graph deploy --node ${GQL_HOST}:8020/ --ipfs ${GQL_HOST}:5001 CheqRegistrar/CheqRegistrar"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
     "eslint": "^8.19.0",
