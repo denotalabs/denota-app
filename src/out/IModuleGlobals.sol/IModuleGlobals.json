@@ -1,0 +1,737 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "getGovernance",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTreasury",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTreasuryData",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTreasuryFee",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newGovernance",
+          "type": "address"
+        }
+      ],
+      "name": "setGovernance",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newTreasury",
+          "type": "address"
+        }
+      ],
+      "name": "setTreasury",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint16",
+          "name": "newTreasuryFee",
+          "type": "uint16"
+        }
+      ],
+      "name": "setTreasuryFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "getGovernance()": "289b3c0d",
+    "getTreasury()": "3b19e84a",
+    "getTreasuryData()": "98f965d1",
+    "getTreasuryFee()": "29070c6d",
+    "setGovernance(address)": "ab033ea9",
+    "setTreasury(address)": "f0f44260",
+    "setTreasuryFee(uint16)": "a652db49"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"getGovernance\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTreasury\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTreasuryData\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTreasuryFee\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newGovernance\",\"type\":\"address\"}],\"name\":\"setGovernance\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newTreasury\",\"type\":\"address\"}],\"name\":\"setTreasury\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint16\",\"name\":\"newTreasuryFee\",\"type\":\"uint16\"}],\"name\":\"setTreasuryFee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/interfaces/IModuleGlobals.sol\":\"IModuleGlobals\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":hardhat/=node_modules/hardhat/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"src/contracts/interfaces/IModuleGlobals.sol\":{\"keccak256\":\"0xa9947f3298e4419ccd49db04dc2b320829774e560da7a97d84c3c8ec57d5931f\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f5811fdaf2b863ca7eed185a6990e558c4940bd8806e183c6f5cadcfe947dca1\",\"dweb:/ipfs/QmNMau6v2NovNkoYrqGF5dL1rM91aJsPBcGrrqMRE92Tni\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.16+commit.07a7930e"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getGovernance",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getTreasury",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getTreasuryData",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint16",
+              "name": "",
+              "type": "uint16"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getTreasuryFee",
+          "outputs": [
+            {
+              "internalType": "uint16",
+              "name": "",
+              "type": "uint16"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newGovernance",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "setGovernance"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newTreasury",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "setTreasury"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint16",
+              "name": "newTreasuryFee",
+              "type": "uint16"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "setTreasuryFee"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@graphprotocol/=node_modules/@graphprotocol/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":hardhat/=node_modules/hardhat/",
+        ":openzeppelin/=lib/openzeppelin-contracts/contracts/",
+        ":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/contracts/interfaces/IModuleGlobals.sol": "IModuleGlobals"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/contracts/interfaces/IModuleGlobals.sol": {
+        "keccak256": "0xa9947f3298e4419ccd49db04dc2b320829774e560da7a97d84c3c8ec57d5931f",
+        "urls": [
+          "bzz-raw://f5811fdaf2b863ca7eed185a6990e558c4940bd8806e183c6f5cadcfe947dca1",
+          "dweb:/ipfs/QmNMau6v2NovNkoYrqGF5dL1rM91aJsPBcGrrqMRE92Tni"
+        ],
+        "license": "BUSL-1.1"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/contracts/interfaces/IModuleGlobals.sol",
+    "id": 33370,
+    "exportedSymbols": {
+      "IModuleGlobals": [
+        33369
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "37:511:49",
+    "nodes": [
+      {
+        "id": 33331,
+        "nodeType": "PragmaDirective",
+        "src": "37:24:49",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".16"
+        ]
+      },
+      {
+        "id": 33369,
+        "nodeType": "ContractDefinition",
+        "src": "87:461:49",
+        "nodes": [
+          {
+            "id": 33336,
+            "nodeType": "FunctionDefinition",
+            "src": "118:55:49",
+            "nodes": [],
+            "functionSelector": "ab033ea9",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setGovernance",
+            "nameLocation": "127:13:49",
+            "parameters": {
+              "id": 33334,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33333,
+                  "mutability": "mutable",
+                  "name": "newGovernance",
+                  "nameLocation": "149:13:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33336,
+                  "src": "141:21:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33332,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "141:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "140:23:49"
+            },
+            "returnParameters": {
+              "id": 33335,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "172:0:49"
+            },
+            "scope": 33369,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33341,
+            "nodeType": "FunctionDefinition",
+            "src": "178:51:49",
+            "nodes": [],
+            "functionSelector": "f0f44260",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setTreasury",
+            "nameLocation": "187:11:49",
+            "parameters": {
+              "id": 33339,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33338,
+                  "mutability": "mutable",
+                  "name": "newTreasury",
+                  "nameLocation": "207:11:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33341,
+                  "src": "199:19:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33337,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "199:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "198:21:49"
+            },
+            "returnParameters": {
+              "id": 33340,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "228:0:49"
+            },
+            "scope": 33369,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33346,
+            "nodeType": "FunctionDefinition",
+            "src": "234:56:49",
+            "nodes": [],
+            "functionSelector": "a652db49",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setTreasuryFee",
+            "nameLocation": "243:14:49",
+            "parameters": {
+              "id": 33344,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33343,
+                  "mutability": "mutable",
+                  "name": "newTreasuryFee",
+                  "nameLocation": "265:14:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33346,
+                  "src": "258:21:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint16",
+                    "typeString": "uint16"
+                  },
+                  "typeName": {
+                    "id": 33342,
+                    "name": "uint16",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "258:6:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint16",
+                      "typeString": "uint16"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "257:23:49"
+            },
+            "returnParameters": {
+              "id": 33345,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "289:0:49"
+            },
+            "scope": 33369,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33351,
+            "nodeType": "FunctionDefinition",
+            "src": "295:57:49",
+            "nodes": [],
+            "functionSelector": "289b3c0d",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getGovernance",
+            "nameLocation": "304:13:49",
+            "parameters": {
+              "id": 33347,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "317:2:49"
+            },
+            "returnParameters": {
+              "id": 33350,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33349,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33351,
+                  "src": "343:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33348,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "343:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "342:9:49"
+            },
+            "scope": 33369,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33356,
+            "nodeType": "FunctionDefinition",
+            "src": "357:55:49",
+            "nodes": [],
+            "functionSelector": "3b19e84a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getTreasury",
+            "nameLocation": "366:11:49",
+            "parameters": {
+              "id": 33352,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "377:2:49"
+            },
+            "returnParameters": {
+              "id": 33355,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33354,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33356,
+                  "src": "403:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33353,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "403:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "402:9:49"
+            },
+            "scope": 33369,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33361,
+            "nodeType": "FunctionDefinition",
+            "src": "417:57:49",
+            "nodes": [],
+            "functionSelector": "29070c6d",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getTreasuryFee",
+            "nameLocation": "426:14:49",
+            "parameters": {
+              "id": 33357,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "440:2:49"
+            },
+            "returnParameters": {
+              "id": 33360,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33359,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33361,
+                  "src": "466:6:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint16",
+                    "typeString": "uint16"
+                  },
+                  "typeName": {
+                    "id": 33358,
+                    "name": "uint16",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "466:6:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint16",
+                      "typeString": "uint16"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "465:8:49"
+            },
+            "scope": 33369,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33368,
+            "nodeType": "FunctionDefinition",
+            "src": "479:67:49",
+            "nodes": [],
+            "functionSelector": "98f965d1",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getTreasuryData",
+            "nameLocation": "488:15:49",
+            "parameters": {
+              "id": 33362,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "503:2:49"
+            },
+            "returnParameters": {
+              "id": 33367,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33364,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33368,
+                  "src": "529:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33363,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "529:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33366,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33368,
+                  "src": "538:6:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint16",
+                    "typeString": "uint16"
+                  },
+                  "typeName": {
+                    "id": 33365,
+                    "name": "uint16",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "538:6:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint16",
+                      "typeString": "uint16"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "528:17:49"
+            },
+            "scope": 33369,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IModuleGlobals",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          33369
+        ],
+        "name": "IModuleGlobals",
+        "nameLocation": "97:14:49",
+        "scope": 33370,
+        "usedErrors": []
+      }
+    ],
+    "license": "BUSL-1.1"
+  },
+  "id": 49
+}
