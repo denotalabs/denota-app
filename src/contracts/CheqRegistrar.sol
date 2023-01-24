@@ -7,7 +7,7 @@ import "./ERC721r.sol";
 
 /**
 Get rid of depositing
-Get rid of amount??
+Get rid of cheq.amount??
 Add token whitelist
  */
 
@@ -46,9 +46,12 @@ contract CheqRegistrar is ERC721r, Ownable {
      * @dev the whitelist that enables CheqModules to WTFC cheqs. Currently, whitelisting is performed by users who grant each module access to their deposits
     */
     /** 
-     * @dev the whitelist of module bytecodes (modifyable by the governance)
+     * @dev the whitelist of module bytecodes (modifyable by the governance) for redeployable modules
     */
-    mapping(bytes32 => bool) private _bytecodeWhitelist;  // Bytecode of redeployable modules
+    mapping(bytes32 => bool) private _bytecodeWhitelist; 
+    /** 
+     * @dev the whitelist of module addresses (modifyable by the governance) for static modules
+    */
     mapping(ICheqModule => bool) private _moduleWhitelist; // Address of non-redeployable modules
     uint256 private feeChangeDate;
     uint256 private feeChangeCooldown;
@@ -91,7 +94,7 @@ contract CheqRegistrar is ERC721r, Ownable {
     /** 
      * @dev modifier that prevents non-whitelisted module code from writing cheqs
     */
-    modifier moduleWhitelisted(address module) {
+    modifier moduleWhitelisted(ICheqModule module) {
         bytes32 codeHash;
         assembly { codeHash := extcodehash(module) }
         require(
@@ -202,30 +205,37 @@ contract CheqRegistrar is ERC721r, Ownable {
     }
 
     /**
-     * @dev takes fee, checks if funder allows this module, deducts their balance, initializes the cheqInfo struct using the totalSupply int, mints the cheq using ERC721 _mint(), and updates the total supply. `payer` address funds the escrow and can be different to `drawer`
+     * @param payer the account putting up the escrow
+     * @param drawer the account sending the cheq
+     * @param recipient the account recieving the cheq
+     * @param token the ERC20 that is being escrowed
+     * @param amount the face value amount of the cheq
+     * @param escrow the amount escrowed
+     * @param owner the owner of the cheq
+     * @notice Takes fee, checks if module's whitelisted, deducts payer's balance, initializes the cheqInfo struct using the totalSupply int as the ID, mints the cheq using ERC721 _mint(), and updates the totalSupply
+     * @dev The `payer` address funds the escrow and can be different to `drawer`
+     * @return cheqId
      */
-    function write( // Stack too deep. 
+    function write(
         address payer,
         address drawer,
         address recipient,
-        IERC20 _token,
+        IERC20 token,
         uint256 amount,
         uint256 escrow,
         address owner
-    ) public payable moduleWhitelisted(_msgSender()) returns (uint256) {
+    ) public payable moduleWhitelisted(ICheqModule(_msgSender())) returns (uint256) {
         require(msg.value >= writeFlatFee, "INSUF_FEE");
-        _deductBalance(payer, _token, escrow);
-        _write(payer, drawer, recipient, _token, amount, escrow, owner);
+        _deductBalance(payer, token, escrow);
+        _write(payer, drawer, recipient, token, amount, escrow, owner);
         unchecked { 
-            _totalSupply += 1; 
-            return _totalSupply - 1;
+            return _totalSupply++;  // Postfix returns original value before the variable increments
         }
     }
     /**
      * @dev checks if caller is the cheq's module, takes the transfer fee, calls ERC721's _transfer() function
      */
     function transferFrom(
-        // TODO ensure the override is correct
         address from,
         address to,
         uint256 cheqId
@@ -525,7 +535,6 @@ contract CheqRegistrar is ERC721r, Ownable {
                 mstore8(sub(resultPtr, 1), 0x3d)
             }
         }
-
         return result;
     }
 }
