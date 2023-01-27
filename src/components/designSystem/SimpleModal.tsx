@@ -11,14 +11,15 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
+  hideClose?: boolean;
 }
 
-function SimpleModal({ isOpen, onClose, children }: Props) {
+function SimpleModal({ isOpen, onClose, children, hideClose }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay bg="blackAlpha.800" />
       <ModalContent bg="gray.900">
-        <ModalCloseButton />
+        {!hideClose && <ModalCloseButton />}
         <ModalBody>{children}</ModalBody>
       </ModalContent>
     </Modal>

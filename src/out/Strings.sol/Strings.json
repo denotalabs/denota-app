@@ -1,17 +1,17 @@
 {
   "abi": [],
   "bytecode": {
-    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122008dc0d7aea6c540a83e07aec0672008f491795ce5c6abfabb8c4041b0b045d5f64736f6c63430008100033",
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220396b46188abc2f7f12942054b18ca505a8cd46e8d7e8306e73a04c27841732f264736f6c63430008100033",
     "sourceMap": "161:3733:16:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;161:3733:16;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122008dc0d7aea6c540a83e07aec0672008f491795ce5c6abfabb8c4041b0b045d5f64736f6c63430008100033",
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220396b46188abc2f7f12942054b18ca505a8cd46e8d7e8306e73a04c27841732f264736f6c63430008100033",
     "sourceMap": "161:3733:16:-:0;;;;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"String operations.\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":\"Strings\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":{\"keccak256\":\"0x20b522c62459df59d6fdde3efb7597492dd44970eacdc1a6acc2b20a93bf53b8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9ccfb6f87a4f86ffa8725f4c8dd48f9780ac3aeaa0d299394077122b23dfcea0\",\"dweb:/ipfs/QmZ6W2Ssx3oRUM9AtQrzf9ur94dYBqPCSBJypScXxNUqZE\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"String operations.\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":\"Strings\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":hardhat/=node_modules/hardhat/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":{\"keccak256\":\"0x20b522c62459df59d6fdde3efb7597492dd44970eacdc1a6acc2b20a93bf53b8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9ccfb6f87a4f86ffa8725f4c8dd48f9780ac3aeaa0d299394077122b23dfcea0\",\"dweb:/ipfs/QmZ6W2Ssx3oRUM9AtQrzf9ur94dYBqPCSBJypScXxNUqZE\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -32,10 +32,14 @@
     },
     "settings": {
       "remappings": [
+        ":@graphprotocol/=node_modules/@graphprotocol/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":forge-std/=lib/forge-std/src/",
+        ":hardhat/=node_modules/hardhat/",
         ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
-        ":openzeppelin/=lib/openzeppelin-contracts/contracts/"
+        ":openzeppelin/=lib/openzeppelin-contracts/contracts/",
+        ":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/"
       ],
       "optimizer": {
         "enabled": true,
@@ -76,6 +80,7 @@
         "id": 23836,
         "nodeType": "PragmaDirective",
         "src": "101:23:16",
+        "nodes": [],
         "literals": [
           "solidity",
           "^",
@@ -92,6 +97,7 @@
             "id": 23840,
             "nodeType": "VariableDeclaration",
             "src": "183:54:16",
+            "nodes": [],
             "constant": true,
             "mutability": "constant",
             "name": "_SYMBOLS",
@@ -135,6 +141,7 @@
             "id": 23843,
             "nodeType": "VariableDeclaration",
             "src": "243:43:16",
+            "nodes": [],
             "constant": true,
             "mutability": "constant",
             "name": "_ADDRESS_LENGTH",
@@ -178,10 +185,12 @@
             "id": 24003,
             "nodeType": "FunctionDefinition",
             "src": "388:1614:16",
+            "nodes": [],
             "body": {
               "id": 24002,
               "nodeType": "Block",
               "src": "459:1543:16",
+              "nodes": [],
               "statements": [
                 {
                   "id": 24001,
@@ -2337,10 +2346,12 @@
             "id": 24101,
             "nodeType": "FunctionDefinition",
             "src": "2107:924:16",
+            "nodes": [],
             "body": {
               "id": 24100,
               "nodeType": "Block",
               "src": "2181:850:16",
+              "nodes": [],
               "statements": [
                 {
                   "id": 24099,
@@ -3546,10 +3557,12 @@
             "id": 24177,
             "nodeType": "FunctionDefinition",
             "src": "3154:437:16",
+            "nodes": [],
             "body": {
               "id": 24176,
               "nodeType": "Block",
               "src": "3244:347:16",
+              "nodes": [],
               "statements": [
                 {
                   "assignments": [
@@ -4540,10 +4553,12 @@
             "id": 24197,
             "nodeType": "FunctionDefinition",
             "src": "3743:149:16",
+            "nodes": [],
             "body": {
               "id": 24196,
               "nodeType": "Block",
               "src": "3816:76:16",
+              "nodes": [],
               "statements": [
                 {
                   "expression": {

@@ -5,10 +5,11 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import AccountField from "../../legacy/input/AccountField";
-import AmountField from "../../legacy/input/AmountField";
+import AccountField from "../../fields/input/AccountField";
+import AmountField from "../../fields/input/AmountField";
 import RoundedBox from "../../designSystem/RoundedBox";
 import { Textarea } from "@chakra-ui/react";
+import NoteField from "../../fields/input/NoteField";
 
 interface Props {
   isInvoice: boolean;
@@ -42,13 +43,7 @@ function DetailsBox({ isInvoice }: Props) {
           flexGrow={1}
           maxW="100%"
         >
-          <FormControl>
-            <FormLabel>Notes</FormLabel>
-            <Textarea />
-            <FormHelperText>
-              Notes are uploaded to IPFS. Please don't inlcude sensitive data
-            </FormHelperText>
-          </FormControl>
+          <NoteField fieldName="note" />
         </Flex>
       </Flex>
     </RoundedBox>
