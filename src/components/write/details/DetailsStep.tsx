@@ -32,14 +32,13 @@ function CheqDetailsStep({ isInvoice }: Props) {
           mode: initialMode,
         }}
         onSubmit={async (values, actions) => {
-          console.log({ note: values.note });
-          let noteKey: string;
-          if (formData.note === values.note && formData.note) {
-            noteKey = formData.noteKey;
-          } else {
-            noteKey = (await uploadNote(values.note)) ?? "";
-          }
-          console.log({ noteKey });
+          const noteKey = "";
+          // TODO: re-enable once contract integration is ready
+          // if (formData.note === values.note && formData.note) {
+          //   noteKey = formData.noteKey;
+          // } else {
+          //   noteKey = (await uploadNote(values.note)) ?? "";
+          // }
           appendFormData({
             token: values.token,
             amount: values.amount.toString(),
