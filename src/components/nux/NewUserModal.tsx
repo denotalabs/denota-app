@@ -5,6 +5,8 @@ import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import WaveIcon from "./WaveIcon";
 
+
+const notionOnboardingLink = "https://cheq-finance.notion.site/Cheq-Onboarding-8f3e101956f14e86b83feb06622988ad";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -36,7 +38,7 @@ function NewUserModalContent({ onClose }: ContentProps) {
         <Link
           fontWeight={600}
           fontSize={"lg"}
-          href="https://chakra-ui.com"
+          href={notionOnboardingLink}
           isExternal
           pb={3}
         >
