@@ -5,7 +5,7 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 // Might be able to just incorporate this into the CheqRegistrar
 library DataTypes {
     struct Cheq {
-        IERC20 currency; // Immutable
+        address currency; // Immutable
         uint256 amount; // Immutable & arbitrarily settable
         uint256 escrowed; // Mutable but invariant w.r.t deposits [MOST VULNERABLE]
         // address owner;   // TODO LensProtocol way of simplifying owner functions since NFTs are structs
