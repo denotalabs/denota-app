@@ -10,33 +10,24 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
-/** Question: Should be an abstract contract for inheriting this module type?
+/**
+ * Question: How to ensure deployed modules point to correct CheqRegistrar and Globals?
+ * TODO need to have a way for the marketplace owner to withdraw their fees
+ * How will fees to module owner work?
+- Contract Identification. [invoice document should contain this]
+    You will need to identify what the payment agreement is being drafted for.
+- Consenting Parties. [The cheq.drawer and cheq.recipient contain this]
+    The next section will need to include detailed information about the parties involved in the contract.
+- Agreement. [Status set by the client]
+    The main portion of the payment contract will detail what both parties have agreed to in terms of payment, as well as the product and services that will be rendered. 
+- Date. [Status set by the client]
+    The agreement will need to be dated to prove when the payment agreement went into effect.
+- Signature. [Freelancer sending invoice, client accepting]
+    Both parties will need to sign the contract which indicates they agree to the terms, as well as performing their obligations.
+ 
  * @notice Contract: stores invoice structs, takes/sends WTFC fees to owner, allows owner to set URI, allows freelancer/client to set work status', 
- Can add: 
- function pauseWTFC() external onlyOwner {}
- function addAccountRole(address) external onlyOwner {canWrite[address], canTransfer[address]...} allow/disallow
- function process__() {_payFeeToOwner(); _;}
- function yieldWrite() {}
- function buyCheq() {};
- function
-
-Writing:
- rule- cheq.amount == cheq.escrowed
- rule- IERC20(cheq.currency).balanceOf(cheq.drawer) > cheq.amount
- rule- tokenWhitelist[cheq.currency]
- rule- cheq.drawer == cheq.payer (Delegating someone to pay on your behalf)
-Transferring:
- rule- cheq.timeCreated + inspectionPeriod[cheqID] >= block.timestamp
-Funding:
- rule- cheq.milestones[currentMilestone].fundTime < block.timestamp (delinquent payment)
- rule- 
-Cashing
- rule- 
-URI
- rule- {allow drawer/owner/delegate to set URI}
- rule- 
  */
-contract Marketplace is ModuleBase, Ownable, ERC721, ICheqModule {
+contract Marketplace is ModuleBase, Ownable, ICheqModule {
     using Strings for uint256;
     // `InProgress` might not need to be explicit (Invoice.workerStatus=ready && Invoice.clientStatus=ready == working)
     enum Status {
@@ -44,13 +35,14 @@ contract Marketplace is ModuleBase, Ownable, ERC721, ICheqModule {
         Ready,
         InProgress,
         Disputing,
+        Resolved,
         Finished
     }
-    // Should milestones have timestamp aspect?
+    // Question: Should milestones have a timestamp aspect? What about Statuses?
     struct Milestone {
-        uint256 amounts;
-        bool workerFinished;
-        bool clientReleasable;
+        uint256 price;
+        bool workerFinished;  // Could pack these bools more
+        bool clientReleased;
     }
     // Can add expected completion date and refund partial to relevant party if late
     struct Invoice {
@@ -62,26 +54,13 @@ contract Marketplace is ModuleBase, Ownable, ERC721, ICheqModule {
     }
     // mapping(uint256 => uint256) public inspectionPeriods; // Would this give the reversibility period?
     mapping(uint256 => Invoice) public invoices;
-    mapping(IERC20 => bool) public tokenWhitelist;
+    mapping(address => bool) public tokenWhitelist;
     address public writeRule;
     address public transferRule;
     address public fundRule;
     address public cashRule;
     address public approveRule;
     string private baseURI;
-
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        _requireMinted(tokenId);
-        string memory __baseURI = _baseURI();
-        return bytes(__baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
-    }
-    function _baseURI() internal view override returns (string memory) {
-        return baseURI;
-    }
-
-    function whitelistToken(IERC20 token, bool whitelist) public onlyOwner {
-        tokenWhitelist[token] = whitelist;
-    }
 
     constructor(
         address registrar, 
@@ -91,13 +70,26 @@ contract Marketplace is ModuleBase, Ownable, ERC721, ICheqModule {
         address _cashRule, 
         address _approveRule,
         string memory __baseURI
-        ) ERC721("SSTL", "SelfSignTimeLock") ModuleBase(registrar){
+        ) ModuleBase(registrar){ // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens )
         writeRule = _writeRule;
         transferRule = _transferRule;
         fundRule = _fundRule;
         cashRule = _cashRule;
         approveRule = _approveRule;
         baseURI = __baseURI;
+    }
+
+    function tokenURI(uint256 tokenId) public view onlyRegistrar returns (string memory) {
+        // _requireMinted(tokenId);
+        string memory __baseURI = _baseURI();
+        return bytes(__baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
+    }
+    function _baseURI() internal view returns (string memory) {
+        return baseURI;
+    }
+
+    function whitelistToken(address token, bool whitelist) public onlyOwner {
+        tokenWhitelist[token] = whitelist;
     }
     
     function processWrite(
@@ -174,11 +166,54 @@ contract Marketplace is ModuleBase, Ownable, ERC721, ICheqModule {
         baseURI = __baseURI;
     }
 
-    function earlyRelease(uint256 cheqId, Status status) public {  // Should this allow the parties to set arbitrary Statuses?
-        if (_msgSender() == ICheqRegistrar(REGISTRAR).cheqDrawer(cheqId)){
-            invoices[cheqId].workerStatus = status;
-        } else if (_msgSender() == ICheqRegistrar(REGISTRAR).cheqRecipient(cheqId)){
-            invoices[cheqId].clientStatus = status;
+    function setStatus(uint256 cheqId, Status newStatus) public {
+        // TODO allow owner to set Status.Disputed to Status.Resolved. Can Resolved lead to continued work (Status.Working) or pay out based on the resolution? 
+        // Do both parties need to set it to Status.Disputed? 
+        // If one doesn't, should the arbitor only be allowed to payout the party with Status.Disputed?
+        Invoice storage invoice = invoices[cheqId];
+
+        bool isWorker = ICheqRegistrar(REGISTRAR).cheqDrawer(cheqId) == _msgSender();  // Cheaper to query individual or all?
+        // Question: function cheqParties() public view returns (drawer, recipient){} exist?
+
+        Status oldStatus = isWorker ? invoice.workerStatus : invoice.clientStatus;
+        require(oldStatus < newStatus, "STATUS_REGRESS");
+        if (!isWorker) {
+            require(ICheqRegistrar(REGISTRAR).cheqRecipient(cheqId) == _msgSender(), "NOT_ALLOWED");
+        }
+        
+        if (isWorker){
+            invoice.workerStatus = newStatus;
+        } else {
+            invoice.clientStatus = newStatus;
         }
     }
 }
+
+// // BUG what if funder doesnt fund the invoice for too long??
+// function cashable(
+//     uint256 cheqId,
+//     address caller,
+//     uint256 /* amount */
+// ) public view returns (uint256) {
+//     // Invoice funder can cash before period, cheq writer can cash before period
+//     // Chargeback case
+//     if (
+//         cheqFunder[cheqId] == caller &&
+//         (block.timestamp <
+//             cheqCreated[cheqId] + cheqInspectionPeriod[cheqId])
+//     ) {
+//         // Funding party can rescind before the inspection period elapses
+//         return cheq.cheqEscrowed(cheqId);
+//     } else if (
+//         cheq.ownerOf(cheqId) == caller &&
+//         (block.timestamp >=
+//             cheqCreated[cheqId] + cheqInspectionPeriod[cheqId])
+//     ) {
+//         // Receiving/Owning party can cash after inspection period
+//         return cheq.cheqEscrowed(cheqId);
+//     } else if (isReleased[cheqId]) {
+//         return cheq.cheqEscrowed(cheqId);
+//     } else {
+//         return 0;
+//     }
+// }

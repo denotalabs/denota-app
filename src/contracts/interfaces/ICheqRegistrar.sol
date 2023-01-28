@@ -13,14 +13,15 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
 interface ICheqRegistrar {
     function write(DataTypes.Cheq calldata cheq, bytes calldata moduleWriteData, address owner) external payable returns (uint256);
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory moduleTransferData) external;
-    function approve(address to, uint256 tokenId) external;
     function fund(uint256 cheqId, uint256 amount, bytes calldata fundData) external payable;
     function cash(uint256 cheqId, uint256 amount, address to, bytes calldata cashData) external payable;
+    function approve(address to, uint256 tokenId) external;
+    
     function cheqInfo(uint256 cheqId) external view returns (DataTypes.Cheq memory);  // Question: Should this be the only _cheqInfo view method?
     function cheqAmount(uint256 cheqId) external view returns (uint256);
-    function cheqCurrency(uint256 cheqId) external view returns (IERC20);
+    function cheqCurrency(uint256 cheqId) external view returns (address);
     function cheqDrawer(uint256 cheqId) external view returns (address);
     function cheqRecipient(uint256 cheqId) external view returns (address);
     function cheqEscrowed(uint256 cheqId) external view returns (uint256);
-    function cheqModule(uint256 cheqId) external view returns (ICheqModule);
+    function cheqModule(uint256 cheqId) external view returns (address);
 }
