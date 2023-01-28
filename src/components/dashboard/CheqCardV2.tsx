@@ -170,6 +170,7 @@ function CheqCardV2({ cheq }: Props) {
 
   useEffect(() => {
     async function fetchData() {
+      setIsCashable(undefined);
       try {
         const cheqId = Number(cheq.id);
         const caller = blockchainState.account;

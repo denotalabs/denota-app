@@ -3,7 +3,7 @@ import { Flex, Box, Text, ButtonGroup, Button, Stack } from "@chakra-ui/react";
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import Link from "next/link";
 import NavbarUser from "./NavbarUser";
-import SettingsCog from "../legacy/SettingsCog";
+import SettingsCog from "../fields/SettingsCog";
 
 interface Props {
   setIsUser: any;
