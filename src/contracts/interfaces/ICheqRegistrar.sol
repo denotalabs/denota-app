@@ -11,17 +11,27 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
  * TODO: send cheq as a struct or individual variables?
  */
 interface ICheqRegistrar {
+    function ruleWhitelisted(address rule) external view returns (bool);
+    function rulesWhitelisted(address writeRule, address transferRule, address fundRule, address cashRule, address approveRule) external view returns (bool);
+    function moduleWhitelisted(address module) external view returns(bool, bool);  // addressWhitelisted, bytecodeWhitelisted
+    function tokenWhitelisted(address token) external view returns(bool);
+
     function write(DataTypes.Cheq calldata cheq, bytes calldata moduleWriteData, address owner) external payable returns (uint256);
+    // function transferFrom(address from, address to, uint256 tokenId, bytes memory moduleTransferData) external;
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory moduleTransferData) external;
     function fund(uint256 cheqId, uint256 amount, bytes calldata fundData) external payable;
     function cash(uint256 cheqId, uint256 amount, address to, bytes calldata cashData) external payable;
     function approve(address to, uint256 tokenId) external;
     
     function cheqInfo(uint256 cheqId) external view returns (DataTypes.Cheq memory);  // Question: Should this be the only _cheqInfo view method?
-    function cheqAmount(uint256 cheqId) external view returns (uint256);
-    function cheqCurrency(uint256 cheqId) external view returns (address);
+    function cheqDrawerRecipient(uint256 cheqId) external view returns(address, address);
+    function cheqCurrencyValueEscrow(uint256 cheqId) external view returns(address, uint256, uint256);
     function cheqDrawer(uint256 cheqId) external view returns (address);
     function cheqRecipient(uint256 cheqId) external view returns (address);
+    function cheqCurrency(uint256 cheqId) external view returns (address);
+    function cheqAmount(uint256 cheqId) external view returns (uint256);
     function cheqEscrowed(uint256 cheqId) external view returns (uint256);
     function cheqModule(uint256 cheqId) external view returns (address);
+
+    // function totalSupply() public view returns (uint256)
 }

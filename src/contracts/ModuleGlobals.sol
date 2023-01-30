@@ -5,7 +5,6 @@ import {Errors} from "../contracts/libraries/Errors.sol";
 import {Events} from "../contracts/libraries/Events.sol";
 import {IModuleGlobals} from "../contracts/interfaces/IModuleGlobals.sol";
 
-
 contract ModuleGlobals is IModuleGlobals {
     uint16 internal constant BPS_MAX = 10000;
     address internal _governance;

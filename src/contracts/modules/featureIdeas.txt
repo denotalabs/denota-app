@@ -4,16 +4,16 @@ Rule libraries seem to be for user initiated data.
 When a user writes a cheq, libraries can make comparisons between the caller, owner, _totalSupply, cheq, and moduleWriteData
 This assumes that the cheq writer's moduleWriteData is trusted
 Same for all WTFC
-Conversely, storage that is only modifiable by calling module functions seems to require a new module.
+Conversely, storage that is only modifiable by calling module functions seems to require a new module
 
 General Features:
 * Global or Address Pausability
     function pauseWTFC(bool, bool, bool, bool) external onlyOwner {}
-* Contract Roles
+* Differing Contract Roles
     function addAccountRole(address) external onlyOwner {isArbitor[address], etc} allow/disallow
 * Fee Structures
     function processX() {_payFeeToOwner(); _;}
-* Token Rewards 
+* Token Rewards
     contract PayModule is ERC20 {}
     function tokenRewards(w,t,f,c,a) {rewardW = w; rewardT = t; rewardF = f; rewardC = c;} 
     function rewardUser(Action action) {if (action==Action.Write){ _mint(_msgSender(), rewardW);}else if(...){} }
@@ -27,6 +27,18 @@ General Features:
     function buyCheq(cheqId) {REGISTRAR.transferFrom(cheqId, caller, address(this)); ERC20._mint(caller, cheq.escrowed)}; // AMM style cheq buybacks and issue tokens
 * ZK proving of past payments
     function proveModuleTotalSuccessfulPayment(address) { ZK.recoverCheqAmountsByAccount(address); }
+Admin role abilities: 
+1. Global pausing of WTFCA
+2. Operator-like transfer status
+3. Setting/taking fees and fee structures
+4. Setting token rewards
+5. Pausing/blacklisting adresses
+6. Allowlisting users
+7. Setting tokenURIs
+8. Whitelisting tokens
+9. Setting arbitors
+10. 
+
 
 Writing Features:
 * Proof-of-Funds
@@ -43,10 +55,10 @@ Transferring:
     require(cheq.timeCreated + inspectionPeriod[cheqID] >= block.timestamp, "");
 * Sender-approvals
     function approveRecipient(address, bool) { senderApproves[msg.sender][address] = bool; }
-    require( , "")
+    require(senderApproves[msg.sender][address], "")
 * Recipient-approvals
     function approveSender(address, bool) { recipientApproves[msg.sender][address] = bool; }
-    require( , "")
+    require(recipientApproves[msg.sender][address] , "")
 * Arbitrary External Contract Conditions (view functions)
     function onlyOnExternalState(address, string) { require(Contract(address).functionSelector(string), "FAILED") } OR
     function onlyOnExternalState(address, string, Comparison comparison, uint) { require(comparison(Contract(address).functionSelector(string), uint), "FAILED") } 
