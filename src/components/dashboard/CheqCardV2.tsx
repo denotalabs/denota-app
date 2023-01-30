@@ -267,7 +267,7 @@ function CheqCardV2({ cheq }: Props) {
   } = useDisclosure();
 
   if (status === undefined || payer === undefined || payee === undefined) {
-    return <Skeleton h="200px" borderRadius={"10px"} />;
+    return <Skeleton h="225px" borderRadius={"10px"} />;
   }
 
   return (
