@@ -10,6 +10,7 @@ import AmountField from "../../fields/input/AmountField";
 import RoundedBox from "../../designSystem/RoundedBox";
 import { Textarea } from "@chakra-ui/react";
 import NoteField from "../../fields/input/NoteField";
+import EmailField from "../../fields/input/EmailField";
 
 interface Props {
   isInvoice: boolean;
@@ -35,7 +36,7 @@ function DetailsBox({ isInvoice }: Props) {
             <AccountField fieldName="address" placeholder="0x" />
           </FormControl>
         </Flex>
-
+        <EmailField fieldName="email" placeholder="" />
         <Flex
           alignItems={"center"}
           justifyContent={"space-between"}

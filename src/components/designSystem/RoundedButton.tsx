@@ -1,14 +1,20 @@
-import { Button } from "@chakra-ui/react";
+import { Button, ButtonProps, StyleProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
 
-interface Props {
+interface Props extends StyleProps, ButtonProps {
   onClick?: () => void;
   type?: "button" | "submit";
   children: ReactNode;
   isLoading?: boolean;
 }
 
-function RoundedButton({ onClick, children, type, isLoading }: Props) {
+function RoundedButton({
+  onClick,
+  children,
+  type,
+  isLoading,
+  ...props
+}: Props) {
   return (
     <Button
       mt={4}
@@ -17,6 +23,7 @@ function RoundedButton({ onClick, children, type, isLoading }: Props) {
       onClick={onClick}
       type={type}
       isLoading={isLoading}
+      {...props}
     >
       {children}
     </Button>
