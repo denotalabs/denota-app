@@ -4,7 +4,7 @@ import {Errors} from "../contracts/libraries/Errors.sol";
 import {Events} from "../contracts/libraries/Events.sol";
 
 abstract contract ModuleBase {
-    address public immutable REGISTRAR;
+    address public immutable REGISTRAR;  // Question: Make this a hardcoded address?
 
     modifier onlyRegistrar() {
         if (msg.sender != REGISTRAR) revert Errors.NotRegistrar();

@@ -12,19 +12,8 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 
 /**
  * Question: How to ensure deployed modules point to correct CheqRegistrar and Globals?
- * TODO need to have a way for the marketplace owner to withdraw their fees
- * How will fees to module owner work?
-- Contract Identification. [invoice document should contain this]
-    You will need to identify what the payment agreement is being drafted for.
-- Consenting Parties. [The cheq.drawer and cheq.recipient contain this]
-    The next section will need to include detailed information about the parties involved in the contract.
-- Agreement. [Status set by the client]
-    The main portion of the payment contract will detail what both parties have agreed to in terms of payment, as well as the product and services that will be rendered. 
-- Date. [Status set by the client]
-    The agreement will need to be dated to prove when the payment agreement went into effect.
-- Signature. [Freelancer sending invoice, client accepting]
-    Both parties will need to sign the contract which indicates they agree to the terms, as well as performing their obligations.
- 
+ * TODO need to have a way for the marketplace owner to collect/withdraw their fees
+ * TODO how to export the struct?
  * @notice Contract: stores invoice structs, takes/sends WTFC fees to owner, allows owner to set URI, allows freelancer/client to set work status', 
  */
 contract Marketplace is ModuleBase, Ownable, ICheqModule {
@@ -40,13 +29,14 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
     }
     // Question: Should milestones have a timestamp aspect? What about Statuses?
     struct Milestone {
-        uint256 price;
+        uint256 price;  // Amount the milestone is worth
         bool workerFinished;  // Could pack these bools more
         bool clientReleased;
     }
     // Can add expected completion date and refund partial to relevant party if late
-    struct Invoice {
+    struct Invoice {  // TODO can optimize these via smaller types and packing
         uint256 startTime;
+        uint256 currentMilestone;  
         Status workerStatus;
         Status clientStatus;
         // bytes32 documentHash;
@@ -71,6 +61,12 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         address _approveRule,
         string memory __baseURI
         ) ModuleBase(registrar){ // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens )
+        require(ICheqRegistrar(REGISTRAR).rulesWhitelisted(
+            _writeRule,
+            _transferRule,
+            _fundRule,
+            _cashRule,
+            _approveRule), "RULES_INVALID");
         writeRule = _writeRule;
         transferRule = _transferRule;
         fundRule = _fundRule;
@@ -79,19 +75,13 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         baseURI = __baseURI;
     }
 
-    function tokenURI(uint256 tokenId) public view onlyRegistrar returns (string memory) {
-        // _requireMinted(tokenId);
-        string memory __baseURI = _baseURI();
-        return bytes(__baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
-    }
-    function _baseURI() internal view returns (string memory) {
-        return baseURI;
-    }
-
     function whitelistToken(address token, bool whitelist) public onlyOwner {
         tokenWhitelist[token] = whitelist;
     }
-    
+    function setBaseURI(string calldata __baseURI) external onlyOwner {
+        baseURI = __baseURI;
+    }
+
     function processWrite(
         address caller,
         address owner,
@@ -102,7 +92,7 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         require(tokenWhitelist[cheq.currency], "Token not whitelisted");
         bool cheqIsWriteable = IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
         /**
-        require(cheq.drawer == caller, "Can't send on behalf");  // This could be delegated
+        require(cheq.drawer == caller, "Can't send on behalf");  // This could be delegated to the rule
         require(cheq.recipient != owner, "Can't self send");  // TODO figure out LENS' 721 ownership modification
         require(cheq.amount > 0, "Can't send cheq with 0 value");  // Library function could be canWrite()->bool
          */
@@ -119,6 +109,7 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         }
         return true;
     }
+
     // Where should require(ownerOf(cheqId) == msg.sender) be?
     function processTransfer(
         address caller, 
@@ -158,12 +149,24 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         return ICashRule(cashRule).canCash(caller, to, amount, cheqId, cheq, initData);
     }
 
-    function processApproval(address caller, address to, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes memory initData) external onlyRegistrar returns (bool){
+    function processApproval(
+        address caller, 
+        address to, 
+        uint256 cheqId, 
+        DataTypes.Cheq calldata cheq, 
+        bytes memory initData
+    ) external onlyRegistrar returns (bool){
         return IApproveRule(approveRule).canApprove(caller, to, cheqId, cheq, initData);
     }
 
-    function setBaseURI(string calldata __baseURI) external onlyOwner {
-        baseURI = __baseURI;
+    // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool) {}
+
+    function tokenURI(uint256 tokenId) public view onlyRegistrar returns (string memory) {
+        string memory __baseURI = _baseURI();
+        return bytes(__baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
+    }
+    function _baseURI() internal view returns (string memory) {
+        return baseURI;
     }
 
     function setStatus(uint256 cheqId, Status newStatus) public {
@@ -180,7 +183,7 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         if (!isWorker) {
             require(ICheqRegistrar(REGISTRAR).cheqRecipient(cheqId) == _msgSender(), "NOT_ALLOWED");
         }
-        
+
         if (isWorker){
             invoice.workerStatus = newStatus;
         } else {

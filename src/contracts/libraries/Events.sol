@@ -18,7 +18,7 @@ library Events {  // emit cheq structs or each variable?
         uint16 indexed newTreasuryFee,
         uint256 timestamp
     );
-    event FeeModuleBaseConstructed(address indexed moduleGlobals, uint256 timestamp);
+    // event FeeModuleBaseConstructed(address indexed moduleGlobals, uint256 timestamp);
     event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
     // TODO: emit the address of the module or the bytehash?
     event ModuleWhitelisted(
@@ -28,6 +28,8 @@ library Events {  // emit cheq structs or each variable?
         bool isClonable,
         uint256 timestamp
     );
+    event TokenWhitelisted(address caller, address indexed token, bool indexed accepted, uint256 timestamp);
+    event RuleWhitelisted(address caller, address indexed rule, bool indexed accepted, uint256 timestamp);
 
     event Written(
         uint256 indexed cheqId,
