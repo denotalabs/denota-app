@@ -11,48 +11,81 @@ import {ICheqRegistrar} from "../contracts/interfaces/ICheqRegistrar.sol";
 import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol";
 
 /** @notice The Inside-out (LensProtocol) design where EOAs call the registrar and registrar calls to PaymentModules (who use RuleModules)
+ * WFC fees are taken in gas while transfer is taken from the cheq value to stay compatibile
 */
-// TODO How to label the modules instances that are created? They don't have to be 721s but could be
-// TODO Use Lens' method for ownership tracking that modifies the ERC721 logic to allow NFTstruct{owner, ...} storage/retrieval
-// Question: Require the recipient not be the address(0)?
+// TODO: Module return can be (wasSuccessful, value). Would give more flexibility
+// TODO Use Lens' method for ownership (tracking that modifies the ERC721 logic to allow NFTstruct{owner, ...} storage/retrieval)
+// TODO Create a module labeling schema
+// TODO: Create way for front-end operators to get a cut?
+// Question: Require the recipient not be the address(0) or allow module to handle that?
 // Question: Implement ownerOf(cheqId) { cheq.module.processOwner(); } to allow ownership revokation?
-// Question: Should cash and fund allow user defined amounts? Let the module overrule?
-contract CheqRegistrarV2 is ERC721, Ownable, ICheqRegistrar {
+// Question: Add function to deploy modules from the registrar?
+contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     using SafeERC20 for IERC20;
     /*//////////////////////////////////////////////////////////////
                            STORAGE VARIABLES
     //////////////////////////////////////////////////////////////*/
     mapping(uint256 => DataTypes.Cheq) private _cheqInfo; // Cheq information
-    // mapping(address => mapping(IERC20 => uint256)) private _deposits; // TODO remove deposit and just ensure escrowing?
-    mapping(bytes32 => bool) private _bytecodeWhitelist;  // TODO Can this be done without two mappings? Having both redeployable and static modules?
+    mapping(bytes32 => bool) private _bytecodeWhitelist;  // Question Can these be done without two mappings? Having both redeployable and static modules?
     mapping(address => bool) private _addressWhitelist;
+    mapping(address => bool) private _ruleWhitelist;  // Question make these bytecode specific? Rule specific?
     mapping(address => bool) private _tokenWhitelist;
+    mapping(address => uint256) private _transferReserve;
     uint256 private _totalSupply; // Total cheqs created
-    uint256 public transferFee; // Percent of flat? Is taken from 
+    uint256 public _writeFlatFee;  // Question can use a smaller data type?
+    uint256 public _transferFee; // BPS fee taken from cheq.amount
+    uint256 public _fundFlatFee;
+    uint256 public _cashFlatFee;
     /*//////////////////////////////////////////////////////////////
                         ONLY OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    constructor() ERC721("CheqProtocol", "CHEQ") {
-        // writeFlatFee = _writeFlatFee;
-        // transferFlatFee = _transferFlatFee;
-        // fundFlatFee = _fundFlatFee;
-        // cashFlatFee = _cashFlatFee;
-        // depositFlatFee = _depositFlatFee;
+    constructor(
+        uint256 writeFlatFee_,
+        uint256 transferFee_,
+        uint256 fundFlatFee_,
+        uint256 cashFlatFee_
+    ) ERC721("CheqProtocol", "CHEQ") {
+        _writeFlatFee = writeFlatFee_;
+        _transferFee = transferFee_;
+        _fundFlatFee = fundFlatFee_;
+        _cashFlatFee = cashFlatFee_;
     }
-
-    function _returnCodeHash(address module) internal view returns(bytes32){
-        bytes32 moduleCodeHash;
-        assembly { moduleCodeHash := extcodehash(module) }
-        return moduleCodeHash;
+    function updateFees(
+        uint256 writeFlatFee_,
+        uint256 transferFee_,
+        uint256 fundFlatFee_,
+        uint256 cashFlatFee_
+    ) external onlyOwner {
+        _writeFlatFee = writeFlatFee_;
+        _transferFee = transferFee_;
+        _fundFlatFee = fundFlatFee_;
+        _cashFlatFee = cashFlatFee_;
     }
-    function whitelistModule(address module, bool bytecodeAccepted, bool addressAccepted) external onlyOwner {  // Whitelist either bytecode or address
-        require(bytecodeAccepted != bytecodeAccepted, "CAN'T_ACCEPT_BOTH");
+    function whitelistModule(
+        address module, 
+        bool bytecodeAccepted, 
+        bool addressAccepted
+    ) external onlyOwner {  // Whitelist either bytecode or address
+        require(bytecodeAccepted != addressAccepted ||  // Can't accept both, but 
+                !(bytecodeAccepted || addressAccepted), // can revoke both
+                "CAN'T_ACCEPT_BOTH");
         _bytecodeWhitelist[_returnCodeHash(module)] = bytecodeAccepted;
         _addressWhitelist[module] = addressAccepted;
         emit Events.ModuleWhitelisted(_msgSender(), module, bytecodeAccepted, addressAccepted, block.timestamp);
     }
-    function whitelistToken(address _token, bool accepted) external onlyOwner {  // Whitelist for just for safety, modules can prevent additional
+    function whitelistToken(address _token, bool accepted) external onlyOwner {  // Whitelist for safety, modules can be more restrictive
         _tokenWhitelist[_token] = accepted;
+         emit Events.TokenWhitelisted(_msgSender(), _token, accepted, block.timestamp);
+    }
+    function whitelistRule(address rule, bool accepted) external onlyOwner {
+        _ruleWhitelist[rule] = accepted;
+        emit Events.RuleWhitelisted(_msgSender(), rule, accepted, block.timestamp);
+    }
+
+    function _returnCodeHash(address module) public view returns(bytes32){
+        bytes32 moduleCodeHash;
+        assembly { moduleCodeHash := extcodehash(module) }
+        return moduleCodeHash;
     }
     function _validModule(address module) internal view returns(bool) {
         return _addressWhitelist[module] || _bytecodeWhitelist[_returnCodeHash(module)];
@@ -68,19 +101,20 @@ contract CheqRegistrarV2 is ERC721, Ownable, ICheqRegistrar {
         bytes calldata moduleWriteData,  // calldata vs memory
         address owner  // This should be in the cheq Struct
     ) public payable returns (uint256) {  // write on someone's behalf by letting module write it for them using money deposited from them
-        require(_validWrite(cheq.module, cheq.currency), "NOT_WHITELISTED");
+        require(msg.value >= _writeFlatFee, "INSUF_FEE");
+        require(_validWrite(cheq.module, cheq.currency), "NOT_WHITELISTED");  // Checks module and token whitelist
         // Add the CheqRegistrar Fee to amount, then transferFrom
         require(ICheqModule(cheq.module).processWrite(_msgSender(), owner, _totalSupply, cheq, moduleWriteData), "MODULE: WRITE_FAILED");
         IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheq.escrowed);  // Question: Could return (bool success, uint256 feeAmount) to figure out fee
         _cheqInfo[_totalSupply] = cheq;
-        _cheqInfo[_totalSupply].timeCreated = block.timestamp;  // Not very clean, could be removed, might be redundent with events
+        _cheqInfo[_totalSupply].timeCreated = block.timestamp;  // Not very clean
         _safeMint(owner, _totalSupply);  // TODO: refactor for LENSPROTOCOL method of tracking ownership
 
         emit Events.Written(_totalSupply, owner, cheq, moduleWriteData, block.timestamp);
         unchecked { return _totalSupply++; }  // NOTE: Will this ever overflow? Also, returns before increment..?
     }
 
-    function transferFrom(
+    function transferFrom(  // Removed the approveOrOwner check, allow module to decide
         address from,
         address to,
         uint256 tokenId
@@ -99,18 +133,19 @@ contract CheqRegistrarV2 is ERC721, Ownable, ICheqRegistrar {
         require(ICheqModule(cheq.module).processTransfer(_msgSender(), from, to, tokenId, cheq, moduleTransferData), "MODULE: FAILED");
         uint256 escrowedAmount = _cheqInfo[tokenId].escrowed;
         if (escrowedAmount > 0) 
-            _cheqInfo[tokenId].escrowed = escrowedAmount - (escrowedAmount * transferFee) / 10_000;  // Take fee in BPS
+            _cheqInfo[tokenId].escrowed = escrowedAmount - (escrowedAmount * _transferFee) / 10_000;  // Take fee in BPS
         emit Events.Transferred(tokenId, ownerOf(tokenId), to, block.timestamp);
         _safeTransfer(from, to, tokenId, "");
     }
 
-    function approve(address to, uint256 tokenId) public override(ERC721, ICheqRegistrar) {   // ERC721- don't allow self_approval, ?(ensure owner is granting approval)
+    function approve(address to, uint256 tokenId) public override(ERC721, ICheqRegistrar) {  
+         // ERC721 doesn't allow self_approval, ?(ensure owner is granting approval)
+         // Question/TODO: could approval function for a individual modules
         DataTypes.Cheq memory cheq = _cheqInfo[tokenId];  // Add address approval to the struct?
         require(ICheqModule(cheq.module).processApproval(_msgSender(), to, tokenId, cheq, ""), "MODULE: FAILED");
         _approve(to, tokenId);
     }
-
-    function setApprovalForAll(address /*operator*/, bool /*approved*/) public virtual override {  // Question/TODO: could operators function for a individual modules?? Could feed
+    function setApprovalForAll(address /*operator*/, bool /*approved*/) public virtual override {
         require(false, "OPERATORS_NOT_SUPPORTED");
         // _setApprovalForAll(_msgSender(), operator, approved);
     }
@@ -122,7 +157,8 @@ contract CheqRegistrarV2 is ERC721, Ownable, ICheqRegistrar {
         uint256 cheqId,
         uint256 amount,  // Question: Allow the module to specify how much to send? Could return (bool success, uint amount)
         bytes calldata fundData  //
-    ) external payable { // Can take a flat fee here
+    ) external payable {
+        require(msg.value >= _fundFlatFee, "INSUF_FEE");
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];  // Better to assign and then index?
         require(ICheqModule(cheq.module).processFund(_msgSender(), amount, cheqId, cheq, fundData), "MODULE: FAILED");  // TODO: send fundData as a struct or individual variables?
         IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), amount);
@@ -135,7 +171,8 @@ contract CheqRegistrarV2 is ERC721, Ownable, ICheqRegistrar {
         uint256 amount,
         address to,
         bytes calldata cashData
-    ) external payable {  // Can take a flat fee here
+    ) external payable {
+        require(msg.value >= _cashFlatFee, "INSUF_FEE");
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];  // TODO: Need to give the module the cheq's owner
         require(cheq.escrowed >= amount, "CANT_CASH_AMOUNT"); 
         require(ICheqModule(cheq.module).processCash(_msgSender(), to, amount, cheqId, cheq, cashData), "MODULE: FAILED");  // TODO: send as a struct or individual variables?
@@ -146,38 +183,60 @@ contract CheqRegistrarV2 is ERC721, Ownable, ICheqRegistrar {
     /*//////////////////////////////////////////////////////////////
                                 VIEW
     //////////////////////////////////////////////////////////////*/
+    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
+        address owner = _ownerOf(tokenId);
+        // require(ICheqModule(_cheqInfo[tokenId].module).processOwnerOf(_msgSender(), tokenId), "MODULE: DENIED");
+        require(owner != address(0), "ERC721: invalid token ID");
+        return owner;
+    }
+    /**
+    function balanceOf(address owner) public view override returns (uint256) {
+        // uint256 tokenBalance = module.processBalanceOf(owner); // takes into consideration blacklisted
+    }
+     */
     function cheqInfo(uint256 cheqId) public view returns (DataTypes.Cheq memory) {
         return _cheqInfo[cheqId];
     }
-
-    function cheqAmount(uint256 cheqId) public view returns (uint256) {
-        return _cheqInfo[cheqId].amount;
+    function cheqDrawerRecipient(uint256 cheqId) external view returns(address, address) {
+         return (_cheqInfo[cheqId].drawer, _cheqInfo[cheqId].recipient);
     }
-
-    function cheqCurrency(uint256 cheqId) public view returns (address) {
-        return _cheqInfo[cheqId].currency;
-    }
-
     function cheqDrawer(uint256 cheqId) public view returns (address) {
         return _cheqInfo[cheqId].drawer;
     }
-
     function cheqRecipient(uint256 cheqId) public view returns (address) {
         return _cheqInfo[cheqId].recipient;
     }
-
+    function cheqCurrencyValueEscrow(uint256 cheqId) external view returns(address, uint256, uint256) {
+        return (_cheqInfo[cheqId].currency, _cheqInfo[cheqId].amount, _cheqInfo[cheqId].escrowed);
+    }
+    function cheqCurrency(uint256 cheqId) public view returns (address) {
+        return _cheqInfo[cheqId].currency;
+    }
+    function cheqAmount(uint256 cheqId) public view returns (uint256) {
+        return _cheqInfo[cheqId].amount;
+    }
     function cheqEscrowed(uint256 cheqId) public view returns (uint256) {
         return _cheqInfo[cheqId].escrowed;
     }
-
     function cheqModule(uint256 cheqId) public view returns (address) {
         return _cheqInfo[cheqId].module;
     }
 
+    function moduleWhitelisted(address module) public view returns(bool, bool) {
+        return (_addressWhitelist[module], _bytecodeWhitelist[_returnCodeHash(module)]);
+    }
+    function tokenWhitelisted(address token) public view returns(bool) {
+        return _tokenWhitelist[token];
+    }
+    function ruleWhitelisted(address rule) external view returns(bool){
+        return _ruleWhitelist[rule];
+    }
+    function rulesWhitelisted(address writeRule, address transferRule, address fundRule, address cashRule, address approveRule) external view returns(bool) {
+        return _ruleWhitelist[writeRule] && _ruleWhitelist[transferRule] && _ruleWhitelist[fundRule] && _ruleWhitelist[cashRule] && _ruleWhitelist[approveRule];
+    }
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }
-
     function tokenURI(uint256 _tokenId)
         public
         view
