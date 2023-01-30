@@ -1,18 +1,18 @@
 import {
   FormControl,
-  FormHelperText,
+  FormErrorMessage,
   FormLabel,
-  Textarea,
-  Text,
+  Input,
 } from "@chakra-ui/react";
 import { Field } from "formik";
 import OptionalFieldHelperText from "./OptionFieldHelperText";
 
 interface Props {
   fieldName: string;
+  placeholder: string;
 }
 
-function NoteField({ fieldName }: Props) {
+export default function EmailField({ fieldName, placeholder }: Props) {
   return (
     <Field
       name={fieldName}
@@ -20,16 +20,14 @@ function NoteField({ fieldName }: Props) {
     >
       {({ field, form: { errors, touched } }: any) => (
         <FormControl isInvalid={errors.name && touched.name}>
-          <FormLabel mb={0}>Notes</FormLabel>
+          <FormLabel mb={0} noOfLines={1} flexShrink={0}>
+            Client Email
+          </FormLabel>
           <OptionalFieldHelperText />
-          <Textarea {...field} />
-          <FormHelperText>
-            Notes are uploaded to IPFS. Please don't inlcude sensitive data
-          </FormHelperText>
+          <Input {...field} />
+          <FormErrorMessage>{errors.name}</FormErrorMessage>
         </FormControl>
       )}
     </Field>
   );
 }
-
-export default NoteField;

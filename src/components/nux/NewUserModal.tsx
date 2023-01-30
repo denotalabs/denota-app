@@ -5,8 +5,8 @@ import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import WaveIcon from "./WaveIcon";
 
-
-const notionOnboardingLink = "https://cheq-finance.notion.site/Cheq-Onboarding-8f3e101956f14e86b83feb06622988ad";
+export const notionOnboardingLink =
+  "https://cheq-finance.notion.site/Cheq-Onboarding-8f3e101956f14e86b83feb06622988ad";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -14,7 +14,7 @@ interface Props {
 
 function NewUserModal(props: Props) {
   return (
-    <SimpleModal hideClose={true} {...props}>
+    <SimpleModal hideClose={true} closeOnOverlayClick={false} {...props}>
       <NewUserModalContent onClose={props.onClose} />
     </SimpleModal>
   );
