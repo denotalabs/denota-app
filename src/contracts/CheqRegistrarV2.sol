@@ -25,16 +25,19 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     /*//////////////////////////////////////////////////////////////
                            STORAGE VARIABLES
     //////////////////////////////////////////////////////////////*/
+    mapping(address => mapping(address=>uint256)) private _moduleTokenRevenue;
     mapping(uint256 => DataTypes.Cheq) private _cheqInfo; // Cheq information
     mapping(bytes32 => bool) private _bytecodeWhitelist;  // Question Can these be done without two mappings? Having both redeployable and static modules?
     mapping(address => bool) private _addressWhitelist;
     mapping(address => bool) private _ruleWhitelist;  // Question make these bytecode specific? Rule specific?
     mapping(address => bool) private _tokenWhitelist;
     mapping(address => uint256) private _transferReserve;
-    uint256 private _totalSupply; // Total cheqs created
+    uint256 private _totalSupply;  // Total cheqs created
     uint256 public _writeFlatFee;  // Question can use a smaller data type?
+    uint256 public _writeBPSFee;
     uint256 public _transferFee; // BPS fee taken from cheq.amount
     uint256 public _fundFlatFee;
+    uint256 public _fundBPSFee;  // Question: should all fees except transfer have BPS?
     uint256 public _cashFlatFee;
     /*//////////////////////////////////////////////////////////////
                         ONLY OWNER FUNCTIONS
@@ -103,15 +106,21 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     ) public payable returns (uint256) {  // write on someone's behalf by letting module write it for them using money deposited from them
         require(msg.value >= _writeFlatFee, "INSUF_FEE");
         require(_validWrite(cheq.module, cheq.currency), "NOT_WHITELISTED");  // Checks module and token whitelist
-        // Add the CheqRegistrar Fee to amount, then transferFrom
-        require(ICheqModule(cheq.module).processWrite(_msgSender(), owner, _totalSupply, cheq, moduleWriteData), "MODULE: WRITE_FAILED");
-        IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheq.escrowed);  // Question: Could return (bool success, uint256 feeAmount) to figure out fee
+        
+        (bool success, uint256 moduleFee) = ICheqModule(cheq.module).processWrite(_msgSender(), owner, _totalSupply, cheq, moduleWriteData);
+        require(success, "MODULE: WRITE_FAILED");  // Module returns their feeAmount and is added to their withdrawable
+        
+        uint256 cheqFee = (cheq.escrowed * _writeBPSFee) / 10_000;
+        uint256 allFees = cheqFee + moduleFee;
+        IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheq.escrowed + allFees);
+        _moduleTokenRevenue[cheq.module][cheq.currency] += moduleFee;
+        
         _cheqInfo[_totalSupply] = cheq;
-        _cheqInfo[_totalSupply].timeCreated = block.timestamp;  // Not very clean
+        _cheqInfo[_totalSupply].timeCreated = block.timestamp;  // Not ideal
         _safeMint(owner, _totalSupply);  // TODO: refactor for LENSPROTOCOL method of tracking ownership
 
         emit Events.Written(_totalSupply, owner, cheq, moduleWriteData, block.timestamp);
-        unchecked { return _totalSupply++; }  // NOTE: Will this ever overflow? Also, returns before increment..?
+        unchecked { return _totalSupply++; }  // NOTE: Will this ever overflow? Also, returns before the increment..?
     }
 
     function transferFrom(  // Removed the approveOrOwner check, allow module to decide
@@ -128,24 +137,26 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         uint256 tokenId,
         bytes memory moduleTransferData
     ) public override(ERC721, ICheqRegistrar) {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
+        // require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
         DataTypes.Cheq storage cheq = _cheqInfo[tokenId];  // Better to assign and then index?
-        require(ICheqModule(cheq.module).processTransfer(_msgSender(), from, to, tokenId, cheq, moduleTransferData), "MODULE: FAILED");
+        (bool success, address newOwner) = ICheqModule(cheq.module).processTransfer(_msgSender(), from, to, tokenId, cheq, moduleTransferData);
+        require(success, "MODULE: FAILED");
+
         uint256 escrowedAmount = _cheqInfo[tokenId].escrowed;
-        if (escrowedAmount > 0) 
-            _cheqInfo[tokenId].escrowed = escrowedAmount - (escrowedAmount * _transferFee) / 10_000;  // Take fee in BPS
-        emit Events.Transferred(tokenId, ownerOf(tokenId), to, block.timestamp);
-        _safeTransfer(from, to, tokenId, "");
+        uint256 cheqFee = (escrowedAmount * _transferFee) / 10_000;
+        if (escrowedAmount > 0) _cheqInfo[tokenId].escrowed = escrowedAmount - cheqFee;  // Take fee in BPS
+        emit Events.Transferred(tokenId, ownerOf(tokenId), newOwner, block.timestamp);
+        _safeTransfer(from, newOwner, tokenId, "");
     }
 
     function approve(address to, uint256 tokenId) public override(ERC721, ICheqRegistrar) {  
          // ERC721 doesn't allow self_approval, ?(ensure owner is granting approval)
-         // Question/TODO: could approval function for a individual modules
         DataTypes.Cheq memory cheq = _cheqInfo[tokenId];  // Add address approval to the struct?
-        require(ICheqModule(cheq.module).processApproval(_msgSender(), to, tokenId, cheq, ""), "MODULE: FAILED");
-        _approve(to, tokenId);
+        (bool success, address newApproval) = ICheqModule(cheq.module).processApproval(_msgSender(), to, tokenId, cheq, "");
+        require(success, "MODULE: FAILED");
+        _approve(newApproval, tokenId);
     }
-    function setApprovalForAll(address /*operator*/, bool /*approved*/) public virtual override {
+    function setApprovalForAll(address /*operator*/, bool /*approved*/) public pure override { // Question: Does OS require operators?
         require(false, "OPERATORS_NOT_SUPPORTED");
         // _setApprovalForAll(_msgSender(), operator, approved);
     }
@@ -156,12 +167,18 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     function fund(  // CheqRegistrar calls erc20 to do transferFrom(). `from` must approve the registrar. How to prevent 3rd parties forcing `from` to fund this if not using from == msg.sender
         uint256 cheqId,
         uint256 amount,  // Question: Allow the module to specify how much to send? Could return (bool success, uint amount)
-        bytes calldata fundData  //
+        bytes calldata fundData
     ) external payable {
         require(msg.value >= _fundFlatFee, "INSUF_FEE");
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];  // Better to assign and then index?
-        require(ICheqModule(cheq.module).processFund(_msgSender(), amount, cheqId, cheq, fundData), "MODULE: FAILED");  // TODO: send fundData as a struct or individual variables?
-        IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), amount);
+
+        (bool success, uint256 moduleFee) = ICheqModule(cheq.module).processFund(_msgSender(), amount, cheqId, cheq, fundData);
+        require(success, "MODULE: FAILED");  // TODO: send fundData as a struct or individual variables?
+        
+        uint256 cheqFee = (cheq.escrowed * _fundBPSFee) / 10_000;
+        uint256 allFees = cheqFee + moduleFee;
+        IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), amount + allFees);
+        _moduleTokenRevenue[cheq.module][cheq.currency] += moduleFee;
         cheq.escrowed += amount;
         emit Events.Funded(_msgSender(), cheqId, fundData, block.timestamp);
     }
@@ -171,15 +188,25 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         uint256 amount,
         address to,
         bytes calldata cashData
-    ) external payable {
+    ) external payable {  // Should percent fee work here too?
         require(msg.value >= _cashFlatFee, "INSUF_FEE");
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];  // TODO: Need to give the module the cheq's owner
         require(cheq.escrowed >= amount, "CANT_CASH_AMOUNT"); 
-        require(ICheqModule(cheq.module).processCash(_msgSender(), to, amount, cheqId, cheq, cashData), "MODULE: FAILED");  // TODO: send as a struct or individual variables?
+        (bool success, uint256 moduleFee) = ICheqModule(cheq.module).processCash(_msgSender(), to, amount, cheqId, cheq, cashData);
+        require(success, "MODULE: FAILED");  // TODO: send as a struct or individual variables?
+
         unchecked { cheq.escrowed -= amount; }
         IERC20(cheq.currency).safeTransfer(to, amount);
+        _moduleTokenRevenue[cheq.module][cheq.currency] += moduleFee;
         emit Events.Cashed(_msgSender(), to, cheqId, cashData, block.timestamp);
     }
+
+    function moduleWithdraw(address token, uint256 amount, address payoutAccount) external {
+        require(_moduleTokenRevenue[_msgSender()][token] >= amount, "INSUF_FUNDS");
+        IERC20(token).safeTransferFrom(address(this), payoutAccount, amount);
+        unchecked { _moduleTokenRevenue[_msgSender()][token] -= amount; }
+    }
+
     /*//////////////////////////////////////////////////////////////
                                 VIEW
     //////////////////////////////////////////////////////////////*/
