@@ -1,14 +1,36 @@
 // // SPDX-License-Identifier: BUSL-1.1
-// pragma solidity ^0.8.13;
+pragma solidity ^0.8.16;
 
 import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import { DataTypes } from "src/contracts/libraries/DataTypes.sol";
 import { CheqRegistrar } from "src/contracts/CheqRegistrar.sol";
-import { Marketplace, Status, Milestone, Invoice } from "src/contracts/Modules/Marketplace.sol";
+import { Marketplace } from "src/contracts/Modules/Marketplace.sol";
 import { AllTrueRules } from "src/contracts/rules/AllTrueRules.sol";
 
+
+enum Status {
+    Waiting,
+    Ready,
+    InProgress,
+    Disputing,
+    Resolved,
+    Finished
+}
+struct Milestone {
+    uint256 price;  // Amount the milestone is worth
+    bool workerFinished;  // Could pack these bools more
+    bool clientReleased;
+}
+struct Invoice {
+    uint256 startTime;
+    uint256 currentMilestone;  
+    Status workerStatus;
+    Status clientStatus;
+    // bytes32 documentHash;
+    Milestone[] milestones;
+}
 // TODO: Separate each module into it's own testing file
 contract ContractTest is Test {
     CheqRegistrar public REGISTRAR;
@@ -23,11 +45,11 @@ contract ContractTest is Test {
     }
 
     function setUp() public {  // sets up the registrar and ERC20s
-        CheqRegistrar REGISTRAR = new CheqRegistrar(0, 0, 0, 0);  // ContractTest is the owner
+        REGISTRAR = new CheqRegistrar(0, 0, 0, 0);  // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI");  // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
-        REGISTRAR.whitelistToken(address(dai), true);
-        REGISTRAR.whitelistToken(address(usdc), true);
+        // REGISTRAR.whitelistToken(address(dai), true);
+        // REGISTRAR.whitelistToken(address(usdc), true);
 
         vm.label(msg.sender, "Alice");
         vm.label(address(this), "TestContract");
@@ -36,19 +58,21 @@ contract ContractTest is Test {
         vm.label(address(REGISTRAR), "CheqRegistrarContract");
     }
 
-    function whitelist(address rule, address module) public {  // Whitelists tokens, rules, modules
-        REGISTRAR.whitelistRule(rule, true);
-        REGISTRAR.whitelistModule(module, false, true);  // Whitelist bytecode
-    }
+    // function whitelist(address rule, address module) public {  // Whitelists tokens, rules, modules
+    //     REGISTRAR.whitelistRule(rule, true);
+    //     REGISTRAR.whitelistModule(module, false, true);  // Whitelist bytecode
+    // }
     /*//////////////////////////////////////////////////////////////
                                CHEQ TESTS
     //////////////////////////////////////////////////////////////*/
-    function testWhitelist() public {
+    function testWhitelistToken() public {
         address daiAddress = address(dai);
+        vm.prank(address(this));
+
         assertFalse(REGISTRAR.tokenWhitelisted(daiAddress), "Unauthorized whitelist");
         REGISTRAR.whitelistToken(daiAddress, true);
         assertTrue(REGISTRAR.tokenWhitelisted(daiAddress), "Whitelisting failed");
-        REGISTRAR.whitelistToken(daiAddress, true);
+        REGISTRAR.whitelistToken(daiAddress, false);
         assertFalse(REGISTRAR.tokenWhitelisted(daiAddress), "Un-whitelisting failed");
 
         AllTrueRules allRules = new AllTrueRules();
@@ -59,7 +83,8 @@ contract ContractTest is Test {
         REGISTRAR.whitelistRule(allRulesAddress, false);
         assertFalse(REGISTRAR.ruleWhitelisted(allRulesAddress), "Un-whitelisting failed");
 
-        Marketplace market = new Marketplace(address(REGISTRAR), allRulesAddress, allRulesAddress, allRulesAddress, allRulesAddress, allRulesAddress, "MyMarket");  // How to test successful deployment
+        REGISTRAR.whitelistRule(allRulesAddress, true); // whitelist bytecode, not address
+        Marketplace market = new Marketplace(address(REGISTRAR), allRulesAddress, allRulesAddress, allRulesAddress, allRulesAddress, allRulesAddress, 100, "MyMarket");  // How to test successful deployment
         address marketAddress = address(market);
         (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(marketAddress);
         assertFalse(addressWhitelisted || bytecodeWhitelisted, "Unauthorized whitelist");
@@ -82,8 +107,8 @@ contract ContractTest is Test {
     function setUpMarketplace() public returns (Marketplace){  // Deploy and whitelist timelock module
         AllTrueRules allTrueRules = new AllTrueRules();
         address allTrueAddress = address(allTrueRules);
-        REGISTRAR.whitelistRule(address(allTrueRules), true);
-        Marketplace market = new Marketplace(address(REGISTRAR), allTrueAddress, allTrueAddress, allTrueAddress, allTrueAddress, allTrueAddress, "MyMarket");
+        REGISTRAR.whitelistRule(allTrueAddress, true);
+        Marketplace market = new Marketplace(address(REGISTRAR), allTrueAddress, allTrueAddress, allTrueAddress, allTrueAddress, allTrueAddress, 100, "MyMarket");
         REGISTRAR.whitelistModule(address(market), true, false);
         vm.label(address(market), "Marketplace");
         return market;
@@ -92,6 +117,10 @@ contract ContractTest is Test {
     /*//////////////////////////////////////////////////////////////
                             MODULE TESTS
     //////////////////////////////////////////////////////////////*/
+    function calcFee(uint256 fee, uint256 amount) public pure returns(uint256){
+        uint256 FEE = (amount * fee) / 10_000;
+        return FEE;
+    }
     function cheqWriteCondition(address caller, uint256 amount, address recipient/*, uint256 duration*/) public view returns(bool){
         return amount <= tokensCreated &&   // Can't use more token than created
                caller != recipient &&  // Don't self send
@@ -105,8 +134,25 @@ contract ContractTest is Test {
     function testWriteCheq(address caller, uint256 amount, address recipient) public {
         vm.assume(cheqWriteCondition(caller, amount, recipient));
         vm.assume(amount > 0);
+        
 
+        REGISTRAR.whitelistToken(address(dai), true);
+        (, uint256 writeFeeBPS, , , , ) = REGISTRAR.getFees();
         Marketplace market = setUpMarketplace();
+        uint256 marketFeeBPS = market.getFees();
+        uint256 totalWithFees;
+        {
+            uint256 registrarFee = calcFee(writeFeeBPS, amount);
+            console.log("RegistrarFee: ", registrarFee);
+            uint256 moduleFee =calcFee(marketFeeBPS, amount);
+            console.log("ModuleFee: ", moduleFee);
+            totalWithFees = registrarFee + moduleFee + amount;
+        }
+        console.log(amount, "-->", totalWithFees);
+        vm.prank(caller); 
+        dai.approve(address(REGISTRAR), totalWithFees);  // Need to get the fee amounts beforehand
+        dai.transfer(caller, totalWithFees);
+        market.whitelistToken(address(dai), true);
 
         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a cheq");
         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient already had a cheq");
@@ -119,17 +165,19 @@ contract ContractTest is Test {
             drawer: caller, 
             recipient: recipient, 
             module: address(market), 
-            timeCreated: block.timestamp
-            });
-        bytes memory initData = bytes("");
-        // (uint256 startTime, Status workerStatus, Status clientStatus, Milestone[] memory milestones) = abi.encode(initData, (uint256, Status, Status, Milestone[]));
+            mintTimestamp: block.timestamp
+        });
+
+        uint256[] memory prices = new uint256[](3);
+        prices[0] = 10; prices[1] = 12; prices[2] = 15;  // TODO dynamic
+        bytes memory initData = abi.encode(prices);
 
         vm.prank(caller); 
         uint256 cheqId = REGISTRAR.write(cheq, initData, caller);
         assertTrue(REGISTRAR.totalSupply() == 1, "Cheq supply didn't increment");
-        assertTrue(REGISTRAR.ownerOf(cheqId) == recipient, "Recipient isn't owner");
-        assertTrue(REGISTRAR.balanceOf(caller) == 0, "Sender got a cheq");
-        assertTrue(REGISTRAR.balanceOf(recipient) == 1, "Recipient didnt get a cheq");
+        assertTrue(REGISTRAR.ownerOf(cheqId) == caller, "Recipient isn't owner");
+        assertTrue(REGISTRAR.balanceOf(caller) == 1, "Sender got a cheq");
+        // assertTrue(REGISTRAR.balanceOf(recipient) == 1, "Recipient didnt get a cheq");
 
         // CheqRegistrar wrote correctly to its storage
         assertTrue(REGISTRAR.cheqDrawer(cheqId) == caller, "Incorrect drawer");
@@ -138,10 +186,10 @@ contract ContractTest is Test {
         assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
         assertTrue(REGISTRAR.cheqEscrowed(cheqId) == amount, "Incorrect escrow");
         assertTrue(address(REGISTRAR.cheqModule(cheqId)) == address(market), "Incorrect module");
-
-        // ICheqModule wrote correctly to it's storage 
-        (uint256 startTime, uint256 currentMilestone, Status workerStatus, Status clientStatus, Milestone[] milestones) = market.invoices(cheqId);
-        console.log(startTime, currentMilestone, workerStatus, clientStatus, milestones);
+        
+        // ICheqModule wrote correctly to it's storage
+        // (uint256 startTime, uint256 currentMilestone, Marketplace.Status workerStatus, Marketplace.Status clientStatus/*, Milestone[] memory milestones*/) = market.invoices(cheqId);
+        // console.log(startTime/*, currentMilestone, workerStatus, clientStatus*/);
         // assertTrue(market.invoices(cheqId) == Marketplace.Invoice({}), "Incorrect funder");
         // assertTrue(market.cheqInspectionPeriod(cheqId) == duration, "Incorrect expired");
     }
@@ -465,4 +513,14 @@ contract ContractTest is Test {
 //         // cant cash wrong amount
 //         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId)+1);
 //     }
-}
+}        
+// Need invoice encoded
+        // Marketplace.Milestone memory milestone = Marketplace.Milestone({
+        //     price: 10,
+        //     workerFinished: false,
+        //     clientReleased: false
+        // });
+        // Milestone[] memory milestones = new Milestone[](1);
+        // milestones.push(milestone);
+        // (uint256 startTime, Status workerStatus, Status clientStatus, Milestone[] memory milestones) = abi.encode(bytes(""), (uint256, Status, Status, Milestone[]));
+        // bytes memory initData = abi.encode(milestones, (/*uint256, Status, Status, */Milestone[]));

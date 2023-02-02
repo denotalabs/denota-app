@@ -287,4 +287,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             cheq.module
         );
     }
+    function getFees() public view returns(uint256, uint256, uint256, uint256, uint256, uint256){
+        return (_writeFlatFee, _writeBPSFee, _transferFee, _fundFlatFee, _fundBPSFee, _cashFlatFee);
+    }
 }
