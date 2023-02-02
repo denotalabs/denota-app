@@ -12,8 +12,8 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 
 /**
  * Question: How to ensure deployed modules point to correct CheqRegistrar and Globals?
- * TODO need to have a way for the marketplace owner to collect/withdraw their fees
  * TODO how to export the struct?
+ * TODO calculate/add fees
  * @notice Contract: stores invoice structs, takes/sends WTFC fees to owner, allows owner to set URI, allows freelancer/client to set work status', 
  */
 contract Marketplace is ModuleBase, Ownable, ICheqModule {
@@ -50,6 +50,7 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
     address public fundRule;
     address public cashRule;
     address public approveRule;
+    uint256 public BPSFee;  // TODO make this into tiers? Or have the option maybe?
     string private baseURI;
 
     constructor(
@@ -59,6 +60,7 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         address _fundRule, 
         address _cashRule, 
         address _approveRule,
+        uint256 _BPSFee,
         string memory __baseURI
         ) ModuleBase(registrar){ // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens )
         require(ICheqRegistrar(REGISTRAR).rulesWhitelisted(
@@ -73,6 +75,7 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         cashRule = _cashRule;
         approveRule = _approveRule;
         baseURI = __baseURI;
+        BPSFee = _BPSFee;
     }
 
     function whitelistToken(address token, bool whitelist) public onlyOwner {
@@ -82,81 +85,107 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
         baseURI = __baseURI;
     }
 
+/**
+    require(cheq.drawer == caller, "Can't send on behalf");  // This could be delegated to the rule
+    require(cheq.recipient != owner, "Can't self send");  // TODO figure out LENS' 721 ownership modification
+    require(cheq.amount > 0, "Can't send cheq with 0 value");  // Library function could be canWrite()->bool
+*/
     function processWrite(
         address caller,
         address owner,
         uint cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
-    ) external onlyRegistrar returns(bool){
+    ) external onlyRegistrar returns(bool, uint256){
         require(tokenWhitelist[cheq.currency], "Token not whitelisted");
         bool cheqIsWriteable = IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
-        /**
-        require(cheq.drawer == caller, "Can't send on behalf");  // This could be delegated to the rule
-        require(cheq.recipient != owner, "Can't self send");  // TODO figure out LENS' 721 ownership modification
-        require(cheq.amount > 0, "Can't send cheq with 0 value");  // Library function could be canWrite()->bool
-         */
-        if (!cheqIsWriteable) return false;
-        (uint256 startTime, Status workerStatus, Status clientStatus, Milestone[] memory milestones) = abi.decode(initData, (uint256, Status, Status, Milestone[]));
-        require(milestones.length > 0, "No milestones");
+        if (!cheqIsWriteable) return (false, 0);
+        // (/*uint256 startTime, Status workerStatus, Status clientStatus, */Milestone[] memory milestones) = abi.decode(initData, (/*uint256, Status, Status,*/ Milestone[]));
+        // require(milestones.length > 0, "No milestones");
+        // // Really only need milestone price array for each milestone
+        // // invoices[cheqId].startTime = startTime;
+        // // invoices[cheqId].workerStatus = workerStatus;
+        // // invoices[cheqId].clientStatus = clientStatus;
+        // for (uint256 i = 0; i < milestones.length; i++){ // invoices[cheqId].milestones = milestones;
+        //     invoices[cheqId].milestones.push(milestones[i]);  // Can optimize on gas much more
+        // }
 
-        invoices[cheqId].startTime = startTime;
-        invoices[cheqId].workerStatus = workerStatus;
-        invoices[cheqId].clientStatus = clientStatus;
+        (uint256[] memory milestonePrices) = abi.decode(initData, (uint256[]));
+        require(milestonePrices.length > 0, "No milestones");
+        // Really only need milestone price array for each milestone
+
+        // invoices[cheqId].startTime = startTime;
+        // invoices[cheqId].workerStatus = workerStatus;
+        // invoices[cheqId].clientStatus = clientStatus;
         
-        for (uint256 i = 0; i < milestones.length; i++){ // invoices[cheqId].milestones = milestones;
-            invoices[cheqId].milestones.push(milestones[i]);  // Can optimize on gas much more
+        for (uint256 i = 0; i < milestonePrices.length; i++){ // invoices[cheqId].milestones = milestones;
+            invoices[cheqId].milestones.push(
+                Milestone({
+                    price: milestonePrices[i],
+                    workerFinished: false,
+                    clientReleased: false
+                })
+            );  // Can optimize on gas much more
         }
-        return true;
+        uint256 moduleFee = (cheq.escrowed * BPSFee) / 10_000;
+        return (true, moduleFee);
     }
 
-    // Where should require(ownerOf(cheqId) == msg.sender) be?
     function processTransfer(
         address caller, 
+        address owner,
         address from,
         address to,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
-    ) external onlyRegistrar returns (bool) {  // Nothing additional needs to be added
-        return ITransferRule(transferRule).canTransfer(caller, from, to, cheqId, cheq, initData);
+    ) external onlyRegistrar returns (bool, address) {
+        bool success = ITransferRule(transferRule).canTransfer(caller, from, to, cheqId, cheq, initData);  // Checks if caller is ownerOrApproved
+        return (success, to);
     }
 
     function processFund(
         address caller,
+        address owner,
         uint256 amount,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
-    ) external onlyRegistrar returns (bool) {
+    ) external onlyRegistrar returns (bool, uint256) {
         // uint256 fundableAmount = fundable(cheqId, _msgSender(), amount);
         // require(fundableAmount > 0, "Not fundable");  // Are
         // require(fundableAmount == amount, "Cant fund this amount");
-        
         // cheqCreated[cheqId] = block.timestamp; // BUG: can update with 0 at any time- If it can be funded its an invoice, reset creation date for job start
-        return IFundRule(fundRule).canFund(caller, amount, cheqId, cheq, initData);
+
+        bool success = IFundRule(fundRule).canFund(caller, amount, cheqId, cheq, initData);
+        uint256 moduleFee = (amount * BPSFee) / 10_000;
+        return (success, moduleFee);
     }
 
     function processCash(
         address caller, 
+        address owner,
         address to,
         uint256 amount, 
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
-    ) external onlyRegistrar returns (bool) {
+    ) external onlyRegistrar returns (bool, uint256) {
         // add cashing logic
-        return ICashRule(cashRule).canCash(caller, to, amount, cheqId, cheq, initData);
+        bool success = ICashRule(cashRule).canCash(caller, to, amount, cheqId, cheq, initData);
+        return (success, amount);
     }
 
     function processApproval(
         address caller, 
+        address owner,
         address to, 
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
-    ) external onlyRegistrar returns (bool){
-        return IApproveRule(approveRule).canApprove(caller, to, cheqId, cheq, initData);
+    ) external onlyRegistrar returns (bool, address){
+        bool success = IApproveRule(approveRule).canApprove(caller, to, cheqId, cheq, initData);
+        return (success, to);
     }
 
     // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool) {}
@@ -167,6 +196,9 @@ contract Marketplace is ModuleBase, Ownable, ICheqModule {
     }
     function _baseURI() internal view returns (string memory) {
         return baseURI;
+    }
+    function getFees() public view returns (uint256) {
+        return BPSFee;
     }
 
     function setStatus(uint256 cheqId, Status newStatus) public {
