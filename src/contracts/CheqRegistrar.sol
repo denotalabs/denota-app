@@ -115,9 +115,9 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheq.escrowed + allFees);
         _moduleTokenRevenue[cheq.module][cheq.currency] += moduleFee;
         
+        _safeMint(owner, _totalSupply);
         _cheqInfo[_totalSupply] = cheq;
-        _cheqInfo[_totalSupply].timeCreated = block.timestamp;  // Not ideal
-        _safeMint(owner, _totalSupply);  // TODO: refactor for LENSPROTOCOL method of tracking ownership
+        _cheqInfo[_totalSupply].mintTimestamp = block.timestamp;  // Not ideal
 
         emit Events.Written(_totalSupply, owner, cheq, moduleWriteData, block.timestamp);
         unchecked { return _totalSupply++; }  // NOTE: Will this ever overflow? Also, returns before the increment..?
@@ -138,8 +138,9 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         bytes memory moduleTransferData
     ) public override(ERC721, ICheqRegistrar) {
         // require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
+        address owner = ownerOf(tokenId);  // Shouldn't from == owner??
         DataTypes.Cheq storage cheq = _cheqInfo[tokenId];  // Better to assign and then index?
-        (bool success, address newOwner) = ICheqModule(cheq.module).processTransfer(_msgSender(), from, to, tokenId, cheq, moduleTransferData);
+        (bool success, address newOwner) = ICheqModule(cheq.module).processTransfer(_msgSender(), owner, from, to, tokenId, cheq, moduleTransferData);
         require(success, "MODULE: FAILED");
 
         uint256 escrowedAmount = _cheqInfo[tokenId].escrowed;
@@ -151,8 +152,9 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
 
     function approve(address to, uint256 tokenId) public override(ERC721, ICheqRegistrar) {  
          // ERC721 doesn't allow self_approval, ?(ensure owner is granting approval)
-        DataTypes.Cheq memory cheq = _cheqInfo[tokenId];  // Add address approval to the struct?
-        (bool success, address newApproval) = ICheqModule(cheq.module).processApproval(_msgSender(), to, tokenId, cheq, "");
+        DataTypes.Cheq memory cheq = _cheqInfo[tokenId];
+        address owner = ownerOf(tokenId);
+        (bool success, address newApproval) = ICheqModule(cheq.module).processApproval(_msgSender(), owner, to, tokenId, cheq, "");
         require(success, "MODULE: FAILED");
         _approve(newApproval, tokenId);
     }
@@ -172,7 +174,8 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         require(msg.value >= _fundFlatFee, "INSUF_FEE");
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];  // Better to assign and then index?
 
-        (bool success, uint256 moduleFee) = ICheqModule(cheq.module).processFund(_msgSender(), amount, cheqId, cheq, fundData);
+        address owner = ownerOf(cheqId);
+        (bool success, uint256 moduleFee) = ICheqModule(cheq.module).processFund(_msgSender(), owner, amount, cheqId, cheq, fundData);
         require(success, "MODULE: FAILED");  // TODO: send fundData as a struct or individual variables?
         
         uint256 cheqFee = (cheq.escrowed * _fundBPSFee) / 10_000;
@@ -192,7 +195,9 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         require(msg.value >= _cashFlatFee, "INSUF_FEE");
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];  // TODO: Need to give the module the cheq's owner
         require(cheq.escrowed >= amount, "CANT_CASH_AMOUNT"); 
-        (bool success, uint256 moduleFee) = ICheqModule(cheq.module).processCash(_msgSender(), to, amount, cheqId, cheq, cashData);
+        
+        address owner = ownerOf(cheqId);
+        (bool success, uint256 moduleFee) = ICheqModule(cheq.module).processCash(_msgSender(), owner, to, amount, cheqId, cheq, cashData);
         require(success, "MODULE: FAILED");  // TODO: send as a struct or individual variables?
 
         unchecked { cheq.escrowed -= amount; }

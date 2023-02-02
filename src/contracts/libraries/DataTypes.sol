@@ -12,7 +12,7 @@ library DataTypes {
         address drawer; // Immutable & arbitrarily settable [intended sender]
         address recipient; // Immutable & arbitrarily settable [intended claimer]
         address module; // Immutable & not settable
-        uint256 timeCreated;  // BUG: This should be stored but 
+        uint256 mintTimestamp;
         // bool isImmutable;  // IDEA: May add reliability by denying cheqs from being modifiable by their modules
         // bool isFungible; // IDEA: Allow escrowing a single NFT. Multiple would be more difficult since amount/escrowed == tokenId ? 0
     }
