@@ -1,21 +1,18 @@
 // import { fetchERC20, fetchERC20Balance, fetchERC20Approval } from "@openzeppelin/subgraphs/src/fetch/erc20"
-import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
-  Written as WrittenEvent,
-  Transfer as TransferEvent,
-  Funded as FundedEvent,
   Cashed as CashedEvent,
+  Funded as FundedEvent,
   ModuleWhitelisted,
+  Transfer as TransferEvent,
+  Written as WrittenEvent,
 } from "../subgraph/generated/CheqRegistrar/CheqRegistrar"; // Events to import
 import {
-  ERC20,
-  Transaction,
-  Escrow,
-  Transfer,
   Account,
   Cheq,
-  // SelfSignTimeLock,
-  // ModuleRegistry,
+  ERC20,
+  Escrow,
+  Transaction,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
 
 function saveNewAccount(account: string): Account {
