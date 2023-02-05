@@ -17,6 +17,7 @@ remove :; rm -rf .gitmodules && rm -rf .git/modules/* && rm -rf lib && touch .gi
 install :; 
 	forge install dapphub/ds-test --no-commit
 	forge install OpenZeppelin/openzeppelin-contracts --no-commit
+	forge install axelarnetwork/axelar-gmp-sdk-solidity --no-commit
 
 # Update Dependencies
 update:; forge update
