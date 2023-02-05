@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { Flex, Box, Text, ButtonGroup, Button, Stack } from "@chakra-ui/react";
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { Box, Button, ButtonGroup, Flex, Stack, Text } from "@chakra-ui/react";
 import Link from "next/link";
-import NavbarUser from "./NavbarUser";
+import { useState } from "react";
 import SettingsCog from "../fields/SettingsCog";
+import NavbarUser from "./NavbarUser";
 
 interface Props {
   setIsUser: any;

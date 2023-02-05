@@ -3,19 +3,16 @@ import { ReactNode, useEffect, useRef } from "react";
 import jazzicon from "jazzicon-ts";
 
 import {
-  Avatar,
   Button,
   Link,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
-  MenuDivider,
-  Center,
+  MenuList,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import Web3Modal from "web3modal";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { providerOptions } from "../../context/providerOptions";
 
 const addToken = async (tokenAddress: string, symbol: string) => {

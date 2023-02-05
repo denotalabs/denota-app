@@ -1,6 +1,5 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Flex,
   FormControl,
   FormLabel,
