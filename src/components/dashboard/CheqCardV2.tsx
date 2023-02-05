@@ -1,20 +1,21 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
   ButtonGroup,
   Center,
   Flex,
   GridItem,
   HStack,
-  Text,
-  VStack,
-  useDisclosure,
-  Skeleton,
-  Box,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
+  Skeleton,
+  Spinner,
+  Text,
+  useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -23,7 +24,6 @@ import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
-import { Spinner } from "@chakra-ui/react";
 
 export type CheqStatus =
   | "pending_escrow"
