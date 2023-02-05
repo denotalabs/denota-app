@@ -30,7 +30,7 @@ function SimpleModal({
       closeOnOverlayClick={closeOnOverlayClick}
     >
       <ModalOverlay bg="blackAlpha.800" />
-      <ModalContent bg="gray.900">
+      <ModalContent bg="brand.700">
         {!hideClose && <ModalCloseButton />}
         <ModalBody>{children}</ModalBody>
       </ModalContent>

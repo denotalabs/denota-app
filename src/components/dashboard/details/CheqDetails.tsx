@@ -1,4 +1,4 @@
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Text, VStack } from "@chakra-ui/react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { Cheq } from "../../../hooks/useCheqs";
 import DetailsRow from "../../designSystem/DetailsRow";
@@ -20,7 +20,7 @@ function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
       <RoundedBox px={6}>
         <VStack gap={0}>
           <DetailsRow title="Payer" value={payer} />
-          <DetailsRow title="Receipient" value={payee} />
+          <DetailsRow title="Recipient" value={payee} />
           <DetailsRow
             title="Created Date"
             value={cheq.createdDate.toDateString()}

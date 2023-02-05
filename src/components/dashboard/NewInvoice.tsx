@@ -20,12 +20,13 @@ function NewInvoice() {
       <Center>
         <ButtonGroup gap="4">
           <Button
+            bg="brand.100"
+            color="brand.200"
             w="min(40vw, 200px)"
             onClick={() => {
               setIsInvoice(false);
               onOpen();
             }}
-            colorScheme="blue"
             size="lg"
             borderRadius={5}
           >
@@ -34,12 +35,13 @@ function NewInvoice() {
             </Text>
           </Button>
           <Button
+            bg="brand.100"
+            color="brand.200"
             w="min(40vw, 200px)"
             onClick={() => {
               setIsInvoice(true);
               onOpen();
             }}
-            colorScheme="blue"
             size="lg"
             borderRadius={5}
           >

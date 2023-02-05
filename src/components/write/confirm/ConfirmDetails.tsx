@@ -1,4 +1,4 @@
-import { Center, VStack } from "@chakra-ui/react";
+import { VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { useStep } from "../../designSystem/stepper/Stepper";
 import RoundedBox from "../../designSystem/RoundedBox";

@@ -3,15 +3,12 @@ import { ReactNode, useEffect, useRef } from "react";
 import jazzicon from "jazzicon-ts";
 
 import {
-  Avatar,
   Button,
   Link,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  MenuDivider,
-  Center,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
@@ -69,8 +66,9 @@ export default function NavbarUser() {
     }
   }, [blockchainState.account, avatarRef]);
 
+  // TODO style menu - https://chakra-ui.com/docs/components/menu/theming
   return (
-    <Menu>
+    <Menu> 
       <MenuButton
         as={Button}
         rounded={"full"}
