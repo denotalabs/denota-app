@@ -1,4 +1,4 @@
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Text, VStack } from "@chakra-ui/react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { Cheq } from "../../../hooks/useCheqs";
 import DetailsRow from "../../designSystem/DetailsRow";

@@ -11,7 +11,6 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { Cheq, useCheqs } from "../../hooks/useCheqs";
-// import { useTokens } from "../../hooks/useTokens";
 import CheqCardV2 from "./CheqCardV2";
 
 function MyCheqsView() {

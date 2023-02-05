@@ -1,9 +1,9 @@
-import { Box, Button, Text } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { useStep } from "../../designSystem/stepper/Stepper";
 import RoundedButton from "../../designSystem/RoundedButton";
-import ModuleInfo from "./ModuleInfo";
+import { useStep } from "../../designSystem/stepper/Stepper";
 import ModuleBlurb from "./ModuleBlurb";
+import ModuleInfo from "./ModuleInfo";
 
 interface Props {
   screenKey: string;
