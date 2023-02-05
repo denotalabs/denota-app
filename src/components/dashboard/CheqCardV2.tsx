@@ -326,7 +326,7 @@ function CheqCardV2({ cheq }: Props) {
 
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
-            <ButtonGroup colorScheme="teal">
+            <ButtonGroup>
               {status === "cashable" ? (
                 <Button
                   w="min(40vw, 100px)"
@@ -376,9 +376,10 @@ function CheqCardV2({ cheq }: Props) {
                 </Menu>
               ) : null}
               <Button
+                bg="brand.300"
+                color="brand.200"
                 w="min(40vw, 100px)"
                 borderRadius={5}
-                colorScheme="teal"
                 onClick={onOpenDetails}
               >
                 Details

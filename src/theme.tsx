@@ -5,6 +5,26 @@ const config: ThemeConfig = {
   useSystemColorMode: false,
 };
 
-const customTheme = extendTheme({ config });
+const cheqTheme = extendTheme({
+  config,
+  fonts: {
+    body: `DM Sans, sans-serif`,
+    heading: `DM Sans, sans-serif`,
+    mono: "DM Sans, monospace",
+  },
+  colors: {
+    brand: {
+      100: "#0E111B",
+      200: "#5981F3",
+      300: "#202C4F",
+      400: "#1C203A",
+      500: "#282D59",
+      600: "#141A29",
+      700: "#0E111B",
+    },
+  },
+});
+
+const customTheme = cheqTheme;
 
 export default customTheme;

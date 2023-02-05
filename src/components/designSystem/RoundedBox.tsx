@@ -7,7 +7,7 @@ interface Props extends StyleProps {
 
 function RoundedBox({ children, ...props }: Props) {
   return (
-    <Box borderRadius={10} bg="gray.700" w="100%" {...props}>
+    <Box borderRadius={10} bg="brand.600" w="100%" {...props}>
       {children}
     </Box>
   );

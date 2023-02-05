@@ -17,6 +17,8 @@ function RoundedButton({
 }: Props) {
   return (
     <Button
+      bg="brand.300"
+      color="brand.200"
       mt={4}
       w="100%"
       borderRadius={"10px"}

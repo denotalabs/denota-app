@@ -66,8 +66,9 @@ export default function NavbarUser() {
     }
   }, [blockchainState.account, avatarRef]);
 
+  // TODO style menu - https://chakra-ui.com/docs/components/menu/theming
   return (
-    <Menu>
+    <Menu> 
       <MenuButton
         as={Button}
         rounded={"full"}
