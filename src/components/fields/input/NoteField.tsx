@@ -3,7 +3,6 @@ import {
   FormHelperText,
   FormLabel,
   Textarea,
-  Text,
 } from "@chakra-ui/react";
 import { Field } from "formik";
 import OptionalFieldHelperText from "./OptionFieldHelperText";

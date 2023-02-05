@@ -7,12 +7,12 @@ import {
   Link,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
+  MenuList,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import Web3Modal from "web3modal";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { providerOptions } from "../../context/providerOptions";
 
 const addToken = async (tokenAddress: string, symbol: string) => {
