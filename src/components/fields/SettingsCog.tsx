@@ -1,13 +1,13 @@
 import {
   Button,
+  FormControl,
+  FormLabel,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
-  useColorMode,
-  FormControl,
+  MenuList,
   Switch,
-  FormLabel,
+  useColorMode,
 } from "@chakra-ui/react";
 
 import { SettingsIcon } from "@chakra-ui/icons";

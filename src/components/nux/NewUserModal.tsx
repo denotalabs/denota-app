@@ -1,8 +1,8 @@
-import { Center, VStack, Text, Button, Link } from "@chakra-ui/react";
-import SimpleModal from "../designSystem/SimpleModal";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Button, Center, Link, Text, VStack } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import SimpleModal from "../designSystem/SimpleModal";
 import WaveIcon from "./WaveIcon";
 
 export const notionOnboardingLink =
