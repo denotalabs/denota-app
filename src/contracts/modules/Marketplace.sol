@@ -48,7 +48,6 @@ contract Marketplace is ModuleBase {
     mapping(uint256 => Invoice) public invoices;
     mapping(uint256 => Milestone[]) public milestones;
     mapping(address => bool) public tokenWhitelist;
-    uint256 public BPSFee;  // TODO make this into tiers? Or have the option maybe?
     string private baseURI;
 
     constructor(
@@ -58,10 +57,9 @@ contract Marketplace is ModuleBase {
         address _fundRule, 
         address _cashRule, 
         address _approveRule,
-        uint256 _BPSFee,
+        uint256 _feeBPS,
         string memory __baseURI
-    ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule) { // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens?)
-        BPSFee = _BPSFee;
+    ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule, _feeBPS) { // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens?)
         baseURI = __baseURI;
     }
     function whitelistToken(address token, bool whitelist) public onlyOwner {
@@ -104,7 +102,7 @@ contract Marketplace is ModuleBase {
         }
         invoices[cheqId].documentHash = documentHash;
         invoices[cheqId].totalMilestones = numMilestones;
-        uint256 moduleFee = (cheq.escrowed * BPSFee) / 10_000;
+        uint256 moduleFee = (cheq.escrowed * feeBPS) / 10_000;
         return (true, moduleFee, cheq);
     }
 
@@ -162,7 +160,7 @@ contract Marketplace is ModuleBase {
         if (invoices[cheqId].startTime == 0) invoices[cheqId].startTime = block.timestamp;
 
         invoices[cheqId].clientStatus = Status.Ready;
-        uint256 moduleFee = (amount * BPSFee) / 10_000;
+        uint256 moduleFee = (amount * feeBPS) / 10_000;
 
         uint256 oldMilestone = invoices[cheqId].currentMilestone;
         require(amount == milestones[cheqId][oldMilestone].price, "Module: Incorrect milestone amount"); // Question should module throw on insufficient fund or enforce the amount?
@@ -239,12 +237,10 @@ contract Marketplace is ModuleBase {
         // Can Resolved lead to continued work (Status.Working) or pay out based on the resolution? 
         // If one doesn't set theirs to disputed, should the arbitor only be allowed to payout the party with Status.Disputed?
     }
-    function getFees() public view returns (uint256) {
-        return BPSFee;
+    function getFees() public view override returns (uint256) {
+        return feeBPS;
     }
 }
-
-
 
 // (/*uint256 startTime, Status workerStatus, Status clientStatus, */Milestone[] memory milestones) = abi.decode(initData, (/*uint256, Status, Status,*/ Milestone[]));
 // require(milestones.length > 0, "No milestones");
