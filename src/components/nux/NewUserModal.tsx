@@ -3,10 +3,9 @@ import Cookies from "js-cookie";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { Button, Center, Link, Text, VStack } from "@chakra-ui/react";
 
-import WaveIcon from "./WaveIcon";
-
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import SimpleModal from "../designSystem/SimpleModal";
+import WaveIcon from "./WaveIcon";
 
 export const notionOnboardingLink =
   "https://cheq-finance.notion.site/Cheq-Onboarding-8f3e101956f14e86b83feb06622988ad";

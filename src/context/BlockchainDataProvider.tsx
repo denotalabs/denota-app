@@ -7,9 +7,9 @@ import React, {
   useState,
 } from "react";
 
-import Web3Modal from "web3modal";
-
 import { BigNumber, ethers } from "ethers";
+
+import Web3Modal from "web3modal";
 
 import { useColorMode } from "@chakra-ui/react";
 
