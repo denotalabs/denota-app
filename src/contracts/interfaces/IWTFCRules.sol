@@ -6,10 +6,12 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 // Question: Not sure if theres a way to use libraries for this instead of contracts
 // TODO need to have a way of validating bytesdata (QUESTION could args be zero-initialized if missing in bytes??)
 // TODO: add function supportsInterface() for each of these functions such that a contract can make sure contracts have them
+// Each rule a module uses can use different contracts or the point to the same ones
 interface IWriteRule { function canWrite(address caller, address owner, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external returns(bool); }
 interface ITransferRule { function canTransfer(address caller, address owner, address from, address to, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes memory initData) external returns(bool); }
 interface IFundRule { function canFund(address caller, address owner, uint256 amount, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external returns(bool); }
 interface ICashRule { function canCash(address caller, address owner, address to, uint256 amount, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external returns(bool); }
+// Question: how should approve rules interact with transfer
 interface IApproveRule { function canApprove(address caller, address owner, address to, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external returns(bool); }
 
 /**
