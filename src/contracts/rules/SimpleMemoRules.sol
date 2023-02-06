@@ -4,6 +4,7 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule {
+
     function canWrite(
         address caller, 
         address owner, 
@@ -11,20 +12,20 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         DataTypes.Cheq calldata cheq, 
         bytes calldata /*initData*/
     ) external pure returns(bool) { 
-        if (cheq.amount == 0) { // Valueless cheq
-            return false;
-        } else if (cheq.drawer == cheq.recipient) {  // Drawer and recipient are the same
-            return false;
-        } else if (owner != cheq.drawer && owner != cheq.recipient) {  // Either drawer or recipient must be owner
-            return false;
-        } else if (caller != cheq.drawer && caller != cheq.recipient) {  // Delegated pay/requesting not allowed
-            return false;
-        } else if (cheq.escrowed != 0 && cheq.escrowed != cheq.amount) {  // Either send unfunded or fully funded cheq
-            return false;
-        } else if (cheq.recipient == address(0) || owner == address(0)) {  // Can't send to zero address
-            return false;
-        }
-        return true; // NOTE could return the final elif clause but slightly less clear
+        // Valueless cheq
+        if (cheq.amount == 0) return false;
+        // Drawer and recipient are the same
+        if (cheq.drawer == cheq.recipient) return false;
+        // Either drawer or recipient must be owner
+        if (owner != cheq.drawer && owner != cheq.recipient) return false;
+        // Delegated pay/requesting not allowed
+        if (caller != cheq.drawer && caller != cheq.recipient) return false;
+        // Either send unfunded or fully funded cheq
+        if (cheq.escrowed != 0 && cheq.escrowed != cheq.amount) return false;
+        // Can't send to zero address
+        if (cheq.recipient == address(0) || owner == address(0)) return false;
+
+        return true; // NOTE could return the final if clause but slightly less clear
     }
 
     function canTransfer(
@@ -46,15 +47,15 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         DataTypes.Cheq calldata cheq,  
         bytes calldata /*initData*/
     ) external pure returns(bool) { 
-        if (caller == owner) {  // Owner's cheq is a recievable not payable
-            return false;
-        } else if (cheq.escrowed != 0) {  // Can only fund invoices
-            return false;
-        } else if (amount != cheq.amount) {  // Must fund in full
-            return false;
-        } else if (caller != cheq.drawer && caller != cheq.recipient) {  // Non-participating party // Question: Should this be a requirement?
-            return false;
-        }
+        // Owner's cheq is a recievable not payable
+        if (caller == owner) return false;
+        // Can only fund invoices
+        if (cheq.escrowed != 0) return false;
+        // Must fund in full
+        if (amount != cheq.amount) return false;
+        // Non-participating party // Question: Should this be a requirement?
+        if (caller != cheq.drawer && caller != cheq.recipient) return false;
+
         return true; 
     }
 
@@ -67,13 +68,13 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         DataTypes.Cheq calldata cheq, 
         bytes calldata /*initData*/
     ) external pure returns(bool) { 
-        if (caller != owner) {  // Only owner can cash
-            return false;
-        } else if (amount != cheq.escrowed) {  // Must fully cash escrowed amount
-            return false;
-        } else if (cheq.escrowed != cheq.amount) {  // Must be fully funded
-            return false;
-        }
+        // Only owner can cash
+        if (caller != owner) return false;
+        // Must fully cash escrowed amount
+        if (amount != cheq.escrowed) return false;
+        // Must be fully funded
+        if (cheq.escrowed != cheq.amount) return false;
+        
         return true; 
     }
 
