@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
-contract AllTrueRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule {
+contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule {
     function canWrite(
         address caller, 
         address owner, 
@@ -20,6 +20,8 @@ contract AllTrueRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAppro
         } else if (caller != cheq.drawer && caller != cheq.recipient) {  // Delegated pay/requesting not allowed
             return false;
         } else if (cheq.escrowed != 0 && cheq.escrowed != cheq.amount) {  // Either send unfunded or fully funded cheq
+            return false;
+        } else if (cheq.recipient == address(0) || owner == address(0)) {  // Can't send to zero address
             return false;
         }
         return true; // NOTE could return the final elif clause but slightly less clear

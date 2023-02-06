@@ -23,4 +23,5 @@ interface ICheqModule {
     // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool); // TODO settle on what this returns
     // function processBalanceOf() external view returns(uint256);
     function processTokenURI(uint256 tokenId) external view returns(string memory);  // TODO how to format IPFS payloads to insert into the metadata
+    function getFees() external view returns(uint256);
 }

@@ -17,6 +17,8 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
     mapping(uint256 => bool) public isCashed;
     string public _baseURI;
 
+    event MemoWritten(uint256 indexed cheqId, bytes32 memoHash);
+
     constructor(
         address registrar,
         address _writeRule, 
@@ -24,8 +26,9 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         address _fundRule, 
         address _cashRule, 
         address _approveRule,
+        uint256 _feeBPS,
         string memory __baseURI
-        ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule) {
+        ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule, _feeBPS) {
         _baseURI = __baseURI;
     }
 
@@ -38,8 +41,12 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
     ) external override onlyRegistrar returns(bool, uint256, DataTypes.Cheq memory){ 
         bool isWriteable = IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
         if (!isWriteable) return (isWriteable, 0, cheq);
+
         bytes32 memoHash = abi.decode(initData, (bytes32));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
         memo[cheqId] = memoHash;
+
+        emit MemoWritten(cheqId, memoHash);
+        
         return (isWriteable, 0, cheq);
     }
 
@@ -93,7 +100,7 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
     ) external override onlyRegistrar returns (bool, address){
-        require(isCashed[cheqId], "Approvals not supported until cashed"); // Question: Should this be the case?
+        require(isCashed[cheqId], "Must be cashed first"); // Question: Should this be the case?
         bool isApprovable = IApproveRule(approveRule).canApprove(caller, owner, to, cheqId, cheq, initData);  // Question: use AllTrueRule?
         return (isApprovable, to);
     }    
