@@ -1,10 +1,10 @@
 Scratch pad for psuedo code and feature ideas
 
-Rule libraries seem to be for user initiated data. 
-When a user writes a cheq, libraries can make comparisons between the caller, owner, _totalSupply, cheq, and moduleWriteData
-This assumes that the cheq writer's moduleWriteData is trusted
-Same for all WTFC
-Conversely, storage that is only modifiable by calling module functions seems to require a new module
+Rule libraries:
+When a user WTFCs a cheq, libraries can make comparisons between the process parameters (including user provided bytesData)
+    > Assumes that the cheq writer's bytesData is trusted
+Conversely, storage that is only modifiable by calling module functions will require a new module
+
 
 General Features:
 * Global or Address Pausability
@@ -12,7 +12,7 @@ General Features:
 * Differing Contract Roles
     function addAccountRole(address) external onlyOwner {isArbitor[address], etc} allow/disallow
 * Fee Structures
-    function processX() {_payFeeToOwner(); _;}
+    function processX() returns(uint256 moduleFee);
 * Token Rewards
     contract PayModule is ERC20 {}
     function tokenRewards(w,t,f,c,a) {rewardW = w; rewardT = t; rewardF = f; rewardC = c;} 
@@ -29,15 +29,15 @@ General Features:
     function proveModuleTotalSuccessfulPayment(address) { ZK.recoverCheqAmountsByAccount(address); }
 Admin role abilities: 
 1. Global pausing of WTFCA
-2. Operator-like transfer status
+2. Operator-like transfer ability
 3. Setting/taking fees and fee structures
-4. Setting token rewards
+4. Setting/minting token rewards
 5. Pausing/blacklisting adresses
 6. Allowlisting users
 7. Setting tokenURIs
-8. Whitelisting tokens
+8. Whitelisting payment tokens
 9. Setting arbitors
-10. 
+10. Setting NFT gated addresses
 
 
 Writing Features:
@@ -49,6 +49,9 @@ Writing Features:
     require(tokenWhitelist[cheq.currency])
 * Payment Delegation
     require(cheq.drawer == cheq.payer)
+* Setting NFT Contract address
+    function processWrite() { nftGate[cheqId] = NFTAddress}
+    require(NFTAddress.balanceOf(to) > 0, "Only token holders can trade this cheq");
 
 Transferring:
 * Timelocks
