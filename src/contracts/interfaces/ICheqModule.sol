@@ -7,6 +7,7 @@ interface ICheqModule {
     function processWrite(address caller, address owner, uint cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external returns (bool, uint256, DataTypes.Cheq memory);  
     // QUESTION: return (wasSuccessful, moduleFee, adjOwner, adjCheq)?
 
+    // TODO need to pass whether the caller is approved to the module
     function processTransfer(address caller, address owner, address from, address to, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes memory data) external returns (bool, address); 
     // QUESTION: return (wasSuccessful, adjOwner, adjCheq)?
 
