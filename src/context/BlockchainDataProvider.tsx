@@ -2,18 +2,22 @@ import React, {
   createContext,
   memo,
   useCallback,
+  useContext,
   useEffect,
   useState,
 } from "react";
-import { useContext } from "react";
-import { BigNumber, ethers } from "ethers";
-import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
-import SelfSignedBroker from "../out/SelfSignTimeLock.sol/SelfSignTimeLock.json";
-import erc20 from "../out/ERC20.sol/TestERC20.json";
+
 import Web3Modal from "web3modal";
-import { providerOptions } from "./providerOptions";
-import { mappingForChainId } from "./chainInfo";
+
+import { BigNumber, ethers } from "ethers";
+
 import { useColorMode } from "@chakra-ui/react";
+
+import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
+import erc20 from "../out/ERC20.sol/TestERC20.json";
+import SelfSignedBroker from "../out/SelfSignTimeLock.sol/SelfSignTimeLock.json";
+import { mappingForChainId } from "./chainInfo";
+import { providerOptions } from "./providerOptions";
 
 // TODO: Use cheq subdomain
 export const APIURL_REMOTE = "https://klymr.me/api";

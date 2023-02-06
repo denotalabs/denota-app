@@ -1,16 +1,19 @@
+import { ReactNode } from "react";
+
+import { Field } from "formik";
+
 import {
   Box,
   FormControl,
   FormErrorMessage,
   FormLabel,
   HStack,
+  Text,
   useRadio,
   useRadioGroup,
   UseRadioProps,
-  Text,
 } from "@chakra-ui/react";
-import { Field } from "formik";
-import { ReactNode } from "react";
+
 import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedBox from "../../designSystem/RoundedBox";
 

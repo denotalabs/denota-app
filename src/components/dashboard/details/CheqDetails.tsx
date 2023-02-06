@@ -1,8 +1,10 @@
 import { Text, VStack } from "@chakra-ui/react";
-import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { Cheq } from "../../../hooks/useCheqs";
+
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
+
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
+import { Cheq } from "../../../hooks/useCheqs";
 
 interface Props {
   cheq: Cheq;

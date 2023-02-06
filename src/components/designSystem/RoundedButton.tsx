@@ -1,5 +1,6 @@
-import { Button, ButtonProps, StyleProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
+
+import { Button, ButtonProps, StyleProps } from "@chakra-ui/react";
 
 interface Props extends StyleProps, ButtonProps {
   onClick?: () => void;

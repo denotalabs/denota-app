@@ -1,7 +1,3 @@
-import StepperContext, {
-  StepperReducerInterface,
-  StringMap,
-} from "./StepperContext";
 import {
   useReducer,
   Children,
@@ -10,6 +6,12 @@ import {
   useContext,
   useState,
 } from "react";
+
+import StepperContext, {
+  StepperReducerInterface,
+  StringMap,
+} from "./StepperContext";
+
 import StepperHeader from "./StepperHeader";
 
 interface StepperProps {

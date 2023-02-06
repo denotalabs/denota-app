@@ -1,7 +1,11 @@
-import { Box, useToast } from "@chakra-ui/react";
-import { BigNumber, ethers } from "ethers";
-import { Form, Formik } from "formik";
 import { useEffect, useMemo, useState } from "react";
+
+import { BigNumber, ethers } from "ethers";
+
+import { Form, Formik } from "formik";
+
+import { Box, useToast } from "@chakra-ui/react";
+
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { useStep } from "../../designSystem/stepper/Stepper";

@@ -1,5 +1,6 @@
-import { Select } from "@chakra-ui/react";
 import { Field } from "formik";
+
+import { Select } from "@chakra-ui/react";
 
 interface Props {
   isInvoice: boolean;

@@ -1,5 +1,6 @@
-import { Box, StyleProps } from "@chakra-ui/react";
 import { ReactNode } from "react";
+
+import { Box, StyleProps } from "@chakra-ui/react";
 
 interface Props extends StyleProps {
   children: ReactNode;

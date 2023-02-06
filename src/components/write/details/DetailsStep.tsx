@@ -1,12 +1,15 @@
+import { useState } from "react";
+
+import { Form, Formik } from "formik";
+
 import { Box, Checkbox, Link } from "@chakra-ui/react";
-import DetailsBox from "./DetailsBox";
+
+import { useUploadNote } from "../../../hooks/useUploadNote";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { useStep } from "../../designSystem/stepper/Stepper";
-import { Form, Formik } from "formik";
-import CurrencySelectorV2 from "./CurrencySelector";
-import { useUploadNote } from "../../../hooks/useUploadNote";
 import { notionOnboardingLink } from "../../nux/NewUserModal";
-import { useState } from "react";
+import CurrencySelectorV2 from "./CurrencySelector";
+import DetailsBox from "./DetailsBox";
 
 interface Props {
   screenKey: string;

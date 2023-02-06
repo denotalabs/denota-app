@@ -1,6 +1,8 @@
 import { useMemo } from "react";
-import RoundedBox from "../../designSystem/RoundedBox";
+
 import { Text } from "@chakra-ui/react";
+
+import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
   module: string;

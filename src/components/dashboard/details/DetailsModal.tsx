@@ -1,6 +1,7 @@
+import CheqDetails from "./CheqDetails";
+
 import { Cheq } from "../../../hooks/useCheqs";
 import SimpleModal from "../../designSystem/SimpleModal";
-import CheqDetails from "./CheqDetails";
 
 interface Props {
   isOpen: boolean;

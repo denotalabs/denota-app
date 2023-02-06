@@ -1,4 +1,5 @@
 import { Center, Text } from "@chakra-ui/react";
+
 import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {

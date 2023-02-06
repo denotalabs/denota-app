@@ -1,4 +1,5 @@
 import { Box, Button, Center } from "@chakra-ui/react";
+
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 function ConnectWallet() {

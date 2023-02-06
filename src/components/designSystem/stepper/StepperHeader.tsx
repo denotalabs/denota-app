@@ -1,6 +1,5 @@
 import { ArrowBackIcon, SmallCloseIcon } from "@chakra-ui/icons";
-import { Flex, IconButton } from "@chakra-ui/react";
-import { Text } from "@chakra-ui/react";
+import { Flex, IconButton, Text } from "@chakra-ui/react";
 
 interface Props {
   onClose?: () => void;

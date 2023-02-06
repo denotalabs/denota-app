@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
-import { useBlockchainData, APIURL } from "../context/BlockchainDataProvider";
-import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
+
 import { BigNumber } from "ethers";
+
+import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
+
+import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
+import { APIURL, useBlockchainData } from "../context/BlockchainDataProvider";
 
 interface Props {
   cheqField: string;

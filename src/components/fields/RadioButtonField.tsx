@@ -1,3 +1,5 @@
+import { Field } from "formik";
+
 import {
   FormControl,
   FormErrorMessage,
@@ -5,8 +7,6 @@ import {
   Radio,
   RadioGroup,
 } from "@chakra-ui/react";
-
-import { Field } from "formik";
 
 interface Props {
   fieldName: string;

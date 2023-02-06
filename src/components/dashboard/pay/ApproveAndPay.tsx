@@ -1,10 +1,14 @@
-import { Box, Text, useToast } from "@chakra-ui/react";
-import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { Cheq } from "../../../hooks/useCheqs";
+
+import { BigNumber } from "ethers";
+
+import { Box, Text, useToast } from "@chakra-ui/react";
+
 import RoundedBox from "../../designSystem/RoundedBox";
 import RoundedButton from "../../designSystem/RoundedButton";
+
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
+import { Cheq } from "../../../hooks/useCheqs";
 
 interface Props {
   cheq: Cheq;

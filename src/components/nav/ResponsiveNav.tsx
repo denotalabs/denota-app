@@ -1,7 +1,10 @@
-import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { Box, Button, ButtonGroup, Flex, Stack, Text } from "@chakra-ui/react";
-import Link from "next/link";
 import { useState } from "react";
+
+import Link from "next/link";
+
+import { Box, Button, ButtonGroup, Flex, Stack, Text } from "@chakra-ui/react";
+import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
+
 import SettingsCog from "../fields/SettingsCog";
 import NavbarUser from "./NavbarUser";
 
@@ -56,12 +59,15 @@ const ResponsiveNav = (props: Props) => {
                 Dashboard
               </Button>
             </Link>
-            <Link href="/learn" passHref>
+            <Link
+              href="https://cheq-finance.notion.site/Learn-More-About-Cheq-9c18517ed13b4644bc8c796d7427aa80"
+              passHref
+            >
               <Button as="a" key="docs">
                 Docs
               </Button>
             </Link>
-            <Link href="/about" passHref>
+            <Link href="https://cheq.finance" passHref>
               <Button as="a" key="about">
                 About
               </Button>

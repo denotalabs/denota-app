@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+
 import { ethers } from "ethers";
 
 const createProvider = async (url: any) => {
@@ -30,4 +31,4 @@ export const useStaticJsonRPC = (urlArray: any) => {
   }, [JSON.stringify(urlArray)]);
 
   return provider;
-}
+};

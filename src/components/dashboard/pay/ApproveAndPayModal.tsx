@@ -1,6 +1,7 @@
+import ApproveAndPay from "./ApproveAndPay";
+
 import { Cheq } from "../../../hooks/useCheqs";
 import SimpleModal from "../../designSystem/SimpleModal";
-import ApproveAndPay from "./ApproveAndPay";
 
 interface Props {
   isOpen: boolean;

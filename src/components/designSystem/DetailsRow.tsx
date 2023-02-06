@@ -1,6 +1,6 @@
-import { ExternalLinkIcon } from "@chakra-ui/icons";
-
 import { Box, Flex, HStack, Link, Text } from "@chakra-ui/react";
+
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 interface Props {
   title: string;

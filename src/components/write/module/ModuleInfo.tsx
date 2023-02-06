@@ -7,9 +7,11 @@ import {
   GridItem,
   Tooltip,
 } from "@chakra-ui/react";
-import RoundedBox from "../../designSystem/RoundedBox";
+
 import Inspection from "./Inspection";
 import ModuleSelect from "./ModuleSelect";
+
+import RoundedBox from "../../designSystem/RoundedBox";
 
 function ModuleInfo() {
   return (

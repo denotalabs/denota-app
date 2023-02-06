@@ -1,11 +1,14 @@
+import { useEffect, useState } from "react";
+
+import Cookies from "js-cookie";
+
 import { Center, Spinner, useDisclosure } from "@chakra-ui/react";
+
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import NewUserModal from "../nux/NewUserModal";
 import ConnectWallet from "./ConnectWallet";
 import MyCheqsView from "./MyCheqsView";
 import NewInvoice from "./NewInvoice";
-import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
 
 function HomeScreen() {
   return (

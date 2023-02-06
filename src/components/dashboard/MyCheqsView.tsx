@@ -1,4 +1,7 @@
+import { useState } from "react";
+
 import { RepeatIcon } from "@chakra-ui/icons";
+
 import {
   Center,
   Grid,
@@ -9,7 +12,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+
 import { Cheq, useCheqs } from "../../hooks/useCheqs";
 import CheqCardV2 from "./CheqCardV2";
 
@@ -19,10 +22,10 @@ function MyCheqsView() {
 
   return (
     <VStack
-      boxShadow="outline"
+      borderWidth="1px"
       width="100%"
       p={6}
-      borderRadius={"10px"}
+      borderRadius="10px"
       gap={6}
       align="stretch"
     >

@@ -1,4 +1,5 @@
-import { AddIcon } from "@chakra-ui/icons";
+import { useState } from "react";
+
 import {
   Box,
   Button,
@@ -7,7 +8,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useState } from "react";
+
 import NewCheqModal from "../write/NewCheqModal";
 
 function NewInvoice() {

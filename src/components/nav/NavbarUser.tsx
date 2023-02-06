@@ -68,7 +68,7 @@ export default function NavbarUser() {
 
   // TODO style menu - https://chakra-ui.com/docs/components/menu/theming
   return (
-    <Menu> 
+    <Menu>
       <MenuButton
         as={Button}
         rounded={"full"}

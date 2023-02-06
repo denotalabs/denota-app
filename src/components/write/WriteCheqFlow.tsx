@@ -1,7 +1,8 @@
-import Stepper from "../designSystem/stepper/Stepper";
 import CheqConfirmStep from "./confirm/ConfirmStep";
 import CheqDetailsStep from "./details/DetailsStep";
 import CheqModuleStep from "./module/ModuleStep";
+
+import Stepper from "../designSystem/stepper/Stepper";
 
 interface Props {
   onClose?: () => void;
