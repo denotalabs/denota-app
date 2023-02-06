@@ -1,4 +1,3 @@
-import { useColorMode } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
 import React, {
   createContext,
@@ -14,6 +13,7 @@ import erc20 from "../out/ERC20.sol/TestERC20.json";
 import SelfSignedBroker from "../out/SelfSignTimeLock.sol/SelfSignTimeLock.json";
 import { mappingForChainId } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
+import useWeb3Modal from "./useWeb3Modal";
 
 // TODO: Use cheq subdomain
 export const APIURL_REMOTE = "https://klymr.me/api";
@@ -25,7 +25,7 @@ export const APIURL_HOSTED =
   "https://api.thegraph.com/subgraphs/name/soolaymahn/cheq-test";
 
 export const APIURL = APIURL_REMOTE;
-
+export const CHAIN_NOT_FOUND = -1;
 interface BlockchainDataInterface {
   account: string;
   dai: null | ethers.Contract;
@@ -77,30 +77,14 @@ export const BlockchainDataProvider = memo(
 
     const [isInitializing, setIsInitializing] = useState(true);
 
-    const { colorMode } = useColorMode();
-
-    const connectWalletWeb3Modal = useCallback(async () => {
-      const web3Modal = new Web3Modal({
-        cacheProvider: true, // optional
-        providerOptions, // required
-        theme: colorMode,
-      });
-      const web3ModalConnection = await web3Modal.connect();
-      const provider = new ethers.providers.Web3Provider(web3ModalConnection);
-      const signer = provider.getSigner(); //console.log(provider)
-      const account = await signer.getAddress(); //console.log(account)
-      return [provider, signer, account] as [
-        ethers.providers.Web3Provider,
-        ethers.providers.JsonRpcSigner,
-        string
-      ];
-    }, [colorMode]);
-
+    const web3Data = useWeb3Modal();
     const loadBlockchainData = useCallback(async () => {
       setIsInitializing(true);
       try {
-        const [provider, signer, account] = await connectWalletWeb3Modal(); // console.log(provider, signer, account)
-        const { chainId } = await provider.getNetwork();
+        const { provider, signer, address } = web3Data; 
+        const { chainId } = provider
+          ? await provider.getNetwork()
+          : { chainId: CHAIN_NOT_FOUND };
 
         window.ethereum.on("chainChanged", () => {
           document.location.reload();
@@ -126,15 +110,23 @@ export const BlockchainDataProvider = memo(
         const weth = new ethers.Contract(mapping.weth, erc20.abi, signer);
         const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
 
-        const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
-        const daiAllowance = await dai.allowance(account, mapping.cheq);
+        const userDaiBalance = await dai.balanceOf(address); // User's Dai balance
+        const daiAllowance = await dai.allowance(address, mapping.cheq);
 
-        const userWethBalance = await weth.balanceOf(account); // User's Weth balance
-        const wethAllowance = await weth.allowance(account, mapping.cheq);
+        const userWethBalance = await weth.balanceOf(address); // User's Weth balance
+        const wethAllowance = await weth.allowance(address, mapping.cheq);
+        
+        let signerValue: ethers.providers.JsonRpcSigner | null;
+        if (signer) {
+          signerValue = signer;
+        } else {
+          signerValue = null;
+        }
+        const addressValue = address || '';
 
         setBlockchainState({
-          signer,
-          account,
+          signer: signerValue,
+          account: addressValue,
           dai,
           weth,
           selfSignBroker,
@@ -151,7 +143,7 @@ export const BlockchainDataProvider = memo(
         window.alert("Contracts not deployed to the current network");
         setIsInitializing(false);
       }
-    }, [connectWalletWeb3Modal]);
+    }, [web3Data]);
 
     useEffect(() => {
       const web3Modal = new Web3Modal({
