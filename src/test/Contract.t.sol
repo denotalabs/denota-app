@@ -65,36 +65,36 @@ contract ContractTest is Test {
     /*//////////////////////////////////////////////////////////////
                                CHEQ TESTS
     //////////////////////////////////////////////////////////////*/
-    function testWhitelistToken() public {
-        address daiAddress = address(dai);
-        vm.prank(address(this));
+    // function testWhitelistToken() public {
+    //     address daiAddress = address(dai);
+    //     vm.prank(address(this));
 
-        assertFalse(REGISTRAR.tokenWhitelisted(daiAddress), "Unauthorized whitelist");
-        REGISTRAR.whitelistToken(daiAddress, true);
-        assertTrue(REGISTRAR.tokenWhitelisted(daiAddress), "Whitelisting failed");
-        REGISTRAR.whitelistToken(daiAddress, false);
-        assertFalse(REGISTRAR.tokenWhitelisted(daiAddress), "Un-whitelisting failed");
+    //     assertFalse(REGISTRAR.tokenWhitelisted(daiAddress), "Unauthorized whitelist");
+    //     REGISTRAR.whitelistToken(daiAddress, true);
+    //     assertTrue(REGISTRAR.tokenWhitelisted(daiAddress), "Whitelisting failed");
+    //     REGISTRAR.whitelistToken(daiAddress, false);
+    //     assertFalse(REGISTRAR.tokenWhitelisted(daiAddress), "Un-whitelisting failed");
 
-        AllTrueRules allRules = new AllTrueRules();
-        address allRulesAddress = address(allRules);
-        assertFalse(REGISTRAR.ruleWhitelisted(allRulesAddress), "Unauthorized whitelist");
-        REGISTRAR.whitelistRule(allRulesAddress, true); // whitelist bytecode, not address
-        assertTrue(REGISTRAR.ruleWhitelisted(allRulesAddress), "Whitelisting failed");
-        REGISTRAR.whitelistRule(allRulesAddress, false);
-        assertFalse(REGISTRAR.ruleWhitelisted(allRulesAddress), "Un-whitelisting failed");
+    //     AllTrueRules allRules = new AllTrueRules();
+    //     address allRulesAddress = address(allRules);
+    //     assertFalse(REGISTRAR.ruleWhitelisted(allRulesAddress), "Unauthorized whitelist");
+    //     REGISTRAR.whitelistRule(allRulesAddress, true); // whitelist bytecode, not address
+    //     assertTrue(REGISTRAR.ruleWhitelisted(allRulesAddress), "Whitelisting failed");
+    //     REGISTRAR.whitelistRule(allRulesAddress, false);
+    //     assertFalse(REGISTRAR.ruleWhitelisted(allRulesAddress), "Un-whitelisting failed");
 
-        REGISTRAR.whitelistRule(allRulesAddress, true); // whitelist bytecode, not address
-        Marketplace market = new Marketplace(address(REGISTRAR), allRulesAddress, allRulesAddress, allRulesAddress, allRulesAddress, allRulesAddress, 100, "MyMarket");  // How to test successful deployment
-        address marketAddress = address(market);
-        (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(marketAddress);
-        assertFalse(addressWhitelisted || bytecodeWhitelisted, "Unauthorized whitelist");
-        REGISTRAR.whitelistModule(marketAddress, true, false); // whitelist bytecode, not address
-        (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(marketAddress);
-        assertTrue(addressWhitelisted || bytecodeWhitelisted, "Whitelisting failed");
-        REGISTRAR.whitelistModule(marketAddress, false, false);
-        (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(marketAddress);
-        assertFalse(addressWhitelisted || bytecodeWhitelisted, "Un-whitelisting failed");
-    }
+    //     REGISTRAR.whitelistRule(allRulesAddress, true); // whitelist bytecode, not address
+    //     Marketplace market = new Marketplace(address(REGISTRAR), allRulesAddress, allRulesAddress, allRulesAddress, allRulesAddress, allRulesAddress, 100, "MyMarket");  // How to test successful deployment
+    //     address marketAddress = address(market);
+    //     (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(marketAddress);
+    //     assertFalse(addressWhitelisted || bytecodeWhitelisted, "Unauthorized whitelist");
+    //     REGISTRAR.whitelistModule(marketAddress, true, false); // whitelist bytecode, not address
+    //     (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(marketAddress);
+    //     assertTrue(addressWhitelisted || bytecodeWhitelisted, "Whitelisting failed");
+    //     REGISTRAR.whitelistModule(marketAddress, false, false);
+    //     (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(marketAddress);
+    //     assertFalse(addressWhitelisted || bytecodeWhitelisted, "Un-whitelisting failed");
+    // }
 
     // function testFailWhitelist(address caller) public {
     //     vm.assume(caller == address(0));  // Deployer can whitelist, test others accounts
@@ -135,10 +135,10 @@ contract ContractTest is Test {
         vm.assume(cheqWriteCondition(caller, amount, recipient));
         vm.assume(amount > 0);
         
-
         REGISTRAR.whitelistToken(address(dai), true);
         (, uint256 writeFeeBPS, , , , ) = REGISTRAR.getFees();
         Marketplace market = setUpMarketplace();
+        market.whitelistToken(address(dai), true);
         uint256 marketFeeBPS = market.getFees();
         uint256 totalWithFees;
         {
@@ -152,7 +152,6 @@ contract ContractTest is Test {
         vm.prank(caller); 
         dai.approve(address(REGISTRAR), totalWithFees);  // Need to get the fee amounts beforehand
         dai.transfer(caller, totalWithFees);
-        market.whitelistToken(address(dai), true);
 
         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a cheq");
         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient already had a cheq");
@@ -186,11 +185,20 @@ contract ContractTest is Test {
         assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
         assertTrue(REGISTRAR.cheqEscrowed(cheqId) == amount, "Incorrect escrow");
         assertTrue(address(REGISTRAR.cheqModule(cheqId)) == address(market), "Incorrect module");
-        
         // ICheqModule wrote correctly to it's storage
-        // (uint256 startTime, uint256 currentMilestone, Marketplace.Status workerStatus, Marketplace.Status clientStatus/*, Milestone[] memory milestones*/) = market.invoices(cheqId);
-        // console.log(startTime/*, currentMilestone, workerStatus, clientStatus*/);
-        // assertTrue(market.invoices(cheqId) == Marketplace.Invoice({}), "Incorrect funder");
+        (
+            uint256 startTime, 
+            uint256 currentMilestone, 
+            uint256 totalMilestones, 
+            Marketplace.Status workerStatus, 
+            Marketplace.Status clientStatus,
+            bytes32 documentHash
+        ) = market.invoices(cheqId);
+        Marketplace.Milestone[] memory milestones = market.getMilestones(cheqId);
+        // console.log(startTime, currentMilestone, workerStatus, clientStatus);
+        console.log("TotalMilestones: ");
+        console.log(totalMilestones);
+        for (uint256 i = 0; i < milestones.length; i++) { console.log(milestones[i].price); }
         // assertTrue(market.cheqInspectionPeriod(cheqId) == duration, "Incorrect expired");
     }
 

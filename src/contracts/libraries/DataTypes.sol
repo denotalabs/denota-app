@@ -8,7 +8,7 @@ library DataTypes {
         address currency; // Immutable
         uint256 amount; // Immutable & arbitrarily settable
         uint256 escrowed; // Mutable but invariant w.r.t deposits [MOST VULNERABLE]
-        // address owner;   // TODO LensProtocol way of simplifying owner functions since NFTs are structs
+        // address owner; 
         address drawer; // Immutable & arbitrarily settable [intended sender]
         address recipient; // Immutable & arbitrarily settable [intended claimer]
         address module; // Immutable & not settable

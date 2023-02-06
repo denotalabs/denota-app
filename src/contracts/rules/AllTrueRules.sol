@@ -4,9 +4,9 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 contract AllTrueRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule { // Each rule the module uses can use different contracts or the point to the same ones
-    function canWrite(address /*caller*/, address /*owner*/, uint /*cheqId*/, DataTypes.Cheq calldata /*cheq*/, bytes calldata /*initData*/) external pure returns(bool) { return true; }
-    function canTransfer(address /*caller*/,  address /*from*/, address /*to*/, uint256 /*cheqId*/, DataTypes.Cheq calldata /*cheq*/, bytes memory /*initData*/) external pure returns(bool) { return true; }
-    function canFund(address /*caller*/, uint256 /*amount*/, uint256 /*cheqId*/,  DataTypes.Cheq calldata /*cheq*/,  bytes calldata /*initData*/) external pure returns(bool) { return true; }
-    function canCash(address /*caller*/, address /*to*/, uint256 /*amount*/, uint256 /*cheqId*/, DataTypes.Cheq calldata /*cheq*/, bytes calldata /*initData*/) external pure returns(bool) { return true; }
-    function canApprove(address /*caller*/, address /*to*/, uint256 /*cheqId*/, DataTypes.Cheq calldata /*cheq*/, bytes calldata /*initData*/) external pure returns(bool) { return true; }
+    function canWrite(address /*caller*/, address /*owner*/, uint256 /*cheqId*/, DataTypes.Cheq calldata /*cheq*/, bytes calldata /*initData*/) external pure returns(bool) { return true; }
+    function canTransfer(address /*caller*/, address /*owner*/, address /*from*/, address /*to*/, uint256 /*cheqId*/, DataTypes.Cheq calldata /*cheq*/, bytes memory /*initData*/) external pure returns(bool) { return true; }
+    function canFund(address /*caller*/, address /*owner*/, uint256 /*amount*/, uint256 /*cheqId*/,  DataTypes.Cheq calldata /*cheq*/,  bytes calldata /*initData*/) external pure returns(bool) { return true; }
+    function canCash(address /*caller*/, address /*owner*/, address /*to*/, uint256 /*amount*/, uint256 /*cheqId*/, DataTypes.Cheq calldata /*cheq*/, bytes calldata /*initData*/) external pure returns(bool) { return true; }
+    function canApprove(address /*caller*/, address /*owner*/, address /*to*/, uint256 /*cheqId*/, DataTypes.Cheq calldata /*cheq*/, bytes calldata /*initData*/) external pure returns(bool) { return true; }
 }

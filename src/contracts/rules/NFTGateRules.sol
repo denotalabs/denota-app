@@ -32,6 +32,7 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
     function canTransfer(
         address caller, 
         address /*from*/, 
+        address /*owner*/,
         address /*to*/, 
         uint256 /*cheqId*/,
         DataTypes.Cheq calldata /*cheq*/, 
@@ -42,6 +43,7 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
 
     function canFund(  // Question: Should these be uint instead of bool?
         address caller, 
+        address /*owner*/,
         uint256 /*amount*/, 
         uint256 /*cheqId*/,  
         DataTypes.Cheq calldata /*cheq*/,  
@@ -52,6 +54,7 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
 
     function canCash(  // Question: Should these be uint instead of bool?
         address caller, 
+        address /*owner*/,
         address /*to*/, 
         uint256 /*amount*/, 
         uint256 /*cheqId*/, 
@@ -63,6 +66,7 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
 
     function canApprove(
         address caller, 
+        address /*owner*/,
         address /*to*/, 
         uint256 /*cheqId*/, 
         DataTypes.Cheq calldata /*cheq*/, 
