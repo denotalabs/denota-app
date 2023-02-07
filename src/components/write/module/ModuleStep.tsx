@@ -2,7 +2,6 @@ import { Box } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { useStep } from "../../designSystem/stepper/Stepper";
-import ModuleBlurb from "./ModuleBlurb";
 import ModuleInfo from "./ModuleInfo";
 
 interface Props {
@@ -20,7 +19,7 @@ function CheqModuleStep({ isInvoice }: Props) {
           inspection: formData.inspection
             ? Number(formData.inspection)
             : 604800,
-          module: formData.module ?? "self",
+          module: formData.module ?? "direct",
         }}
         onSubmit={(values, actions) => {
           appendFormData({
@@ -33,7 +32,6 @@ function CheqModuleStep({ isInvoice }: Props) {
         {(props) => (
           <Form>
             <ModuleInfo />
-            <ModuleBlurb module={props.values.module} />
             <RoundedButton type="submit">{"Next"}</RoundedButton>
           </Form>
         )}
