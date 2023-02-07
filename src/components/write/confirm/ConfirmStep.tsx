@@ -28,6 +28,8 @@ function CheqConfirmStep({ isInvoice }: Props) {
 
   const amountWei = ethers.utils.parseEther(formData.amount);
 
+  console.log(formData);
+
   const buttonText = useMemo(() => {
     if (needsApproval) {
       return "Approve " + formData.token;
@@ -71,53 +73,49 @@ function CheqConfirmStep({ isInvoice }: Props) {
             setNeedsApproval(false);
             actions.setSubmitting(false);
           } else {
-            if (formData.module === "self") {
-              let tokenAddress = "";
+            let tokenAddress = "";
 
-              switch (formData.token) {
-                case "DAI":
-                  tokenAddress = blockchainState.dai?.address ?? "";
-                  break;
-                case "WETH":
-                  tokenAddress = blockchainState.weth?.address ?? "";
-                  break;
-              }
+            switch (formData.token) {
+              case "DAI":
+                tokenAddress = blockchainState.dai?.address ?? "";
+                break;
+              case "WETH":
+                tokenAddress = blockchainState.weth?.address ?? "";
+                break;
+            }
 
-              const escrowedWei = formData.mode === "invoice" ? 0 : amountWei;
+            const escrowedWei = formData.mode === "invoice" ? 0 : amountWei;
 
-              try {
-                const tx = await blockchainState.selfSignBroker?.writeCheq(
-                  tokenAddress,
-                  amountWei,
-                  escrowedWei,
-                  formData.address,
-                  formData.inspection
-                );
-                await tx.wait();
-                const message =
-                  formData.mode === "invoice"
-                    ? "Invoice created"
-                    : "Cheq created";
-                toast({
-                  title: "Transaction succeeded",
-                  description: message,
-                  status: "success",
-                  duration: 3000,
-                  isClosable: true,
-                });
-                onClose?.();
-              } catch (error) {
-                toast({
-                  title: "Transaction failed",
-                  status: "error",
-                  duration: 3000,
-                  isClosable: true,
-                });
-              } finally {
-                actions.setSubmitting(false);
-              }
-            } else {
+            try {
+              const tx = await blockchainState.selfSignBroker?.writeCheq(
+                tokenAddress,
+                amountWei,
+                escrowedWei,
+                formData.address,
+                formData.inspection
+              );
+              await tx.wait();
+              const message =
+                formData.mode === "invoice"
+                  ? "Invoice created"
+                  : "Cheq created";
+              toast({
+                title: "Transaction succeeded",
+                description: message,
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
               onClose?.();
+            } catch (error) {
+              toast({
+                title: "Transaction failed",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+              });
+            } finally {
+              actions.setSubmitting(false);
             }
           }
         }}

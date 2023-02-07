@@ -19,7 +19,7 @@ function CheqModuleStep({ isInvoice }: Props) {
           inspection: formData.inspection
             ? Number(formData.inspection)
             : 604800,
-          module: formData.module ?? "self",
+          module: formData.module ?? "direct",
         }}
         onSubmit={(values, actions) => {
           appendFormData({
