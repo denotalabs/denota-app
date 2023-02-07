@@ -71,6 +71,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
             setNeedsApproval(false);
             actions.setSubmitting(false);
           } else {
+            // TODO: handle modules
             let tokenAddress = "";
 
             switch (formData.token) {
