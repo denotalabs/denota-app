@@ -28,8 +28,6 @@ function CheqConfirmStep({ isInvoice }: Props) {
 
   const amountWei = ethers.utils.parseEther(formData.amount);
 
-  console.log(formData);
-
   const buttonText = useMemo(() => {
     if (needsApproval) {
       return "Approve " + formData.token;
