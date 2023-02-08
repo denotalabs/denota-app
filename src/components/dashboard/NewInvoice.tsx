@@ -3,7 +3,6 @@ import {
   Button,
   ButtonGroup,
   Center,
-  Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useState } from "react";
@@ -27,11 +26,10 @@ function NewInvoice() {
               onOpen();
             }}
             size="lg"
+            fontSize="2xl"
             borderRadius={5}
           >
-            <Text fontWeight={400} fontSize={"4xl"}>
-              Pay
-            </Text>
+            Pay
           </Button>
           <Button
             bg="brand.100"
@@ -41,12 +39,11 @@ function NewInvoice() {
               setIsInvoice(true);
               onOpen();
             }}
+            fontSize="2xl"
             size="lg"
             borderRadius={5}
           >
-            <Text fontWeight={400} fontSize={"4xl"}>
-              Request
-            </Text>
+            Request
           </Button>
         </ButtonGroup>
 
