@@ -1,6 +1,6 @@
+import "@fontsource/dm-sans/index.css";
 import { AppProps } from "next/app";
 import { useState } from "react";
-
 import { Box, ChakraProvider } from "@chakra-ui/react";
 import ResponsiveNav from "../components/nav/ResponsiveNav";
 import { BlockchainDataProvider } from "../context/BlockchainDataProvider";
