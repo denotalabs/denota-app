@@ -11,7 +11,7 @@ function NewCheqModal({ isOpen, onClose, isInvoice }: Props) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
       <ModalOverlay bg="blackAlpha.800" />
-      <ModalContent bg="brand.700">
+      <ModalContent bg="brand.100">
         <ModalBody>
           <WriteCheqFlow onClose={onClose} isInvoice={isInvoice} />
         </ModalBody>

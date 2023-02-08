@@ -19,12 +19,13 @@ function MyCheqsView() {
 
   return (
     <VStack
-      boxShadow="outline"
+      // borderWidth="1px"
       width="100%"
       p={6}
-      borderRadius={"10px"}
+      borderRadius="10px"
       gap={6}
       align="stretch"
+      bg="brand.100"
     >
       <HStack gap={2} justifyContent="space-between">
         <Select
@@ -85,6 +86,9 @@ function CheqGrid({ cheqs }: CheqGridProps) {
         "repeat(3, 1fr)",
       ]}
       gap={6}
+      bg="brand.600"
+      borderRadius="10px"
+      p={4}
     >
       {cheqs.map((cheq) => {
         return <CheqCardV2 key={cheq.id} cheq={cheq} />;
