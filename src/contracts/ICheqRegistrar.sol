@@ -2,5 +2,5 @@
 pragma solidity ^0.8.16;
 
 interface ICheqRegistrar {
-  function writeCheq() external;
+    function writeCheq() external;
 }
