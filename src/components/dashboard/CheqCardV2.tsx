@@ -18,7 +18,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
@@ -78,8 +78,6 @@ function CheqCardV2({ cheq }: Props) {
   } = cheq;
   const { blockchainState } = useBlockchainData();
 
-  const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
-
   const [isEarlyReleased, setIsEarlyReleased] = useState<boolean | undefined>(
     cheq.isEarlyReleased
   );
@@ -97,10 +95,6 @@ function CheqCardV2({ cheq }: Props) {
   }, [cheq.createdTransaction.date]);
 
   const status: CheqStatus | undefined = useMemo(() => {
-    if (isCashable === undefined) {
-      return undefined;
-    }
-
     if (cheq.isCashed || cashingComplete) {
       if (isVoided) {
         return "voided";
@@ -116,7 +110,7 @@ function CheqCardV2({ cheq }: Props) {
       return "paid";
     }
 
-    if (isCashable) {
+    if (cheq.isCashable) {
       if (isFunder) {
         return "voidable";
       } else {
@@ -141,7 +135,7 @@ function CheqCardV2({ cheq }: Props) {
     cashingComplete,
     cheq.hasEscrow,
     cheq.isCashed,
-    isCashable,
+    cheq.isCashable,
     isEarlyReleased,
     isFunder,
     isVoided,
@@ -166,22 +160,6 @@ function CheqCardV2({ cheq }: Props) {
     }
     return cheq.formattedRecipient;
   }, [cheq.formattedRecipient, cheq.formattedSender, isInvoice]);
-
-  useEffect(() => {
-    async function fetchData() {
-      setIsCashable(undefined);
-      try {
-        const cheqId = Number(cheq.id);
-        const caller = blockchainState.account;
-        const cashableAmount: number =
-          await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
-        setIsCashable(cashableAmount > 0);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    fetchData();
-  }, [blockchainState.account, blockchainState.selfSignBroker, cheq.id]);
 
   const cashCheq = useCallback(
     async (isVoid = false) => {

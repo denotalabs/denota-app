@@ -2,7 +2,10 @@ import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
-import { APIURL, useBlockchainData } from "../context/BlockchainDataProvider";
+import {
+  APIURL_LOCAL,
+  useBlockchainData,
+} from "../context/BlockchainDataProvider";
 
 interface Props {
   cheqField: string;
@@ -43,8 +46,9 @@ export interface Cheq {
   createdTransaction: CheqTransaction;
   fundedTransaction: CheqTransaction | null;
   cashedTransaction: CheqTransaction | null;
-  maturityDate: Date;
+  maturityDate?: Date;
   isEarlyReleased: boolean;
+  isCashable: boolean;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -118,7 +122,24 @@ export const useCheqs = ({ cheqField }: Props) => {
       const isVoided = casher === funder;
       const isFunder = blockchainState.account === funder;
       const maturityTime =
-        fundedTimestamp + Number(gqlCheq.selfSignedData.cheqInspectionPeriod);
+        fundedTimestamp === 0
+          ? undefined
+          : fundedTimestamp +
+            Number(gqlCheq.selfSignedData.cheqInspectionPeriod);
+
+      const isEarlyReleased = gqlCheq.selfSignedData.isEarlyReleased as boolean;
+      let isCashable = false;
+
+      if (!isCashed) {
+        if (isEarlyReleased) {
+          isCashable = true;
+        } else if (
+          maturityTime &&
+          Math.floor(Date.now() / 1000) > maturityTime
+        ) {
+          isCashable = true;
+        }
+      }
 
       return {
         id: gqlCheq.id as string,
@@ -168,8 +189,9 @@ export const useCheqs = ({ cheqField }: Props) => {
         isInvoice,
         isVoided,
         isFunder,
-        maturityDate: new Date(maturityTime * 1000),
+        maturityDate: maturityTime ? new Date(maturityTime * 1000) : undefined,
         isEarlyReleased: gqlCheq.selfSignedData.isEarlyReleased as boolean,
+        isCashable,
       };
     },
     [blockchainState.account]
@@ -229,8 +251,9 @@ export const useCheqs = ({ cheqField }: Props) => {
       }
       `;
 
+      // SWITCH BACK TO PROD URL BEFORE MERGE
       const client = new ApolloClient({
-        uri: APIURL,
+        uri: APIURL_LOCAL,
         cache: new InMemoryCache(),
       });
       client

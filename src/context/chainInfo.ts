@@ -4,7 +4,7 @@ export const AddressMapping = {
     cheq: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
     dai: "0x982723cb1272271b5ee405A5F14E9556032d9308",
     weth: "0xAA6DA55ba764428e1C4c492c6db5FDe3ccf57332",
-    selfSignedBroker: "0x53b3c85ecCBAE718Aca4A84f63e2dBDfC279BECC",
+    selfSignedBroker: "0xa9f0CE52c8De7496F7137cF807A6D33df06C2C87",
     explorer: "https://mumbai.polygonscan.com/tx/",
   },
   local: {

@@ -6,9 +6,9 @@ dataSources:
     name: CheqRegistrar
     network: {{network}}
     source:
-      address: "{{address}}"
+      address: "{{registrar}}"
       abi: CheqRegistrar
-      startBlock: 29931082
+      startBlock: 31884801
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -40,7 +40,7 @@ dataSources:
     source:
       address: "{{selfsign}}"
       abi: SelfSignTimeLock
-      startBlock: 29931082
+      startBlock: 31884801
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
