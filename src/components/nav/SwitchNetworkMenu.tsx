@@ -1,4 +1,5 @@
 import {
+  Button,
   Center,
   Menu,
   MenuButton,
@@ -7,6 +8,8 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 
+
+// query current chain ID to see if its the same
 const networkForChainId = (chainId: string) => {
   switch (chainId) {
     case "0x61":
@@ -30,7 +33,7 @@ const switchNetwork = async (chainId: string) => {
   try {
     await (window as any).ethereum.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId }], // chainId must be in hexadecimal numbers
+      params: [{ chainId : "0x13881" }], // chainId must be in hexadecimal numbers
     });
   } catch (error: any) {
     if (error.code === 4902) {
@@ -50,14 +53,14 @@ const switchNetwork = async (chainId: string) => {
 export default function SwitchNetworkMenu() {
   return (
     <Menu>
-      <MenuButton></MenuButton>
+      <MenuButton as={Button}>Switch Chain</MenuButton>
       <MenuList alignItems={"center"}>
         <Center>
           <p>Switch Network</p>
         </Center>
         <MenuDivider />
         <MenuItem onClick={() => switchNetwork("0x7a69")}>Localhost</MenuItem>
-        <MenuItem onClick={() => switchNetwork("0x61")}>Mumbai</MenuItem>
+        <MenuItem onClick={() => switchNetwork("0x13881")}>Mumbai</MenuItem>
       </MenuList>
     </Menu>
   );

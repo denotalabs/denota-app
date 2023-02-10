@@ -1,23 +1,15 @@
-import { ReactNode, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import jazzicon from "jazzicon-ts";
 
-import {
-  Button,
-  Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { Button, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import Web3Modal from "web3modal";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { providerOptions } from "../../context/providerOptions";
 
 const addToken = async (tokenAddress: string, symbol: string) => {
   try {
-    const wasAdded = await (window as any).ethereum.request({
+    await (window as any).ethereum.request({
       method: "wallet_watchAsset",
       params: {
         type: "ERC20",
@@ -33,22 +25,7 @@ const addToken = async (tokenAddress: string, symbol: string) => {
   }
 };
 
-const NavLink = ({ children }: { children: ReactNode }) => (
-  <Link
-    px={2}
-    py={1}
-    rounded={"md"}
-    _hover={{
-      textDecoration: "none",
-      bg: useColorModeValue("gray.200", "gray.700"),
-    }}
-    href={"#"}
-  >
-    {children}
-  </Link>
-);
-
-export default function NavbarUser() {
+export default function WalletInfo() {
   const { blockchainState } = useBlockchainData();
 
   const avatarRef = useRef<HTMLDivElement | null>(null);
@@ -68,7 +45,7 @@ export default function NavbarUser() {
 
   // TODO style menu - https://chakra-ui.com/docs/components/menu/theming
   return (
-    <Menu> 
+    <Menu>
       <MenuButton
         as={Button}
         rounded={"full"}

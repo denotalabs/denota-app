@@ -13,13 +13,12 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { ReactNode, ReactText } from "react";
+import { ReactNode } from "react";
 import { IconType } from "react-icons";
 import {
   FiCompass,
   FiHome,
   FiMenu,
-  FiSettings,
   FiStar,
   FiTrendingUp,
 } from "react-icons/fi";
@@ -29,14 +28,13 @@ interface LinkItemProps {
   icon: IconType;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Home", icon: FiHome },
-  { name: "Trending", icon: FiTrendingUp },
-  { name: "Explore", icon: FiCompass },
-  { name: "Favorites", icon: FiStar },
-  { name: "Settings", icon: FiSettings },
+  { name: "Dashboard", icon: FiHome },
+  { name: "My Cheqs", icon: FiTrendingUp },
+  { name: "Documentation", icon: FiCompass },
+  { name: "About", icon: FiStar },
 ];
 
-export default function SimpleSidebar({ children }: { children: ReactNode }) {
+export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <Box minH="100vh">
@@ -51,7 +49,7 @@ export default function SimpleSidebar({ children }: { children: ReactNode }) {
         onClose={onClose}
         returnFocusOnClose={false}
         onOverlayClick={onClose}
-        size="full"
+        size="xs"
       >
         <DrawerContent>
           <SidebarContent onClose={onClose} />
@@ -98,7 +96,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
 
 interface NavItemProps extends FlexProps {
   icon: IconType;
-  children: ReactText;
+  children: ReactNode;
 }
 const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
   return (
@@ -115,7 +113,7 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: "cyan.400",
+          bg: "brand.400",
           color: "white",
         }}
         {...rest}

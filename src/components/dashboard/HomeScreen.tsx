@@ -54,7 +54,7 @@ function HomeScreenContent() {
   return blockchainState.account === "" ? (
     <ConnectWallet />
   ) : (
-    <Center flexDirection={"column"} width="100%" px={5}>
+    <Center flexDirection={"column"} width="100%" p={{ md: "0", lg: "4" }}>
       <NewUserModal isOpen={isNuxOpen} onClose={onCloseNux} />
       <NewInvoice />
       <br />

@@ -17,16 +17,13 @@ interface Props {
   isUser: boolean;
 }
 
-export default function SettingsCog({ setIsUser, isUser }: Props) {
+export default function Settings({ setIsUser, isUser }: Props) {
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <Menu>
       <MenuButton
-        as={Button}
-        rounded={"full"}
-        variant={"link"}
-        cursor={"pointer"}
+        as={Button}        
         minW={0}
       >
         <SettingsIcon />

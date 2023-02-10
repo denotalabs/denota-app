@@ -88,7 +88,7 @@ function CheqGrid({ cheqs }: CheqGridProps) {
       gap={6}
       bg="brand.600"
       borderRadius="10px"
-      p={4}
+      p={{ md: "0", lg: "4" }}
     >
       {cheqs.map((cheq) => {
         return <CheqCardV2 key={cheq.id} cheq={cheq} />;
