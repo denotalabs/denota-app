@@ -11,12 +11,24 @@ interface Props {
 function DetailsRow({ title, value, link }: Props) {
   return (
     <Box py={3} w="100%">
-      <Flex direction="row" justifyContent="space-between">
-        <Text fontWeight={600} fontSize="md" textAlign="center">
+      <Flex direction="row" justifyContent="space-between" maxW="100%">
+        <Text
+          fontWeight={600}
+          fontSize="md"
+          textAlign="left"
+          flexShrink={0}
+          noOfLines={1}
+        >
           {title}
         </Text>
-        <HStack>
-          <Text fontWeight={200} fontSize="md" textAlign="center">
+        <HStack minWidth={0} pl={4}>
+          <Text
+            fontWeight={200}
+            fontSize="md"
+            textAlign="center"
+            maxW="100%"
+            noOfLines={1}
+          >
             {value}
           </Text>
           {link && (
