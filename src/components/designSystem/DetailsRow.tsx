@@ -22,13 +22,7 @@ function DetailsRow({ title, value, link }: Props) {
           {title}
         </Text>
         <HStack minWidth={0} pl={4}>
-          <Text
-            fontWeight={200}
-            fontSize="md"
-            textAlign="center"
-            maxW="100%"
-            noOfLines={1}
-          >
+          <Text fontWeight={200} fontSize="md" textAlign="right" noOfLines={1}>
             {value}
           </Text>
           {link && (
