@@ -1,6 +1,5 @@
 import { ArrowBackIcon, SmallCloseIcon } from "@chakra-ui/icons";
-import { Flex, IconButton } from "@chakra-ui/react";
-import { Text } from "@chakra-ui/react";
+import { Flex, IconButton, Text } from "@chakra-ui/react";
 
 interface Props {
   onClose?: () => void;
@@ -15,7 +14,7 @@ function StepperHeader({ onClose, back, currentIndex, flowName }: Props) {
       <IconButton
         aria-label="Back"
         icon={<ArrowBackIcon />}
-        disabled={currentIndex == 0}
+        isDisabled={currentIndex == 0}
         onClick={back}
       />
       <Text fontWeight={600} fontSize={"xl"} mb={4}>
