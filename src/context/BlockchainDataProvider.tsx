@@ -118,7 +118,6 @@ export const BlockchainDataProvider = memo(
         if (mapping === undefined) {
           setIsInitializing(false);
           setIsWrongChain(true);
-          console.log("here");
         } else {
           // Load contracts
           const cheq = new ethers.Contract(
@@ -157,7 +156,7 @@ export const BlockchainDataProvider = memo(
         }
       } catch (e) {
         console.log("error", e);
-        window.alert("Contracts not deployed to the current network");
+        window.alert("Error loading contracts");
         setIsInitializing(false);
       }
     }, [connectWalletWeb3Modal]);
