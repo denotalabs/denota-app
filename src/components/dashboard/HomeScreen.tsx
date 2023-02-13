@@ -26,7 +26,19 @@ const switchToMumbai = async () => {
       try {
         await (window as any).ethereum.request({
           method: "wallet_addEthereumChain",
-          params: ["0x13881"],
+          params: [
+            {
+              chainId: "0x13881",
+              chainName: "Matic Mumbai Testnet",
+              nativeCurrency: {
+                name: "Matic",
+                symbol: "MATIC",
+                decimals: 18,
+              },
+              blockExplorerUrls: ["https://mumbai.polygonscan.com"],
+              rpcUrls: ["https://matic-mumbai.chainstacklabs.com/"],
+            },
+          ],
         });
       } catch (addError) {
         console.error(addError);
