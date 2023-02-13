@@ -19,7 +19,6 @@ function MyCheqsView() {
 
   return (
     <VStack
-      // borderWidth="1px"
       width="100%"
       p={6}
       borderRadius="10px"
@@ -86,7 +85,7 @@ function CheqGrid({ cheqs }: CheqGridProps) {
         "repeat(3, 1fr)",
       ]}
       gap={6}
-      bg="brand.600"
+      bg={["transparent", "transparent", "brand.600"]}
       borderRadius="10px"
       p={{ md: "0", lg: "4" }}
     >

@@ -16,22 +16,24 @@ import {
 import { ReactNode } from "react";
 import { IconType } from "react-icons";
 import {
-  FiCompass,
-  FiHome,
-  FiMenu,
-  FiStar,
-  FiTrendingUp,
-} from "react-icons/fi";
+    MdOutlineDynamicFeed,
+    MdOutlineDescription,
+    MdInfoOutline
+} from "react-icons/md";
+import {
+    FiMenu
+  } from "react-icons/fi";
+import DesktopHeader from "./DesktopHeader";
+import WalletInfo from "./WalletInfo";
 
 interface LinkItemProps {
   name: string;
   icon: IconType;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Dashboard", icon: FiHome },
-  { name: "My Cheqs", icon: FiTrendingUp },
-  { name: "Documentation", icon: FiCompass },
-  { name: "About", icon: FiStar },
+  { name: "Dashboard", icon: MdOutlineDynamicFeed },
+  { name: "Documentation", icon: MdOutlineDescription },
+  { name: "About", icon: MdInfoOutline },
 ];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
@@ -57,6 +59,10 @@ export default function SidebarNav({ children }: { children: ReactNode }) {
       </Drawer>
       {/* mobilenav */}
       <MobileNav display={{ base: "flex", md: "none" }} onOpen={onOpen} />
+      <Box ml={{ base: 0, md: 60 }} p="4" display={{ base: "none", md: "block" }}>
+        {/* Show DesktopHeader component only in desktop/larger screen size */}
+        <DesktopHeader />
+      </Box>
       <Box ml={{ base: 0, md: 60 }} p="4">
         {children}
       </Box>
@@ -147,7 +153,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       bg={useColorModeValue("white", "gray.900")}
       borderBottomWidth="1px"
       borderBottomColor={useColorModeValue("gray.200", "gray.700")}
-      justifyContent="flex-start"
+      justifyContent="space-between"
       {...rest}
     >
       <IconButton
@@ -157,9 +163,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         icon={<FiMenu />}
       />
 
-      <Text fontSize="2xl" ml="8" fontFamily="DM Sans" fontWeight="bold">
+      <Text fontSize="2xl" fontFamily="DM Sans" fontWeight="bold">
         Cheq Protocol
       </Text>
+      <WalletInfo />
     </Flex>
   );
 };

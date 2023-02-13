@@ -1,14 +1,8 @@
 import { Flex } from "@chakra-ui/react";
-import Settings from "../fields/Settings";
-import SwitchNetworkMenu from "./SwitchNetworkMenu";
+import ToggleColor from "./ToggleColor";
 import WalletInfo from "./WalletInfo";
 
-interface Props {
-  setIsUser: any;
-  isUser: boolean;
-}
-
-const DesktopHeader = (props: Props) => {
+const DesktopHeader = () => {
   return (
     <Flex
       px={8}
@@ -20,8 +14,8 @@ const DesktopHeader = (props: Props) => {
       gap={10}
     >
       <WalletInfo />
-      <Settings {...props} />
-      <SwitchNetworkMenu/>
+      <ToggleColor />
+      {/* <SwitchNetworkMenu /> */}
     </Flex>
   );
 };
