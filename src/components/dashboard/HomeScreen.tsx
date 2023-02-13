@@ -1,4 +1,4 @@
-import { Center, Spinner, useDisclosure } from "@chakra-ui/react";
+import { Button, Center, Spinner, Text, useDisclosure } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
@@ -15,8 +15,28 @@ function HomeScreen() {
   );
 }
 
+const switchToMumbai = async () => {
+  try {
+    await (window as any).ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }], // chainId must be in hexadecimal numbers
+    });
+  } catch (error: any) {
+    if (error.code === 4902) {
+      try {
+        await (window as any).ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: ["0x13881"],
+        });
+      } catch (addError) {
+        console.error(addError);
+      }
+    }
+  }
+};
+
 function HomeScreenContent() {
-  const { blockchainState, isInitializing } = useBlockchainData();
+  const { blockchainState, isInitializing, isWrongChain } = useBlockchainData();
   const [hasShownNux, setHasShownNux] = useState(false);
 
   const {
@@ -47,6 +67,27 @@ function HomeScreenContent() {
     return (
       <Center flexDirection={"column"} w="100%" px={5}>
         <Spinner size="xl" />
+      </Center>
+    );
+  }
+
+  if (isWrongChain) {
+    return (
+      <Center flexDirection={"column"} w="100%" px={5}>
+        <Text fontWeight={600} fontSize={"xl"} textAlign="center" pb={6}>
+          Wrong Chain
+        </Text>
+        <Text fontWeight={600} fontSize={"md"} textAlign="center" pb={6}>
+          Please switch to Polygon Mumbai Testnet
+        </Text>
+        <Button
+          colorScheme="blue"
+          onClick={() => {
+            switchToMumbai?.();
+          }}
+        >
+          Switch to Mumbai
+        </Button>
       </Center>
     );
   }
