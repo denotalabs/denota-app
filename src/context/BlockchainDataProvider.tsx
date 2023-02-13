@@ -18,6 +18,9 @@ import { providerOptions } from "./providerOptions";
 // TODO: Use cheq subdomain
 export const APIURL_REMOTE = "https://klymr.me/api";
 
+export const APIURL_TESTING =
+  "http://ec2-18-204-63-18.compute-1.amazonaws.com/subgraphs/name/CheqRegistrar/CheqRegistrar";
+
 export const APIURL_LOCAL =
   "http://localhost:8000/subgraphs/name/CheqRegistrar/CheqRegistrar";
 
