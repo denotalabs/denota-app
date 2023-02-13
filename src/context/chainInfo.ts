@@ -24,6 +24,6 @@ export const mappingForChainId = (chainId: number) => {
     case 31337:
       return AddressMapping.local;
     default:
-      return AddressMapping.mumbai;
+      return undefined;
   }
 };

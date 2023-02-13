@@ -45,6 +45,7 @@ interface BlockchainDataContextInterface {
   blockchainState: BlockchainDataInterface;
   isInitializing: boolean;
   connectWallet?: () => Promise<void>;
+  isWrongChain: boolean;
 }
 
 const defaultBlockchainState = {
@@ -68,6 +69,7 @@ const defaultBlockchainState = {
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
   blockchainState: defaultBlockchainState,
   isInitializing: true,
+  isWrongChain: false,
 });
 
 export const BlockchainDataProvider = memo(
@@ -76,6 +78,7 @@ export const BlockchainDataProvider = memo(
       useState<BlockchainDataInterface>(defaultBlockchainState);
 
     const [isInitializing, setIsInitializing] = useState(true);
+    const [isWrongChain, setIsWrongChain] = useState(false);
 
     const { colorMode } = useColorMode();
 
@@ -112,43 +115,48 @@ export const BlockchainDataProvider = memo(
 
         const mapping = mappingForChainId(chainId);
 
-        // Load contracts
-        const cheq = new ethers.Contract(
-          mapping.cheq,
-          CheqRegistrar.abi,
-          signer
-        );
-        const selfSignBroker = new ethers.Contract(
-          mapping.selfSignedBroker,
-          SelfSignedBroker.abi,
-          signer
-        );
-        const weth = new ethers.Contract(mapping.weth, erc20.abi, signer);
-        const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
+        if (mapping === undefined) {
+          setIsInitializing(false);
+          setIsWrongChain(true);
+        } else {
+          // Load contracts
+          const cheq = new ethers.Contract(
+            mapping.cheq,
+            CheqRegistrar.abi,
+            signer
+          );
+          const selfSignBroker = new ethers.Contract(
+            mapping.selfSignedBroker,
+            SelfSignedBroker.abi,
+            signer
+          );
+          const weth = new ethers.Contract(mapping.weth, erc20.abi, signer);
+          const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
 
-        const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
-        const daiAllowance = await dai.allowance(account, mapping.cheq);
+          const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
+          const daiAllowance = await dai.allowance(account, mapping.cheq);
 
-        const userWethBalance = await weth.balanceOf(account); // User's Weth balance
-        const wethAllowance = await weth.allowance(account, mapping.cheq);
+          const userWethBalance = await weth.balanceOf(account); // User's Weth balance
+          const wethAllowance = await weth.allowance(account, mapping.cheq);
 
-        setBlockchainState({
-          signer,
-          account,
-          dai,
-          weth,
-          selfSignBroker,
-          daiAllowance,
-          wethAllowance,
-          cheqAddress: mapping.crx,
-          userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
-          userWethBalance: ethers.utils.formatUnits(userWethBalance),
-          explorer: mapping.explorer,
-        });
-        setIsInitializing(false);
+          setBlockchainState({
+            signer,
+            account,
+            dai,
+            weth,
+            selfSignBroker,
+            daiAllowance,
+            wethAllowance,
+            cheqAddress: mapping.crx,
+            userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
+            userWethBalance: ethers.utils.formatUnits(userWethBalance),
+            explorer: mapping.explorer,
+          });
+          setIsInitializing(false);
+        }
       } catch (e) {
         console.log("error", e);
-        window.alert("Contracts not deployed to the current network");
+        window.alert("Error loading contracts");
         setIsInitializing(false);
       }
     }, [connectWalletWeb3Modal]);
@@ -171,6 +179,7 @@ export const BlockchainDataProvider = memo(
           blockchainState,
           connectWallet: loadBlockchainData,
           isInitializing,
+          isWrongChain,
         }}
       >
         {children}
