@@ -8,14 +8,12 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 /**
- * @notice A simple payment module that includes an IPFS hash for memos included in the URI
- * Ownership grants the right to cash available escrow
- * Can be used to track: Promise of payment, Request for payment, Payment, or a Past payment
+ * @notice A simple time release module
+ * Escrowed tokens are cashable after the releaseDate
  */
-contract SimpleMemo is ModuleBase {  // VenCashPal module
-    mapping(uint256 => bytes32) public memo;  // How to turn this into an image that OpenSea can display? Might need to be encrypted
+contract SimpleTimelock is ModuleBase {  // VenCashPal module
     mapping(uint256 => bool) public isCashed;
-    // mapping(uint256 => bool) public isTransferable;
+    mapping(uint256 => uint256) public releaseDate;
     string public _baseURI;
 
     event MemoWritten(uint256 indexed cheqId, bytes32 memoHash);
@@ -41,16 +39,15 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){ 
         IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
+        // require(cheq.escrowed == cheq.amount, "");
 
-        bytes32 memoHash = abi.decode(initData, (bytes32));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        memo[cheqId] = memoHash;
-
-        emit MemoWritten(cheqId, memoHash);
-        
+        uint256 _releaseDate = abi.decode(initData, (uint256));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
+        releaseDate[cheqId] = _releaseDate;
+        // Need event
         return fees.writeBPS;
     }
 
-    function processTransfer(  // QUESTION: allow transfer to anyone if cheq already cashed?
+    function processTransfer(
         address caller, 
         bool isApproved,
         address owner,
@@ -60,6 +57,7 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {  // TODO need to pass approval status of the caller
+        require(isCashed[cheqId], "Needs full funding");
         ITransferRule(transferRule).canTransfer(caller, isApproved, owner, from, to, cheqId, cheq, data);  // Checks if caller is ownerOrApproved
         return fees.transferBPS;
     }
@@ -72,8 +70,11 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {  
-        require(!isCashed[cheqId], "Module: Already cashed");
+        require(!isCashed[cheqId], "Already cashed");  // How to abstract this?
+        // require(endDate[cheqId] <= block.timestamp, "Funding over");
+        // require(cheq.escrowed + amount <= cheq.amount, "Overfunding");
         IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
+        // uint256 fundAmount = cheq.escrowed + amount <= cheq.amount ? amount : cheq.amount - cheq.escrowed;
         return fees.fundBPS;
     }
 
@@ -87,6 +88,7 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(!isCashed[cheqId], "Already cashed");
+        // require(cheq.escrowed == cheq.amount, "");
         ICashRule(cashRule).canCash(caller, owner, to, amount, cheqId, cheq, initData);
         isCashed[cheqId] = true;
         return fees.cashBPS;
@@ -99,13 +101,15 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
-    ) external override onlyRegistrar {
-        require(isCashed[cheqId], "Must be cashed first"); // Question: Should this be the case?
+    ) external override onlyRegistrar{
+        require(isCashed[cheqId], "Must be cashed first");
         IApproveRule(approveRule).canApprove(caller, owner, to, cheqId, cheq, initData);
     }    
 
+    // TODO
     function processTokenURI(uint256 tokenId) external view override returns(string memory) {
-        bytes32 memoHash = memo[tokenId];
-        return string(abi.encodePacked(_baseURI, memoHash));  // ipfs://baseURU/memoHash --> memo // TODO encrypt upload on frontend
+        // Allow cheq creator to update the URI?
+        uint256 _releaseDate = releaseDate[tokenId];
+        return string(abi.encodePacked(_baseURI, _releaseDate));  // ipfs://baseURU/memoHash --> memo // TODO encrypt upload on frontend
     }
 }

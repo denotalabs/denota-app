@@ -12,11 +12,6 @@ contract ModuleGlobals is IModuleGlobals {
     address internal _governance;
     address internal _treasury;
     uint16 internal _treasuryFee;
-    // uint256 internal writeFlatFee;
-    // uint256 internal transferFlatFee;
-    // uint256 internal fundFlatFee;
-    // uint256 internal cashFlatFee;
-    // uint256 internal depositFlatFee;
 
     modifier onlyGov() {
         if (msg.sender != _governance) revert Errors.NotGovernance();

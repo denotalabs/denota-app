@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 import "openzeppelin/token/ERC721/ERC721.sol";
+import "openzeppelin/utils/introspection/IERC165.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
@@ -25,34 +26,35 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
         uint /*cheqId*/,
         DataTypes.Cheq calldata /*cheq*/,
         bytes calldata initData
-    ) external view returns(bool) { 
-        return _ownsToken(caller, initData);
+    ) external view { 
+        require(_ownsToken(caller, initData), "WriteRule: Not token owner");
     }
 
     function canTransfer(
         address caller, 
-        address /*from*/, 
+        bool isApproved,
         address /*owner*/,
+        address /*from*/, 
         address /*to*/, 
         uint256 /*cheqId*/,
         DataTypes.Cheq calldata /*cheq*/, 
         bytes memory initData
-    ) external view returns(bool) { 
-        return _ownsToken(caller, initData); 
+    ) external view {
+        require(_ownsToken(caller, initData), "WriteRule: Not token owner");
     }
 
-    function canFund(  // Question: Should these be uint instead of bool?
+    function canFund(
         address caller, 
         address /*owner*/,
         uint256 /*amount*/, 
         uint256 /*cheqId*/,  
         DataTypes.Cheq calldata /*cheq*/,  
         bytes calldata initData
-    ) external view returns(bool) { 
-        return _ownsToken(caller, initData);
+    ) external view { 
+        require(_ownsToken(caller, initData), "WriteRule: Not token owner");
     }
 
-    function canCash(  // Question: Should these be uint instead of bool?
+    function canCash(
         address caller, 
         address /*owner*/,
         address /*to*/, 
@@ -60,8 +62,8 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
         uint256 /*cheqId*/, 
         DataTypes.Cheq calldata /*cheq*/, 
         bytes calldata initData
-    ) external view returns(bool) { 
-        return _ownsToken(caller, initData);
+    ) external view { 
+        require(_ownsToken(caller, initData), "WriteRule: Not token owner");
     }
 
     function canApprove(
@@ -71,7 +73,7 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
         uint256 /*cheqId*/, 
         DataTypes.Cheq calldata /*cheq*/, 
         bytes calldata initData
-    ) external view returns(bool) { 
-        return _ownsToken(caller, initData);
+    ) external view { 
+        require(_ownsToken(caller, initData), "WriteRule: Not token owner");
     }
 }
