@@ -23,7 +23,6 @@ export function Escrow() {
   const [value, setValue] = useState("1");
   return (
     <Flex flexWrap={"wrap"} direction={"column"} gap={"18px"}>
-      {/* <FormControl> */}
       <FormLabel noOfLines={1} flexShrink={0}>
         Down payment amount
         <Tooltip
@@ -69,7 +68,6 @@ export function Escrow() {
           <SliderThumb />
         </Tooltip>
       </Slider>
-      {/* </FormControl> */}
       <FormControl mt={5}>
         <FormLabel noOfLines={1} flexShrink={0}>
           Inspection Period

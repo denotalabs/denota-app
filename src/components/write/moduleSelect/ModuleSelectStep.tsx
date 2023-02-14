@@ -20,7 +20,14 @@ function CheqModuleSelectStep({ screenKey }: Props) {
 
   return (
     <Box w="100%" p={4}>
-      <SimpleGrid spacing={4} templateColumns="1fr 1fr 1fr">
+      <SimpleGrid
+        spacing={4}
+        templateColumns={{
+          base: "repeat(1, 1fr)",
+          md: "repeat(2, 1fr)",
+          lg: "repeat(3, 1fr)",
+        }}
+      >
         <Card>
           <CardHeader>
             <Heading size="md"> Direct Pay</Heading>

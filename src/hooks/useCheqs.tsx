@@ -48,7 +48,7 @@ const formatAdress = (adress: string, account: string) => {
   if (adress.toLowerCase() === account.toLowerCase()) {
     return "You";
   }
-  return adress.slice(0, 8) + "...";
+  return adress.slice(0, 5) + "..." + adress.slice(-4);
 };
 
 export const useCheqs = ({ cheqField }: Props) => {
