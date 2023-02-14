@@ -15,14 +15,12 @@ import {
 } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import { IconType } from "react-icons";
+import { FiMenu } from "react-icons/fi";
 import {
-    MdOutlineDynamicFeed,
-    MdOutlineDescription,
-    MdInfoOutline
+  MdInfoOutline,
+  MdOutlineDescription,
+  MdOutlineDynamicFeed,
 } from "react-icons/md";
-import {
-    FiMenu
-  } from "react-icons/fi";
 import DesktopHeader from "./DesktopHeader";
 import WalletInfo from "./WalletInfo";
 
@@ -59,13 +57,11 @@ export default function SidebarNav({ children }: { children: ReactNode }) {
       </Drawer>
       {/* mobilenav */}
       <MobileNav display={{ base: "flex", md: "none" }} onOpen={onOpen} />
-      <Box ml={{ base: 0, md: 60 }} p="4" display={{ base: "none", md: "block" }}>
+      <Box ml={{ base: 0, md: 60 }} display={{ base: "none", md: "block" }}>
         {/* Show DesktopHeader component only in desktop/larger screen size */}
         <DesktopHeader />
       </Box>
-      <Box ml={{ base: 0, md: 60 }} p="4">
-        {children}
-      </Box>
+      <Box ml={{ base: 0, md: 60 }}>{children}</Box>
     </Box>
   );
 }
