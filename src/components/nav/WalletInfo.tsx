@@ -1,23 +1,26 @@
-import { ReactNode, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import jazzicon from "jazzicon-ts";
 
+import Web3Modal from "web3modal";
+
 import {
   Button,
-  Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  useColorModeValue,
+  Switch,
+  useBreakpointValue,
+  useColorMode,
 } from "@chakra-ui/react";
-import Web3Modal from "web3modal";
+
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { providerOptions } from "../../context/providerOptions";
 
 const addToken = async (tokenAddress: string, symbol: string) => {
   try {
-    const wasAdded = await (window as any).ethereum.request({
+    await (window as any).ethereum.request({
       method: "wallet_watchAsset",
       params: {
         type: "ERC20",
@@ -33,25 +36,20 @@ const addToken = async (tokenAddress: string, symbol: string) => {
   }
 };
 
-const NavLink = ({ children }: { children: ReactNode }) => (
-  <Link
-    px={2}
-    py={1}
-    rounded={"md"}
-    _hover={{
-      textDecoration: "none",
-      bg: useColorModeValue("gray.200", "gray.700"),
-    }}
-    href={"#"}
-  >
-    {children}
-  </Link>
-);
+const logout = (providerOptions: any) => {
+  const web3Modal = new Web3Modal({
+    cacheProvider: true,
+    providerOptions,
+  });
+  web3Modal.clearCachedProvider();
+  window.location.reload();
+};
 
-export default function NavbarUser() {
+export default function WalletInfo() {
   const { blockchainState } = useBlockchainData();
-
   const avatarRef = useRef<HTMLDivElement | null>(null);
+  const isMobile = useBreakpointValue({ base: true, md: false });
+  const { colorMode, toggleColorMode } = useColorMode();
 
   useEffect(() => {
     const element = avatarRef.current;
@@ -68,17 +66,35 @@ export default function NavbarUser() {
 
   // TODO style menu - https://chakra-ui.com/docs/components/menu/theming
   return (
-    <Menu> 
+    <Menu>
       <MenuButton
         as={Button}
-        rounded={"full"}
-        variant={"link"}
-        cursor={"pointer"}
+        rounded="full"
+        variant="link"
+        cursor="pointer"
         minW={0}
+        alignItems="center"
+        display="flex"
       >
         <div ref={avatarRef}></div>
       </MenuButton>
-      <MenuList alignItems={"center"}>
+      <MenuList alignItems="center">
+        <MenuItem closeOnSelect={false} justifyContent="space-between">
+          Testnet Mode
+          <Switch isChecked disabled={true} id="testnet-mode" />
+        </MenuItem>
+        {isMobile && (
+          <MenuItem closeOnSelect={false} justifyContent="space-between">
+            Dark Mode
+            <Switch
+              onChange={() => {
+                toggleColorMode();
+              }}
+              isChecked={colorMode === "dark"}
+              id="dark-mode"
+            />
+          </MenuItem>
+        )}
         <MenuItem
           onClick={() => addToken(blockchainState.dai?.address ?? "", "DAI")}
         >
@@ -90,13 +106,8 @@ export default function NavbarUser() {
           Add WETH
         </MenuItem>
         <MenuItem
-          onClick={async () => {
-            const web3Modal = new Web3Modal({
-              cacheProvider: true, // optional
-              providerOptions, // required
-            });
-            web3Modal.clearCachedProvider();
-            window.location.reload();
+          onClick={() => {
+            logout(providerOptions);
           }}
         >
           Logout

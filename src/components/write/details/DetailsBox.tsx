@@ -15,9 +15,11 @@ function DetailsBox({ isInvoice }: Props) {
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
         <Flex
-          alignItems={"center"}
-          justifyContent={"space-between"}
+          alignItems="center"
+          justifyContent="space-between"
           flexShrink={0}
+          flexGrow={1}
+          maxW="100%"
         >
           <FormControl w="200px" mr={5}>
             <FormLabel>Amount</FormLabel>
@@ -32,8 +34,8 @@ function DetailsBox({ isInvoice }: Props) {
         </Flex>
         <EmailField fieldName="email" placeholder="" />
         <Flex
-          alignItems={"center"}
-          justifyContent={"space-between"}
+          alignItems="center"
+          justifyContent="space-between"
           flexShrink={0}
           flexGrow={1}
           maxW="100%"

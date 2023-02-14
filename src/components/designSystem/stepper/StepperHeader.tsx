@@ -15,7 +15,7 @@ function StepperHeader({ onClose, back, currentIndex, flowName }: Props) {
       <IconButton
         aria-label="Back"
         icon={<ArrowBackIcon />}
-        disabled={currentIndex == 0}
+        isDisabled={currentIndex == 0}
         onClick={back}
       />
       <Text fontWeight={600} fontSize={"xl"} mb={4}>

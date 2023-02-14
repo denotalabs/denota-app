@@ -23,7 +23,7 @@ function NoteField({ fieldName }: Props) {
           <OptionalFieldHelperText />
           <Textarea {...field} />
           <FormHelperText>
-            Notes are uploaded to IPFS. Please don't inlcude sensitive data
+            Notes are uploaded to IPFS. Please don't include sensitive data
           </FormHelperText>
         </FormControl>
       )}
