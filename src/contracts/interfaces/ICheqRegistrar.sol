@@ -38,6 +38,7 @@ interface ICheqRegistrar {
     function tokenWhitelisted(address token) external view returns(bool);
 
     // Fees
-    function getFees() external view returns(uint256, uint256, uint256, uint256, uint256, uint256);
+    function getFees() external view returns(uint256, uint256, uint256, uint256);
+    function getTotalFees(uint256 cheqId, uint8 _WTFC) external view returns(uint256, uint256);
     function moduleWithdraw(address token, uint256 amount, address payoutAccount) external;
 }

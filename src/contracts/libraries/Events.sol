@@ -20,7 +20,7 @@ library Events {  // emit cheq structs or each variable?
     );
     // event FeeModuleBaseConstructed(address indexed moduleGlobals, uint256 timestamp);
     event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
-    // TODO: emit the address of the module or the bytehash?
+    // Question: emit the module address or bytehash?
     event ModuleWhitelisted(
         address indexed user,
         address indexed module,
@@ -36,9 +36,34 @@ library Events {  // emit cheq structs or each variable?
         address indexed owner, 
         DataTypes.Cheq indexed cheq,
         bytes data, 
+        uint256 cheqFee,
+        uint256 moduleFee,
         uint256 timestamp
     );
-    event Transferred(uint256 indexed tokenId, address indexed from, address indexed to, uint256 timestamp);
-    event Funded(address indexed funder, uint256 indexed cheqId, bytes indexed fundData, uint256 timestamp);
-    event Cashed(address indexed casher, address to, uint256 indexed cheqId, bytes indexed cashData, uint256 timestamp);
+    event Transferred(
+        uint256 indexed tokenId, 
+        address indexed from, 
+        address indexed to,
+        uint256 cheqFee,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+    event Funded(
+        address indexed funder, 
+        uint256 indexed cheqId, 
+        uint256 amount,
+        bytes indexed fundData,
+        uint256 cheqFee,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+    event Cashed(
+        address indexed casher,
+        address to, 
+        uint256 indexed cheqId, 
+        bytes indexed cashData,
+        uint256 cheqFee,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
 }

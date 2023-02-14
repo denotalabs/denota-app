@@ -57,9 +57,9 @@ contract Marketplace is ModuleBase {
         address _fundRule, 
         address _cashRule, 
         address _approveRule,
-        uint256 _feeBPS,
+        DataTypes.WTFCFees memory _fees,
         string memory __baseURI
-    ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule, _feeBPS) { // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens?)
+    ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule, _fees) { // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens?)
         baseURI = __baseURI;
     }
     function whitelistToken(address token, bool whitelist) public onlyOwner {
@@ -75,16 +75,15 @@ contract Marketplace is ModuleBase {
         uint cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
-    ) external override onlyRegistrar returns(bool, uint256, DataTypes.Cheq memory){  // Writes milestones to mapping, writes totalMilestones into invoice (rest of invoice is filled out later)
+    ) external override onlyRegistrar returns(uint256){  // Writes milestones to mapping, writes totalMilestones into invoice (rest of invoice is filled out later)
         require(tokenWhitelist[cheq.currency], "Module: Token not whitelisted");  // QUESTION: should this be a require or return false?
-        bool isWriteable = IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);  // Should the assumption be that this is only for freelancers to send as an invoice??
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);  // Should the assumption be that this is only for freelancers to send as an invoice??
         // require(caller == owner, "Not invoice"); 
         // require(cheq.drawer == caller, "Can't send on behalf"); 
         // require(cheq.recipient != owner, "Can't self send"); 
         // require(cheq.amount > 0, "Can't send cheq with 0 value");
-        // require(milestonePrices.sum() == cheq.amount);
 
-        if (!isWriteable) return (false, 0, cheq);  // Should this return (success, moduleFee, AND amount_to_escrow)?
+        // require(milestonePrices.sum() == cheq.amount);
 
         (bytes32 documentHash, uint256[] memory milestonePrices) = abi.decode(initData, (bytes32, uint256[]));
         uint256 numMilestones = milestonePrices.length;
@@ -102,21 +101,21 @@ contract Marketplace is ModuleBase {
         }
         invoices[cheqId].documentHash = documentHash;
         invoices[cheqId].totalMilestones = numMilestones;
-        uint256 moduleFee = (cheq.escrowed * feeBPS) / 10_000;
-        return (true, moduleFee, cheq);
+        return fees.writeBPS;
     }
 
     function processTransfer(
         address caller, 
+        bool isApproved,
         address owner,
         address from,
         address to,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
-    ) external override onlyRegistrar returns (bool, address) {
-        bool isTransferable = ITransferRule(transferRule).canTransfer(caller, owner, from, to, cheqId, cheq, initData);  // Checks if caller is ownerOrApproved
-        return (isTransferable, to);
+    ) external override onlyRegistrar returns (uint256) {
+        ITransferRule(transferRule).canTransfer(caller, isApproved, owner, from, to, cheqId, cheq, initData);  // Checks if caller is ownerOrApproved
+        return fees.transferBPS;
     }
 
     // QUESTION: Who should/shouldn't be allowed to fund?
@@ -130,7 +129,7 @@ contract Marketplace is ModuleBase {
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
-    ) external override onlyRegistrar returns (bool, uint256, uint256) {  
+    ) external override onlyRegistrar returns (uint256) {  
         // Client escrows the first milestone (is the upfront)
         // Must be milestone[0] price (currentMilestone == 0)
         // increment currentMilestone (client can cash previous milestone)
@@ -153,21 +152,19 @@ contract Marketplace is ModuleBase {
             // bytes32 documentHash;
         }
          */
-        bool isFundable = IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
         // require(caller == cheq.recipient, "Module: Only client can fund");
-        if (!isFundable) return (false, 0, 0);
+        IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
 
         if (invoices[cheqId].startTime == 0) invoices[cheqId].startTime = block.timestamp;
 
         invoices[cheqId].clientStatus = Status.Ready;
-        uint256 moduleFee = (amount * feeBPS) / 10_000;
 
         uint256 oldMilestone = invoices[cheqId].currentMilestone;
         require(amount == milestones[cheqId][oldMilestone].price, "Module: Incorrect milestone amount"); // Question should module throw on insufficient fund or enforce the amount?
         milestones[cheqId][oldMilestone].workerFinished = true;
         milestones[cheqId][oldMilestone].clientReleased = true;
         invoices[cheqId].currentMilestone += 1;
-        return (isFundable, moduleFee, amount);
+        return fees.fundBPS;
     }
 
     function processCash( // Must allow the funder to cash the escrows too
@@ -178,14 +175,13 @@ contract Marketplace is ModuleBase {
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
-    ) external override onlyRegistrar returns (bool, uint256, uint256) {
-        bool isCashable = ICashRule(cashRule).canCash(caller, owner, to, amount, cheqId, cheq, initData);
+    ) external override onlyRegistrar returns (uint256) {
+        // require(caller == owner, "");
+        ICashRule(cashRule).canCash(caller, owner, to, amount, cheqId, cheq, initData);
         require(invoices[cheqId].currentMilestone > 0, "Module: Can't cash yet");
-        require(caller == owner, "");
-        if (!isCashable) return (false, 0, 0);
         uint256 lastMilestone = invoices[cheqId].currentMilestone - 1;
         milestones[cheqId][lastMilestone].workerCashed = true;  //
-        return (isCashable, 0, milestones[cheqId][lastMilestone].price);
+        return fees.cashBPS;
     }
 
     function processApproval(
@@ -195,14 +191,14 @@ contract Marketplace is ModuleBase {
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
-    ) external override onlyRegistrar returns (bool, address){
-        bool isApprovable = IApproveRule(approveRule).canApprove(caller, owner, to, cheqId, cheq, initData);
-        return (isApprovable, to);
+    ) external override onlyRegistrar {
+        IApproveRule(approveRule).canApprove(caller, owner, to, cheqId, cheq, initData);
+        
     }
 
     // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool) {}
 
-    function processTokenURI(uint256 tokenId) public view onlyRegistrar returns (string memory) {
+    function processTokenURI(uint256 tokenId) public view override onlyRegistrar returns (string memory) {
         string memory __baseURI = _baseURI();
         return bytes(__baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
     }
@@ -237,8 +233,8 @@ contract Marketplace is ModuleBase {
         // Can Resolved lead to continued work (Status.Working) or pay out based on the resolution? 
         // If one doesn't set theirs to disputed, should the arbitor only be allowed to payout the party with Status.Disputed?
     }
-    function getFees() public view override returns (uint256) {
-        return feeBPS;
+    function getFees() public view override returns (uint256, uint256, uint256, uint256) {
+        return (fees.writeBPS, fees.transferBPS, fees.fundBPS, fees.cashBPS);
     }
 }
 

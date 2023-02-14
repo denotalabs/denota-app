@@ -8,17 +8,13 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 /**
- * @notice A simple payment module that includes an IPFS hash for memos included in the URI
- * Ownership grants the right to cash available escrow
- * Can be used to track: Promise of payment, Request for payment, Payment, or a Past payment
+ * Note should this only be for full escrows?
  */
-contract SimpleMemo is ModuleBase {  // VenCashPal module
-    mapping(uint256 => bytes32) public memo;  // How to turn this into an image that OpenSea can display? Might need to be encrypted
+contract SimpleReverse is ModuleBase {
+    mapping(uint256 => uint256) public inspectionPeriod;
+    mapping(uint256 => address) public inspector;
     mapping(uint256 => bool) public isCashed;
-    // mapping(uint256 => bool) public isTransferable;
     string public _baseURI;
-
-    event MemoWritten(uint256 indexed cheqId, bytes32 memoHash);
 
     constructor(
         address registrar,
@@ -33,24 +29,30 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         _baseURI = __baseURI;
     }
 
+
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){ 
+        /**
+        (cheq.amount != 0) &&  // Cheq must have a face value
+        (cheq.drawer != cheq.recipient) && // Drawer and recipient aren't the same
+        (owner == cheq.drawer || owner == cheq.recipient) &&  // Either drawer or recipient must be owner
+        (caller == cheq.drawer || caller == cheq.recipient) &&  // Delegated pay/requesting not allowed
+        (cheq.escrowed == 0 || cheq.escrowed == cheq.amount) &&  // Either send unfunded or fully funded cheq
+        (cheq.recipient != address(0) && owner != address(0))  // Can't send to zero address
+         */
         IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
-
-        bytes32 memoHash = abi.decode(initData, (bytes32));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        memo[cheqId] = memoHash;
-
-        emit MemoWritten(cheqId, memoHash);
-        
+        (uint256 _inspectionPeriod, address _inspector) =  abi.decode(initData, (uint256, address));
+        inspectionPeriod[cheqId] =_inspectionPeriod;
+        inspector[cheqId] = _inspector;
         return fees.writeBPS;
     }
 
-    function processTransfer(  // QUESTION: allow transfer to anyone if cheq already cashed?
+    function processTransfer(
         address caller, 
         bool isApproved,
         address owner,
@@ -59,7 +61,8 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes memory data
-    ) external override onlyRegistrar returns (uint256) {  // TODO need to pass approval status of the caller
+    ) external override onlyRegistrar returns (uint256) {
+        // require(cheq.mintTimestamp + inspectionPeriod[cheqId] <= block.timestamp, "Can only transfer after inspection");
         ITransferRule(transferRule).canTransfer(caller, isApproved, owner, from, to, cheqId, cheq, data);  // Checks if caller is ownerOrApproved
         return fees.transferBPS;
     }
@@ -72,12 +75,12 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {  
-        require(!isCashed[cheqId], "Module: Already cashed");
+        // require(false, "Partial/incomplete cheqs disallowed");
         IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
         return fees.fundBPS;
     }
 
-    function processCash(
+    function processCash( // Must allow the funder to cash the escrows too
         address caller, 
         address owner,
         address to,
@@ -86,9 +89,9 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        require(!isCashed[cheqId], "Already cashed");
         ICashRule(cashRule).canCash(caller, owner, to, amount, cheqId, cheq, initData);
-        isCashed[cheqId] = true;
+        // require(amount == cheq.escrowed, "Can only cash full amounts");
+        // require(cheq.mintTimestamp + inspectionPeriod[cheqId] <= block.timestamp, "Can only cash after inspection");
         return fees.cashBPS;
     }
 
@@ -100,12 +103,10 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
     ) external override onlyRegistrar {
-        require(isCashed[cheqId], "Must be cashed first"); // Question: Should this be the case?
         IApproveRule(approveRule).canApprove(caller, owner, to, cheqId, cheq, initData);
-    }    
+    }
 
-    function processTokenURI(uint256 tokenId) external view override returns(string memory) {
-        bytes32 memoHash = memo[tokenId];
-        return string(abi.encodePacked(_baseURI, memoHash));  // ipfs://baseURU/memoHash --> memo // TODO encrypt upload on frontend
+    function processTokenURI(uint256 /*tokenId*/) external override pure returns(string memory) {
+        return "";
     }
 }

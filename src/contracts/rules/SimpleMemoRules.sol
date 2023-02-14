@@ -11,32 +11,27 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         uint256 /*cheqId*/, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata /*initData*/
-    ) external pure returns(bool) { 
-        // Valueless cheq
-        if (cheq.amount == 0) return false;
-        // Drawer and recipient are the same
-        if (cheq.drawer == cheq.recipient) return false;
-        // Either drawer or recipient must be owner
-        if (owner != cheq.drawer && owner != cheq.recipient) return false;
-        // Delegated pay/requesting not allowed
-        if (caller != cheq.drawer && caller != cheq.recipient) return false;
-        // Either send unfunded or fully funded cheq
-        if (cheq.escrowed != 0 && cheq.escrowed != cheq.amount) return false;
-        // Can't send to zero address
-        if (cheq.recipient == address(0) || owner == address(0)) return false;
-
-        return true; // NOTE could return the final if clause but slightly less clear
+    ) external pure { 
+        require(
+            (cheq.amount != 0) &&  // Cheq must have a face value
+            (cheq.drawer != cheq.recipient) && // Drawer and recipient aren't the same
+            (owner == cheq.drawer || owner == cheq.recipient) &&  // Either drawer or recipient must be owner
+            (caller == cheq.drawer || caller == cheq.recipient) &&  // Delegated pay/requesting not allowed
+            (cheq.escrowed == 0 || cheq.escrowed == cheq.amount) &&  // Either send unfunded or fully funded cheq
+            (cheq.recipient != address(0) && owner != address(0))  // Can't send to zero address
+        , ""); // TODO should each of these be a different require?
     }
 
     function canTransfer(
         address caller, 
+        bool isApproved,
         address owner, 
         address /*from*/, 
         address to, uint256 /*cheqId*/, 
         DataTypes.Cheq calldata cheq, 
         bytes memory /*initData*/
-    ) external pure returns(bool) { 
-        return caller == owner && (to == cheq.recipient || to == cheq.drawer); // onlyOwnerOrApproved can transfer and only to/from drawer/recipient TODO approved var part missing
+    ) external pure { 
+        require((caller == owner || isApproved) && (to == cheq.recipient || to == cheq.drawer), ""); // onlyOwnerOrApproved can transfer and only to/from drawer/recipient TODO approved var part missing
     }
 
     function canFund(
@@ -46,17 +41,15 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         uint256 /*cheqId*/,  
         DataTypes.Cheq calldata cheq,  
         bytes calldata /*initData*/
-    ) external pure returns(bool) { 
+    ) external pure { 
         // Owner's cheq is a recievable not payable
-        if (caller == owner) return false;
+        require(caller == owner, "");
         // Can only fund invoices
-        if (cheq.escrowed != 0) return false;
+        require(cheq.escrowed != 0, "");
         // Must fund in full
-        if (amount != cheq.amount) return false;
-        // Non-participating party // Question: Should this be a requirement?
-        if (caller != cheq.drawer && caller != cheq.recipient) return false;
-
-        return true; 
+        require(amount != cheq.amount, "");
+        // Non-participating party
+        require((caller != cheq.drawer && caller != cheq.recipient), "");
     }
 
     function canCash(
@@ -67,15 +60,13 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         uint256 /*cheqId*/, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata /*initData*/
-    ) external pure returns(bool) { 
+    ) external pure { 
         // Only owner can cash
-        if (caller != owner) return false;
+        require(caller != owner, "");
         // Must fully cash escrowed amount
-        if (amount != cheq.escrowed) return false;
+        require(amount != cheq.escrowed, "");
         // Must be fully funded
-        if (cheq.escrowed != cheq.amount) return false;
-        
-        return true; 
+        require(cheq.escrowed != cheq.amount, "");
     }
 
     function canApprove(
@@ -85,7 +76,5 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         uint256 /*cheqId*/, 
         DataTypes.Cheq calldata /*cheq*/, 
         bytes calldata /*initData*/
-    ) external pure returns(bool) { 
-        return true; 
-    }
+    ) external pure {}
 }
