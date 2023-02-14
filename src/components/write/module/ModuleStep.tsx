@@ -31,7 +31,7 @@ function CheqModuleStep({ isInvoice }: Props) {
       >
         {(props) => (
           <Form>
-            <ModuleInfo />
+            <ModuleInfo module={props.values.module} />
             <RoundedButton type="submit">{"Next"}</RoundedButton>
           </Form>
         )}

@@ -55,7 +55,9 @@ function CheqConfirmStep({ isInvoice }: Props) {
   return (
     <Box w="100%" p={4}>
       <Formik
-        initialValues={{}}
+        initialValues={{
+          module: formData.module ?? "direct",
+        }}
         onSubmit={async (values, actions) => {
           if (needsApproval) {
             // Disabling infinite approvals until audit it complete
@@ -123,6 +125,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
           <Form>
             <ConfirmNotice
               isInvoice={formData.mode === "invoice"}
+              module={props.values.module}
             ></ConfirmNotice>
             <ConfirmDetails></ConfirmDetails>
             <RoundedButton type="submit" isLoading={props.isSubmitting}>
