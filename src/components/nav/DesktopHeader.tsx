@@ -6,7 +6,7 @@ const DesktopHeader = () => {
   return (
     <Flex
       px={8}
-      pt={4}
+      py={4}
       as="nav"
       align="center"
       justify="flex-end"
