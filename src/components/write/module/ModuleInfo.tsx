@@ -32,21 +32,22 @@ const indexForModule = (module: string) => {
 
 interface Props {
   module: string;
+  isInvoice: boolean;
 }
 
-function ModuleInfo({ module }: Props) {
+function ModuleInfo({ module, isInvoice }: Props) {
   const selectedModule = useMemo(() => {
     switch (module) {
       case "direct":
-        return <DirectPay />;
+        return <DirectPay isInvoice={isInvoice} />;
       case "escrow":
         return <Escrow />;
       case "milestone":
         return <MilestoneModule />;
       default:
-        return <DirectPay />;
+        return <DirectPay isInvoice={isInvoice} />;
     }
-  }, [module]);
+  }, [isInvoice, module]);
 
   return <RoundedBox padding={6}>{selectedModule}</RoundedBox>;
 }

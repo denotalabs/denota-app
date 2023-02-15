@@ -4,18 +4,15 @@ import { Form, Formik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import RoundedButton from "../../designSystem/RoundedButton";
-import { useStep } from "../../designSystem/stepper/Stepper";
+import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ConfirmDetails from "./ConfirmDetails";
 import ConfirmNotice from "./ConfirmNotice";
 
-//TEST
-
-interface Props {
-  screenKey: string;
+interface Props extends ScreenProps {
   isInvoice: boolean;
 }
 
-function CheqConfirmStep({ isInvoice }: Props) {
+const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
   const toast = useToast();
 
   const { onClose, formData } = useStep();
@@ -50,7 +47,13 @@ function CheqConfirmStep({ isInvoice }: Props) {
     if (formData.mode === "pay") {
       fetchAllowance();
     }
-  }, []);
+  }, [
+    amountWei,
+    blockchainState.account,
+    blockchainState.cheqAddress,
+    formData.mode,
+    token?.functions,
+  ]);
 
   return (
     <Box w="100%" p={4}>
@@ -127,7 +130,7 @@ function CheqConfirmStep({ isInvoice }: Props) {
               isInvoice={formData.mode === "invoice"}
               module={props.values.module}
             ></ConfirmNotice>
-            <ConfirmDetails></ConfirmDetails>
+            <ConfirmDetails isInvoice={isInvoice}></ConfirmDetails>
             <RoundedButton type="submit" isLoading={props.isSubmitting}>
               {buttonText}
             </RoundedButton>
@@ -136,6 +139,6 @@ function CheqConfirmStep({ isInvoice }: Props) {
       </Formik>
     </Box>
   );
-}
+};
 
 export default CheqConfirmStep;

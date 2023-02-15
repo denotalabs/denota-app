@@ -1,15 +1,16 @@
+import {
+  Children,
+  ReactElement,
+  ReactNode,
+  useContext,
+  useMemo,
+  useReducer,
+  useState,
+} from "react";
 import StepperContext, {
   StepperReducerInterface,
   StringMap,
 } from "./StepperContext";
-import {
-  useReducer,
-  Children,
-  ReactNode,
-  ReactElement,
-  useContext,
-  useState,
-} from "react";
 import StepperHeader from "./StepperHeader";
 
 interface StepperProps {
@@ -27,6 +28,11 @@ enum StepperActionKind {
 interface StepperAction {
   type: StepperActionKind;
   screenKey?: string;
+}
+
+export interface ScreenProps {
+  screenKey: string;
+  screenTitle: string;
 }
 
 function reducer(state: StepperReducerInterface, action: StepperAction) {
@@ -50,7 +56,7 @@ function reducer(state: StepperReducerInterface, action: StepperAction) {
     case StepperActionKind.SET_SCREEN: {
       const currentScreen = state.allScreens?.filter(
         (child) => (child as ReactElement).props.screenKey == screenKey
-      );
+      )[0];
       const currentIndex = state.allScreens?.indexOf(currentScreen) ?? 0;
       return { ...state, currentIndex, currentScreen };
     }
@@ -84,6 +90,10 @@ function Stepper({ children, onClose, flowName }: StepperProps) {
       ...data,
     });
   };
+
+  const screenTitle = useMemo(() => {
+    return (state.currentScreen as ReactElement).props.screenTitle;
+  }, [state.currentScreen]);
   return (
     <StepperContext.Provider
       value={{
@@ -101,6 +111,7 @@ function Stepper({ children, onClose, flowName }: StepperProps) {
         onClose={onClose}
         currentIndex={state.currentIndex}
         flowName={flowName}
+        title={screenTitle}
       />
       {state.currentScreen}
     </StepperContext.Provider>

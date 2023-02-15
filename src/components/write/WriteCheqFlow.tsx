@@ -14,12 +14,22 @@ function WriteCheqFlow({ onClose, isInvoice }: Props) {
     <Stepper onClose={onClose} flowName={isInvoice ? "Request" : "Pay"}>
       <CheqDetailsStep
         screenKey="write"
+        screenTitle={isInvoice ? "Invoice Details" : "Recipient Details"}
         isInvoice={isInvoice}
       ></CheqDetailsStep>
-      <CheqModuleSelectStep screenKey="moduleSelect" />
-      <CheqModuleStep screenKey="module" isInvoice={isInvoice}></CheqModuleStep>
+      <CheqModuleSelectStep
+        screenKey="moduleSelect"
+        screenTitle="Select Module"
+        isInvoice={isInvoice}
+      />
+      <CheqModuleStep
+        screenKey="module"
+        screenTitle="Payment Terms"
+        isInvoice={isInvoice}
+      ></CheqModuleStep>
       <CheqConfirmStep
         screenKey="confirm"
+        screenTitle="Confirm"
         isInvoice={isInvoice}
       ></CheqConfirmStep>
     </Stepper>

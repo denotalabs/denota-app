@@ -29,7 +29,7 @@ function ConfirmNotice({ isInvoice, module }: Props) {
       case "escrow":
         return "Escrow";
       case "milestone":
-        return "Milestone";
+        return "Milestones";
       default:
         return "";
     }
