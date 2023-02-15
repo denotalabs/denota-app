@@ -40,9 +40,10 @@ contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
         address owner,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
+        bool isDirectPay,
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){ 
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, isDirectPay, initData);
         // require(cheq.escrowed == 0, "");
 
         bytes32 memoHash = abi.decode(initData, (bytes32));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
@@ -72,6 +73,7 @@ contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
         address caller,
         address owner,
         uint256 amount,
+        bool isDirectPay,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
@@ -79,7 +81,7 @@ contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
         require(!isCashed[cheqId], "Already cashed");  // How to abstract this?
         // require(endDate[cheqId] <= block.timestamp, "Funding over");
         // require(cheq.escrowed + amount <= cheq.amount, "Overfunding");
-        IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(caller, owner, amount, isDirectPay, cheqId, cheq, initData);  
         // uint256 fundAmount = cheq.escrowed + amount <= cheq.amount ? amount : cheq.amount - cheq.escrowed;
         return fees.fundBPS;
     }

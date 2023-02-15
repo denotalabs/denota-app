@@ -12,10 +12,10 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
  */
 interface ICheqRegistrar {
     /// Cheq manipulations
-    function write(DataTypes.Cheq calldata cheq, bytes calldata moduleWriteData, address owner) external payable returns (uint256);
+    function write(DataTypes.Cheq calldata cheq, address owner, bool isInstant, bytes calldata moduleWriteData) external payable returns (uint256);
     // function transferFrom(address from, address to, uint256 tokenId, bytes memory moduleTransferData) external; // Question: Should this be allowed?
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory moduleTransferData) external;
-    function fund(uint256 cheqId, uint256 amount, bytes calldata fundData) external payable;
+    function fund(uint256 cheqId, uint256 amount, bool isDirectPay, bytes calldata fundData) external payable;
     function cash(uint256 cheqId, uint256 amount, address to, bytes calldata cashData) external payable;
     function approve(address to, uint256 tokenId) external;
     

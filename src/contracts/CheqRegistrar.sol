@@ -14,16 +14,21 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
  * @notice The Inside-out (LensProtocol) design where EOAs call the registrar and registrar calls to PaymentModules (who use RuleModules)
  * WFC fees are taken in gas and BPS while transfer is taken from cheq.escrowed to stay compatibile
 */
+// Note Arseniy- calling contracts may not be able to convert their storage to calldata when calling functions
 // Revert if frontend gives the wrong amount (MM should know if it would revert (using Ethers call estimateGas, will also tell you if it will revert))
-// TODO Calculate amount+fees in the frontend the same way as contract (use BigNumber), use view function
+// TODO ensure BPS avoids over/underflow
 // TODO what would a gnosis app need?
+// TODO accept native token using address(0) as it's address? Or use wrapped version?
+// TODO need to convert rules to libraries
+// TODO need to have an upgradable proxy of the cheqRegistrar
+// TODO be able to wrap a tranferFrom with an Cheq NFT without having a module (W will always work and send raw, T will always work, F will always fail, C will always fail)
+// TODO Calculate amount+fees in the frontend the same way as contract (use BigNumber), use view function
 // TODO Create a module labeling schema?
 // TODO deploy your own DAO and see how difficult it is
-// TODO: Create way for front-end operators to get a cut? (maybe they just deploy their own modules)
 // TODO developers want to develop if we already have a lot of users and they can make money from fees, or 
+// TODO determine proper fee uint sizes
 // Question: Add function to deploy modules from the registrar?
 // Question: Implement ownerOf(cheqId) { cheq.module.processOwner(); } to allow ownership revokation?
-// Question: Should WTFC rules throw or return bool to bubble up? Likewise, should incorrect user parameters be corrected by the module & executed or revert?
 contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     using SafeERC20 for IERC20;
     /*//////////////////////////////////////////////////////////////
@@ -37,10 +42,11 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     mapping(address => bool) private _ruleWhitelist;  // Question make these bytecode specific? Rule specific?
     mapping(address => bool) private _tokenWhitelist;
 
-    mapping(address => mapping(address=>uint256)) private _moduleRevenue;
+    mapping(address => mapping(address=>uint256)) private _moduleRevenue;  // Could collapse this into a single mapping
     mapping(address => uint256) private _registrarRevenue;
+    uint256 internal constant BPS_MAX = 10_000;  // Lens uses uint16
     DataTypes.WTFCFees public fees;
-    uint256 public _writeFlatFee;
+    uint256 public _writeFlatFee;  // 
 
     constructor(DataTypes.WTFCFees memory _fees) ERC721("CheqProtocol", "CHEQ") {
         fees = _fees;
@@ -54,15 +60,16 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     }
     function write(
         DataTypes.Cheq calldata cheq,
-        bytes calldata moduleWriteData,
-        address owner
+        address owner,
+        bool isDirectPay,
+        bytes calldata moduleWriteData
     ) public payable returns (uint256) {
         // Writing checks
-        require(msg.value >= _writeFlatFee, "INSUF_FEE");
+        // require(msg.value >= _writeFlatFee, "INSUF_FEE"); // Question
         require(validWrite(cheq.module, cheq.currency), "NOT_WHITELISTED");  // Module+token whitelist check
         
         // Module hook
-        uint256 moduleFee = ICheqModule(cheq.module).processWrite(_msgSender(), owner, _totalSupply, cheq, moduleWriteData);  // Question: In what cases would adjusting- currency, owner, drawer, or recipient make sense? (amount and escrowed might be change)
+        uint256 moduleBPS = ICheqModule(cheq.module).processWrite(_msgSender(), owner, _totalSupply, cheq, isDirectPay, moduleWriteData);  // TODO add isInstant boolean?
         
         // Cheq Minting
         _safeMint(owner, _totalSupply);
@@ -70,15 +77,20 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         _cheqInfo[_totalSupply].mintTimestamp = block.timestamp;  // Not ideal
 
         // Fee taking and escrowing
-        uint256 cheqFee = (cheq.escrowed * fees.writeBPS) / 10_000;  // TODO find proper way to take BPS to prevent over/underflow
-        uint256 allFees = cheqFee + moduleFee;
-        IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheq.escrowed + allFees);  // Safe should take care of reentrency
+        uint256 cheqFee = (cheq.escrowed * fees.writeBPS) / BPS_MAX;  // uint256 totalBPS = fees.writeBPS + moduleBPS; but need to emit and add to reserves
+        uint256 moduleFee = (cheq.escrowed * moduleBPS) / BPS_MAX;
+        if (isDirectPay) {
+            IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheqFee + moduleFee);  // Take token fees
+            IERC20(cheq.currency).safeTransferFrom(_msgSender(), owner, cheq.escrowed);  // Send token to owner
+            _cheqInfo[_totalSupply].escrowed = 0;
+        } else {
+            IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheq.escrowed + cheqFee + moduleFee);
+        }
         _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
         _registrarRevenue[cheq.currency] += cheqFee;
-        
-        // Emit and return
-        emit Events.Written(_totalSupply, owner, cheq, moduleWriteData, cheqFee, moduleFee, block.timestamp);
-        unchecked { return _totalSupply++; }  // NOTE: Will this ever overflow? Also, returns before the increment..?
+
+        emit Events.Written(_totalSupply, owner, cheq, isDirectPay, moduleWriteData, cheqFee, moduleFee, block.timestamp);
+        unchecked { return _totalSupply++; }  // NOTE: Will this ever overflow?
     }
 
     function transferFrom(
@@ -95,18 +107,21 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         address to,
         uint256 tokenId,
         bytes memory moduleTransferData
-    ) public override(ERC721, ICheqRegistrar) {  // Note calling contracts may not be able to convert their storage to calldata when calling this
-        address owner = ownerOf(tokenId);  // Shouldn't from == owner??
-        bool isApproved = _msgSender() == getApproved(tokenId);  // 
+    ) public override(ERC721, ICheqRegistrar) {
+        address owner = ownerOf(tokenId);
+        bool isApproved = _msgSender() == getApproved(tokenId);
         DataTypes.Cheq storage cheq = _cheqInfo[tokenId];  // Better to assign and then index?
 
-        uint256 moduleFee = ICheqModule(cheq.module).processTransfer(_msgSender(), isApproved, owner, from, to, tokenId, cheq, moduleTransferData);
-
+        // Module hook
+        uint256 moduleBPS = ICheqModule(cheq.module).processTransfer(_msgSender(), isApproved, owner, from, to, tokenId, cheq, moduleTransferData);
+        
+        // Fee taking and escrowing
         uint256 cheqFee;
-        if (cheq.escrowed > 0) {  // Take fees
-            cheqFee = (cheq.escrowed * fees.transferBPS) / 10_000;  // TODO find proper way to take BPS to prevent over/underflow
-            uint256 allFees = cheqFee + moduleFee;
-            cheq.escrowed = cheq.escrowed - allFees;
+        uint256 moduleFee;
+        if (cheq.escrowed > 0) {
+            cheqFee = (cheq.escrowed * fees.transferBPS) / BPS_MAX;
+            moduleFee = (cheq.escrowed * moduleBPS) / BPS_MAX;
+            cheq.escrowed = cheq.escrowed - cheqFee + moduleFee;
             _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
             _registrarRevenue[cheq.currency] += cheqFee;
         }
@@ -118,23 +133,29 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     function fund(
         uint256 cheqId,
         uint256 amount,
+        bool isDirectPay,
         bytes calldata fundData
     ) external payable {
-        // Module hook
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
-        uint256 moduleFee = ICheqModule(cheq.module).processFund(_msgSender(), ownerOf(cheqId), amount, cheqId, cheq, fundData);
+        address owner = ownerOf(cheqId);
 
-        // BP fees
-        uint256 cheqFee = (amount * fees.fundBPS) / 10_000;  // TODO find proper way to take BPS to prevent over/underflow
-        uint256 allFees = cheqFee + moduleFee;
+        // Module hook
+        uint256 moduleBPS = ICheqModule(cheq.module).processFund(_msgSender(), owner, amount, isDirectPay, cheqId, cheq, fundData);
+
+        // Fee taking and escrow
+        uint256 cheqFee = (amount * fees.fundBPS) / BPS_MAX;
+        uint256 moduleFee = (amount * moduleBPS) / BPS_MAX;
+        if (isDirectPay) {
+            IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheqFee + moduleFee);  // Take token fees
+            IERC20(cheq.currency).safeTransferFrom(_msgSender(), owner, amount);  // Send token to owner
+        } else {
+            IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), cheq.escrowed + cheqFee + moduleFee);
+            cheq.escrowed += amount;
+        }
         _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
         _registrarRevenue[cheq.currency] += cheqFee;
 
-        // ERC20 escrow
-        IERC20(cheq.currency).safeTransferFrom(_msgSender(), address(this), amount + allFees);  // Safe should take care of reentrency
-        cheq.escrowed += amount;
-
-        emit Events.Funded(_msgSender(), cheqId, amount, fundData, cheqFee, moduleFee, block.timestamp);
+        emit Events.Funded(_msgSender(), cheqId, amount, isDirectPay, fundData, cheqFee, moduleFee, block.timestamp);
     }
 
     function cash(
@@ -149,7 +170,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         uint256 moduleFee = ICheqModule(cheq.module).processCash(_msgSender(), ownerOf(cheqId), to, amount, cheqId, cheq, cashData);
 
         // Fee taking
-        uint256 cheqFee = (amount * fees.cashBPS) / 10_000;  // TODO find proper way to take BPS to prevent over/underflow
+        uint256 cheqFee = (amount * fees.cashBPS) / BPS_MAX;  // TODO find proper way to take BPS to prevent over/underflow
         uint256 allFees = cheqFee + moduleFee;
         _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
         _registrarRevenue[cheq.currency] += cheqFee;

@@ -3,14 +3,15 @@ pragma solidity ^0.8.16;
 
 import {DataTypes} from "../libraries/DataTypes.sol";
 
+// Question: Should these return bool or revert? Returning bool allows front-ends to determine if a cheq is valid before calling
 // Question: Not sure if theres a way to use libraries for this instead of contracts
 // TODO need to have a way of validating bytesdata (QUESTION could args be zero-initialized if missing in bytes??)
 // TODO: add function supportsInterface() for each of these functions such that a contract can make sure contracts have them
 // Each rule a module uses can use different contracts or the point to the same ones
 // Each rule is a restriction. Every ruleset should be strictly safer than AllTrue no?
-interface IWriteRule { function canWrite(address caller, address owner, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external; }
+interface IWriteRule { function canWrite(address caller, address owner, uint256 cheqId, DataTypes.Cheq calldata cheq, bool isInstant, bytes calldata initData) external; }
 interface ITransferRule { function canTransfer(address caller, bool isApproved, address owner, address from, address to, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes memory initData) external; }
-interface IFundRule { function canFund(address caller, address owner, uint256 amount, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external; }
+interface IFundRule { function canFund(address caller, address owner, uint256 amount, bool isDirectPay, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external; }
 interface ICashRule { function canCash(address caller, address owner, address to, uint256 amount, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external; }
 // Question: how should approve rules interact with transfer?
 interface IApproveRule { function canApprove(address caller, address owner, address to, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external; }

@@ -35,6 +35,7 @@ contract SimpleReverse is ModuleBase {
         address owner,
         uint cheqId,
         DataTypes.Cheq calldata cheq,
+        bool isInstant,
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){ 
         /**
@@ -45,7 +46,7 @@ contract SimpleReverse is ModuleBase {
         (cheq.escrowed == 0 || cheq.escrowed == cheq.amount) &&  // Either send unfunded or fully funded cheq
         (cheq.recipient != address(0) && owner != address(0))  // Can't send to zero address
          */
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, isInstant, initData);
         (uint256 _inspectionPeriod, address _inspector) =  abi.decode(initData, (uint256, address));
         inspectionPeriod[cheqId] =_inspectionPeriod;
         inspector[cheqId] = _inspector;
@@ -71,12 +72,13 @@ contract SimpleReverse is ModuleBase {
         address caller,
         address owner,
         uint256 amount,
+        bool isDirectPay,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {  
         // require(false, "Partial/incomplete cheqs disallowed");
-        IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(caller, owner, amount, isDirectPay, cheqId, cheq, initData);  
         return fees.fundBPS;
     }
 
