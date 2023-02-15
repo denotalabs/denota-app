@@ -9,7 +9,7 @@ interface Props extends ScreenProps {
   isInvoice: boolean;
 }
 
-const CheqModuleStep: React.FC<Props> = ({ isInvoice }) => {
+const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
   const { next, appendFormData, formData } = useStep();
 
   const currentDate = useMemo(() => {
@@ -49,4 +49,4 @@ const CheqModuleStep: React.FC<Props> = ({ isInvoice }) => {
   );
 };
 
-export default CheqModuleStep;
+export default PaymentTermsStep;
