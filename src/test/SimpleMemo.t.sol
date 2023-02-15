@@ -4,13 +4,14 @@ pragma solidity ^0.8.16;
 import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import { DataTypes } from "src/contracts/libraries/DataTypes.sol";
 import { CheqRegistrar } from "src/contracts/CheqRegistrar.sol";
+import { DataTypes } from "src/contracts/libraries/DataTypes.sol";
 import { SimpleMemo } from "src/contracts/Modules/SimpleMemo.sol";
 import { SimpleMemoRules } from "src/contracts/rules/SimpleMemoRules.sol";
+import { AllFalseRules } from "src/contracts/rules/AllFalseRules.sol";
 
-
-contract ContractTest is Test {
+// TODO add fail tests
+contract SimpleMemoTest is Test {
     CheqRegistrar public REGISTRAR;
     TestERC20 public dai;
     TestERC20 public usdc;
@@ -23,7 +24,7 @@ contract ContractTest is Test {
     }
 
     function setUp() public {  // sets up the registrar and ERC20s
-        REGISTRAR = new CheqRegistrar(0, 0, 0, 0);  // ContractTest is the owner
+        REGISTRAR = new CheqRegistrar(DataTypes.WTFCFees(0,0,0,0));  // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI");  // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
@@ -65,7 +66,7 @@ contract ContractTest is Test {
         REGISTRAR.whitelistRule(simpleMemoRulesAddress, true); // whitelist bytecode, not address
 
         // Whitelist module
-        SimpleMemo simpleMemo = new SimpleMemo(address(REGISTRAR), simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, 100, "ipfs://yourmemos.com/");
+        SimpleMemo simpleMemo = new SimpleMemo(address(REGISTRAR), simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, DataTypes.WTFCFees(0,0,0,0), "ipfs://yourmemos.com/");
         address simpleMemoAddress = address(simpleMemo);
         (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(simpleMemoAddress);
         assertFalse(addressWhitelisted || bytecodeWhitelisted, "Unauthorized whitelist");
@@ -86,9 +87,15 @@ contract ContractTest is Test {
 
     function setUpSimpleMemo() public returns (SimpleMemo){  // Deploy and whitelist module
         SimpleMemoRules simpleMemoRules = new SimpleMemoRules();
+        AllFalseRules falseRules = new AllFalseRules();
+
         address simpleMemoRulesAddress = address(simpleMemoRules);
+        address falseRulesAddress = address(falseRules);
+
         REGISTRAR.whitelistRule(simpleMemoRulesAddress, true);
-        SimpleMemo simpleMemo = new SimpleMemo(address(REGISTRAR), simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, 100, "ipfs://yourmemos.com/");
+        REGISTRAR.whitelistRule(falseRulesAddress, true);
+
+        SimpleMemo simpleMemo = new SimpleMemo(address(REGISTRAR), simpleMemoRulesAddress, falseRulesAddress, simpleMemoRulesAddress, simpleMemoRulesAddress, falseRulesAddress, DataTypes.WTFCFees(0,0,0,0), "ipfs://yourmemos.com/");
         REGISTRAR.whitelistModule(address(simpleMemo), true, false);
         vm.label(address(simpleMemo), "SimpleMemo");
         return simpleMemo;
@@ -98,47 +105,84 @@ contract ContractTest is Test {
                             MODULE TESTS
     //////////////////////////////////////////////////////////////*/
     function calcFee(uint256 fee, uint256 amount) public pure returns(uint256){
-        uint256 FEE = (amount * fee) / 10_000;
-        return FEE;
+        return (amount * fee) / 10_000;
     }
-    function cheqWriteCondition(address caller, uint256 amount, address recipient/*, uint256 duration*/) public view returns(bool){
-        return amount <= tokensCreated &&   // Can't use more token than created
-               caller != recipient &&  // Don't self send
-               caller != address(0) &&  // Don't vm.prank from address(0)
-               recipient != address(0) &&   // Can't send to, or transact from, address(0)
-               !isContract(recipient); // Don't send cheqs to non-ERC721Reciever contracts
+    function cheqWriteCondition(
+        address caller, 
+        uint256 amount, 
+        uint256 escrowed, 
+        address drawer,
+        address recipient, 
+        address owner
+    ) public view returns(bool){
+        return
+        (amount != 0) &&  // Cheq must have a face value
+        (drawer != recipient) && // Drawer and recipient aren't the same
+        (owner == drawer || owner == recipient) &&  // Either drawer or recipient must be owner
+        (caller == drawer || caller == recipient) &&  // Delegated pay/requesting not allowed
+        (escrowed == 0 || escrowed == amount) &&  // Either send unfunded or fully funded cheq
+        (recipient != address(0) && owner != address(0) && drawer != address(0)) &&
+        // Testing conditions
+        (amount <= tokensCreated) &&   // Can't use more token than created
+        (caller != address(0)) &&  // Don't vm.prank from address(0)
+        !isContract(owner); // Don't send cheqs to non-ERC721Reciever contracts
     }
 
-    function testWriteCheq(address caller, uint256 amount, address recipient) public {
-        vm.assume(cheqWriteCondition(caller, amount, recipient));
-        vm.assume(amount > 0);
-        
-        REGISTRAR.whitelistToken(address(dai), true);
-        (, uint256 writeFeeBPS, , , , ) = REGISTRAR.getFees();
-        SimpleMemo simpleMemo = setUpSimpleMemo();
-        uint256 moduleFeeBPS = simpleMemo.getFees();
-        uint256 totalWithFees;
-        {
-            uint256 registrarFee = calcFee(writeFeeBPS, amount);
-            console.log("RegistrarFee: ", registrarFee);
-            uint256 moduleFee = calcFee(moduleFeeBPS, amount);
-            console.log("ModuleFee: ", moduleFee);
-            totalWithFees = registrarFee + moduleFee + amount;
-        }
-        console.log(amount, "-->", totalWithFees);
-        vm.prank(caller); 
-        dai.approve(address(REGISTRAR), totalWithFees);  // Need to get the fee amounts beforehand
-        dai.transfer(caller, totalWithFees);
-
+    function registrarWriteBefore(address caller, address recipient) public {
         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a cheq");
         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient already had a cheq");
         assertTrue(REGISTRAR.totalSupply() == 0, "Cheq supply non-zero");
 
+    }
+    function registrarWriteAfter(uint256 cheqId, uint256 amount, uint256 escrowed, address owner, address drawer, address recipient, address module) public {
+        assertTrue(REGISTRAR.totalSupply() == 1, "Cheq supply didn't increment");
+        assertTrue(REGISTRAR.ownerOf(cheqId) == owner, "`owner` isn't owner of cheq");
+        assertTrue(REGISTRAR.balanceOf(owner) == 1, "Owner balance didn't increment");
+
+        // CheqRegistrar wrote correctly to its storage
+        assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
+        assertTrue(REGISTRAR.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
+        assertTrue(REGISTRAR.cheqCurrency(cheqId) == address(dai), "Incorrect token");
+        assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
+        assertTrue(REGISTRAR.cheqEscrowed(cheqId) == escrowed, "Incorrect escrow");
+        assertTrue(address(REGISTRAR.cheqModule(cheqId)) == module, "Incorrect module");
+    }
+
+    function testWritePay(  // escrow==amount && drawer==caller && recipient==owner
+        address caller,
+        uint256 amount, 
+        address recipient
+    ) public {
+        vm.assume(amount != 0 && amount <= tokensCreated);
+        (address drawer, uint256 escrowed, address owner) = (caller, amount, recipient);
+        vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+        vm.assume(drawer != recipient);
+        
+        SimpleMemo simpleMemo = setUpSimpleMemo();
+        uint256 totalWithFees;
+        {
+            (uint256 writeFeeBPS, , , ) = REGISTRAR.getFees();
+            (uint256 moduleWriteFeeBPS, , , ) = simpleMemo.getFees();
+            uint256 registrarFee = calcFee(writeFeeBPS, escrowed);
+            console.log("RegistrarFee: ", registrarFee);
+            uint256 moduleFee = calcFee(moduleWriteFeeBPS, escrowed);
+            console.log("ModuleFee: ", moduleFee);
+            totalWithFees = escrowed + registrarFee + moduleFee;
+            console.log(escrowed, "-->", totalWithFees);
+        }
+
+        REGISTRAR.whitelistToken(address(dai), true);
+        vm.prank(caller); 
+        dai.approve(address(REGISTRAR), totalWithFees);  // Need to get the fee amounts beforehand
+        dai.transfer(caller, totalWithFees);
+        vm.assume(dai.balanceOf(caller) >= totalWithFees);
+
+        registrarWriteBefore(caller, recipient);
         DataTypes.Cheq memory cheq = DataTypes.Cheq({
             currency: address(dai), 
             amount: amount, 
             escrowed: amount, 
-            drawer: caller, 
+            drawer: drawer, 
             recipient: recipient, 
             module: address(simpleMemo), 
             mintTimestamp: block.timestamp
@@ -146,352 +190,225 @@ contract ContractTest is Test {
         bytes memory initData = abi.encode(bytes32(keccak256("this is a hash")));
 
         vm.prank(caller); 
-        uint256 cheqId = REGISTRAR.write(cheq, initData, caller);  // sets caller as owner
-        assertTrue(REGISTRAR.totalSupply() == 1, "Cheq supply didn't increment");
-        assertTrue(REGISTRAR.ownerOf(cheqId) == caller, "Recipient isn't owner");
-        assertTrue(REGISTRAR.balanceOf(caller) == 1, "Sender got a cheq");
+        uint256 cheqId = REGISTRAR.write(cheq, owner, false, initData);  // Sets caller as owner
+        registrarWriteAfter(cheqId, amount, escrowed, owner, drawer, recipient, address(simpleMemo));
 
-        // CheqRegistrar wrote correctly to its storage
-        assertTrue(REGISTRAR.cheqDrawer(cheqId) == caller, "Incorrect drawer");
-        assertTrue(REGISTRAR.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
-        assertTrue(REGISTRAR.cheqCurrency(cheqId) == address(dai), "Incorrect token");
-        assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
-        assertTrue(REGISTRAR.cheqEscrowed(cheqId) == amount, "Incorrect escrow");
-        assertTrue(address(REGISTRAR.cheqModule(cheqId)) == address(simpleMemo), "Incorrect module");
+        // ICheqModule wrote correctly to it's storage
+        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        console.log("TokenURI: ");
+        console.log(tokenURI);
+    }
+    function testWriteInvoice(  // escrow==0 && drawer==caller && drawer==owner
+        address caller,
+        uint256 amount, 
+        address recipient
+    ) public {
+        vm.assume(amount != 0 && amount <= tokensCreated);
+        (address drawer, uint256 escrowed, address owner) = (caller, 0, caller);
+        vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+        vm.assume(drawer != recipient);
         
+        SimpleMemo simpleMemo = setUpSimpleMemo();
+        uint256 totalWithFees;
+        {
+            (uint256 writeFeeBPS, , , ) = REGISTRAR.getFees();
+            (uint256 moduleWriteFeeBPS, , , ) = simpleMemo.getFees();
+            uint256 registrarFee = calcFee(writeFeeBPS, escrowed);
+            console.log("RegistrarFee: ", registrarFee);
+            uint256 moduleFee = calcFee(moduleWriteFeeBPS, escrowed);
+            console.log("ModuleFee: ", moduleFee);
+            totalWithFees = escrowed + registrarFee + moduleFee;
+            console.log(escrowed, "-->", totalWithFees);
+        }
+
+        REGISTRAR.whitelistToken(address(dai), true);
+        vm.prank(caller); 
+        dai.approve(address(REGISTRAR), totalWithFees);  // Need to get the fee amounts beforehand
+        dai.transfer(caller, totalWithFees);
+        vm.assume(dai.balanceOf(caller) >= totalWithFees);
+
+        registrarWriteBefore(caller, recipient);
+        DataTypes.Cheq memory cheq = DataTypes.Cheq({
+            currency: address(dai), 
+            amount: amount, 
+            escrowed: escrowed, 
+            drawer: drawer, 
+            recipient: recipient, 
+            module: address(simpleMemo), 
+            mintTimestamp: block.timestamp
+        });
+        bytes memory initData = abi.encode(bytes32(keccak256("this is another hash")));
+
+        vm.prank(caller); 
+        uint256 cheqId = REGISTRAR.write(cheq, owner, false, initData);  // Sets caller as owner
+        registrarWriteAfter(cheqId, amount, escrowed, owner, drawer, recipient, address(simpleMemo));
+
         // ICheqModule wrote correctly to it's storage
         string memory tokenURI = REGISTRAR.tokenURI(cheqId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
 
-//     function testWriteInvoice(address caller, address recipient, uint256 duration, uint256 amount) public {
-//         vm.assume(amount != 0);
-//         vm.assume(caller != recipient);
-//         vm.assume(caller != address(0));
-//         vm.assume(recipient != address(0));
-//         vm.assume(!isContract(recipient));
-//         vm.assume(duration < type(uint256).max);
+    function writeHelper(address caller, uint256 amount, uint256 escrowed, address drawer, address recipient, address owner) public returns(uint256, SimpleMemo){ 
+        SimpleMemo simpleMemo = setUpSimpleMemo();
+        uint256 totalWithFees;
+        {
+            (uint256 writeFeeBPS, , , ) = REGISTRAR.getFees();
+            (uint256 moduleWriteFeeBPS, , , ) = simpleMemo.getFees();
+            uint256 registrarFee = calcFee(writeFeeBPS, escrowed);
+            console.log("RegistrarFee: ", registrarFee);
+            uint256 moduleFee = calcFee(moduleWriteFeeBPS, escrowed);
+            console.log("ModuleFee: ", moduleFee);
+            totalWithFees = escrowed + registrarFee + moduleFee;
+            console.log(escrowed, "-->", totalWithFees);
+        }
+        REGISTRAR.whitelistToken(address(dai), true);
+        vm.prank(caller); 
+        dai.approve(address(REGISTRAR), totalWithFees);  // Need to get the fee amounts beforehand
+        dai.transfer(caller, totalWithFees);
+        vm.assume(dai.balanceOf(caller) >= totalWithFees);
+
+        registrarWriteBefore(caller, recipient);
+        DataTypes.Cheq memory cheq = DataTypes.Cheq({
+            currency: address(dai), 
+            amount: amount, 
+            escrowed: escrowed, 
+            drawer: drawer, 
+            recipient: recipient, 
+            module: address(simpleMemo), 
+            mintTimestamp: block.timestamp
+        });
+        bytes memory initData = abi.encode(bytes32(keccak256("this is a hash")));
+
+        vm.prank(caller); 
+        uint256 cheqId = REGISTRAR.write(cheq, owner, false, initData);  // Sets caller as owner
+        registrarWriteAfter(cheqId, amount, escrowed, owner, drawer, recipient, address(simpleMemo));
+
+        // uint256 senderBalanceOf = REGISTRAR.balanceOf(caller);
+        // uint256 recipientBalanceOf = REGISTRAR.balanceOf(recipient);
+        // uint256 cheqSupply = REGISTRAR.totalSupply();
+        // assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already got a cheq");
+        // assertTrue(REGISTRAR.balanceOf(recipient) == 0);
+
+        // vm.prank(sender);
+        // helperCheqInfo(cheqId, amount, sender, recipient, sstl, duration);
+
+        // if (escrow == amount && amount != 0){ // Cheq 
+        //     assertTrue(cheq.balanceOf(sender) == senderBalanceOf, "Recipient gained a cheq"); 
+        //     assertTrue(cheq.balanceOf(recipient) == recipientBalanceOf + 1, "Recipient didnt get a cheq"); 
+        //     assertTrue(cheq.ownerOf(cheqId) == recipient, "Recipient isn't owner"); 
+        // } else {  // Invoice
+        //     assertTrue(cheq.balanceOf(sender) == senderBalanceOf + 1, "Invoicer didn't get a cheq");
+        //     assertTrue(cheq.balanceOf(recipient) == recipientBalanceOf, "Funder gained a cheq");
+        //     assertTrue(cheq.ownerOf(cheqId) == sender, "Invoicer isn't owner");
+        // }
+        // assertTrue(cheq.totalSupply() == cheqSupply + 1, "Cheq supply didn't increment");
+
+        return (cheqId, simpleMemo);
+    }
+
+    function testTransferPay(address caller, uint256 amount, address recipient) public {
+        vm.assume(amount != 0 && amount <= tokensCreated);
+        (address drawer, uint256 escrowed, address owner) = (caller, amount, recipient);
+        vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+        vm.assume(drawer != recipient);
         
-//         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a cheq");
-//         assertTrue(REGISTRAR.balanceOf(recipient) == 0);
-//         assertTrue(REGISTRAR.totalSupply() == 0, "Cheq supply non-zero");
+        uint256 cheqId = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+        vm.expectRevert(bytes("TransferRule: Disallowed"));
+        REGISTRAR.transferFrom(owner, drawer, cheqId);  // Reverse the payment
+    }
+
+    function testTransferInvoice(address caller, uint256 amount, address recipient) public {
+        vm.assume(amount != 0 && amount <= tokensCreated);
+        (address drawer, uint256 escrowed, address owner) = (caller, 0, caller);
+        vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+        vm.assume(drawer != recipient);
         
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         vm.prank(caller);
-//         uint256 cheqId = sstl.writeCheq(dai, amount, 0, recipient, duration);
-//         assertTrue(REGISTRAR.deposits(caller, dai) == 0, "Writer gained a deposit");
-//         assertTrue(REGISTRAR.totalSupply() == 1, "Cheq supply didn't increment");
-//         assertTrue(REGISTRAR.balanceOf(caller) == 1, "Invoicer didn't get a cheq");
-//         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient gained a cheq");
-//         assertTrue(REGISTRAR.ownerOf(cheqId) == caller, "Invoicer isn't owner");
+        // Need to test transfering from a Payment and an Invoice
+        // address owner = recipient;
+        uint256 cheqId = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+        vm.expectRevert(bytes("TransferRule: Disallowed"));  // Reverse the payment
+        REGISTRAR.transferFrom(owner, drawer, cheqId);
+    }
+
+    function testFundPay(address caller, uint256 amount, address drawer, address recipient) public {
+        vm.assume(amount != 0 && amount <= tokensCreated);
+        (address drawer, uint256 escrowed, address owner) = (caller, amount, caller);
+        vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+        vm.assume(drawer != recipient);
+
+        uint256 cheqId = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+        bytes memory fundData =  abi.encode(bytes32(""));
+
+        vm.expectRevert(bytes("Rule: Only recipient"));
+        REGISTRAR.fund(cheqId, amount, false, fundData);
+    }
+
+    function testFundInvoice(address caller, uint256 amount, address drawer, address recipient) public {
+        vm.assume(amount != 0 && amount <= tokensCreated);
+        (address drawer, uint256 escrowed, address owner) = (caller, 0, caller);
+        vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+        vm.assume(drawer != recipient);
+        // address owner = recipient;
+        uint256 cheqId = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+        bytes memory fundData =  abi.encode(bytes32(""));
+
+        vm.prank(recipient); 
+        dai.approve(address(REGISTRAR), amount);  // Need to get the fee amounts beforehand
+        dai.transfer(recipient, amount);
+        // vm.assume(dai.balanceOf(caller) >= totalWithFees);
+        vm.prank(recipient);
+        REGISTRAR.fund(cheqId, amount, false, fundData);
+    }
+
+    function testCashPay(address caller, uint256 amount, address drawer, address recipient) public {
+        vm.assume(amount != 0 && amount <= tokensCreated);
+        (address drawer, uint256 escrowed, address owner) = (caller, amount, caller);
+        vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+        vm.assume(drawer != recipient);
+
+        (uint256 cheqId, ) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+        bytes memory cashData =  abi.encode(bytes32(""));
+
+        vm.prank(owner);
+        REGISTRAR.cash(cheqId, escrowed, owner, cashData);
+    }
+
+    function fundHelper(uint256 cheqId, address funder, uint256 amount, SimpleMemo simpleMemo) public {
+        bytes memory fundData =  abi.encode(bytes32(""));
+
+        uint256 totalWithFees;
+        {
+            ( , , uint256 fundFeeBPS, ) = REGISTRAR.getFees();
+            ( , , uint256 moduleFeeBPS, ) = simpleMemo.getFees();
+            uint256 registrarFee = calcFee(fundFeeBPS, amount);
+            console.log("RegistrarFee: ", registrarFee);
+            uint256 moduleFee = calcFee(moduleFeeBPS, amount);
+            console.log("ModuleFee: ", moduleFee);
+            totalWithFees = amount + registrarFee + moduleFee;
+            console.log(amount, "-->", totalWithFees);
+        }
+
+        vm.prank(funder); 
+        dai.approve(address(REGISTRAR), totalWithFees);  // Need to get the fee amounts beforehand
+        dai.transfer(funder, totalWithFees);
         
-//         // ICheqModule wrote correctly to CheqRegistrar storage
-//         assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
-//         assertTrue(REGISTRAR.cheqToken(cheqId) == dai, "Incorrect token");
-//         assertTrue(REGISTRAR.cheqDrawer(cheqId) == caller, "Incorrect drawer");
-//         assertTrue(REGISTRAR.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
-//         assertTrue(address(cheq.cheqModule(cheqId)) == address(sstl), "Incorrect module");
+        vm.prank(funder);
+        REGISTRAR.fund(cheqId, amount, false, fundData);
+    }
+
+    function testCashInvoice(address caller, uint256 amount, address drawer, address recipient) public {
+        vm.assume(amount != 0 && amount <= tokensCreated);
+        (address drawer, uint256 escrowed, address owner) = (caller, 0, caller);
+        vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+        vm.assume(drawer != recipient);
         
-//         // ICheqModule wrote correctly to it's storage
-//         assertTrue(sstl.cheqFunder(cheqId) == recipient, "Cheq reciever is same as on cheq");
-//         assertTrue(sstl.cheqReceiver(cheqId) == caller, "Cheq reciever is same as on SSTL");
-//         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Cheq created not at block.timestamp");
-//         assertTrue(sstl.cheqInspectionPeriod(cheqId) == duration, "Expired");
-//     }
+        (uint256 cheqId, SimpleMemo simpleMemo) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
 
-//     function testFailWriteCheq(address caller, uint256 amount, address recipient, uint256 duration) public {
-//         vm.assume(amount <= dai.totalSupply());
-//         vm.assume(amount > 0);
-//         vm.assume(caller != recipient);
-//         vm.assume(caller != address(0));
-//         vm.assume(recipient != address(0));
-//         vm.assume(!isContract(recipient));
-//         vm.assume(caller != recipient);
-//         vm.assume(duration < type(uint256).max);
+        fundHelper(cheqId, recipient, amount, simpleMemo);
 
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         // Can't write cheq without a deposit on crx
-//         vm.prank(caller);
-//         sstl.writeCheq(dai, amount, amount, recipient, duration);
-//         // Can't write cheques with insufficient balance
-//         depositHelper(amount, caller);
-//         sstl.writeCheq(dai, amount, amount + 1, recipient, duration);  // Not enough escrow and amount!=escrow && escrow>0
-//         sstl.writeCheq(dai, amount + 1, amount + 1, recipient, duration);  // Not enough escrow
-
-//         // Can't write directly from cheq
-//         vm.prank(caller);
-//         cheq.write(caller, caller, recipient, dai, amount, amount, recipient);
-        
-//         // Can't write a 0 amount cheq??
-//         vm.prank(caller);
-//         sstl.writeCheq(dai, 0, amount, recipient, duration);
-        
-//         // Can't write a cheq with a higher escrow than amount??
-//         vm.prank(caller);
-//         sstl.writeCheq(dai, amount, amount + 1, recipient, duration);
-//     }
-
-//     function helperCheqInfo(uint256 cheqId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {
-//         // ICheqModule wrote correctly to CheqRegistrar storage
-//         assertTrue(cheq.cheqAmount(cheqId) == amount, "Incorrect amount");
-//         assertTrue(cheq.cheqToken(cheqId) == dai, "Incorrect token");
-//         assertTrue(cheq.cheqDrawer(cheqId) == sender, "Incorrect drawer");
-//         assertTrue(cheq.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
-//         assertTrue(address(cheq.cheqModule(cheqId)) == address(sstl), "Incorrect module");
-
-//         // ICheqModule wrote correctly to it's storage
-//         if (sstl.cheqFunder(cheqId) == sender){  // Cheq
-//             assertTrue(cheq.cheqEscrowed(cheqId) == amount, "Incorrect escrowed amount");
-//             assertTrue(sstl.cheqFunder(cheqId) == cheq.cheqDrawer(cheqId), "Cheq funder is not the sender");
-//             assertTrue(sstl.cheqReceiver(cheqId) == recipient, "Cheq reciever is not recipient"); 
-//         } else {  // Invoice
-//             assertTrue(cheq.cheqEscrowed(cheqId) == 0, "Incorrect escrowed amount");
-//             assertTrue(sstl.cheqFunder(cheqId) == cheq.cheqRecipient(cheqId), "Cheq reciever is same as on cheq");
-//             assertTrue(sstl.cheqReceiver(cheqId) == cheq.cheqDrawer(cheqId), "Cheq reciever is same as on SSTL"); 
-//         }
-//         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Cheq created not at block.timestamp");
-//         assertTrue(sstl.cheqInspectionPeriod(cheqId) == duration, "Expired");
-//     }
-
-//     function writeHelper(address sender, uint256 amount, uint256 escrow, address recipient, uint256 duration, SelfSignTimeLock sstl) public returns(uint256){ 
-//         uint256 senderBalanceOf = cheq.balanceOf(sender);
-//         uint256 recipientBalanceOf = cheq.balanceOf(recipient);
-//         uint256 cheqSupply = cheq.totalSupply();
-//         assertTrue(cheq.balanceOf(sender) == 0, "Caller already got a cheq");
-//         assertTrue(cheq.balanceOf(recipient) == 0);
-
-//         vm.prank(sender);
-//         uint256 cheqId = sstl.writeCheq(dai, amount, escrow, recipient, duration);  // Change dai to arbitrary token
-//         helperCheqInfo(cheqId, amount, sender, recipient, sstl, duration);
-
-//         if (escrow == amount && amount != 0){ // Cheq 
-//             assertTrue(cheq.deposits(sender, dai) == 0, "Writer gained a deposit"); 
-//             assertTrue(cheq.balanceOf(sender) == senderBalanceOf, "Recipient gained a cheq"); 
-//             assertTrue(cheq.balanceOf(recipient) == recipientBalanceOf + 1, "Recipient didnt get a cheq"); 
-//             assertTrue(cheq.ownerOf(cheqId) == recipient, "Recipient isn't owner"); 
-//         } else {  // Invoice
-//             // assertTrue(cheq.deposits(sender, dai) == 0, "Writer gained a deposit"); 
-//             assertTrue(cheq.balanceOf(sender) == senderBalanceOf + 1, "Invoicer didn't get a cheq");
-//             assertTrue(cheq.balanceOf(recipient) == recipientBalanceOf, "Funder gained a cheq");
-//             assertTrue(cheq.ownerOf(cheqId) == sender, "Invoicer isn't owner");
-//         }
-//         assertTrue(cheq.totalSupply() == cheqSupply + 1, "Cheq supply didn't increment");
-
-//         return cheqId;
-//     }
-
-//     function testTransferCheq(address caller,  uint256 amount, address recipient, uint256 duration, address to) public {
-//         vm.assume(amount <= dai.totalSupply());
-//         vm.assume(amount > 0);
-//         vm.assume(caller != recipient);
-//         vm.assume(caller != address(0));
-//         vm.assume(recipient != address(0));
-//         vm.assume(to != address(0));
-//         vm.assume(!isContract(recipient));
-//         vm.assume(caller != recipient);
-//         vm.assume(duration < type(uint256).max);
-
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, caller);
-//         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
-//         vm.prank(recipient);
-//         sstl.transferCheq(cheqId, to);
-//     }
-
-//     function testFailTransferCheq(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, caller);  // caller is writer
-//         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
-//         // Non-owner transfer
-//         vm.prank(caller);
-//         sstl.transferCheq(cheqId, to);
-//         // Transfer of non-existent cheq
-//         vm.prank(caller);
-//         sstl.transferCheq(cheqId+1, to);
-//     }
-
-//     function testTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
-//         vm.assume(amount <= dai.totalSupply());
-//         vm.assume(amount > 0);
-//         vm.assume(caller != recipient);
-//         vm.assume(caller != address(0));
-//         vm.assume(recipient != address(0));
-//         vm.assume(to != address(0));
-//         vm.assume(!isContract(recipient));
-//         vm.assume(!isContract(caller));
-//         vm.assume(caller != recipient);
-//         vm.assume(duration < type(uint256).max);
-
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, caller);
-//         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
-//         vm.prank(caller);
-//         sstl.transferCheq(cheqId, to);
-//     }
-
-//     function testFailTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, caller);
-//         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
-
-//         // Non-owner transfer
-//         sstl.transferCheq(cheqId, to);
-//         vm.prank(recipient);
-//         sstl.transferCheq(cheqId, to);
-//         // Transfer to address(0)
-//         vm.prank(caller);
-//         sstl.transferCheq(cheqId, address(0));
-//         // Transfer to contract
-//         vm.prank(caller);
-//         sstl.transferCheq(cheqId, address(this));
-//         // Transfer of non-existent cheq
-//         sstl.transferCheq(cheqId+1, to);
-//     }
-    
-//     function transferHelper(uint256 cheqId, address to, SelfSignTimeLock sstl) public {
-//         vm.prank(cheq.ownerOf(cheqId));
-//         sstl.transferCheq(cheqId, to);
-//     }
-
-//     function testFundInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {  //
-//         vm.assume(amount <= dai.totalSupply());
-//         vm.assume(amount > 0);
-//         vm.assume(caller != recipient);
-//         vm.assume(caller != address(0));
-//         vm.assume(recipient != address(0));
-//         vm.assume(!isContract(recipient));
-//         vm.assume(!isContract(caller));
-//         vm.assume(caller != recipient);
-//         vm.assume(duration < type(uint256).max);
-
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, recipient);  // Recipient will be the funder
-//         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
-//         vm.prank(recipient);  // This can be anybody
-//         sstl.fundCheq(cheqId, amount);
-
-//         vm.expectRevert(bytes("Cant fund this amount"));
-//         sstl.fundCheq(cheqId, amount);
-//     }
-
-//     function testFailFundInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
-//         vm.assume(random != 0);
-
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, recipient);  // Recipient will be the funder
-//         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
-//         vm.prank(recipient); 
-//         sstl.fundCheq(cheqId, amount);
-//         vm.prank(caller);
-//         sstl.fundCheq(cheqId, amount);
-
-//         // invoice but not correct amount?
-//         depositHelper(amount, recipient);  // Recipient will be the funder
-//         uint256 cheqId2 = writeHelper(caller, amount, 0, recipient, duration, sstl);
-//         vm.prank(recipient); 
-//         sstl.fundCheq(cheqId2, amount+random);
-//         sstl.fundCheq(cheqId2, amount-random);
-//         vm.prank(caller);
-//         sstl.fundCheq(cheqId2, amount+random);
-//         sstl.fundCheq(cheqId2, amount-random);
-//     }
-
-//     function testCashCheq(address caller, uint256 amount, address recipient, uint256 duration) public {
-//         vm.assume(amount <= dai.totalSupply());
-//         vm.assume(amount > 0);
-//         vm.assume(caller != recipient);
-//         vm.assume(caller != address(0));
-//         vm.assume(recipient != address(0));
-//         vm.assume(!isContract(recipient));
-//         vm.assume(caller != recipient);
-//         vm.assume(duration < type(uint256).max);
-
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         // Write cheq from: caller, owner: recipient, to: recipient
-//         depositHelper(amount, caller);  
-//         console.log("Supply", cheq.totalSupply());
-//         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
-        
-//         vm.startPrank(recipient);
-//         vm.warp(block.timestamp + duration);
-//         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
-//         vm.stopPrank();
-//     }
-
-//     function testCashInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {
-//         vm.assume(amount > 0  && amount <= dai.totalSupply());  //
-//         vm.assume(caller != recipient);
-//         vm.assume(caller != address(0));
-//         vm.assume(recipient != address(0));
-//         vm.assume(!isContract(recipient));
-//         vm.assume(!isContract(caller));
-//         vm.assume(caller != recipient);
-//         vm.assume(duration < type(uint256).max);
-
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, recipient);
-//         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
-
-//         vm.prank(recipient);
-//         sstl.fundCheq(cheqId, amount);
-
-//         vm.startPrank(caller);
-//         vm.warp(block.timestamp + duration);
-//         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
-//         vm.stopPrank();
-//     }
-
-//     function testFailCashCheq(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
-//         vm.assume(amount != 0);
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, recipient);
-//         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
-//         // Can't cash until its time
-//         vm.prank(recipient);
-//         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
-//         // Can't cash unless owner
-//         vm.warp(block.timestamp + duration);
-//         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
-//         // Can't cash different amount
-//         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId)-random);
-//     }
-
-//     function testFailCashInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
-//         vm.assume(random != 0);
-//         vm.assume(amount != 0);
-//         vm.assume(amount > 0  && amount <= dai.totalSupply()); 
-//         vm.assume(caller != recipient);
-//         vm.assume(caller != address(0));
-//         vm.assume(recipient != address(0));
-//         vm.assume(!isContract(recipient));
-//         vm.assume(!isContract(caller));
-//         vm.assume(caller != recipient);
-//         vm.assume(duration < type(uint256).max);
-//         // if (!cheqWriteCondition(caller, amount, recipient, duration) || amount != 0){
-//         //     require(false, "bad fuzzing");
-//         // }
-//         SelfSignTimeLock sstl = setUpTimelock(caller);
-//         depositHelper(amount, recipient);  
-//         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
-
-//         // Can't cash before inspection
-//         sstl.cashCheq(cheqId+1, cheq.cheqEscrowed(cheqId)); 
-//         // Cant cash wrong cheq
-//         vm.warp(block.timestamp + duration);
-//         sstl.cashCheq(cheqId+1, cheq.cheqEscrowed(cheqId));  // You can cash an unfunded cheq after inspectionPeriod
-
-//         // cant cash wrong amount
-//         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId)+1);
-//     }
-}        
-// Need invoice encoded
-        // Marketplace.Milestone memory milestone = Marketplace.Milestone({
-        //     price: 10,
-        //     workerFinished: false,
-        //     clientReleased: false
-        // });
-        // Milestone[] memory milestones = new Milestone[](1);
-        // milestones.push(milestone);
-        // (uint256 startTime, Status workerStatus, Status clientStatus, Milestone[] memory milestones) = abi.encode(bytes(""), (uint256, Status, Status, Milestone[]));
-        // bytes memory initData = abi.encode(milestones, (/*uint256, Status, Status, */Milestone[]));
+        bytes memory cashData =  abi.encode(bytes32(""));
+        vm.prank(owner);
+        REGISTRAR.cash(cheqId, amount, owner, cashData);
+    }
+}

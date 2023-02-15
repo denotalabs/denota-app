@@ -74,10 +74,11 @@ contract Marketplace is ModuleBase {
         address owner,
         uint cheqId,
         DataTypes.Cheq calldata cheq,
+        bool isDirectPay,
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){  // Writes milestones to mapping, writes totalMilestones into invoice (rest of invoice is filled out later)
         require(tokenWhitelist[cheq.currency], "Module: Token not whitelisted");  // QUESTION: should this be a require or return false?
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);  // Should the assumption be that this is only for freelancers to send as an invoice??
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, isDirectPay, initData);  // Should the assumption be that this is only for freelancers to send as an invoice??
         // require(caller == owner, "Not invoice"); 
         // require(cheq.drawer == caller, "Can't send on behalf"); 
         // require(cheq.recipient != owner, "Can't self send"); 
@@ -126,6 +127,7 @@ contract Marketplace is ModuleBase {
         address caller,
         address owner,
         uint256 amount,
+        bool isDirectPay,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
@@ -153,7 +155,7 @@ contract Marketplace is ModuleBase {
         }
          */
         // require(caller == cheq.recipient, "Module: Only client can fund");
-        IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(caller, owner, amount, isDirectPay, cheqId, cheq, initData);  
 
         if (invoices[cheqId].startTime == 0) invoices[cheqId].startTime = block.timestamp;
 

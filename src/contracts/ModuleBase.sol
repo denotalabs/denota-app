@@ -9,14 +9,17 @@ import {ICheqRegistrar} from "../contracts/interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../contracts/interfaces/IWTFCRules.sol";
 
 // TODO separate fee and non-fee modules (perhaps URI distinction ones as well?)
-// Question where should invalid WTFC's fail? In the rule, module, or registrar?
+// Question allow module owners to change the Rules on the fly?
+// TODO could store rules as their own struct for simplicity
 abstract contract ModuleBase is Ownable, ICheqModule {
     address public immutable REGISTRAR;  // Question: Make this a hardcoded address?
+    mapping(address => mapping(address => uint256)) revenue;  // rewardAddress => token => rewardAmount
+    uint256 internal constant BPS_MAX = 10_000;  // Lens uses uint16
     address public writeRule;
     address public transferRule;
     address public fundRule;
     address public cashRule;
-    address public approveRule;
+    address public approveRule;  // Question can allow psuedo-operators (stored on module) to grant approvals
     DataTypes.WTFCFees public fees;
 
     modifier onlyRegistrar() {
@@ -46,11 +49,11 @@ abstract contract ModuleBase is Ownable, ICheqModule {
         fundRule = _fundRule;
         cashRule = _cashRule;
         approveRule = _approveRule;
+        require(_fees.writeBPS < BPS_MAX, "Module: Fee too high");
+        require(_fees.transferBPS < BPS_MAX, "Module: Fee too high");
+        require(_fees.fundBPS < BPS_MAX, "Module: Fee too high");
+        require(_fees.cashBPS < BPS_MAX, "Module: Fee too high");
         fees = _fees;
-        // writeBPS = _writeBPS;
-        // transferBPS = _transferBPS;
-        // fundBPS = _fundBPS;
-        // cashBPS = _cashBPS;
 
         emit Events.ModuleBaseConstructed(registrar, block.timestamp);
     }
@@ -60,9 +63,10 @@ abstract contract ModuleBase is Ownable, ICheqModule {
         address owner,
         uint cheqId,
         DataTypes.Cheq calldata cheq,
+        bool isDirectPay, 
         bytes calldata initData
     ) external virtual override onlyRegistrar returns(uint256){  // Fails here if not possible
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, isDirectPay, initData);
         // Add module logic here
         return fees.writeBPS;
     }
@@ -86,11 +90,12 @@ abstract contract ModuleBase is Ownable, ICheqModule {
         address caller,
         address owner,
         uint256 amount,
+        bool isDirectPay,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external virtual override onlyRegistrar returns (uint256) {  
-        IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(caller, owner, amount, isDirectPay, cheqId, cheq, initData);  
         // Add module logic here
         return fees.fundBPS;
     }
@@ -129,7 +134,10 @@ abstract contract ModuleBase is Ownable, ICheqModule {
         return (fees.writeBPS, fees.transferBPS, fees.fundBPS, fees.cashBPS);
     }
 
-    function withdrawFees(address token, uint256 amount) public onlyOwner {  // Should a `to` be added here?
-        ICheqRegistrar(REGISTRAR).moduleWithdraw(token, amount, owner());
+    function withdrawFees(address token) public {
+        uint256 payoutAmount = revenue[_msgSender()][token];
+        require(payoutAmount > 1, "Insufficient revenue");
+        revenue[_msgSender()][token] = 1;  // Should this be set to 1 wei? Saves on gas
+        ICheqRegistrar(REGISTRAR).moduleWithdraw(token, payoutAmount - 1, _msgSender());
     }
 }

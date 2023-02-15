@@ -9,13 +9,14 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 
 /**
  * @notice A simple payment module that includes an IPFS hash for memos included in the URI
- * Ownership grants the right to cash available escrow
+ * Ownership grants the right to receive available escrow
  * Can be used to track: Promise of payment, Request for payment, Payment, or a Past payment
+ * Depending on rules, only caller (payer) is allowed to release (to owner/recipient)
  */
 contract SimpleMemo is ModuleBase {  // VenCashPal module
     mapping(uint256 => bytes32) public memo;  // How to turn this into an image that OpenSea can display? Might need to be encrypted
     mapping(uint256 => bool) public isCashed;
-    // mapping(uint256 => bool) public isTransferable;
+    // mapping(uint256 => bool) public isTransferable;  // Allow transferability here on write using bytes data decode
     string public _baseURI;
 
     event MemoWritten(uint256 indexed cheqId, bytes32 memoHash);
@@ -38,9 +39,10 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         address owner,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
+        bool isDirectPay,
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){ 
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, initData);
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, isDirectPay, initData);
 
         bytes32 memoHash = abi.decode(initData, (bytes32));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
         memo[cheqId] = memoHash;
@@ -68,12 +70,13 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         address caller,
         address owner,
         uint256 amount,
+        bool isDirectPay,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {  
         require(!isCashed[cheqId], "Module: Already cashed");
-        IFundRule(fundRule).canFund(caller, owner, amount, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(caller, owner, amount, isDirectPay, cheqId, cheq, initData);  
         return fees.fundBPS;
     }
 
@@ -86,7 +89,7 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        require(!isCashed[cheqId], "Already cashed");
+        require(!isCashed[cheqId], "Module: Already cashed");
         ICashRule(cashRule).canCash(caller, owner, to, amount, cheqId, cheq, initData);
         isCashed[cheqId] = true;
         return fees.cashBPS;
@@ -100,7 +103,7 @@ contract SimpleMemo is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
     ) external override onlyRegistrar {
-        require(isCashed[cheqId], "Must be cashed first"); // Question: Should this be the case?
+        require(isCashed[cheqId], "Module: Must be cashed first"); // Question: Should this be the case?
         IApproveRule(approveRule).canApprove(caller, owner, to, cheqId, cheq, initData);
     }    
 

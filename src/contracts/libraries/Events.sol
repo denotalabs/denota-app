@@ -3,22 +3,22 @@ pragma solidity ^0.8.16;
 import {DataTypes} from "../libraries/DataTypes.sol";
 
 library Events {  // emit cheq structs or each variable?
-    event ModuleGlobalsGovernanceSet(
-        address indexed prevGovernance,
-        address indexed newGovernance,
-        uint256 timestamp
-    );
-    event ModuleGlobalsTreasurySet(
-        address indexed prevTreasury,
-        address indexed newTreasury,
-        uint256 timestamp
-    );
-    event ModuleGlobalsTreasuryFeeSet(
-        uint16 indexed prevTreasuryFee,
-        uint16 indexed newTreasuryFee,
-        uint256 timestamp
-    );
-    // event FeeModuleBaseConstructed(address indexed moduleGlobals, uint256 timestamp);
+    // event ModuleGlobalsGovernanceSet(
+    //     address indexed prevGovernance,
+    //     address indexed newGovernance,
+    //     uint256 timestamp
+    // );
+    // event ModuleGlobalsTreasurySet(
+    //     address indexed prevTreasury,
+    //     address indexed newTreasury,
+    //     uint256 timestamp
+    // );
+    // event ModuleGlobalsTreasuryFeeSet(
+    //     uint16 indexed prevTreasuryFee,
+    //     uint16 indexed newTreasuryFee,
+    //     uint256 timestamp
+    // );
+    // // event FeeModuleBaseConstructed(address indexed moduleGlobals, uint256 timestamp);
     event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
     // Question: emit the module address or bytehash?
     event ModuleWhitelisted(
@@ -35,6 +35,7 @@ library Events {  // emit cheq structs or each variable?
         uint256 indexed cheqId,
         address indexed owner, 
         DataTypes.Cheq indexed cheq,
+        bool isDirectPay,
         bytes data, 
         uint256 cheqFee,
         uint256 moduleFee,
@@ -52,6 +53,7 @@ library Events {  // emit cheq structs or each variable?
         address indexed funder, 
         uint256 indexed cheqId, 
         uint256 amount,
+        bool isDirectPay,
         bytes indexed fundData,
         uint256 cheqFee,
         uint256 moduleFee,
