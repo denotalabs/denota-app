@@ -9,13 +9,12 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { Cheq, useCheqs } from "../../hooks/useCheqs";
+import { useCheqContext } from "../../context/CheqsContext";
+import { Cheq } from "../../hooks/useCheqs";
 import CheqCardV2 from "./CheqCardV2";
 
 function MyCheqsView() {
-  const [cheqField, setCheqField] = useState("all");
-  const { cheqs, refresh } = useCheqs({ cheqField });
+  const { cheqs, refresh, setCheqField } = useCheqContext();
 
   return (
     <VStack

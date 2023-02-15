@@ -287,7 +287,7 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, [refresh, account]);
 
   const cheqs = useMemo(() => {
     if (cheqsReceived === undefined || cheqsSent === undefined) {
