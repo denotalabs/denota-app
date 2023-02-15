@@ -1,19 +1,18 @@
 import { Box, Checkbox, Link } from "@chakra-ui/react";
-import DetailsBox from "./DetailsBox";
-import RoundedButton from "../../designSystem/RoundedButton";
-import { useStep } from "../../designSystem/stepper/Stepper";
 import { Form, Formik } from "formik";
-import CurrencySelectorV2 from "./CurrencySelector";
-import { useUploadNote } from "../../../hooks/useUploadNote";
-import { notionOnboardingLink } from "../../nux/NewUserModal";
 import { useState } from "react";
+import { useUploadNote } from "../../../hooks/useUploadNote";
+import RoundedButton from "../../designSystem/RoundedButton";
+import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
+import { notionOnboardingLink } from "../../nux/NewUserModal";
+import CurrencySelectorV2 from "./CurrencySelector";
+import DetailsBox from "./DetailsBox";
 
-interface Props {
-  screenKey: string;
+interface Props extends ScreenProps {
   isInvoice: boolean;
 }
 
-function CheqDetailsStep({ isInvoice }: Props) {
+const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
   const { next, appendFormData, formData } = useStep();
   const { uploadNote } = useUploadNote();
   const [hasConsented, setHasConsented] = useState(true);
@@ -96,6 +95,6 @@ function CheqDetailsStep({ isInvoice }: Props) {
       </Formik>
     </Box>
   );
-}
+};
 
 export default CheqDetailsStep;

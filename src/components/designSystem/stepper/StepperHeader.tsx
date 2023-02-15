@@ -5,12 +5,12 @@ interface Props {
   onClose?: () => void;
   back?: () => void;
   currentIndex: number;
-  flowName?: string;
+  title?: string;
 }
 
-function StepperHeader({ onClose, back, currentIndex, flowName }: Props) {
+function StepperHeader({ onClose, back, currentIndex, title }: Props) {
   return (
-    <Flex direction="row" width="100%" justify="space-between">
+    <Flex direction="row" width="100%" justify="space-between" pt={4}>
       <IconButton
         aria-label="Back"
         icon={<ArrowBackIcon />}
@@ -18,7 +18,7 @@ function StepperHeader({ onClose, back, currentIndex, flowName }: Props) {
         onClick={back}
       />
       <Text fontWeight={600} fontSize={"xl"} mb={4}>
-        {flowName} Step {currentIndex + 1}
+        {title}
       </Text>
       <IconButton
         aria-label="Next"

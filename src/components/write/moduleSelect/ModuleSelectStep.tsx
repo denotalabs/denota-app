@@ -9,14 +9,14 @@ import {
   SimpleGrid,
   Text,
 } from "@chakra-ui/react";
-import { useStep } from "../../designSystem/stepper/Stepper";
+import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 
-interface Props {
-  screenKey: string;
+interface Props extends ScreenProps {
+  isInvoice: boolean;
 }
 
-function CheqModuleSelectStep({ screenKey }: Props) {
-  const { next, appendFormData, formData } = useStep();
+const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
+  const { next, appendFormData, goToStep } = useStep();
 
   return (
     <Box w="100%" p={4}>
@@ -41,7 +41,11 @@ function CheqModuleSelectStep({ screenKey }: Props) {
                 appendFormData({
                   module: "direct",
                 });
-                next?.();
+                if (isInvoice) {
+                  next?.();
+                } else {
+                  goToStep?.("confirm");
+                }
               }}
             >
               Select
@@ -91,6 +95,6 @@ function CheqModuleSelectStep({ screenKey }: Props) {
       </SimpleGrid>
     </Box>
   );
-}
+};
 
 export default CheqModuleSelectStep;

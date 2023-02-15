@@ -1,8 +1,8 @@
 import Stepper from "../designSystem/stepper/Stepper";
-import CheqConfirmStep from "./confirm/ConfirmStep";
-import CheqDetailsStep from "./details/DetailsStep";
-import CheqModuleStep from "./module/ModuleStep";
-import CheqModuleSelectStep from "./moduleSelect/ModuleSelectStep";
+import ConfirmStep from "./confirm/ConfirmStep";
+import DetailsStep from "./details/DetailsStep";
+import PaymentTermsStep from "./module/ModuleStep";
+import ModuleSelectStep from "./moduleSelect/ModuleSelectStep";
 
 interface Props {
   onClose?: () => void;
@@ -11,17 +11,27 @@ interface Props {
 
 function WriteCheqFlow({ onClose, isInvoice }: Props) {
   return (
-    <Stepper onClose={onClose} flowName={isInvoice ? "Request" : "Pay"}>
-      <CheqDetailsStep
+    <Stepper onClose={onClose}>
+      <DetailsStep
         screenKey="write"
+        screenTitle={isInvoice ? "Invoice Details" : "Recipient Details"}
         isInvoice={isInvoice}
-      ></CheqDetailsStep>
-      <CheqModuleSelectStep screenKey="moduleSelect" />
-      <CheqModuleStep screenKey="module" isInvoice={isInvoice}></CheqModuleStep>
-      <CheqConfirmStep
+      ></DetailsStep>
+      <ModuleSelectStep
+        screenKey="moduleSelect"
+        screenTitle="Select Module"
+        isInvoice={isInvoice}
+      />
+      <PaymentTermsStep
+        screenKey="module"
+        screenTitle="Payment Terms"
+        isInvoice={isInvoice}
+      ></PaymentTermsStep>
+      <ConfirmStep
         screenKey="confirm"
+        screenTitle="Confirm"
         isInvoice={isInvoice}
-      ></CheqConfirmStep>
+      ></ConfirmStep>
     </Stepper>
   );
 }
