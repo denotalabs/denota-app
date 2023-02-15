@@ -3,6 +3,7 @@ import { BigNumber, ethers } from "ethers";
 import { Form, Formik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
+import { useCheqContext } from "../../../context/CheqsContext";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ConfirmDetails from "./ConfirmDetails";
@@ -24,6 +25,8 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
     formData.token == "DAI" ? blockchainState.dai : blockchainState.weth;
 
   const amountWei = ethers.utils.parseEther(formData.amount);
+
+  const { refreshWithDelay } = useCheqContext();
 
   const buttonText = useMemo(() => {
     if (needsApproval) {
@@ -110,6 +113,7 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
                 duration: 3000,
                 isClosable: true,
               });
+              refreshWithDelay();
               onClose?.();
             } catch (error) {
               toast({
