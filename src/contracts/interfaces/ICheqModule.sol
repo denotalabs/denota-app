@@ -5,13 +5,13 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 // Question: Should the require statements be part of the interface? Would allow people to query canWrite(), canCash(), etc
 // Question: Should module return their fee in BPS or actual fee amount?
 interface ICheqModule {
-    function processWrite(address caller, address owner, uint cheqId, DataTypes.Cheq calldata cheq, bool isDirectPay, bytes calldata initData) external returns (uint256);  
+    function processWrite(address caller, address owner, uint cheqId, DataTypes.Cheq calldata cheq, uint256 directAmount, bytes calldata initData) external returns (uint256);  
     // QUESTION: return (moduleFee, adjOwner, adjCheq)? 
 
     function processTransfer(address caller, bool isApproved, address owner, address from, address to, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata data) external returns (uint256); 
     // QUESTION: return (adjOwner, adjCheq)?
 
-    function processFund(address caller, address owner, uint256 amount, bool isDirectPay, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external returns (uint256); 
+    function processFund(address caller, address owner, uint256 amount, uint256 directAmount, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external returns (uint256); 
     // QUESTION: return (adjOwner, adjAmount, adjCheq)?
 
     function processCash(address caller, address owner, address to, uint256 amount, uint256 cheqId, DataTypes.Cheq calldata cheq, bytes calldata initData) external returns (uint256); 

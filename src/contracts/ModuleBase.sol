@@ -9,8 +9,8 @@ import {ICheqRegistrar} from "../contracts/interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../contracts/interfaces/IWTFCRules.sol";
 
 // TODO separate fee and non-fee modules (perhaps URI distinction ones as well?)
-// Question allow module owners to change the Rules on the fly?
 // TODO could store rules as their own struct for simplicity
+// Question allow module owners to change the Rules on the fly?
 abstract contract ModuleBase is Ownable, ICheqModule {
     address public immutable REGISTRAR;  // Question: Make this a hardcoded address?
     mapping(address => mapping(address => uint256)) revenue;  // rewardAddress => token => rewardAmount
