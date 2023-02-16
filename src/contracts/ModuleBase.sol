@@ -11,8 +11,11 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 // TODO separate fee and non-fee modules (perhaps URI distinction ones as well?)
 // TODO could store rules as their own struct for simplicity
 // Question allow module owners to change the Rules on the fly?
-abstract contract ModuleBase is Ownable, ICheqModule {
+abstract contract ModuleBase is ICheqModule {
     address public immutable REGISTRAR;  // Question: Make this a hardcoded address?
+
+    string public _URI;
+    mapping(uint256 => bytes32) public memo;  // How to turn this into an image that OpenSea can display? Might need to be encrypted
     mapping(address => mapping(address => uint256)) revenue;  // rewardAddress => token => rewardAmount
     uint256 internal constant BPS_MAX = 10_000;  // Lens uses uint16
     address public writeRule;
@@ -21,6 +24,8 @@ abstract contract ModuleBase is Ownable, ICheqModule {
     address public cashRule;
     address public approveRule;  // Question can allow psuedo-operators (stored on module) to grant approvals
     DataTypes.WTFCFees public fees;
+    
+    event MemoWritten(uint256 indexed cheqId, bytes32 memoHash);
 
     modifier onlyRegistrar() {
         if (msg.sender != REGISTRAR) revert Errors.NotRegistrar();
@@ -63,10 +68,14 @@ abstract contract ModuleBase is Ownable, ICheqModule {
         address owner,
         uint cheqId,
         DataTypes.Cheq calldata cheq,
-        bool isDirectPay, 
+        uint256 directAmount,
         bytes calldata initData
     ) external virtual override onlyRegistrar returns(uint256){  // Fails here if not possible
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, isDirectPay, initData);
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, directAmount, initData);
+        bytes32 memoHash = abi.decode(initData, (bytes32));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
+        memo[cheqId] = memoHash;
+
+        emit MemoWritten(cheqId, memoHash);
         // Add module logic here
         return fees.writeBPS;
     }
@@ -90,17 +99,17 @@ abstract contract ModuleBase is Ownable, ICheqModule {
         address caller,
         address owner,
         uint256 amount,
-        bool isDirectPay,
+        uint256 directAmount,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external virtual override onlyRegistrar returns (uint256) {  
-        IFundRule(fundRule).canFund(caller, owner, amount, isDirectPay, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(caller, owner, amount, directAmount, cheqId, cheq, initData);  
         // Add module logic here
         return fees.fundBPS;
     }
 
-    function processCash( 
+    function processCash(
         address caller, 
         address owner,
         address to,
@@ -126,18 +135,19 @@ abstract contract ModuleBase is Ownable, ICheqModule {
         // Add module logic here
     }
 
-    function processTokenURI(uint256 /*tokenId*/) external virtual view returns(string memory) {
-        return "";
+    function processTokenURI(uint256 tokenId) external view virtual override returns(string memory) {
+        bytes32 memoHash = memo[tokenId];
+        return string(abi.encodePacked(_URI, memoHash));  // ipfs://baseURI/memoHash --> memo // TODO encrypt upload on frontend
     }
     
     function getFees() external virtual view returns(uint256, uint256, uint256, uint256) {
         return (fees.writeBPS, fees.transferBPS, fees.fundBPS, fees.cashBPS);
     }
 
-    function withdrawFees(address token) public {
-        uint256 payoutAmount = revenue[_msgSender()][token];
+    function withdrawFees(address token) public {  // TODO do this using shares instead of absolute amounts (transfers can't specify referer)
+        uint256 payoutAmount = revenue[msg.sender][token];
         require(payoutAmount > 1, "Insufficient revenue");
-        revenue[_msgSender()][token] = 1;  // Should this be set to 1 wei? Saves on gas
-        ICheqRegistrar(REGISTRAR).moduleWithdraw(token, payoutAmount - 1, _msgSender());
+        revenue[msg.sender][token] = 1;  // Should this be set to 1 wei? Saves on gas
+        ICheqRegistrar(REGISTRAR).moduleWithdraw(token, payoutAmount - 1, msg.sender);
     }
 }
