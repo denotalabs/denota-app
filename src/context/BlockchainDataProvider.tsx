@@ -150,7 +150,7 @@ export const BlockchainDataProvider = memo(
             selfSignBroker,
             daiAllowance,
             wethAllowance,
-            cheqAddress: mapping.crx,
+            cheqAddress: mapping.cheq,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: mapping.explorer,
