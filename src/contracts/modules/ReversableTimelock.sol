@@ -8,12 +8,12 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 /**
- * @notice A simple time release module
- * Escrowed tokens are cashable after the releaseDate
+ * Note should this only be for full escrows?
  */
-contract SimpleTimelock is ModuleBase {  // VenCashPal module
+contract ReversableTimelock is ModuleBase {
+    mapping(uint256 => uint256) public inspectionPeriod;
+    mapping(uint256 => address) public inspector;
     mapping(uint256 => bool) public isCashed;
-    mapping(uint256 => uint256) public releaseDate;
 
     constructor(
         address registrar,
@@ -31,17 +31,23 @@ contract SimpleTimelock is ModuleBase {  // VenCashPal module
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint cheqId,
         DataTypes.Cheq calldata cheq,
         uint256 directAmount,
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){ 
+        /**
+        (cheq.amount != 0) &&  // Cheq must have a face value
+        (cheq.drawer != cheq.recipient) && // Drawer and recipient aren't the same
+        (owner == cheq.drawer || owner == cheq.recipient) &&  // Either drawer or recipient must be owner
+        (caller == cheq.drawer || caller == cheq.recipient) &&  // Delegated pay/requesting not allowed
+        (cheq.escrowed == 0 || cheq.escrowed == cheq.amount) &&  // Either send unfunded or fully funded cheq
+        (cheq.recipient != address(0) && owner != address(0))  // Can't send to zero address
+         */
         IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, directAmount, initData);
-        // require(cheq.escrowed == cheq.amount, "");
-
-        uint256 _releaseDate = abi.decode(initData, (uint256));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        releaseDate[cheqId] = _releaseDate;
-        // Need event
+        (uint256 _inspectionPeriod, address _inspector) =  abi.decode(initData, (uint256, address));
+        inspectionPeriod[cheqId] =_inspectionPeriod;
+        inspector[cheqId] = _inspector;
         return fees.writeBPS;
     }
 
@@ -54,8 +60,8 @@ contract SimpleTimelock is ModuleBase {  // VenCashPal module
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes memory data
-    ) external override onlyRegistrar returns (uint256) {  // TODO need to pass approval status of the caller
-        require(isCashed[cheqId], "Needs full funding");
+    ) external override onlyRegistrar returns (uint256) {
+        // require(cheq.mintTimestamp + inspectionPeriod[cheqId] <= block.timestamp, "Can only transfer after inspection");
         ITransferRule(transferRule).canTransfer(caller, isApproved, owner, from, to, cheqId, cheq, data);  // Checks if caller is ownerOrApproved
         return fees.transferBPS;
     }
@@ -69,15 +75,12 @@ contract SimpleTimelock is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {  
-        require(!isCashed[cheqId], "Already cashed");  // How to abstract this?
-        // require(endDate[cheqId] <= block.timestamp, "Funding over");
-        // require(cheq.escrowed + amount <= cheq.amount, "Overfunding");
+        // require(false, "Partial/incomplete cheqs disallowed");
         IFundRule(fundRule).canFund(caller, owner, amount, directAmount, cheqId, cheq, initData);  
-        // uint256 fundAmount = cheq.escrowed + amount <= cheq.amount ? amount : cheq.amount - cheq.escrowed;
         return fees.fundBPS;
     }
 
-    function processCash(
+    function processCash( // Must allow the funder to cash the escrows too
         address caller, 
         address owner,
         address to,
@@ -86,10 +89,9 @@ contract SimpleTimelock is ModuleBase {  // VenCashPal module
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        require(!isCashed[cheqId], "Already cashed");
-        // require(cheq.escrowed == cheq.amount, "");
         ICashRule(cashRule).canCash(caller, owner, to, amount, cheqId, cheq, initData);
-        isCashed[cheqId] = true;
+        // require(amount == cheq.escrowed, "Can only cash full amounts");
+        // require(cheq.mintTimestamp + inspectionPeriod[cheqId] <= block.timestamp, "Can only cash after inspection");
         return fees.cashBPS;
     }
 
@@ -100,15 +102,11 @@ contract SimpleTimelock is ModuleBase {  // VenCashPal module
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes memory initData
-    ) external override onlyRegistrar{
-        require(isCashed[cheqId], "Must be cashed first");
+    ) external override onlyRegistrar {
         IApproveRule(approveRule).canApprove(caller, owner, to, cheqId, cheq, initData);
-    }    
+    }
 
-    // TODO
-    function processTokenURI(uint256 tokenId) external view override returns(string memory) {
-        // Allow cheq creator to update the URI?
-        uint256 _releaseDate = releaseDate[tokenId];
-        return string(abi.encodePacked(_URI, _releaseDate));  // ipfs://baseURU/memoHash --> memo // TODO encrypt upload on frontend
+    function processTokenURI(uint256 /*tokenId*/) external override pure returns(string memory) {
+        return "";
     }
 }

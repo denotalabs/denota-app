@@ -38,27 +38,51 @@ run:
 	(npm run dev | sed -e 's/^/[NPM] : /' & anvil | sed -e 's/^/[ANVIL] : /')
 
 deploy:
-	# key1=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-	# key2=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
-	# key3=0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
-	# export cheqAddress=$(python3 returnAddress.py "src/out/Cheq.sol/CheqAddress.json") && \
-	# address1=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && \
-	# address2=0x70997970C51812dc3A010C7d01b50e0d17dc79C8 && \
-	# address3=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC && \
-	
-	# Local
-	forge create Cheq --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --json > ./src/out/Cheq.sol/CheqAddress.json
-	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 10000000000000000000000000 dai DAI --json > ./src/out/ERC20.sol/DaiAddress.json
-	forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 10000000000000000000000000 weth WETH --json > ./src/out/ERC20.sol/WethAddress.json
-	
-	# Mumbai
-	# forge create src/contracts/CheqRegistrar.sol:CheqRegistrar --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com
-	# forge create src/contracts/CheqRegistrar.sol:SelfSignTimeLock --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 0x98E39bC9849131187cbC6a180a321Cc88fF264Ed --gas-price 30gwei
-	# forge create src/test/mock/erc20.sol:TestERC20 --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 10000000000000000000000000 dai DAI --gas-price 30gwei
-	# forge create src/test/mock/erc20.sol:TestERC20 --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --constructor-args 10000000000000000000000000 weth WETH --gas-price 30gwei
-	# cast send 0x98E39bC9849131187cbC6a180a321Cc88fF264Ed "whitelistBroker(address,bool,string)" 0x38C112ED27d421DDBC8069892e0614A39AAe72a1 "true" --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --gas-price 30gwei
-	# cast send 0x38C112ED27d421DDBC8069892e0614A39AAe72a1 "whitelistToken(address,bool)" 0x63d98DB901EDD4dFFA7A0aFEBE0CcB850435CfA3 "true" --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --gas-price 30gwei
-	# cast send 0x38C112ED27d421DDBC8069892e0614A39AAe72a1 "whitelistToken(address,bool)" 0xAA6DA55ba764428e1C4c492c6db5FDe3ccf57332 "true" --private-key 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a --rpc-url https://matic-mumbai.chainstacklabs.com --gas-price 30gwei
+	if [$1 = "mumbai"]
+	then
+		export RPC="https://matic-mumbai.chainstacklabs.com"
+	else
+		export RPC="http://127.0.0.1:8545"
+	fi
+
+	source .env
+
+	# Deploy the CheqRegistrar
+	forge create src/contracts/CheqRegistrar.sol:CheqRegistrar --constructor-args "DataTypes.WTFCFees _fees" --private-key $(privateKey) --rpc-url $(RPC)
+	export cheqAddress=$(python3 returnAddress.py "src/out/CheqRegistrar.sol/CheqRegistrar.json")
+
+	# Deploy the ERC20s
+	forge create src/test/mock/erc20.sol:TestERC20 --constructor-args 10000000000000000000000000 weth WETH --private-key $(privateKey) --rpc-url $(RPC) --gas-price 30gwei
+	export erc1Address=$(python3 returnAddress.py "src/out/erc20.sol/TestERC20.json")
+	# forge create src/test/mock/erc20.sol:TestERC20 --constructor-args 10000000000000000000000000 dai DAI --private-key $(privateKey) --rpc-url $(RPC) --gas-price 30gwei
+	# export erc2Address=$(python3 returnAddress.py "src/out/erc20.sol/TestERC20.json")
+
+	# Deploy the DirectPayRules
+	forge create src/contracts/DirectPay.sol:DirectPayRules --private-key $(privateKey) --rpc-url $(RPC)
+	export directPayRulesAddress=$(python3 returnAddress.py "src/out/DirectPay.sol/DirectPayRules.json")
+
+	# Whitelist the rules
+	cast send $(cheqAddress) "whitelistRule(address,bool)" "RULE_ADDRESS" "true" --private-key $(privateKey) --rpc-url $(RPC) --gas-price 30gwei
+
+	# Deploy the DirectPay module
+	## address registrar, address _writeRule, address _transferRule,  address _fundRule,  address _cashRule,  address _approveRule, DataTypes.WTFCFees memory _fees, string memory __baseURI
+	forge create src/contracts/DirectPay.sol:DirectPay --constructor-args 0x98E39bC9849131187cbC6a180a321Cc88fF264Ed --private-key $(privateKey) --rpc-url $(RPC) --gas-price 30gwei
+	export directPayAddress=$(python3 returnAddress.py "src/out/DirectPay.sol/DirectPay.json")
+
+	# Whitelist the DirectPay module
+	cast send $(cheqAddress) "whitelistModule(address,bool)" $(directPayAddress) "true" --private-key $(privateKey) --rpc-url $(RPC) --gas-price 30gwei
+
+	# Whitelist tokens
+	# cast send $(cheqAddress) "whitelistToken(address,bool)" ERC20_ADDRESS "true" --private-key $(privateKey) --rpc-url $(RPC) --gas-price 30gwei
+	# cast send $(cheqAddress) "whitelistToken(address,bool)" ERC20_ADDRESS "true" --private-key $(privateKey) --rpc-url $(RPC) --gas-price 30gwei
+
+	# export cheqAddress=$(python3 returnAddress.py "src/out/Cheq.sol/CheqAddress.json")
+
+
+# Local
+# forge create Cheq --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --json > ./src/out/Cheq.sol/CheqAddress.json
+# forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 10000000000000000000000000 dai DAI --json > ./src/out/ERC20.sol/DaiAddress.json
+# forge create src/test/mock/erc20.sol:TestERC20 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --constructor-args 10000000000000000000000000 weth WETH --json > ./src/out/ERC20.sol/WethAddress.json
 
 graph:
 	# Requires docker to be running

@@ -3,7 +3,8 @@ pragma solidity ^0.8.16;
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
-// TODO add these to the Errors.sol as reverts
+// TODO add these to the Errors.sol (as reverts)
+// Question: Should SimpleMemo support Direct pay? Yes
 contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule {
 
     function canWrite(
@@ -11,15 +12,19 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         address owner, 
         uint256 /*cheqId*/, 
         DataTypes.Cheq calldata cheq, 
-        bool /*isDirectPay*/,
+        uint256 directAmount,
         bytes calldata /*initData*/
     ) external pure {
+
+        require(directAmount == 0 || (owner == cheq.recipient), "Rule: Only owner can be sent");
         require((cheq.amount != 0), "Rule: Amount == 0");
         require((cheq.drawer != cheq.recipient), "Rule: Drawer == recipient"); 
-        require((owner == cheq.drawer || owner == cheq.recipient), "Rule: Drawer or recipient aren't owner"); 
-        require((caller == cheq.drawer || caller == cheq.recipient), "Rule: Only drawer/receiver"); 
+        require((caller == cheq.drawer || caller == cheq.recipient), "Rule: Only drawer/receiver");
+
         require((cheq.escrowed == 0 || cheq.escrowed == cheq.amount), "Rule: Semi funding disallowed"); 
-        require((cheq.recipient != address(0) && owner != address(0) && cheq.drawer != address(0)), "Rule: Can't use zero address"); 
+        require((owner == cheq.drawer || owner == cheq.recipient), "Rule: Drawer/recipient != owner"); // Not directPay relevant
+        require((cheq.recipient != address(0) && owner != address(0) && cheq.drawer != address(0)), "Rule: Can't use zero address");  // TODO can be simplified
+        
         // return (
         //        (cheq.amount != 0) &&  // Cheq must have a face value
         //        (cheq.drawer != cheq.recipient) && // Drawer and recipient aren't the same
@@ -46,7 +51,7 @@ contract SimpleMemoRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IAp
         address caller, 
         address /*owner*/, 
         uint256 amount, 
-        bool /*isDirectPay*/, 
+        uint256 /*directAmount*/, 
         uint256 /*cheqId*/, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata /*initData*/

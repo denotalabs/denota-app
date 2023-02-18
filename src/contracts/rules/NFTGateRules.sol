@@ -25,7 +25,7 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
         address /*owner*/,
         uint /*cheqId*/,
         DataTypes.Cheq calldata /*cheq*/, 
-        bool /*isDirectPay*/,
+        uint256 /*directAmount*/,
         bytes calldata initData
     ) external view { 
         require(_ownsToken(caller, initData), "WriteRule: Not token owner");
@@ -48,7 +48,7 @@ contract NFTGatingRules is IWriteRule, ITransferRule, IFundRule, ICashRule, IApp
         address caller, 
         address /*owner*/,
         uint256 /*amount*/,
-        bool /*isDirectPay*/, 
+        uint256 /*directAmount*/, 
         uint256 /*cheqId*/,  
         DataTypes.Cheq calldata /*cheq*/,  
         bytes calldata initData

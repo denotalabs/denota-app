@@ -13,13 +13,9 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
  * If end date passes and fully funded, only the owner can cash. Otherwise only the funders can
  */
 contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
-    mapping(uint256 => bytes32) public memo;  // How to turn this into an image that OpenSea can display? Might need to be encrypted
     mapping(uint256 => bool) public isCashed;
     // mapping(uint256 => uint256) public endDate;
     // mapping(uint256 => mapping(address => uint256)) funderAmount;
-    string public _baseURI;
-
-    event MemoWritten(uint256 indexed cheqId, bytes32 memoHash);
 
     constructor(
         address registrar,
@@ -31,7 +27,7 @@ contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
     ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule, _fees) { // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens?)
-        _baseURI = __baseURI;
+        _URI = __baseURI;
         fees = _fees;
     }
 
@@ -40,10 +36,10 @@ contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
         address owner,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
-        bool isDirectPay,
+        uint256 directAmount,
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){ 
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, isDirectPay, initData);
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, directAmount, initData);
         // require(cheq.escrowed == 0, "");
 
         bytes32 memoHash = abi.decode(initData, (bytes32));  // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
@@ -73,7 +69,7 @@ contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
         address caller,
         address owner,
         uint256 amount,
-        bool isDirectPay,
+        uint256 directAmount,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
@@ -81,7 +77,7 @@ contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
         require(!isCashed[cheqId], "Already cashed");  // How to abstract this?
         // require(endDate[cheqId] <= block.timestamp, "Funding over");
         // require(cheq.escrowed + amount <= cheq.amount, "Overfunding");
-        IFundRule(fundRule).canFund(caller, owner, amount, isDirectPay, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(caller, owner, amount, directAmount, cheqId, cheq, initData);  
         // uint256 fundAmount = cheq.escrowed + amount <= cheq.amount ? amount : cheq.amount - cheq.escrowed;
         return fees.fundBPS;
     }
@@ -117,6 +113,6 @@ contract SimpleCrowdRaise is ModuleBase {  // VenCashPal module
     function processTokenURI(uint256 tokenId) external view override returns(string memory) {
         // Allow cheq creator to update the URI?
         bytes32 memoHash = memo[tokenId];
-        return string(abi.encodePacked(_baseURI, memoHash));  // ipfs://baseURU/memoHash --> memo // TODO encrypt upload on frontend
+        return string(abi.encodePacked(_URI, memoHash));  // ipfs://baseURU/memoHash --> memo // TODO encrypt upload on frontend
     }
 }

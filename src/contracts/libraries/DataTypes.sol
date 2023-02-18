@@ -4,6 +4,13 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 
 // Might be able to just incorporate this into the CheqRegistrar
 library DataTypes {
+    // Question: Should this be the core registrar params?
+    struct CheqParams {
+        address currency;
+        uint256 escrowed;
+        address module;
+    }
+
     struct Cheq {
         address currency; // Set by caller [Wont change on hook]
         // Question: should `amount` be in registrar?

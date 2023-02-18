@@ -5,15 +5,14 @@ import "forge-std/Script.sol";
 import "src/contracts/CheqRegistrar.sol";
 import "src/test/mock/erc20.sol";
 import "forge-std/console.sol";
+import {CheqRegistrar} from "src/contracts/CheqRegistrar.sol";
 
 contract ContractScript is Script {
     function setUp() public {}
 
-    function run() public {}
-    //  returns (CRX)
-    // {
-    // THIS DOES THE HANDSHAKE BUT DOESNT SAVE THE ADDRESS
-    // uint256 deployerPrivateKey = vm.envUint("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80");
+    function run() public returns (CheqRegistrar) {
+
+    uint256 deployerPrivateKey = vm.envUint("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80");
     // address address1 = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
     // address address2 = address(0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
     // address address3 = address(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);
@@ -36,15 +35,5 @@ contract ContractScript is Script {
     // vm.broadcast(address3);
     // cheq.acceptUser(address2, true);
     // return cheq;
-    // }
+    }
 }
-
-// Hardhat working
-// Fixed hanging transactions (wrong chainId)
-// Updated cheq card
-// Added promises to transaction chains on deposit and write
-// Added depositWrite functionality
-// Added handshake boolean argument
-// Removed array storage of auditors
-// Updated testing functionality
-// Added foundry deployment script for cheq deployment and handshake
