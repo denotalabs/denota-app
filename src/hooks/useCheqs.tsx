@@ -3,7 +3,7 @@ import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
 import {
-  APIURL_TESTING,
+  APIURL_REMOTE,
   useBlockchainData,
 } from "../context/BlockchainDataProvider";
 
@@ -253,7 +253,7 @@ export const useCheqs = ({ cheqField }: Props) => {
 
       // SWITCH BACK TO PROD URL BEFORE MERGE
       const client = new ApolloClient({
-        uri: APIURL_TESTING,
+        uri: APIURL_REMOTE,
         cache: new InMemoryCache(),
       });
       client
