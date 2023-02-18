@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 import "openzeppelin/utils/Strings.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
+import "openzeppelin/access/Ownable.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {ICheqModule} from "../interfaces/ICheqModule.sol";
@@ -15,7 +16,7 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
   * Notice: Assumes milestones are funded sequentially
  * @notice Contract: stores invoice structs, takes/sends WTFC fees to owner, allows owner to set URI, allows freelancer/client to set work status', 
  */
-contract Marketplace is ModuleBase {
+contract Marketplace is ModuleBase, Ownable {
     using Strings for uint256;
     // `InProgress` might not need to be explicit (Invoice.workerStatus=ready && Invoice.clientStatus=ready == working)
     // QUESTION: Should this pertain to the current milestone??
@@ -48,7 +49,6 @@ contract Marketplace is ModuleBase {
     mapping(uint256 => Invoice) public invoices;
     mapping(uint256 => Milestone[]) public milestones;
     mapping(address => bool) public tokenWhitelist;
-    string private baseURI;
 
     constructor(
         address registrar, 
@@ -60,13 +60,13 @@ contract Marketplace is ModuleBase {
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
     ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule, _fees) { // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens?)
-        baseURI = __baseURI;
+        _URI = __baseURI;
     }
     function whitelistToken(address token, bool whitelist) public onlyOwner {
         tokenWhitelist[token] = whitelist;
     }
     function setBaseURI(string calldata __baseURI) external onlyOwner {
-        baseURI = __baseURI;
+        _URI = __baseURI;
     }
 
     function processWrite(
@@ -74,11 +74,11 @@ contract Marketplace is ModuleBase {
         address owner,
         uint cheqId,
         DataTypes.Cheq calldata cheq,
-        bool isDirectPay,
+        uint256 directAmount,
         bytes calldata initData
     ) external override onlyRegistrar returns(uint256){  // Writes milestones to mapping, writes totalMilestones into invoice (rest of invoice is filled out later)
         require(tokenWhitelist[cheq.currency], "Module: Token not whitelisted");  // QUESTION: should this be a require or return false?
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, isDirectPay, initData);  // Should the assumption be that this is only for freelancers to send as an invoice??
+        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, directAmount, initData);  // Should the assumption be that this is only for freelancers to send as an invoice??
         // require(caller == owner, "Not invoice"); 
         // require(cheq.drawer == caller, "Can't send on behalf"); 
         // require(cheq.recipient != owner, "Can't self send"); 
@@ -127,7 +127,7 @@ contract Marketplace is ModuleBase {
         address caller,
         address owner,
         uint256 amount,
-        bool isDirectPay,
+        uint256 directAmount,
         uint256 cheqId, 
         DataTypes.Cheq calldata cheq, 
         bytes calldata initData
@@ -155,7 +155,7 @@ contract Marketplace is ModuleBase {
         }
          */
         // require(caller == cheq.recipient, "Module: Only client can fund");
-        IFundRule(fundRule).canFund(caller, owner, amount, isDirectPay, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(caller, owner, amount, directAmount, cheqId, cheq, initData);  
 
         if (invoices[cheqId].startTime == 0) invoices[cheqId].startTime = block.timestamp;
 
@@ -202,14 +202,14 @@ contract Marketplace is ModuleBase {
 
     function processTokenURI(uint256 tokenId) public view override onlyRegistrar returns (string memory) {
         string memory __baseURI = _baseURI();
-        return bytes(__baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
+        return bytes(__baseURI).length > 0 ? string(abi.encodePacked(_URI, tokenId.toString())) : "";
     }
 
     /*//////////////////////////////////////////////////////////////
                             Module Functions
     //////////////////////////////////////////////////////////////*/
     function _baseURI() internal view returns (string memory) {
-        return baseURI;
+        return _URI;
     }
     function getMilestones(uint256 cheqId) public view returns(Milestone[] memory){
         return milestones[cheqId];

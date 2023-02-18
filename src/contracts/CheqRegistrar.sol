@@ -11,9 +11,12 @@ import {ICheqRegistrar} from "../contracts/interfaces/ICheqRegistrar.sol";
 import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol";
 
 /** 
- * @notice The Inside-out (LensProtocol) design where EOAs call the registrar and registrar calls to PaymentModules (who use RuleModules)
- * WFC fees are taken in gas and BPS while transfer is taken from cheq.escrowed to stay compatibile
+ * @title  The Cheq Payment Registrar
+ * @notice The main contract where users can WTFCA cheqs
+ * @author Alejandro Almaraz
+ * @dev    Tracks ownership of cheqs' data & escrow, whitelists tokens/modules/rulesets, and collects revenue.
 */
+
 // Revert if frontend gives the wrong amount (MM should know if it would revert (using Ethers call estimateGas, will also tell you if it will revert))
 // Note Arseniy: "calling contracts may not be able to convert their storage to calldata when calling functions" "developers want to develop if we already have a lot of users and they can make money from fees, or "
 // Question what would a gnosis app need?
@@ -22,13 +25,15 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
 // Question deploy your own DAO and see how difficult it is
 // Question: Add function to deploy modules from the registrar?
 // Question: Implement ownerOf(cheqId) { cheq.module.processOwner(); } to allow ownership revokation?
-// TODO allow native token transfers?
+// TODO allow native tokens? Can use address(0) as their currency address
+// TODO should che.amount be removed?
 
-// TODO add WTFCA signature methods
+// TODO support cheq burning
+// TODO add WTFCA EIP712 signature methods
 // TODO ensure BPS avoids over/underflow
 // TODO need to convert IWTFCRules to libraries
 // TODO determine proper fee uint sizes
-// TODO need to have an upgradable proxy of the cheqRegistrar
+// TODO need to implement upgradable proxies
 // TODO make sure tokenURI is correct
 // Question should registrar have a function payload(cheqid, bytes) to forward updates to the cheq's respective module for easier front-end manipulation?
 contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {

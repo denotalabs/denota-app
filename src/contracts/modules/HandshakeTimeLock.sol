@@ -26,7 +26,7 @@ contract HandshakeTimeLock is ModuleBase {
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
     ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule, _fees) {
-        _baseURI = __baseURI;
+        _URI = __baseURI;
     }
 
 // TRANSFERING
