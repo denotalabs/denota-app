@@ -75,6 +75,7 @@ export const useCheqs = ({ cheqField }: Props) => {
     undefined
   );
   const [cheqsSent, setCheqsSent] = useState<Cheq[] | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
 
   const mapField = useCallback(
     (gqlCheq: any) => {
@@ -120,7 +121,8 @@ export const useCheqs = ({ cheqField }: Props) => {
       const funder = gqlCheq.selfSignedData.cheqFunder.id;
       const isInvoice = gqlCheq.recipient.id === funder;
       const isVoided = casher === funder;
-      const isFunder = blockchainState.account === funder;
+      const isFunder =
+        blockchainState.account.toLowerCase() === funder.toLowerCase();
       const maturityTime =
         fundedTimestamp === 0
           ? undefined
@@ -199,6 +201,7 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const refresh = useCallback(() => {
     if (account) {
+      setIsLoading(true);
       const tokenFields = `      
       id
       amountExact
@@ -274,6 +277,7 @@ export const useCheqs = ({ cheqField }: Props) => {
             ] as any[];
             setCheqsSent(gqlCheqsSent.map(mapField));
             setCheqReceived(gqlCheqsReceived.map(mapField));
+            setIsLoading(false);
           } else {
             setCheqsSent([]);
             setCheqReceived([]);
@@ -290,7 +294,7 @@ export const useCheqs = ({ cheqField }: Props) => {
   }, [refresh, account]);
 
   const cheqs = useMemo(() => {
-    if (cheqsReceived === undefined || cheqsSent === undefined) {
+    if (cheqsReceived === undefined || cheqsSent === undefined || isLoading) {
       return undefined;
     }
     switch (cheqField) {
@@ -306,7 +310,7 @@ export const useCheqs = ({ cheqField }: Props) => {
           );
         });
     }
-  }, [cheqField, cheqsReceived, cheqsSent]);
+  }, [cheqField, cheqsReceived, cheqsSent, isLoading]);
 
   return { cheqs, refresh };
 };

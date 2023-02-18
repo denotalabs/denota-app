@@ -14,7 +14,7 @@ import { Cheq } from "../../hooks/useCheqs";
 import CheqCardV2 from "./CheqCardV2";
 
 function MyCheqsView() {
-  const { cheqs, refresh, setCheqField } = useCheqContext();
+  const { cheqs, refresh, setCheqField, isLoading } = useCheqContext();
 
   return (
     <VStack
@@ -47,7 +47,7 @@ function MyCheqsView() {
         />
       </HStack>
 
-      <CheqGrid cheqs={cheqs} />
+      <CheqGrid cheqs={isLoading ? undefined : cheqs} />
     </VStack>
   );
 }
