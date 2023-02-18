@@ -104,9 +104,9 @@ contract CheqRegistrar is ERC721, Ownable {
         returns (uint256)
     {
         // require(_msgSender().supportInterface("0xffffffff"), "INVAL_MODULE");  // TODO Finalize this standard
-        if (from != _msgSender()){ // The module is trying to use `from` deposit on their behalf instead of its own
-            require(userModuleWhitelist[from][ICheqModule(_msgSender())], "UNAPP_MODULE"); // See if user allows this
-        }
+        // if (from != _msgSender()){ // The module is trying to use `from` deposit on their behalf instead of its own
+        //     require(userModuleWhitelist[from][ICheqModule(_msgSender())], "UNAPP_MODULE"); // See if user allows this
+        // }
         require(
             escrow <= deposits[from][_token],
             "INSUF_BAL"

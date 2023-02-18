@@ -18,7 +18,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
@@ -67,19 +67,22 @@ const TOOLTIP_MESSAGE_MAP = {
 };
 
 function CheqCardV2({ cheq }: Props) {
+  const {
+    amount,
+    token,
+    formattedSender,
+    formattedRecipient,
+    isFunder,
+    isInvoice,
+    maturityDate,
+  } = cheq;
   const { blockchainState } = useBlockchainData();
 
-  const [isCashable, setIsCashable] = useState<boolean | undefined>(undefined);
-
   const [isEarlyReleased, setIsEarlyReleased] = useState<boolean | undefined>(
-    undefined
+    cheq.isEarlyReleased
   );
 
-  const [isFunder, setIsFunder] = useState<boolean | undefined>(undefined);
-
-  const [isInvoice, setIsInvoice] = useState<boolean | undefined>(undefined);
-
-  const [isVoided, setIsVoided] = useState<boolean | undefined>(undefined);
+  const [isVoided, setIsVoided] = useState<boolean | undefined>(cheq.isVoided);
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
@@ -87,21 +90,11 @@ function CheqCardV2({ cheq }: Props) {
 
   const [releaseInProgress, setReleaseInProgress] = useState(false);
 
-  const [maturityDate, setMaturityDate] = useState<Date | undefined>(undefined);
-
   const createdLocaleDate = useMemo(() => {
-    return cheq.createdDate.toLocaleDateString();
-  }, [cheq.createdDate]);
+    return cheq.createdTransaction.date.toLocaleDateString();
+  }, [cheq.createdTransaction.date]);
 
   const status: CheqStatus | undefined = useMemo(() => {
-    if (
-      isCashable === undefined ||
-      isEarlyReleased === undefined ||
-      isFunder === undefined
-    ) {
-      return undefined;
-    }
-
     if (cheq.isCashed || cashingComplete) {
       if (isVoided) {
         return "voided";
@@ -117,7 +110,7 @@ function CheqCardV2({ cheq }: Props) {
       return "paid";
     }
 
-    if (isCashable) {
+    if (cheq.isCashable) {
       if (isFunder) {
         return "voidable";
       } else {
@@ -142,7 +135,7 @@ function CheqCardV2({ cheq }: Props) {
     cashingComplete,
     cheq.hasEscrow,
     cheq.isCashed,
-    isCashable,
+    cheq.isCashable,
     isEarlyReleased,
     isFunder,
     isVoided,
@@ -167,50 +160,6 @@ function CheqCardV2({ cheq }: Props) {
     }
     return cheq.formattedRecipient;
   }, [cheq.formattedRecipient, cheq.formattedSender, isInvoice]);
-
-  useEffect(() => {
-    async function fetchData() {
-      setIsCashable(undefined);
-      try {
-        const cheqId = Number(cheq.id);
-        const caller = blockchainState.account;
-        const cashableAmount: number =
-          await blockchainState.selfSignBroker?.cashable(cheqId, caller, 0);
-        setIsCashable(cashableAmount > 0);
-
-        const maturity: BigNumber =
-          await blockchainState.selfSignBroker?.cheqInspectionPeriod(cheqId);
-
-        if (cheq.fundedDate) {
-          const maturityTime = cheq.fundedTimestamp + maturity.toNumber();
-          setMaturityDate(new Date(maturityTime * 1000));
-        }
-
-        const isEarlyReleased =
-          await blockchainState.selfSignBroker?.isEarlyReleased(cheqId);
-        setIsEarlyReleased(isEarlyReleased);
-
-        const funder = await blockchainState.selfSignBroker?.cheqFunder(cheqId);
-        setIsFunder(
-          blockchainState.account.toLowerCase() === funder.toLowerCase()
-        );
-        setIsInvoice(cheq.recipient.toLowerCase() === funder.toLowerCase());
-        setIsVoided(cheq.casher?.toLowerCase() === funder.toLowerCase());
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    fetchData();
-  }, [
-    blockchainState.account,
-    blockchainState.selfSignBroker,
-    cheq.casher,
-    cheq.createdDate,
-    cheq.fundedDate,
-    cheq.fundedTimestamp,
-    cheq.id,
-    cheq.recipient,
-  ]);
 
   const cashCheq = useCallback(
     async (isVoid = false) => {

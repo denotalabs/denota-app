@@ -13,6 +13,19 @@ type Transaction @entity {
   transactionHash: String!
   events: [Event!]! @derivedFrom(field: "transaction")
 }
+
+type SelfSignedCheqData @entity {
+  id: ID!
+  cheqFunder: Account!
+  cheqInspectionPeriod: BigInt!
+  isEarlyReleased: Boolean!
+}
+
+type BYOAData @entity {
+  id: ID!
+  cheqAuditor: Account!
+}
+
 interface Event {
   id: ID!
   emitter: Account!
@@ -66,6 +79,10 @@ type Account @entity {
   # approvalsForAllOperator: [ApprovalForAll!]! @derivedFrom(field: "operator")
 	events: [Event!]! @derivedFrom(field: "emitter")
 }
+
+# TODO: figure out why unions aren't working
+# union CheqData =  BYOAData | SelfSignedCheqData
+
 type Cheq @entity {
   id: ID!
   createdAt: BigInt!
@@ -84,6 +101,7 @@ type Cheq @entity {
   escrows: [Escrow!]! @derivedFrom(field: "cheq")
   # approval: Account!
   # approvals: [Approval!]! @derivedFrom(field: "token")
+  selfSignedData: SelfSignedCheqData
 }
 type ModuleRegistry @entity {
   id: ID!  # Should this be the modules' address?
@@ -102,12 +120,6 @@ type SelfSignTimeLock implements Module @entity {
   registry: ModuleRegistry!
   cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
   numCheqsManaged: BigInt!
-  cheqFunder: Account!
-  cheqReceiver: Account!
-  cheqCreated: BigInt!  # Is redundant?
-  cheqInspectionPeriod: BigInt!
-  isEarlyReleased: Boolean!
-  earlyReleasedTime: BigInt
   tokenWhitelist: [ERC20!]!
 }
 

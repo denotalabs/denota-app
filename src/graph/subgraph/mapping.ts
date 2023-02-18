@@ -12,8 +12,13 @@ import {
   Cheq,
   ERC20,
   Escrow,
+  SelfSignedCheqData,
   Transaction,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
+import {
+  SelfSignedCheqReleased as SelfSignedReleasedEvent,
+  SelfSignedCheqWritten as SelfSignedWritenEvent,
+} from "../subgraph/generated/SelfSignedBroker/SelfSignTimeLock";
 
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
@@ -233,4 +238,31 @@ export function handleWhitelist(event: ModuleWhitelisted): void {
   const module = event.params.module;
   const isAccepted = event.params.isAccepted;
   const moduleName = event.params.moduleName;
+}
+
+export function handleSelfSignedCheq(event: SelfSignedWritenEvent): void {
+  const cheqId = event.params.cheqId.toString();
+  const funder = event.params.funder.toHexString();
+  const inspectionPeriod = event.params.inspectionPeriod;
+
+  const selfSigned = new SelfSignedCheqData("selfsigned/" + cheqId);
+  selfSigned.cheqFunder = funder;
+  selfSigned.isEarlyReleased = false;
+  selfSigned.cheqInspectionPeriod = inspectionPeriod;
+  selfSigned.save();
+
+  const cheq = Cheq.load(cheqId);
+  if (cheq) {
+    cheq.selfSignedData = "selfsigned/" + cheqId;
+    cheq.save();
+  }
+}
+
+export function handleSelfSignedReleased(event: SelfSignedReleasedEvent): void {
+  const cheqId = event.params.cheqId.toString();
+  const selfSigned = SelfSignedCheqData.load("selfsigned/" + cheqId);
+  if (selfSigned) {
+    selfSigned.isEarlyReleased = false;
+    selfSigned.save();
+  }
 }
