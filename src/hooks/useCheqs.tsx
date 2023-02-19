@@ -133,11 +133,20 @@ export const useCheqs = ({ cheqField }: Props) => {
       let isCashable = false;
 
       if (!isCashed) {
-        if (isEarlyReleased) {
+        if (isEarlyReleased && !isFunder) {
           isCashable = true;
         } else if (
+          !isFunder &&
+          hasEscrow &&
           maturityTime &&
           Math.floor(Date.now() / 1000) > maturityTime
+        ) {
+          isCashable = true;
+        } else if (
+          isFunder &&
+          hasEscrow &&
+          maturityTime &&
+          Math.floor(Date.now() / 1000) < maturityTime
         ) {
           isCashable = true;
         }

@@ -2,6 +2,7 @@ import { Box, Text, useToast } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
+import { useCheqContext } from "../../../context/CheqsContext";
 import { Cheq } from "../../../hooks/useCheqs";
 import RoundedBox from "../../designSystem/RoundedBox";
 import RoundedButton from "../../designSystem/RoundedButton";
@@ -12,6 +13,9 @@ interface Props {
 }
 
 function ApproveAndPay({ cheq, onClose }: Props) {
+  // TODO: support optimistic updates in useCheqs
+  const { refreshWithDelay } = useCheqContext();
+
   const toast = useToast();
 
   const { blockchainState } = useBlockchainData();
@@ -81,6 +85,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
           duration: 3000,
           isClosable: true,
         });
+        refreshWithDelay();
         onClose();
       }
     } finally {
