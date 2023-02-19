@@ -262,7 +262,7 @@ export function handleSelfSignedReleased(event: SelfSignedReleasedEvent): void {
   const cheqId = event.params.cheqId.toString();
   const selfSigned = SelfSignedCheqData.load("selfsigned/" + cheqId);
   if (selfSigned) {
-    selfSigned.isEarlyReleased = false;
+    selfSigned.isEarlyReleased = true;
     selfSigned.save();
   }
 }

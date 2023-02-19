@@ -46,8 +46,8 @@ interface Props {
 // Purple -> pending
 const STATUS_COLOR_MAP = {
   cashed: "gray.600",
-  cashable: "purple.900",
-  voidable: "purple.900",
+  cashable: "green.900",
+  voidable: "green.800",
   payable: "purple.900",
   paid: "gray.600",
   pending_escrow: "purple.900",
@@ -67,15 +67,7 @@ const TOOLTIP_MESSAGE_MAP = {
 };
 
 function CheqCardV2({ cheq }: Props) {
-  const {
-    amount,
-    token,
-    formattedSender,
-    formattedRecipient,
-    isFunder,
-    isInvoice,
-    maturityDate,
-  } = cheq;
+  const { createdTransaction, isFunder, isInvoice, maturityDate } = cheq;
   const { blockchainState } = useBlockchainData();
 
   const [isEarlyReleased, setIsEarlyReleased] = useState<boolean | undefined>(
@@ -91,8 +83,8 @@ function CheqCardV2({ cheq }: Props) {
   const [releaseInProgress, setReleaseInProgress] = useState(false);
 
   const createdLocaleDate = useMemo(() => {
-    return cheq.createdTransaction.date.toLocaleDateString();
-  }, [cheq.createdTransaction.date]);
+    return createdTransaction.date.toLocaleDateString();
+  }, [createdTransaction.date]);
 
   const status: CheqStatus | undefined = useMemo(() => {
     if (cheq.isCashed || cashingComplete) {
