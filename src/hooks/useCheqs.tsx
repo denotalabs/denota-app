@@ -290,6 +290,7 @@ export const useCheqs = ({ cheqField }: Props) => {
           } else {
             setCheqsSent([]);
             setCheqReceived([]);
+            setIsLoading(false);
           }
         })
         .catch((err) => {
