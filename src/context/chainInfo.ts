@@ -1,10 +1,10 @@
 export const AddressMapping = {
   mumbai: {
-    cheq: "0x0C5B27CC5595eC1AAf720A538A6490c5aF6FaD64",
+    cheq: "0xD2CC54E9dE5DB243b3A6a6B98F9385266F84187C",
     dai: "0x982723cb1272271b5ee405A5F14E9556032d9308",
     weth: "0xAA6DA55ba764428e1C4c492c6db5FDe3ccf57332",
     selfSignedBroker: "0xa9f0CE52c8De7496F7137cF807A6D33df06C2C87",
-    directPayModule: "0x378e0262ec639668D0c81d9e0e3D22c861e65968",
+    directPayModule: "0xA3Eb3d92Bca3fa674804d39BEcf22d4Ba6431Ad9",
     explorer: "https://mumbai.polygonscan.com/tx/",
   },
   local: {

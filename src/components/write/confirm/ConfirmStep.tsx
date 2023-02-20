@@ -115,6 +115,17 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
                 default:
                   break;
               }
+              const message =
+                formData.mode === "invoice"
+                  ? "Invoice created"
+                  : "Cheq created";
+              toast({
+                title: "Transaction succeeded",
+                description: message,
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
               refreshWithDelay();
               onClose?.();
             } catch (error) {
