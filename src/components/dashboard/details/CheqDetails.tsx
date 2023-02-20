@@ -22,15 +22,15 @@ function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
           <DetailsRow title="Payer" value={payer} />
           <DetailsRow title="Recipient" value={payee} />
           <DetailsRow
-            title="Created Date"
-            value={cheq.createdDate.toDateString()}
-            link={`${blockchainState.explorer}${cheq.transactions.created}`}
+            title="Created On"
+            value={cheq.createdTransaction.date.toDateString()}
+            link={`${blockchainState.explorer}${cheq.createdTransaction.hash}`}
           />
-          {cheq.fundedDate && (
+          {cheq.fundedTransaction && (
             <DetailsRow
               title="Funded Date"
-              value={cheq.fundedDate.toDateString()}
-              link={`${blockchainState.explorer}${cheq.transactions.funded}`}
+              value={cheq.fundedTransaction.date.toDateString()}
+              link={`${blockchainState.explorer}${cheq.fundedTransaction.hash}`}
             />
           )}
           {!cheq.isCashed && maturityDate && (
@@ -39,11 +39,11 @@ function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
               value={maturityDate.toDateString()}
             />
           )}
-          {cheq.isCashed && cheq.cashedDate && (
+          {cheq.isCashed && cheq.cashedTransaction && (
             <DetailsRow
               title={isVoided ? "Voided Date" : "Cashed Date"}
-              value={cheq.cashedDate?.toDateString()}
-              link={`${blockchainState.explorer}${cheq.transactions.cashed}`}
+              value={cheq.cashedTransaction.date.toDateString()}
+              link={`${blockchainState.explorer}${cheq.cashedTransaction.hash}`}
             />
           )}
           <DetailsRow

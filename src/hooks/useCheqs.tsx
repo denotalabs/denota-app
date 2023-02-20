@@ -2,7 +2,10 @@ import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
-import { APIURL, useBlockchainData } from "../context/BlockchainDataProvider";
+import {
+  APIURL_REMOTE,
+  useBlockchainData,
+} from "../context/BlockchainDataProvider";
 
 interface Props {
   cheqField: string;
@@ -12,6 +15,15 @@ export interface CheqTransactions {
   created: string | null;
   funded: string | null;
   cashed: string | null;
+}
+
+export interface CheqDates {
+  created: Date;
+}
+
+export interface CheqTransaction {
+  date: Date;
+  hash: string;
 }
 
 export interface Cheq {
@@ -24,14 +36,19 @@ export interface Cheq {
   token: CheqCurrency;
   formattedSender: string;
   formattedRecipient: string;
-  createdDate: Date;
   isCashed: boolean;
   hasEscrow: boolean;
-  fundedDate: Date | null;
+  isInvoice: boolean;
+  isVoided: boolean;
+  isFunder: boolean;
   fundedTimestamp: number;
   casher: string | null;
-  cashedDate: Date | null;
-  transactions: CheqTransactions;
+  createdTransaction: CheqTransaction;
+  fundedTransaction: CheqTransaction | null;
+  cashedTransaction: CheqTransaction | null;
+  maturityDate?: Date;
+  isEarlyReleased: boolean;
+  isCashable: boolean;
 }
 
 const currencyForTokenId = (tokenId: any): CheqCurrency => {
@@ -58,9 +75,12 @@ export const useCheqs = ({ cheqField }: Props) => {
     undefined
   );
   const [cheqsSent, setCheqsSent] = useState<Cheq[] | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
 
   const mapField = useCallback(
     (gqlCheq: any) => {
+      // TODO: Move this logic to graph (mappings.ts)
+
       const cashedCheqs = gqlCheq.escrows.filter(
         (gqlCheq: any) => BigInt(gqlCheq.amount) < 0
       );
@@ -92,10 +112,45 @@ export const useCheqs = ({ cheqField }: Props) => {
               fundedTx: null,
             };
 
-      const allCheqs = [...gqlCheq.escrows].sort((a: any, b: any) => {
+      const allEscrows = [...gqlCheq.escrows].sort((a: any, b: any) => {
         return Number(a.timestamp) - Number(b.timestamp);
       });
-      const createdTx = allCheqs.length > 0 ? allCheqs[0].transaction.id : null;
+      const createdTx =
+        allEscrows.length > 0 ? allEscrows[0].transaction.id : null;
+
+      const funder = gqlCheq.selfSignedData.cheqFunder.id;
+      const isInvoice = gqlCheq.recipient.id === funder;
+      const isVoided = casher === funder;
+      const isFunder =
+        blockchainState.account.toLowerCase() === funder.toLowerCase();
+      const maturityTime =
+        fundedTimestamp === 0
+          ? undefined
+          : fundedTimestamp +
+            Number(gqlCheq.selfSignedData.cheqInspectionPeriod);
+
+      const isEarlyReleased = gqlCheq.selfSignedData.isEarlyReleased as boolean;
+      let isCashable = false;
+
+      if (!isCashed) {
+        if (isEarlyReleased && !isFunder) {
+          isCashable = true;
+        } else if (
+          !isFunder &&
+          hasEscrow &&
+          maturityTime &&
+          Math.floor(Date.now() / 1000) > maturityTime
+        ) {
+          isCashable = true;
+        } else if (
+          isFunder &&
+          hasEscrow &&
+          maturityTime &&
+          Math.floor(Date.now() / 1000) < maturityTime
+        ) {
+          isCashable = true;
+        }
+      }
 
       return {
         id: gqlCheq.id as string,
@@ -113,7 +168,6 @@ export const useCheqs = ({ cheqField }: Props) => {
           gqlCheq.recipient.id as string,
           blockchainState.account
         ),
-        createdDate: new Date(Number(gqlCheq.createdAt) * 1000),
         isCashed,
         hasEscrow,
         fundedDate,
@@ -125,6 +179,30 @@ export const useCheqs = ({ cheqField }: Props) => {
           funded: fundedTx,
           cashed: cashedTx,
         },
+        createdTransaction: {
+          date: new Date(Number(gqlCheq.createdAt) * 1000),
+          hash: createdTx,
+        },
+        fundedTransaction:
+          fundedDate && fundedTx
+            ? {
+                date: fundedDate,
+                hash: fundedTx,
+              }
+            : null,
+        cashedTransaction:
+          cashedDate && cashedTx
+            ? {
+                date: cashedDate,
+                hash: cashedTx,
+              }
+            : null,
+        isInvoice,
+        isVoided,
+        isFunder,
+        maturityDate: maturityTime ? new Date(maturityTime * 1000) : undefined,
+        isEarlyReleased: gqlCheq.selfSignedData.isEarlyReleased as boolean,
+        isCashable,
       };
     },
     [blockchainState.account]
@@ -132,6 +210,7 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const refresh = useCallback(() => {
     if (account) {
+      setIsLoading(true);
       const tokenFields = `      
       id
       amountExact
@@ -148,6 +227,14 @@ export const useCheqs = ({ cheqField }: Props) => {
       }
       erc20 {
         id
+      }
+      selfSignedData {
+        id
+        cheqFunder {
+          id
+        }
+        cheqInspectionPeriod
+        isEarlyReleased
       }
       escrows {
         id
@@ -176,8 +263,9 @@ export const useCheqs = ({ cheqField }: Props) => {
       }
       `;
 
+      // SWITCH BACK TO PROD URL BEFORE MERGE
       const client = new ApolloClient({
-        uri: APIURL,
+        uri: APIURL_REMOTE,
         cache: new InMemoryCache(),
       });
       client
@@ -198,6 +286,7 @@ export const useCheqs = ({ cheqField }: Props) => {
             ] as any[];
             setCheqsSent(gqlCheqsSent.map(mapField));
             setCheqReceived(gqlCheqsReceived.map(mapField));
+            setIsLoading(false);
           } else {
             setCheqsSent([]);
             setCheqReceived([]);
@@ -211,10 +300,10 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   useEffect(() => {
     refresh();
-  }, [refresh]);
+  }, [refresh, account]);
 
   const cheqs = useMemo(() => {
-    if (cheqsReceived === undefined || cheqsSent === undefined) {
+    if (cheqsReceived === undefined || cheqsSent === undefined || isLoading) {
       return undefined;
     }
     switch (cheqField) {
@@ -224,10 +313,13 @@ export const useCheqs = ({ cheqField }: Props) => {
         return cheqsReceived;
       default:
         return cheqsReceived.concat(cheqsSent).sort((a, b) => {
-          return b.createdDate.getTime() - a.createdDate.getTime();
+          return (
+            b.createdTransaction.date.getTime() -
+            a.createdTransaction.date.getTime()
+          );
         });
     }
-  }, [cheqField, cheqsReceived, cheqsSent]);
+  }, [cheqField, cheqsReceived, cheqsSent, isLoading]);
 
   return { cheqs, refresh };
 };

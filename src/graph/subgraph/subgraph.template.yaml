@@ -6,9 +6,9 @@ dataSources:
     name: CheqRegistrar
     network: {{network}}
     source:
-      address: "{{address}}"
+      address: "{{registrar}}"
       abi: CheqRegistrar
-      startBlock: 29931082
+      startBlock: 31884801
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -33,4 +33,33 @@ dataSources:
           handler: handleFund
         - event: Cashed(indexed uint256,indexed address,uint256)
           handler: handleCash
+      file: mapping.ts
+  - kind: ethereum/contract
+    name: SelfSignedBroker
+    network: mumbai
+    source:
+      address: "{{selfsign}}"
+      abi: SelfSignTimeLock
+      startBlock: 31884801
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Cheq
+        - Transfer
+        - Escrow
+        - ERC20
+        - Account
+        - Broker
+        - SelfSignTimeLock
+        - SelfSignedCheqData
+      abis:
+        - name: SelfSignTimeLock
+          file: ../../out/SelfSignTimeLock.sol/SelfSignTimeLock.json
+      eventHandlers:
+        - event: SelfSignedCheqWritten(indexed uint256,uint256,address)
+          handler: handleSelfSignedCheq
+        - event: SelfSignedCheqReleased(indexed uint256)
+          handler: handleSelfSignedReleased
       file: mapping.ts
