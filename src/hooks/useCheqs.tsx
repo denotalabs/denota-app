@@ -286,12 +286,11 @@ export const useCheqs = ({ cheqField }: Props) => {
             ] as any[];
             setCheqsSent(gqlCheqsSent.map(mapField));
             setCheqReceived(gqlCheqsReceived.map(mapField));
-            setIsLoading(false);
           } else {
             setCheqsSent([]);
             setCheqReceived([]);
-            setIsLoading(false);
           }
+          setIsLoading(false);
         })
         .catch((err) => {
           console.log("Error fetching data: ", err);
