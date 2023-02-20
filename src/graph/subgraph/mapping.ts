@@ -5,20 +5,20 @@ import {
   Funded as FundedEvent,
   ModuleWhitelisted,
   Transfer as TransferEvent,
-  Written as WrittenEvent,
+  Written as WrittenEvent
 } from "../subgraph/generated/CheqRegistrar/CheqRegistrar"; // Events to import
+import {
+  SelfSignedCheqReleased as SelfSignedReleasedEvent,
+  SelfSignedCheqWritten as SelfSignedWritenEvent
+} from "../subgraph/generated/DirectPay/DirectPay";
 import {
   Account,
   Cheq,
   ERC20,
   Escrow,
   SelfSignedCheqData,
-  Transaction,
+  Transaction
 } from "../subgraph/generated/schema"; // Entities that contain the event info
-import {
-  SelfSignedCheqReleased as SelfSignedReleasedEvent,
-  SelfSignedCheqWritten as SelfSignedWritenEvent,
-} from "../subgraph/generated/SelfSignedBroker/SelfSignTimeLock";
 
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
@@ -50,13 +50,21 @@ function saveTransaction(
 export function handleWrite(event: WrittenEvent): void {
   // Load event parameters
   const cheqId = event.params.cheqId.toString();
-  const erc20 = event.params.token.toHexString();
-  const amount = event.params.amount;
-  const escrowed = event.params.escrowed;
-  const drawer = event.params.drawer.toHexString();
-  const recipient = event.params.recipient.toHexString();
-  const module = event.params.module.toHexString();
   const owner = event.params.owner.toHexString();
+  const cheq = event.params.cheq;  // This should be pulled as a tuple
+  console.log(cheq, typeof cheq);
+  const directAmount = event.params.directAmount.toHex();
+  const bytesData = event.params.data.toHexString();
+  const cheqFee = event.params.cheqFee.toHex();
+  const moduleFee = event.params.moduleFee.toHex();
+  const erc20 = cheq.currency.toHexString();
+  const amount = cheq.amount.divDecimal(BigInt.fromI32(18).toBigDecimal());;
+  const escrowed = cheq.escrowed;
+  const drawer = cheq.drawer.toHexString();
+  const recipient = cheq.recipient.toHexString();
+  const module = cheq.module.toHexString();
+  const mintTimestamp = cheq.mintTimestamp.toHexString();
+  const timestamp = cheq.timestamp.toHexString();
   const transactionHexHash = event.transaction.hash.toHex();
 
   // Load entities if they exist, else create them
@@ -66,6 +74,7 @@ export function handleWrite(event: WrittenEvent): void {
   let ERC20Token = ERC20.load(erc20);
   if (ERC20Token == null) {
     ERC20Token = new ERC20(erc20);
+    // Query it's symbol and decimals here?
     ERC20Token.save();
   }
   drawingAccount =
@@ -74,10 +83,11 @@ export function handleWrite(event: WrittenEvent): void {
     receivingAccount == null ? saveNewAccount(recipient) : receivingAccount;
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
 
-  const cheq = new Cheq(cheqId);
-  cheq.createdAt = event.block.timestamp;
+  const newCheq = new Cheq(cheqId);
+
+  cheq.createdAt = timestamp;
   cheq.erc20 = ERC20Token.id;
-  cheq.amount = amount.divDecimal(BigInt.fromI32(18).toBigDecimal()); // TODO save the erc20's decimals by querying it instead of assuming
+  cheq.amount = amount.divDecimal(BigInt.fromI32(18).toBigDecimal());
   cheq.amountExact = amount;
   cheq.drawer = drawingAccount.id;
   cheq.recipient = receivingAccount.id;
@@ -104,18 +114,21 @@ export function handleWrite(event: WrittenEvent): void {
     event.block.timestamp,
     event.block.number
   );
-
-  // TODO Let modules emit their own events and update them from there
-  // let module = fetchModule(module)
-  // Module.numCheqsManaged = Module.numCheqsManaged.plus(BigInt.fromI32(1))
-  // Module.save()
-  // // Increment each Account's token counts
-  // drawingAccount.numCheqsSent = drawingAccount.numCheqsSent.plus(BigInt.fromI32(1))
-  // drawingAccount.save()
-  // // Increment each Account's token counts
-  // receivingAccount.numCheqsReceived = receivingAccount.numCheqsReceived.plus(BigInt.fromI32(1))
-  // receivingAccount.save()
 }
+
+// export function handleModule(event: MemoWritten): void {
+// TODO Let modules emit their own events and update them from there
+// let module = fetchModule(module)
+// Module.numCheqsManaged = Module.numCheqsManaged.plus(BigInt.fromI32(1))
+// Module.save()
+// // Increment each Account's token counts
+// drawingAccount.numCheqsSent = drawingAccount.numCheqsSent.plus(BigInt.fromI32(1))
+// drawingAccount.save()
+// // Increment each Account's token counts
+// receivingAccount.numCheqsReceived = receivingAccount.numCheqsReceived.plus(BigInt.fromI32(1))
+// receivingAccount.save()
+// }
+
 
 // TODO: Transfer event being fired before write event is causing problems
 export function handleTransfer(event: TransferEvent): void {
@@ -266,3 +279,32 @@ export function handleSelfSignedReleased(event: SelfSignedReleasedEvent): void {
     selfSigned.save();
   }
 }
+
+
+
+// function write(DataTypes.Cheq calldata cheq, address owner, uint256 directAmount, bytes calldata moduleWriteData) external payable returns (uint256);
+// // function transferFrom(address from, address to, uint256 tokenId, bytes memory moduleTransferData) external; // Question: Should this be allowed?
+// function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory moduleTransferData) external;
+// function fund(uint256 cheqId, uint256 amount, uint256 directAmount, bytes calldata fundData) external payable;
+// function cash(uint256 cheqId, uint256 amount, address to, bytes calldata cashData) external payable;
+// function approve(address to, uint256 tokenId) external;
+
+// function cheqInfo(uint256 cheqId) external view returns (DataTypes.Cheq memory);  // Question: Should this be the only _cheqInfo view method?
+// function cheqDrawerRecipient(uint256 cheqId) external view returns(address, address);
+// function cheqCurrencyValueEscrow(uint256 cheqId) external view returns(address, uint256, uint256);
+// function cheqDrawer(uint256 cheqId) external view returns (address);
+// function cheqRecipient(uint256 cheqId) external view returns (address);
+// function cheqCurrency(uint256 cheqId) external view returns (address);
+// function cheqAmount(uint256 cheqId) external view returns (uint256);
+// function cheqEscrowed(uint256 cheqId) external view returns (uint256);
+// function cheqModule(uint256 cheqId) external view returns (address);
+// // function totalSupply() public view returns (uint256);
+
+// function ruleWhitelisted(address rule) external view returns (bool);
+// function rulesWhitelisted(address writeRule, address transferRule, address fundRule, address cashRule, address approveRule) external view returns (bool);
+// function moduleWhitelisted(address module) external view returns(bool, bool);  // addressWhitelisted, bytecodeWhitelisted
+// function tokenWhitelisted(address token) external view returns(bool);
+
+// function getFees() external view returns(uint256, uint256, uint256, uint256);
+// function getTotalFees(uint256 cheqId, uint8 _WTFC) external view returns(uint256, uint256);
+// function moduleWithdraw(address token, uint256 amount, address payoutAccount) external;

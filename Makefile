@@ -56,7 +56,7 @@ graph-start:
 	# npm run codegen
 
 graph-deploy-local:
-	npm run graph-prepare-mumbai
+	npm run graph-prepare-mumbai # TODO change to graph-prepare-local
 	npm run create-local # 
 	npm run graph-ship-local  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
 
