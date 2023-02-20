@@ -1035,52 +1035,52 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/SimpleAdmin.sol",
-    "id": 33480,
+    "id": 35952,
     "exportedSymbols": {
       "Context": [
         27735
       ],
       "DataTypes": [
-        31216
+        33687
       ],
       "IApproveRule": [
-        31067
+        33538
       ],
       "ICashRule": [
-        31050
+        33521
       ],
       "ICheqModule": [
-        30766
+        33197
       ],
       "ICheqRegistrar": [
-        30970
+        33401
       ],
       "IFundRule": [
-        31031
+        33502
       ],
       "ITransferRule": [
-        31012
+        33483
       ],
       "IWriteRule": [
-        30991
+        33462
       ],
       "ModuleBase": [
-        30647
+        32735
       ],
       "Pausable": [
         25270
       ],
       "SimpleAdmin": [
-        33479
+        35951
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:536:51",
+    "src": "37:536:64",
     "nodes": [
       {
-        "id": 33451,
+        "id": 35923,
         "nodeType": "PragmaDirective",
-        "src": "37:24:51",
+        "src": "37:24:64",
         "nodes": [],
         "literals": [
           "solidity",
@@ -1090,37 +1090,37 @@
         ]
       },
       {
-        "id": 33452,
+        "id": 35924,
         "nodeType": "ImportDirective",
-        "src": "63:44:51",
+        "src": "63:44:64",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/security/Pausable.sol",
         "file": "openzeppelin/security/Pausable.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33480,
+        "scope": 35952,
         "sourceUnit": 25271,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 33454,
+        "id": 35926,
         "nodeType": "ImportDirective",
-        "src": "108:45:51",
+        "src": "108:45:64",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33480,
-        "sourceUnit": 30648,
+        "scope": 35952,
+        "sourceUnit": 32736,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33453,
+              "id": 35925,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30647,
-              "src": "116:10:51",
+              "referencedDeclaration": 32735,
+              "src": "116:10:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1129,24 +1129,24 @@
         "unitAlias": ""
       },
       {
-        "id": 33456,
+        "id": 35928,
         "nodeType": "ImportDirective",
-        "src": "154:53:51",
+        "src": "154:53:64",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33480,
-        "sourceUnit": 31217,
+        "scope": 35952,
+        "sourceUnit": 33688,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33455,
+              "id": 35927,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31216,
-              "src": "162:9:51",
+              "referencedDeclaration": 33687,
+              "src": "162:9:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1155,24 +1155,24 @@
         "unitAlias": ""
       },
       {
-        "id": 33458,
+        "id": 35930,
         "nodeType": "ImportDirective",
-        "src": "208:58:51",
+        "src": "208:58:64",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33480,
-        "sourceUnit": 30767,
+        "scope": 35952,
+        "sourceUnit": 33198,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33457,
+              "id": 35929,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30766,
-              "src": "216:11:51",
+              "referencedDeclaration": 33197,
+              "src": "216:11:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1181,24 +1181,24 @@
         "unitAlias": ""
       },
       {
-        "id": 33460,
+        "id": 35932,
         "nodeType": "ImportDirective",
-        "src": "267:64:51",
+        "src": "267:64:64",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33480,
-        "sourceUnit": 30971,
+        "scope": 35952,
+        "sourceUnit": 33402,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33459,
+              "id": 35931,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30970,
-              "src": "275:14:51",
+              "referencedDeclaration": 33401,
+              "src": "275:14:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1207,72 +1207,72 @@
         "unitAlias": ""
       },
       {
-        "id": 33466,
+        "id": 35938,
         "nodeType": "ImportDirective",
-        "src": "332:107:51",
+        "src": "332:107:64",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
         "file": "../interfaces/IWTFCRules.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33480,
-        "sourceUnit": 31068,
+        "scope": 35952,
+        "sourceUnit": 33539,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33461,
+              "id": 35933,
               "name": "IWriteRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30991,
-              "src": "340:10:51",
+              "referencedDeclaration": 33462,
+              "src": "340:10:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 33462,
+              "id": 35934,
               "name": "ITransferRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31012,
-              "src": "352:13:51",
+              "referencedDeclaration": 33483,
+              "src": "352:13:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 33463,
+              "id": 35935,
               "name": "IFundRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31031,
-              "src": "367:9:51",
+              "referencedDeclaration": 33502,
+              "src": "367:9:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 33464,
+              "id": 35936,
               "name": "ICashRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31050,
-              "src": "378:9:51",
+              "referencedDeclaration": 33521,
+              "src": "378:9:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 33465,
+              "id": 35937,
               "name": "IApproveRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31067,
-              "src": "389:12:51",
+              "referencedDeclaration": 33538,
+              "src": "389:12:64",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1281,101 +1281,101 @@
         "unitAlias": ""
       },
       {
-        "id": 33479,
+        "id": 35951,
         "nodeType": "ContractDefinition",
-        "src": "441:131:51",
+        "src": "441:131:64",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 33467,
+              "id": 35939,
               "name": "Pausable",
               "nameLocations": [
-                "478:8:51"
+                "478:8:64"
               ],
               "nodeType": "IdentifierPath",
               "referencedDeclaration": 25270,
-              "src": "478:8:51"
+              "src": "478:8:64"
             },
-            "id": 33468,
+            "id": 35940,
             "nodeType": "InheritanceSpecifier",
-            "src": "478:8:51"
+            "src": "478:8:64"
           },
           {
             "baseName": {
-              "id": 33469,
+              "id": 35941,
               "name": "IWriteRule",
               "nameLocations": [
-                "492:10:51"
+                "492:10:64"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30991,
-              "src": "492:10:51"
+              "referencedDeclaration": 33462,
+              "src": "492:10:64"
             },
-            "id": 33470,
+            "id": 35942,
             "nodeType": "InheritanceSpecifier",
-            "src": "492:10:51"
+            "src": "492:10:64"
           },
           {
             "baseName": {
-              "id": 33471,
+              "id": 35943,
               "name": "ITransferRule",
               "nameLocations": [
-                "508:13:51"
+                "508:13:64"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 31012,
-              "src": "508:13:51"
+              "referencedDeclaration": 33483,
+              "src": "508:13:64"
             },
-            "id": 33472,
+            "id": 35944,
             "nodeType": "InheritanceSpecifier",
-            "src": "508:13:51"
+            "src": "508:13:64"
           },
           {
             "baseName": {
-              "id": 33473,
+              "id": 35945,
               "name": "IFundRule",
               "nameLocations": [
-                "527:9:51"
+                "527:9:64"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 31031,
-              "src": "527:9:51"
+              "referencedDeclaration": 33502,
+              "src": "527:9:64"
             },
-            "id": 33474,
+            "id": 35946,
             "nodeType": "InheritanceSpecifier",
-            "src": "527:9:51"
+            "src": "527:9:64"
           },
           {
             "baseName": {
-              "id": 33475,
+              "id": 35947,
               "name": "ICashRule",
               "nameLocations": [
-                "542:9:51"
+                "542:9:64"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 31050,
-              "src": "542:9:51"
+              "referencedDeclaration": 33521,
+              "src": "542:9:64"
             },
-            "id": 33476,
+            "id": 35948,
             "nodeType": "InheritanceSpecifier",
-            "src": "542:9:51"
+            "src": "542:9:64"
           },
           {
             "baseName": {
-              "id": 33477,
+              "id": 35949,
               "name": "IApproveRule",
               "nameLocations": [
-                "557:12:51"
+                "557:12:64"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 31067,
-              "src": "557:12:51"
+              "referencedDeclaration": 33538,
+              "src": "557:12:64"
             },
-            "id": 33478,
+            "id": 35950,
             "nodeType": "InheritanceSpecifier",
-            "src": "557:12:51"
+            "src": "557:12:64"
           }
         ],
         "canonicalName": "SimpleAdmin",
@@ -1383,22 +1383,22 @@
         "contractKind": "contract",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          33479,
-          31067,
-          31050,
-          31031,
-          31012,
-          30991,
+          35951,
+          33538,
+          33521,
+          33502,
+          33483,
+          33462,
           25270,
           27735
         ],
         "name": "SimpleAdmin",
-        "nameLocation": "459:11:51",
-        "scope": 33480,
+        "nameLocation": "459:11:64",
+        "scope": 35952,
         "usedErrors": []
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 51
+  "id": 64
 }

@@ -36,12 +36,12 @@
   ],
   "bytecode": {
     "object": "0x6080604052600a805460ff1916600117905534801561001d57600080fd5b506101b68061002d6000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80630a9254e414610046578063c040622614610048578063f8ccbf471461006d575b600080fd5b005b61005061008a565b6040516001600160a01b0390911681526020015b60405180910390f35b600a5461007a9060ff1681565b6040519015158152602001610064565b60405163c1978d1f60e01b815260206004820152604260248201527f307861633039373462656333396131376533366261346136623464323338666660448201527f3934346261636234373863626564356566636165373834643762663466326666606482015261038360f41b60848201526000908190737109709ecfa91a80626ff3989d68f67f5b1dd12d9063c1978d1f9060a401602060405180830381865afa15801561013d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101619190610167565b90505090565b60006020828403121561017957600080fd5b505191905056fea264697066735822122029502296f97d02a39ba5d9e364e8e13d359c8f0d8929a4d034b8e244087add6b64736f6c63430008100033",
-    "sourceMap": "268:1243:33:-:0;;;467:28:3;;;-1:-1:-1;;467:28:3;491:4;467:28;;;268:1243:33;;;;;;;;;;;;;;;;",
+    "sourceMap": "268:1243:40:-:0;;;467:28:3;;;-1:-1:-1;;467:28:3;491:4;467:28;;;268:1243:40;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
     "object": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80630a9254e414610046578063c040622614610048578063f8ccbf471461006d575b600080fd5b005b61005061008a565b6040516001600160a01b0390911681526020015b60405180910390f35b600a5461007a9060ff1681565b6040519015158152602001610064565b60405163c1978d1f60e01b815260206004820152604260248201527f307861633039373462656333396131376533366261346136623464323338666660448201527f3934346261636234373863626564356566636165373834643762663466326666606482015261038360f41b60848201526000908190737109709ecfa91a80626ff3989d68f67f5b1dd12d9063c1978d1f9060a401602060405180830381865afa15801561013d573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101619190610167565b90505090565b60006020828403121561017957600080fd5b505191905056fea264697066735822122029502296f97d02a39ba5d9e364e8e13d359c8f0d8929a4d034b8e244087add6b64736f6c63430008100033",
-    "sourceMap": "268:1243:33:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;308:26;;340:1169;;;:::i;:::-;;;-1:-1:-1;;;;;201:32:65;;;183:51;;171:2;156:18;340:1169:33;;;;;;;;467:28:3;;;;;;;;;;;;410:14:65;;403:22;385:41;;373:2;358:18;467:28:3;245:187:65;340:1169:33;425:102;;-1:-1:-1;;;425:102:33;;639:2:65;425:102:33;;;621:21:65;678:2;658:18;;;651:30;717:34;697:18;;;690:62;788:34;768:18;;;761:62;-1:-1:-1;;;839:19:65;;;832:33;371:13:33;;;;425:10;;;;882:19:65;;425:102:33;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;396:131;;386:1123;340:1169;:::o;912:184:65:-;982:6;1035:2;1023:9;1014:7;1010:23;1006:32;1003:52;;;1051:1;1048;1041:12;1003:52;-1:-1:-1;1074:16:65;;912:184;-1:-1:-1;912:184:65:o",
+    "sourceMap": "268:1243:40:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;308:26;;340:1169;;;:::i;:::-;;;-1:-1:-1;;;;;201:32:82;;;183:51;;171:2;156:18;340:1169:40;;;;;;;;467:28:3;;;;;;;;;;;;410:14:82;;403:22;385:41;;373:2;358:18;467:28:3;245:187:82;340:1169:40;425:102;;-1:-1:-1;;;425:102:40;;639:2:82;425:102:40;;;621:21:82;678:2;658:18;;;651:30;717:34;697:18;;;690:62;788:34;768:18;;;761:62;-1:-1:-1;;;839:19:82;;;832:33;371:13:40;;;;425:10;;;;882:19:82;;425:102:40;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;396:131;;386:1123;340:1169;:::o;912:184:82:-;982:6;1035:2;1023:9;1014:7;1010:23;1006:32;1003:52;;;1051:1;1048;1041:12;1003:52;-1:-1:-1;1074:16:82;;912:184;-1:-1:-1;912:184:82:o",
     "linkReferences": {}
   },
   "methodIdentifiers": {
@@ -107,7 +107,7 @@
         ":@openzeppelin/=node_modules/@openzeppelin/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":forge-std/=lib/forge-std/src/",
-        ":hardhat/=node_modules/hardhat/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
         ":openzeppelin/=lib/openzeppelin-contracts/contracts/",
         ":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/"
       ],
@@ -446,16 +446,16 @@
   },
   "ast": {
     "absolutePath": "script/Contract.s.sol",
-    "id": 28841,
+    "id": 29755,
     "exportedSymbols": {
       "Address": [
         27713
       ],
       "CheqBase64Encoding": [
-        31181
+        33652
       ],
       "CheqRegistrar": [
-        30160
+        31074
       ],
       "CommonBase": [
         1841
@@ -464,10 +464,10 @@
         27735
       ],
       "ContractScript": [
-        28840
+        29754
       ],
       "DataTypes": [
-        31216
+        33687
       ],
       "ERC165": [
         27934
@@ -479,13 +479,13 @@
         27222
       ],
       "Events": [
-        31339
+        33810
       ],
       "ICheqModule": [
-        30766
+        33197
       ],
       "ICheqRegistrar": [
-        30970
+        33401
       ],
       "IERC165": [
         27946
@@ -539,7 +539,7 @@
         27910
       ],
       "TestERC20": [
-        36908
+        39985
       ],
       "VmSafe": [
         8595
@@ -561,12 +561,12 @@
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "39:1473:33",
+    "src": "39:1473:40",
     "nodes": [
       {
-        "id": 28813,
+        "id": 29727,
         "nodeType": "PragmaDirective",
-        "src": "39:24:33",
+        "src": "39:24:40",
         "nodes": [],
         "literals": [
           "solidity",
@@ -576,76 +576,76 @@
         ]
       },
       {
-        "id": 28814,
+        "id": 29728,
         "nodeType": "ImportDirective",
-        "src": "65:30:33",
+        "src": "65:30:40",
         "nodes": [],
         "absolutePath": "lib/forge-std/src/Script.sol",
         "file": "forge-std/Script.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28841,
+        "scope": 29755,
         "sourceUnit": 1891,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 28815,
+        "id": 29729,
         "nodeType": "ImportDirective",
-        "src": "96:41:33",
+        "src": "96:41:40",
         "nodes": [],
         "absolutePath": "src/contracts/CheqRegistrar.sol",
         "file": "src/contracts/CheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28841,
-        "sourceUnit": 30161,
+        "scope": 29755,
+        "sourceUnit": 31075,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 28816,
+        "id": 29730,
         "nodeType": "ImportDirective",
-        "src": "138:33:33",
+        "src": "138:33:40",
         "nodes": [],
         "absolutePath": "src/test/mock/erc20.sol",
         "file": "src/test/mock/erc20.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28841,
-        "sourceUnit": 36909,
+        "scope": 29755,
+        "sourceUnit": 39986,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 28817,
+        "id": 29731,
         "nodeType": "ImportDirective",
-        "src": "172:31:33",
+        "src": "172:31:40",
         "nodes": [],
         "absolutePath": "lib/forge-std/src/console.sol",
         "file": "forge-std/console.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28841,
+        "scope": 29755,
         "sourceUnit": 16985,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 28819,
+        "id": 29733,
         "nodeType": "ImportDirective",
-        "src": "204:62:33",
+        "src": "204:62:40",
         "nodes": [],
         "absolutePath": "src/contracts/CheqRegistrar.sol",
         "file": "src/contracts/CheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28841,
-        "sourceUnit": 30161,
+        "scope": 29755,
+        "sourceUnit": 31075,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 28818,
+              "id": 29732,
               "name": "CheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30160,
-              "src": "212:13:33",
+              "referencedDeclaration": 31074,
+              "src": "212:13:40",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -654,19 +654,19 @@
         "unitAlias": ""
       },
       {
-        "id": 28840,
+        "id": 29754,
         "nodeType": "ContractDefinition",
-        "src": "268:1243:33",
+        "src": "268:1243:40",
         "nodes": [
           {
-            "id": 28825,
+            "id": 29739,
             "nodeType": "FunctionDefinition",
-            "src": "308:26:33",
+            "src": "308:26:40",
             "nodes": [],
             "body": {
-              "id": 28824,
+              "id": 29738,
               "nodeType": "Block",
-              "src": "332:2:33",
+              "src": "332:2:40",
               "nodes": [],
               "statements": []
             },
@@ -675,49 +675,49 @@
             "kind": "function",
             "modifiers": [],
             "name": "setUp",
-            "nameLocation": "317:5:33",
+            "nameLocation": "317:5:40",
             "parameters": {
-              "id": 28822,
+              "id": 29736,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "322:2:33"
+              "src": "322:2:40"
             },
             "returnParameters": {
-              "id": 28823,
+              "id": 29737,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "332:0:33"
+              "src": "332:0:40"
             },
-            "scope": 28840,
+            "scope": 29754,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           },
           {
-            "id": 28839,
+            "id": 29753,
             "nodeType": "FunctionDefinition",
-            "src": "340:1169:33",
+            "src": "340:1169:40",
             "nodes": [],
             "body": {
-              "id": 28838,
+              "id": 29752,
               "nodeType": "Block",
-              "src": "386:1123:33",
+              "src": "386:1123:40",
               "nodes": [],
               "statements": [
                 {
                   "assignments": [
-                    28832
+                    29746
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 28832,
+                      "id": 29746,
                       "mutability": "mutable",
                       "name": "deployerPrivateKey",
-                      "nameLocation": "404:18:33",
+                      "nameLocation": "404:18:40",
                       "nodeType": "VariableDeclaration",
-                      "scope": 28838,
-                      "src": "396:26:33",
+                      "scope": 29752,
+                      "src": "396:26:40",
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
@@ -725,10 +725,10 @@
                         "typeString": "uint256"
                       },
                       "typeName": {
-                        "id": 28831,
+                        "id": 29745,
                         "name": "uint256",
                         "nodeType": "ElementaryTypeName",
-                        "src": "396:7:33",
+                        "src": "396:7:40",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
@@ -737,19 +737,19 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 28837,
+                  "id": 29751,
                   "initialValue": {
                     "arguments": [
                       {
                         "hexValue": "307861633039373462656333396131376533366261346136623464323338666639343462616362343738636265643565666361653738346437626634663266663830",
-                        "id": 28835,
+                        "id": 29749,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "string",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "449:68:33",
+                        "src": "449:68:40",
                         "typeDescriptions": {
                           "typeIdentifier": "t_stringliteral_ef7acc72b2621dd91ef5e976d9305cd1b244a760de4a756fdb056db86cc07ebd",
                           "typeString": "literal_string \"0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80\""
@@ -765,33 +765,33 @@
                         }
                       ],
                       "expression": {
-                        "id": 28833,
+                        "id": 29747,
                         "name": "vm",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 1837,
-                        "src": "425:2:33",
+                        "src": "425:2:40",
                         "typeDescriptions": {
                           "typeIdentifier": "t_contract$_Vm_$8920",
                           "typeString": "contract Vm"
                         }
                       },
-                      "id": 28834,
+                      "id": 29748,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
-                      "memberLocation": "428:7:33",
+                      "memberLocation": "428:7:40",
                       "memberName": "envUint",
                       "nodeType": "MemberAccess",
                       "referencedDeclaration": 7859,
-                      "src": "425:10:33",
+                      "src": "425:10:40",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$_t_string_memory_ptr_$returns$_t_uint256_$",
                         "typeString": "function (string memory) view external returns (uint256)"
                       }
                     },
-                    "id": 28836,
+                    "id": 29750,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -800,7 +800,7 @@
                     "nameLocations": [],
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "425:102:33",
+                    "src": "425:102:40",
                     "tryCall": false,
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
@@ -808,7 +808,7 @@
                     }
                   },
                   "nodeType": "VariableDeclarationStatement",
-                  "src": "396:131:33"
+                  "src": "396:131:40"
                 }
               ]
             },
@@ -817,58 +817,58 @@
             "kind": "function",
             "modifiers": [],
             "name": "run",
-            "nameLocation": "349:3:33",
+            "nameLocation": "349:3:40",
             "parameters": {
-              "id": 28826,
+              "id": 29740,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "352:2:33"
+              "src": "352:2:40"
             },
             "returnParameters": {
-              "id": 28830,
+              "id": 29744,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28829,
+                  "id": 29743,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28839,
-                  "src": "371:13:33",
+                  "scope": 29753,
+                  "src": "371:13:40",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_CheqRegistrar_$30160",
+                    "typeIdentifier": "t_contract$_CheqRegistrar_$31074",
                     "typeString": "contract CheqRegistrar"
                   },
                   "typeName": {
-                    "id": 28828,
+                    "id": 29742,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 28827,
+                      "id": 29741,
                       "name": "CheqRegistrar",
                       "nameLocations": [
-                        "371:13:33"
+                        "371:13:40"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 30160,
-                      "src": "371:13:33"
+                      "referencedDeclaration": 31074,
+                      "src": "371:13:40"
                     },
-                    "referencedDeclaration": 30160,
-                    "src": "371:13:33",
+                    "referencedDeclaration": 31074,
+                    "src": "371:13:40",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_CheqRegistrar_$30160",
+                      "typeIdentifier": "t_contract$_CheqRegistrar_$31074",
                       "typeString": "contract CheqRegistrar"
                     }
                   },
                   "visibility": "internal"
                 }
               ],
-              "src": "370:15:33"
+              "src": "370:15:40"
             },
-            "scope": 28840,
+            "scope": 29754,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
@@ -878,18 +878,18 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 28820,
+              "id": 29734,
               "name": "Script",
               "nameLocations": [
-                "295:6:33"
+                "295:6:40"
               ],
               "nodeType": "IdentifierPath",
               "referencedDeclaration": 1890,
-              "src": "295:6:33"
+              "src": "295:6:40"
             },
-            "id": 28821,
+            "id": 29735,
             "nodeType": "InheritanceSpecifier",
-            "src": "295:6:33"
+            "src": "295:6:40"
           }
         ],
         "canonicalName": "ContractScript",
@@ -897,7 +897,7 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          28840,
+          29754,
           1890,
           1878,
           1841,
@@ -906,12 +906,12 @@
           3027
         ],
         "name": "ContractScript",
-        "nameLocation": "277:14:33",
-        "scope": 28841,
+        "nameLocation": "277:14:40",
+        "scope": 29755,
         "usedErrors": []
       }
     ],
     "license": "UNLICENSED"
   },
-  "id": 33
+  "id": 40
 }

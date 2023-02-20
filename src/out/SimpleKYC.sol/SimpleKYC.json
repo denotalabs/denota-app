@@ -944,46 +944,46 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/SimpleKYC.sol",
-    "id": 33842,
+    "id": 36314,
     "exportedSymbols": {
       "DataTypes": [
-        31216
+        33687
       ],
       "IApproveRule": [
-        31067
+        33538
       ],
       "ICashRule": [
-        31050
+        33521
       ],
       "ICheqModule": [
-        30766
+        33197
       ],
       "ICheqRegistrar": [
-        30970
+        33401
       ],
       "IFundRule": [
-        31031
+        33502
       ],
       "ITransferRule": [
-        31012
+        33483
       ],
       "IWriteRule": [
-        30991
+        33462
       ],
       "ModuleBase": [
-        30647
+        32735
       ],
       "SimpleKYC": [
-        33841
+        36313
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:475:53",
+    "src": "37:475:66",
     "nodes": [
       {
-        "id": 33816,
+        "id": 36288,
         "nodeType": "PragmaDirective",
-        "src": "37:24:53",
+        "src": "37:24:66",
         "nodes": [],
         "literals": [
           "solidity",
@@ -993,24 +993,24 @@
         ]
       },
       {
-        "id": 33818,
+        "id": 36290,
         "nodeType": "ImportDirective",
-        "src": "63:45:53",
+        "src": "63:45:66",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33842,
-        "sourceUnit": 30648,
+        "scope": 36314,
+        "sourceUnit": 32736,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33817,
+              "id": 36289,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30647,
-              "src": "71:10:53",
+              "referencedDeclaration": 32735,
+              "src": "71:10:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1019,24 +1019,24 @@
         "unitAlias": ""
       },
       {
-        "id": 33820,
+        "id": 36292,
         "nodeType": "ImportDirective",
-        "src": "109:53:53",
+        "src": "109:53:66",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33842,
-        "sourceUnit": 31217,
+        "scope": 36314,
+        "sourceUnit": 33688,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33819,
+              "id": 36291,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31216,
-              "src": "117:9:53",
+              "referencedDeclaration": 33687,
+              "src": "117:9:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1045,24 +1045,24 @@
         "unitAlias": ""
       },
       {
-        "id": 33822,
+        "id": 36294,
         "nodeType": "ImportDirective",
-        "src": "163:58:53",
+        "src": "163:58:66",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33842,
-        "sourceUnit": 30767,
+        "scope": 36314,
+        "sourceUnit": 33198,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33821,
+              "id": 36293,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30766,
-              "src": "171:11:53",
+              "referencedDeclaration": 33197,
+              "src": "171:11:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1071,24 +1071,24 @@
         "unitAlias": ""
       },
       {
-        "id": 33824,
+        "id": 36296,
         "nodeType": "ImportDirective",
-        "src": "222:64:53",
+        "src": "222:64:66",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33842,
-        "sourceUnit": 30971,
+        "scope": 36314,
+        "sourceUnit": 33402,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33823,
+              "id": 36295,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30970,
-              "src": "230:14:53",
+              "referencedDeclaration": 33401,
+              "src": "230:14:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1097,72 +1097,72 @@
         "unitAlias": ""
       },
       {
-        "id": 33830,
+        "id": 36302,
         "nodeType": "ImportDirective",
-        "src": "287:107:53",
+        "src": "287:107:66",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
         "file": "../interfaces/IWTFCRules.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33842,
-        "sourceUnit": 31068,
+        "scope": 36314,
+        "sourceUnit": 33539,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33825,
+              "id": 36297,
               "name": "IWriteRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30991,
-              "src": "295:10:53",
+              "referencedDeclaration": 33462,
+              "src": "295:10:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 33826,
+              "id": 36298,
               "name": "ITransferRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31012,
-              "src": "307:13:53",
+              "referencedDeclaration": 33483,
+              "src": "307:13:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 33827,
+              "id": 36299,
               "name": "IFundRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31031,
-              "src": "322:9:53",
+              "referencedDeclaration": 33502,
+              "src": "322:9:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 33828,
+              "id": 36300,
               "name": "ICashRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31050,
-              "src": "333:9:53",
+              "referencedDeclaration": 33521,
+              "src": "333:9:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 33829,
+              "id": 36301,
               "name": "IApproveRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31067,
-              "src": "344:12:53",
+              "referencedDeclaration": 33538,
+              "src": "344:12:66",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1171,86 +1171,86 @@
         "unitAlias": ""
       },
       {
-        "id": 33841,
+        "id": 36313,
         "nodeType": "ContractDefinition",
-        "src": "396:115:53",
+        "src": "396:115:66",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 33831,
+              "id": 36303,
               "name": "IWriteRule",
               "nameLocations": [
-                "431:10:53"
+                "431:10:66"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30991,
-              "src": "431:10:53"
+              "referencedDeclaration": 33462,
+              "src": "431:10:66"
             },
-            "id": 33832,
+            "id": 36304,
             "nodeType": "InheritanceSpecifier",
-            "src": "431:10:53"
+            "src": "431:10:66"
           },
           {
             "baseName": {
-              "id": 33833,
+              "id": 36305,
               "name": "ITransferRule",
               "nameLocations": [
-                "447:13:53"
+                "447:13:66"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 31012,
-              "src": "447:13:53"
+              "referencedDeclaration": 33483,
+              "src": "447:13:66"
             },
-            "id": 33834,
+            "id": 36306,
             "nodeType": "InheritanceSpecifier",
-            "src": "447:13:53"
+            "src": "447:13:66"
           },
           {
             "baseName": {
-              "id": 33835,
+              "id": 36307,
               "name": "IFundRule",
               "nameLocations": [
-                "466:9:53"
+                "466:9:66"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 31031,
-              "src": "466:9:53"
+              "referencedDeclaration": 33502,
+              "src": "466:9:66"
             },
-            "id": 33836,
+            "id": 36308,
             "nodeType": "InheritanceSpecifier",
-            "src": "466:9:53"
+            "src": "466:9:66"
           },
           {
             "baseName": {
-              "id": 33837,
+              "id": 36309,
               "name": "ICashRule",
               "nameLocations": [
-                "481:9:53"
+                "481:9:66"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 31050,
-              "src": "481:9:53"
+              "referencedDeclaration": 33521,
+              "src": "481:9:66"
             },
-            "id": 33838,
+            "id": 36310,
             "nodeType": "InheritanceSpecifier",
-            "src": "481:9:53"
+            "src": "481:9:66"
           },
           {
             "baseName": {
-              "id": 33839,
+              "id": 36311,
               "name": "IApproveRule",
               "nameLocations": [
-                "496:12:53"
+                "496:12:66"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 31067,
-              "src": "496:12:53"
+              "referencedDeclaration": 33538,
+              "src": "496:12:66"
             },
-            "id": 33840,
+            "id": 36312,
             "nodeType": "InheritanceSpecifier",
-            "src": "496:12:53"
+            "src": "496:12:66"
           }
         ],
         "canonicalName": "SimpleKYC",
@@ -1258,20 +1258,20 @@
         "contractKind": "contract",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          33841,
-          31067,
-          31050,
-          31031,
-          31012,
-          30991
+          36313,
+          33538,
+          33521,
+          33502,
+          33483,
+          33462
         ],
         "name": "SimpleKYC",
-        "nameLocation": "414:9:53",
-        "scope": 33842,
+        "nameLocation": "414:9:66",
+        "scope": 36314,
         "usedErrors": []
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 53
+  "id": 66
 }

@@ -45,8 +45,9 @@ if __name__ == "__main__":
   libraries_flag = f"--libraries {' '.join(lib_addresses)}"
 
   # Deploy the CheqRegistrar
+  con_args = "(0,0,0,0)" #{"writeBPS": 0, "transferBPS": 0, "fundBPS": 0, "cashBPS": 0}
   if not existing_addresses[chain]["registrar"]:
-    registar_path = "src/contracts/CheqRegistrar.sol:CheqRegistrar"; con_args = "(0,0,0,0)" #{"writeBPS": 0, "transferBPS": 0, "fundBPS": 0, "cashBPS": 0}
+    registar_path = "src/contracts/CheqRegistrar.sol:CheqRegistrar"
     result = eth_call(f'forge create {registar_path} --constructor-args {con_args} {rpc_key_flags}', "Registrar deployment failed")
     registrar = extract_address(result.stdout)
     existing_addresses[chain]["registrar"] = registrar
@@ -67,18 +68,20 @@ if __name__ == "__main__":
     tokens.append(token)
     
   # Deploy the DirectPayRules
+  # if not existing_addresses[chain]["DirectPayRules"]:
+  # TODO for some reason module deployment doesnt work on old runs
   rules_path = "src/contracts/rules/DirectPayRules.sol:DirectPayRules"
   result = eth_call(f'forge create {rules_path} {rpc_key_flags}', "Direct Pay rules failed")
   rules = extract_address(result.stdout)
   print("Rule address: ", rules)
 
-  # # Whitelist the rules
+  # Whitelist the rules
   eth_call(f'cast send {registrar} "whitelistRule(address,bool)" {rules} "true" {rpc_key_flags}', "Whitelist failed")
 
   # Deploy the DirectPay module
   if not existing_addresses[chain]["directPay"]:
     DirectPay_path = "src/contracts/modules/DirectPay.sol:DirectPay"
-    result = eth_call(f'forge create {DirectPay_path} --constructor-args {registrar} {rules} {rules} {rules} {rules} {rules} {con_args} "https://cheq-nft.s3-us-west-2.amazonaws.com/" {rpc_key_flags}', "Module deployement failed")
+    result = eth_call(f'forge create {DirectPay_path} --constructor-args {registrar} {rules} {rules} {rules} {rules} {rules} {con_args} "https://cheq-nft.s3-us-west-2.amazonaws.com/" {rpc_key_flags}', "Module deployment failed")
     direct_pay = extract_address(result.stdout)
     existing_addresses[chain]["directPay"] = direct_pay
     print(f'DirectPay address: {direct_pay}')
