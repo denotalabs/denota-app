@@ -7,6 +7,10 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
-contract SimpleKYC is IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule {
-    
-}
+abstract contract SimpleKYC is
+    IWriteRule,
+    ITransferRule,
+    IFundRule,
+    ICashRule,
+    IApproveRule
+{}

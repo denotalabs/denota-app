@@ -12,9 +12,9 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 /**
  * Question: How to ensure deployed modules point to correct CheqRegistrar and Globals?
  * TODO how to export the struct?
-  * Notice: Assumes only invoices are sent
-  * Notice: Assumes milestones are funded sequentially
- * @notice Contract: stores invoice structs, takes/sends WTFC fees to owner, allows owner to set URI, allows freelancer/client to set work status', 
+ * Notice: Assumes only invoices are sent
+ * Notice: Assumes milestones are funded sequentially
+ * @notice Contract: stores invoice structs, takes/sends WTFC fees to owner, allows owner to set URI, allows freelancer/client to set work status',
  */
 contract Marketplace is ModuleBase, Ownable {
     using Strings for uint256;
@@ -31,13 +31,14 @@ contract Marketplace is ModuleBase, Ownable {
     // Question: Should milestones have a startTime? What about Statuses?
     // Question: Whether and how to track multiple milestone funding?
     struct Milestone {
-        uint256 price;  // Amount the milestone is worth
-        bool workerFinished;  // Could pack these bools more
+        uint256 price; // Amount the milestone is worth
+        bool workerFinished; // Could pack these bools more
         bool clientReleased;
         bool workerCashed;
     }
     // Can add expected completion date and refund partial to relevant party if late
-    struct Invoice {  // TODO can optimize these via smaller types and packing
+    struct Invoice {
+        // TODO can optimize these via smaller types and packing
         uint256 startTime;
         uint256 currentMilestone;
         uint256 totalMilestones;
@@ -51,20 +52,33 @@ contract Marketplace is ModuleBase, Ownable {
     mapping(address => bool) public tokenWhitelist;
 
     constructor(
-        address registrar, 
-        address _writeRule, 
-        address _transferRule, 
-        address _fundRule, 
-        address _cashRule, 
+        address registrar,
+        address _writeRule,
+        address _transferRule,
+        address _fundRule,
+        address _cashRule,
         address _approveRule,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
-    ) ModuleBase(registrar, _writeRule, _transferRule, _fundRule, _cashRule, _approveRule, _fees) { // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens?)
+    )
+        ModuleBase(
+            registrar,
+            _writeRule,
+            _transferRule,
+            _fundRule,
+            _cashRule,
+            _approveRule,
+            _fees
+        )
+    {
+        // ERC721("SSTL", "SelfSignTimeLock") TODO: enumuration/registration of module features (like Lens?)
         _URI = __baseURI;
     }
+
     function whitelistToken(address token, bool whitelist) public onlyOwner {
         tokenWhitelist[token] = whitelist;
     }
+
     function setBaseURI(string calldata __baseURI) external onlyOwner {
         _URI = __baseURI;
     }
@@ -72,25 +86,36 @@ contract Marketplace is ModuleBase, Ownable {
     function processWrite(
         address caller,
         address owner,
-        uint cheqId,
+        uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         uint256 directAmount,
         bytes calldata initData
-    ) external override onlyRegistrar returns(uint256){  // Writes milestones to mapping, writes totalMilestones into invoice (rest of invoice is filled out later)
-        require(tokenWhitelist[cheq.currency], "Module: Token not whitelisted");  // QUESTION: should this be a require or return false?
-        IWriteRule(writeRule).canWrite(caller, owner, cheqId, cheq, directAmount, initData);  // Should the assumption be that this is only for freelancers to send as an invoice??
-        // require(caller == owner, "Not invoice"); 
-        // require(cheq.drawer == caller, "Can't send on behalf"); 
-        // require(cheq.recipient != owner, "Can't self send"); 
+    ) external override onlyRegistrar returns (uint256) {
+        // Writes milestones to mapping, writes totalMilestones into invoice (rest of invoice is filled out later)
+        require(tokenWhitelist[cheq.currency], "Module: Token not whitelisted"); // QUESTION: should this be a require or return false?
+        IWriteRule(writeRule).canWrite(
+            caller,
+            owner,
+            cheqId,
+            cheq,
+            directAmount,
+            initData
+        ); // Should the assumption be that this is only for freelancers to send as an invoice??
+        // require(caller == owner, "Not invoice");
+        // require(cheq.drawer == caller, "Can't send on behalf");
+        // require(cheq.recipient != owner, "Can't self send");
         // require(cheq.amount > 0, "Can't send cheq with 0 value");
 
         // require(milestonePrices.sum() == cheq.amount);
 
-        (bytes32 documentHash, uint256[] memory milestonePrices) = abi.decode(initData, (bytes32, uint256[]));
+        (bytes32 documentHash, uint256[] memory milestonePrices) = abi.decode(
+            initData,
+            (bytes32, uint256[])
+        );
         uint256 numMilestones = milestonePrices.length;
-        require(numMilestones > 1, "Module: Insufficient milestones");  // First milestone is upfront payment
-        
-        for (uint256 i = 0; i < numMilestones; i++){
+        require(numMilestones > 1, "Module: Insufficient milestones"); // First milestone is upfront payment
+
+        for (uint256 i = 0; i < numMilestones; i++) {
             milestones[cheqId].push(
                 Milestone({
                     price: milestonePrices[i],
@@ -98,7 +123,7 @@ contract Marketplace is ModuleBase, Ownable {
                     clientReleased: false,
                     workerCashed: false
                 })
-            );  // Can optimize on gas much more
+            ); // Can optimize on gas much more
         }
         invoices[cheqId].documentHash = documentHash;
         invoices[cheqId].totalMilestones = numMilestones;
@@ -106,16 +131,25 @@ contract Marketplace is ModuleBase, Ownable {
     }
 
     function processTransfer(
-        address caller, 
+        address caller,
         bool isApproved,
         address owner,
         address from,
         address to,
-        uint256 cheqId, 
-        DataTypes.Cheq calldata cheq, 
+        uint256 cheqId,
+        DataTypes.Cheq calldata cheq,
         bytes memory initData
     ) external override onlyRegistrar returns (uint256) {
-        ITransferRule(transferRule).canTransfer(caller, isApproved, owner, from, to, cheqId, cheq, initData);  // Checks if caller is ownerOrApproved
+        ITransferRule(transferRule).canTransfer(
+            caller,
+            isApproved,
+            owner,
+            from,
+            to,
+            cheqId,
+            cheq,
+            initData
+        ); // Checks if caller is ownerOrApproved
         return fees.transferBPS;
     }
 
@@ -128,14 +162,14 @@ contract Marketplace is ModuleBase, Ownable {
         address owner,
         uint256 amount,
         uint256 directAmount,
-        uint256 cheqId, 
-        DataTypes.Cheq calldata cheq, 
+        uint256 cheqId,
+        DataTypes.Cheq calldata cheq,
         bytes calldata initData
-    ) external override onlyRegistrar returns (uint256) {  
+    ) external override onlyRegistrar returns (uint256) {
         // Client escrows the first milestone (is the upfront)
         // Must be milestone[0] price (currentMilestone == 0)
         // increment currentMilestone (client can cash previous milestone)
-        // 
+        //
 
         /** 
         struct Milestone {
@@ -155,54 +189,93 @@ contract Marketplace is ModuleBase, Ownable {
         }
          */
         // require(caller == cheq.recipient, "Module: Only client can fund");
-        IFundRule(fundRule).canFund(caller, owner, amount, directAmount, cheqId, cheq, initData);  
+        IFundRule(fundRule).canFund(
+            caller,
+            owner,
+            amount,
+            directAmount,
+            cheqId,
+            cheq,
+            initData
+        );
 
-        if (invoices[cheqId].startTime == 0) invoices[cheqId].startTime = block.timestamp;
+        if (invoices[cheqId].startTime == 0)
+            invoices[cheqId].startTime = block.timestamp;
 
         invoices[cheqId].clientStatus = Status.Ready;
 
         uint256 oldMilestone = invoices[cheqId].currentMilestone;
-        require(amount == milestones[cheqId][oldMilestone].price, "Module: Incorrect milestone amount"); // Question should module throw on insufficient fund or enforce the amount?
+        require(
+            amount == milestones[cheqId][oldMilestone].price,
+            "Module: Incorrect milestone amount"
+        ); // Question should module throw on insufficient fund or enforce the amount?
         milestones[cheqId][oldMilestone].workerFinished = true;
         milestones[cheqId][oldMilestone].clientReleased = true;
         invoices[cheqId].currentMilestone += 1;
         return fees.fundBPS;
     }
 
-    function processCash( // Must allow the funder to cash the escrows too
-        address caller, 
+    function processCash(
+        // Must allow the funder to cash the escrows too
+        address caller,
         address owner,
         address to,
-        uint256 amount, 
-        uint256 cheqId, 
-        DataTypes.Cheq calldata cheq, 
+        uint256 amount,
+        uint256 cheqId,
+        DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         // require(caller == owner, "");
-        ICashRule(cashRule).canCash(caller, owner, to, amount, cheqId, cheq, initData);
-        require(invoices[cheqId].currentMilestone > 0, "Module: Can't cash yet");
+        ICashRule(cashRule).canCash(
+            caller,
+            owner,
+            to,
+            amount,
+            cheqId,
+            cheq,
+            initData
+        );
+        require(
+            invoices[cheqId].currentMilestone > 0,
+            "Module: Can't cash yet"
+        );
         uint256 lastMilestone = invoices[cheqId].currentMilestone - 1;
-        milestones[cheqId][lastMilestone].workerCashed = true;  //
+        milestones[cheqId][lastMilestone].workerCashed = true; //
         return fees.cashBPS;
     }
 
     function processApproval(
-        address caller, 
+        address caller,
         address owner,
-        address to, 
-        uint256 cheqId, 
-        DataTypes.Cheq calldata cheq, 
+        address to,
+        uint256 cheqId,
+        DataTypes.Cheq calldata cheq,
         bytes memory initData
     ) external override onlyRegistrar {
-        IApproveRule(approveRule).canApprove(caller, owner, to, cheqId, cheq, initData);
-        
+        IApproveRule(approveRule).canApprove(
+            caller,
+            owner,
+            to,
+            cheqId,
+            cheq,
+            initData
+        );
     }
 
     // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool) {}
 
-    function processTokenURI(uint256 tokenId) public view override onlyRegistrar returns (string memory) {
+    function processTokenURI(uint256 tokenId)
+        public
+        view
+        override
+        onlyRegistrar
+        returns (string memory)
+    {
         string memory __baseURI = _baseURI();
-        return bytes(__baseURI).length > 0 ? string(abi.encodePacked(_URI, tokenId.toString())) : "";
+        return
+            bytes(__baseURI).length > 0
+                ? string(abi.encodePacked(_URI, tokenId.toString()))
+                : "";
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -211,31 +284,55 @@ contract Marketplace is ModuleBase, Ownable {
     function _baseURI() internal view returns (string memory) {
         return _URI;
     }
-    function getMilestones(uint256 cheqId) public view returns(Milestone[] memory){
+
+    function getMilestones(uint256 cheqId)
+        public
+        view
+        returns (Milestone[] memory)
+    {
         return milestones[cheqId];
     }
+
     function setStatus(uint256 cheqId, Status newStatus) public {
         Invoice storage invoice = invoices[cheqId];
-        (address drawer, address recipient) = ICheqRegistrar(REGISTRAR).cheqDrawerRecipient(cheqId);
-        require(_msgSender() == drawer || _msgSender() == recipient, "Module: Unauthorized");
-        
+        (address drawer, address recipient) = ICheqRegistrar(REGISTRAR)
+            .cheqDrawerRecipient(cheqId);
+        require(
+            _msgSender() == drawer || _msgSender() == recipient,
+            "Module: Unauthorized"
+        );
+
         bool isWorker = _msgSender() == drawer;
-        Status oldStatus = isWorker ? invoice.workerStatus : invoice.clientStatus;
+        Status oldStatus = isWorker
+            ? invoice.workerStatus
+            : invoice.clientStatus;
 
         require(
-            oldStatus < newStatus || 
-            (oldStatus == Status.Resolved && newStatus == Status.Disputing)  
-        , "Module: Status not allowed"); // Parties can change resolved back to disputed and back to in progress
-        if (isWorker){
+            oldStatus < newStatus ||
+                (oldStatus == Status.Resolved && newStatus == Status.Disputing),
+            "Module: Status not allowed"
+        ); // Parties can change resolved back to disputed and back to in progress
+        if (isWorker) {
             invoice.workerStatus = newStatus;
         } else {
             invoice.clientStatus = newStatus;
         }
 
-        // Can Resolved lead to continued work (Status.Working) or pay out based on the resolution? 
+        // Can Resolved lead to continued work (Status.Working) or pay out based on the resolution?
         // If one doesn't set theirs to disputed, should the arbitor only be allowed to payout the party with Status.Disputed?
     }
-    function getFees() public view override returns (uint256, uint256, uint256, uint256) {
+
+    function getFees()
+        public
+        view
+        override
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256
+        )
+    {
         return (fees.writeBPS, fees.transferBPS, fees.fundBPS, fees.cashBPS);
     }
 }

@@ -33,9 +33,7 @@ A URL to a YouTube video.
 
  */
 
-
 library CheqBase64Encoding {
-
     function buildMetadata(
         uint256 _tokenId,
         address currency,
@@ -44,11 +42,7 @@ library CheqBase64Encoding {
         address drawer,
         address recipient,
         address module
-    )
-        external
-        pure
-        returns (string memory)
-    {
+    ) external pure returns (string memory) {
         return
             string(
                 abi.encodePacked(
@@ -56,22 +50,41 @@ library CheqBase64Encoding {
                     encode(
                         bytes(
                             abi.encodePacked(
-                                "{\"name\":",
-                                    "Cheq serial number #", _tokenId,
-                                    // '", "description":"',
-                                    // cheq.description,
-                                    // '", "image": "',
-                                    // "data:image/svg+xml;base64,",
-                                    // buildImage(_tokenId),
-                                    ", \"attributes\": ",
-                                    "[",
-                                        "{\"trait_type\": \"Token\",", "\"value\":", currency, "}",
-                                        "{\"trait_type\": \"Amount\",", "\"value\":", amount, "}",
-                                        "{\"trait_type\": \"Escrowed\",", "\"value\":", escrowed, "}",
-                                        "{\"trait_type\": \"Drawer\",", "\"value\":", drawer, "}",
-                                        "{\"trait_type\": \"Recipient\",", "\"value\":", recipient, "}",
-                                        "{\"trait_type\": \"Module\",", "\"value\":", module, "}",
-                                    "]",
+                                '{"name":',
+                                "Cheq serial number #",
+                                _tokenId,
+                                // '", "description":"',
+                                // cheq.description,
+                                // '", "image": "',
+                                // "data:image/svg+xml;base64,",
+                                // buildImage(_tokenId),
+                                ', "attributes": ',
+                                "[",
+                                '{"trait_type": "Token",',
+                                '"value":',
+                                currency,
+                                "}",
+                                '{"trait_type": "Amount",',
+                                '"value":',
+                                amount,
+                                "}",
+                                '{"trait_type": "Escrowed",',
+                                '"value":',
+                                escrowed,
+                                "}",
+                                '{"trait_type": "Drawer",',
+                                '"value":',
+                                drawer,
+                                "}",
+                                '{"trait_type": "Recipient",',
+                                '"value":',
+                                recipient,
+                                "}",
+                                '{"trait_type": "Module",',
+                                '"value":',
+                                module,
+                                "}",
+                                "]",
                                 "}"
                             )
                         )
@@ -79,10 +92,13 @@ library CheqBase64Encoding {
                 )
             );
     }
+
     /**
      * @dev Base64 Encoding/Decoding Table
      */
-    string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    string internal constant _TABLE =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
     /**
      * @dev Converts a `bytes` to its Bytes64 `string` representation.
      */
@@ -131,13 +147,22 @@ library CheqBase64Encoding {
                 // and finally write it in the result pointer but with a left shift
                 // of 256 (1 byte) - 8 (1 ASCII char) = 248 bits
 
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(18, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1) // Advance
 
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(12, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1) // Advance
 
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(6, input), 0x3F))))
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(6, input), 0x3F)))
+                )
                 resultPtr := add(resultPtr, 1) // Advance
 
                 mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))

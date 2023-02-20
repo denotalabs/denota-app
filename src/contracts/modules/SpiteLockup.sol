@@ -8,5 +8,12 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 /// @notice Sender pays reciever and can spite where the sender gets back the money after X amount of time
-contract SpiteLockup is IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule {   
+abstract contract SpiteLockup is
+    IWriteRule,
+    ITransferRule,
+    IFundRule,
+    ICashRule,
+    IApproveRule
+{
+
 }

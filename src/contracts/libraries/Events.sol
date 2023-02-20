@@ -2,7 +2,8 @@
 pragma solidity ^0.8.16;
 import {DataTypes} from "../libraries/DataTypes.sol";
 
-library Events {  // emit cheq structs or each variable?
+library Events {
+    // emit cheq structs or each variable?
     // event ModuleGlobalsGovernanceSet(
     //     address indexed prevGovernance,
     //     address indexed newGovernance,
@@ -24,34 +25,44 @@ library Events {  // emit cheq structs or each variable?
     event ModuleWhitelisted(
         address indexed user,
         address indexed module,
-        bool isAccepted, 
+        bool isAccepted,
         bool isClonable,
         uint256 timestamp
     );
-    event TokenWhitelisted(address caller, address indexed token, bool indexed accepted, uint256 timestamp);
-    event RuleWhitelisted(address caller, address indexed rule, bool indexed accepted, uint256 timestamp);
+    event TokenWhitelisted(
+        address caller,
+        address indexed token,
+        bool indexed accepted,
+        uint256 timestamp
+    );
+    event RuleWhitelisted(
+        address caller,
+        address indexed rule,
+        bool indexed accepted,
+        uint256 timestamp
+    );
 
     event Written(
         uint256 indexed cheqId,
-        address indexed owner, 
+        address indexed owner,
         DataTypes.Cheq indexed cheq,
         uint256 directAmount,
-        bytes data, 
+        bytes data,
         uint256 cheqFee,
         uint256 moduleFee,
         uint256 timestamp
     );
     event Transferred(
-        uint256 indexed tokenId, 
-        address indexed from, 
+        uint256 indexed tokenId,
+        address indexed from,
         address indexed to,
         uint256 cheqFee,
         uint256 moduleFee,
         uint256 timestamp
     );
     event Funded(
-        address indexed funder, 
-        uint256 indexed cheqId, 
+        address indexed funder,
+        uint256 indexed cheqId,
         uint256 amount,
         uint256 directAmount,
         bytes indexed fundData,
@@ -61,8 +72,8 @@ library Events {  // emit cheq structs or each variable?
     );
     event Cashed(
         address indexed casher,
-        address to, 
-        uint256 indexed cheqId, 
+        address to,
+        uint256 indexed cheqId,
         bytes indexed cashData,
         uint256 cheqFee,
         uint256 moduleFee,

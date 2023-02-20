@@ -7,5 +7,10 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
-contract DisputeVolley is IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule {
-}
+abstract contract DisputeVolley is
+    IWriteRule,
+    ITransferRule,
+    IFundRule,
+    ICashRule,
+    IApproveRule
+{}
