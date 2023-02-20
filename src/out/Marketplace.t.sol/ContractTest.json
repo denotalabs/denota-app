@@ -1200,10 +1200,10 @@
   },
   "ast": {
     "absolutePath": "src/test/Marketplace.t.sol",
-    "id": 39597,
+    "id": 39608,
     "exportedSymbols": {
       "AllTrueRules": [
-        37469
+        37230
       ],
       "CheqRegistrar": [
         31074
@@ -1215,7 +1215,7 @@
         27735
       ],
       "ContractTest": [
-        39596
+        39607
       ],
       "DSTest": [
         1786
@@ -1233,16 +1233,16 @@
         25960
       ],
       "Invoice": [
-        39593
+        39604
       ],
       "Marketplace": [
-        40918
+        40310
       ],
       "Milestone": [
-        39578
+        39589
       ],
       "Status": [
-        39571
+        39582
       ],
       "StdAssertions": [
         2704
@@ -1266,7 +1266,7 @@
         7750
       ],
       "TestERC20": [
-        39628
+        39639
       ],
       "Vm": [
         8920
@@ -1294,7 +1294,7 @@
     "src": "40:28160:78",
     "nodes": [
       {
-        "id": 39553,
+        "id": 39564,
         "nodeType": "PragmaDirective",
         "src": "40:24:78",
         "nodes": [],
@@ -1306,58 +1306,58 @@
         ]
       },
       {
-        "id": 39554,
+        "id": 39565,
         "nodeType": "ImportDirective",
         "src": "66:26:78",
         "nodes": [],
         "absolutePath": "src/test/mock/erc20.sol",
         "file": "./mock/erc20.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39597,
-        "sourceUnit": 39629,
+        "scope": 39608,
+        "sourceUnit": 39640,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 39555,
+        "id": 39566,
         "nodeType": "ImportDirective",
         "src": "93:28:78",
         "nodes": [],
         "absolutePath": "lib/forge-std/src/Test.sol",
         "file": "forge-std/Test.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39597,
+        "scope": 39608,
         "sourceUnit": 7764,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 39556,
+        "id": 39567,
         "nodeType": "ImportDirective",
         "src": "122:31:78",
         "nodes": [],
         "absolutePath": "lib/forge-std/src/console.sol",
         "file": "forge-std/console.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39597,
+        "scope": 39608,
         "sourceUnit": 16985,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 39558,
+        "id": 39569,
         "nodeType": "ImportDirective",
         "src": "154:66:78",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "src/contracts/libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39597,
+        "scope": 39608,
         "sourceUnit": 33688,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 39557,
+              "id": 39568,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
@@ -1371,19 +1371,19 @@
         "unitAlias": ""
       },
       {
-        "id": 39560,
+        "id": 39571,
         "nodeType": "ImportDirective",
         "src": "221:64:78",
         "nodes": [],
         "absolutePath": "src/contracts/CheqRegistrar.sol",
         "file": "src/contracts/CheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39597,
+        "scope": 39608,
         "sourceUnit": 31075,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 39559,
+              "id": 39570,
               "name": "CheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
@@ -1397,23 +1397,23 @@
         "unitAlias": ""
       },
       {
-        "id": 39562,
+        "id": 39573,
         "nodeType": "ImportDirective",
         "src": "286:68:78",
         "nodes": [],
         "absolutePath": "src/contracts/Modules/Marketplace.sol",
         "file": "src/contracts/Modules/Marketplace.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39597,
-        "sourceUnit": 40919,
+        "scope": 39608,
+        "sourceUnit": 40311,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 39561,
+              "id": 39572,
               "name": "Marketplace",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 40918,
+              "referencedDeclaration": 40310,
               "src": "295:11:78",
               "typeDescriptions": {}
             },
@@ -1423,23 +1423,23 @@
         "unitAlias": ""
       },
       {
-        "id": 39564,
+        "id": 39575,
         "nodeType": "ImportDirective",
         "src": "355:68:78",
         "nodes": [],
         "absolutePath": "src/contracts/rules/AllTrueRules.sol",
         "file": "src/contracts/rules/AllTrueRules.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39597,
-        "sourceUnit": 37470,
+        "scope": 39608,
+        "sourceUnit": 37231,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 39563,
+              "id": 39574,
               "name": "AllTrueRules",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 37469,
+              "referencedDeclaration": 37230,
               "src": "364:12:78",
               "typeDescriptions": {}
             },
@@ -1449,49 +1449,49 @@
         "unitAlias": ""
       },
       {
-        "id": 39571,
+        "id": 39582,
         "nodeType": "EnumDefinition",
         "src": "426:97:78",
         "nodes": [],
         "canonicalName": "Status",
         "members": [
           {
-            "id": 39565,
+            "id": 39576,
             "name": "Waiting",
             "nameLocation": "444:7:78",
             "nodeType": "EnumValue",
             "src": "444:7:78"
           },
           {
-            "id": 39566,
+            "id": 39577,
             "name": "Ready",
             "nameLocation": "457:5:78",
             "nodeType": "EnumValue",
             "src": "457:5:78"
           },
           {
-            "id": 39567,
+            "id": 39578,
             "name": "InProgress",
             "nameLocation": "468:10:78",
             "nodeType": "EnumValue",
             "src": "468:10:78"
           },
           {
-            "id": 39568,
+            "id": 39579,
             "name": "Disputing",
             "nameLocation": "484:9:78",
             "nodeType": "EnumValue",
             "src": "484:9:78"
           },
           {
-            "id": 39569,
+            "id": 39580,
             "name": "Resolved",
             "nameLocation": "499:8:78",
             "nodeType": "EnumValue",
             "src": "499:8:78"
           },
           {
-            "id": 39570,
+            "id": 39581,
             "name": "Finished",
             "nameLocation": "513:8:78",
             "nodeType": "EnumValue",
@@ -1502,7 +1502,7 @@
         "nameLocation": "431:6:78"
       },
       {
-        "id": 39578,
+        "id": 39589,
         "nodeType": "StructDefinition",
         "src": "524:155:78",
         "nodes": [],
@@ -1510,12 +1510,12 @@
         "members": [
           {
             "constant": false,
-            "id": 39573,
+            "id": 39584,
             "mutability": "mutable",
             "name": "price",
             "nameLocation": "555:5:78",
             "nodeType": "VariableDeclaration",
-            "scope": 39578,
+            "scope": 39589,
             "src": "547:13:78",
             "stateVariable": false,
             "storageLocation": "default",
@@ -1524,7 +1524,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 39572,
+              "id": 39583,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "547:7:78",
@@ -1537,12 +1537,12 @@
           },
           {
             "constant": false,
-            "id": 39575,
+            "id": 39586,
             "mutability": "mutable",
             "name": "workerFinished",
             "nameLocation": "605:14:78",
             "nodeType": "VariableDeclaration",
-            "scope": 39578,
+            "scope": 39589,
             "src": "600:19:78",
             "stateVariable": false,
             "storageLocation": "default",
@@ -1551,7 +1551,7 @@
               "typeString": "bool"
             },
             "typeName": {
-              "id": 39574,
+              "id": 39585,
               "name": "bool",
               "nodeType": "ElementaryTypeName",
               "src": "600:4:78",
@@ -1564,12 +1564,12 @@
           },
           {
             "constant": false,
-            "id": 39577,
+            "id": 39588,
             "mutability": "mutable",
             "name": "clientReleased",
             "nameLocation": "662:14:78",
             "nodeType": "VariableDeclaration",
-            "scope": 39578,
+            "scope": 39589,
             "src": "657:19:78",
             "stateVariable": false,
             "storageLocation": "default",
@@ -1578,7 +1578,7 @@
               "typeString": "bool"
             },
             "typeName": {
-              "id": 39576,
+              "id": 39587,
               "name": "bool",
               "nodeType": "ElementaryTypeName",
               "src": "657:4:78",
@@ -1592,11 +1592,11 @@
         ],
         "name": "Milestone",
         "nameLocation": "531:9:78",
-        "scope": 39597,
+        "scope": 39608,
         "visibility": "public"
       },
       {
-        "id": 39593,
+        "id": 39604,
         "nodeType": "StructDefinition",
         "src": "680:180:78",
         "nodes": [],
@@ -1604,12 +1604,12 @@
         "members": [
           {
             "constant": false,
-            "id": 39580,
+            "id": 39591,
             "mutability": "mutable",
             "name": "startTime",
             "nameLocation": "709:9:78",
             "nodeType": "VariableDeclaration",
-            "scope": 39593,
+            "scope": 39604,
             "src": "701:17:78",
             "stateVariable": false,
             "storageLocation": "default",
@@ -1618,7 +1618,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 39579,
+              "id": 39590,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "701:7:78",
@@ -1631,12 +1631,12 @@
           },
           {
             "constant": false,
-            "id": 39582,
+            "id": 39593,
             "mutability": "mutable",
             "name": "currentMilestone",
             "nameLocation": "732:16:78",
             "nodeType": "VariableDeclaration",
-            "scope": 39593,
+            "scope": 39604,
             "src": "724:24:78",
             "stateVariable": false,
             "storageLocation": "default",
@@ -1645,7 +1645,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 39581,
+              "id": 39592,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "724:7:78",
@@ -1658,36 +1658,36 @@
           },
           {
             "constant": false,
-            "id": 39585,
+            "id": 39596,
             "mutability": "mutable",
             "name": "workerStatus",
             "nameLocation": "763:12:78",
             "nodeType": "VariableDeclaration",
-            "scope": 39593,
+            "scope": 39604,
             "src": "756:19:78",
             "stateVariable": false,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_enum$_Status_$39571",
+              "typeIdentifier": "t_enum$_Status_$39582",
               "typeString": "enum Status"
             },
             "typeName": {
-              "id": 39584,
+              "id": 39595,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 39583,
+                "id": 39594,
                 "name": "Status",
                 "nameLocations": [
                   "756:6:78"
                 ],
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 39571,
+                "referencedDeclaration": 39582,
                 "src": "756:6:78"
               },
-              "referencedDeclaration": 39571,
+              "referencedDeclaration": 39582,
               "src": "756:6:78",
               "typeDescriptions": {
-                "typeIdentifier": "t_enum$_Status_$39571",
+                "typeIdentifier": "t_enum$_Status_$39582",
                 "typeString": "enum Status"
               }
             },
@@ -1695,36 +1695,36 @@
           },
           {
             "constant": false,
-            "id": 39588,
+            "id": 39599,
             "mutability": "mutable",
             "name": "clientStatus",
             "nameLocation": "788:12:78",
             "nodeType": "VariableDeclaration",
-            "scope": 39593,
+            "scope": 39604,
             "src": "781:19:78",
             "stateVariable": false,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_enum$_Status_$39571",
+              "typeIdentifier": "t_enum$_Status_$39582",
               "typeString": "enum Status"
             },
             "typeName": {
-              "id": 39587,
+              "id": 39598,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 39586,
+                "id": 39597,
                 "name": "Status",
                 "nameLocations": [
                   "781:6:78"
                 ],
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 39571,
+                "referencedDeclaration": 39582,
                 "src": "781:6:78"
               },
-              "referencedDeclaration": 39571,
+              "referencedDeclaration": 39582,
               "src": "781:6:78",
               "typeDescriptions": {
-                "typeIdentifier": "t_enum$_Status_$39571",
+                "typeIdentifier": "t_enum$_Status_$39582",
                 "typeString": "enum Status"
               }
             },
@@ -1732,45 +1732,45 @@
           },
           {
             "constant": false,
-            "id": 39592,
+            "id": 39603,
             "mutability": "mutable",
             "name": "milestones",
             "nameLocation": "847:10:78",
             "nodeType": "VariableDeclaration",
-            "scope": 39593,
+            "scope": 39604,
             "src": "835:22:78",
             "stateVariable": false,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_array$_t_struct$_Milestone_$39578_storage_$dyn_storage_ptr",
+              "typeIdentifier": "t_array$_t_struct$_Milestone_$39589_storage_$dyn_storage_ptr",
               "typeString": "struct Milestone[]"
             },
             "typeName": {
               "baseType": {
-                "id": 39590,
+                "id": 39601,
                 "nodeType": "UserDefinedTypeName",
                 "pathNode": {
-                  "id": 39589,
+                  "id": 39600,
                   "name": "Milestone",
                   "nameLocations": [
                     "835:9:78"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 39578,
+                  "referencedDeclaration": 39589,
                   "src": "835:9:78"
                 },
-                "referencedDeclaration": 39578,
+                "referencedDeclaration": 39589,
                 "src": "835:9:78",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_struct$_Milestone_$39578_storage_ptr",
+                  "typeIdentifier": "t_struct$_Milestone_$39589_storage_ptr",
                   "typeString": "struct Milestone"
                 }
               },
-              "id": 39591,
+              "id": 39602,
               "nodeType": "ArrayTypeName",
               "src": "835:11:78",
               "typeDescriptions": {
-                "typeIdentifier": "t_array$_t_struct$_Milestone_$39578_storage_$dyn_storage_ptr",
+                "typeIdentifier": "t_array$_t_struct$_Milestone_$39589_storage_$dyn_storage_ptr",
                 "typeString": "struct Milestone[]"
               }
             },
@@ -1779,11 +1779,11 @@
         ],
         "name": "Invoice",
         "nameLocation": "687:7:78",
-        "scope": 39597,
+        "scope": 39608,
         "visibility": "public"
       },
       {
-        "id": 39596,
+        "id": 39607,
         "nodeType": "ContractDefinition",
         "src": "862:26717:78",
         "nodes": [],
@@ -1791,7 +1791,7 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 39594,
+              "id": 39605,
               "name": "Test",
               "nameLocations": [
                 "887:4:78"
@@ -1800,7 +1800,7 @@
               "referencedDeclaration": 7763,
               "src": "887:4:78"
             },
-            "id": 39595,
+            "id": 39606,
             "nodeType": "InheritanceSpecifier",
             "src": "887:4:78"
           }
@@ -1810,7 +1810,7 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          39596,
+          39607,
           7763,
           7750,
           1841,
@@ -1823,7 +1823,7 @@
         ],
         "name": "ContractTest",
         "nameLocation": "871:12:78",
-        "scope": 39597,
+        "scope": 39608,
         "usedErrors": []
       }
     ],

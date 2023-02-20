@@ -68,7 +68,6 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         view
         returns (bool)
     {
-<<<<<<< HEAD
         return _validModule(module) && _tokenWhitelist[token]; // Valid module and whitelisted currency
     }
 
@@ -126,15 +125,6 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             cheqFee,
             moduleFee,
             block.timestamp
-=======
-        // require(_msgSender().supportInterface("0xffffffff"), "INVAL_MODULE");  // TODO Finalize this standard
-        // if (from != _msgSender()){ // The module is trying to use `from` deposit on their behalf instead of its own
-        //     require(userModuleWhitelist[from][ICheqModule(_msgSender())], "UNAPP_MODULE"); // See if user allows this
-        // }
-        require(
-            escrow <= deposits[from][_token],
-            "INSUF_BAL"
->>>>>>> main
         );
         unchecked {
             return _totalSupply++;
