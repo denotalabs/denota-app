@@ -116,7 +116,9 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
                   break;
               }
               refreshWithDelay();
+              onClose?.();
             } catch (error) {
+              console.log(error);
               toast({
                 title: "Transaction failed",
                 status: "error",

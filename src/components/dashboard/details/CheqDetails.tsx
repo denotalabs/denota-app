@@ -1,4 +1,6 @@
-import { Text, VStack } from "@chakra-ui/react";
+import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { Cheq } from "../../../hooks/useCheqs";
 import DetailsRow from "../../designSystem/DetailsRow";
@@ -14,6 +16,23 @@ interface Props {
 
 function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
   const { blockchainState } = useBlockchainData();
+
+  const [note, setNote] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const NOTE_URL =
+          "https://cheq-nft.s3-us-west-2.amazonaws.com/1d602fabb6cc.json";
+        const resp = await axios.get(NOTE_URL);
+        setNote(resp.data.description);
+      } catch (error) {
+        setNote("Error fetching note");
+        console.log(error);
+      }
+    }
+    fetchData();
+  }, []);
 
   return (
     <VStack gap={4} mt={10} mb={6}>
@@ -50,14 +69,23 @@ function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
             title="Payment Amount"
             value={String(cheq.amount) + " " + cheq.token}
           />
-          <DetailsRow title="Module" value="Self-signed timelock" />
+          <DetailsRow
+            title="Module"
+            value="Direct Pay"
+            tooltip="Funds are released immeidately upon payment"
+          />
         </VStack>
       </RoundedBox>
       <RoundedBox p={4} mb={4}>
-        <Text fontWeight={600} textAlign={"center"}>
-          The self-signed module allows the funder to void the cheq until the
-          maturity date (get better copy)
-        </Text>
+        {note !== undefined ? (
+          <Text fontWeight={600} textAlign={"center"}>
+            {note}
+          </Text>
+        ) : (
+          <Center>
+            <Spinner size="md" />
+          </Center>
+        )}
       </RoundedBox>
     </VStack>
   );
