@@ -39,6 +39,8 @@ interface BlockchainDataInterface {
   cheqAddress: string;
   userDaiBalance: string;
   userWethBalance: string;
+  cheq: null | ethers.Contract;
+  directPayAddress: string;
 
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
@@ -67,6 +69,7 @@ const defaultBlockchainState = {
   cheqTotalSupply: "",
   signer: null,
   explorer: "",
+  directPayAddress: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -133,6 +136,7 @@ export const BlockchainDataProvider = memo(
             SelfSignedBroker.abi,
             signer
           );
+
           const weth = new ethers.Contract(mapping.weth, erc20.abi, signer);
           const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
 
@@ -154,6 +158,8 @@ export const BlockchainDataProvider = memo(
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: mapping.explorer,
+            cheq,
+            directPayAddress: mapping.directPayModule,
           });
           setIsInitializing(false);
         }
