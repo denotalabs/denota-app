@@ -1,3 +1,10 @@
+type Transaction @entity {
+  id: ID!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: String!
+  events: [Event!]! @derivedFrom(field: "transaction")
+}
 type ERC20 @entity(immutable: true) {
   id: ID!
   isWhitelisted: Boolean!
@@ -7,56 +14,6 @@ type ERC20 @entity(immutable: true) {
   # totalSupply: 
 }
 
-type Transaction @entity {
-  id: ID!
-  timestamp: BigInt!
-  blockNumber: BigInt!
-  transactionHash: String!
-  events: [Event!]! @derivedFrom(field: "transaction")
-}
-
-interface Event {
-  id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-}
-
-type Transfer implements Event @entity(immutable: true) {
-  id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  cheq: Cheq!
-  from: Account!
-  to: Account!
-}
-type Escrow implements Event @entity(immutable: true) {
-  id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  cheq: Cheq!  # Erc20 token can only be static for now
-  from: Account!
-  amount: BigInt!
-}
-type DirectSend @entity {
-  id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  cheq: Cheq!  # Erc20 token can only be static for now
-  from: Account!
-  amount: BigInt!
-}
-type Approval implements Event @entity {
-  id: ID!
-  transaction: Transaction!
-  timestamp: BigInt!
-  cheq: Cheq!
-  owner: Account!
-  approved: Account!
-}
 type Account @entity {
   id: ID!
   # TODO need to query every new user's token balances for future modules that may depend on token balance logic
@@ -83,11 +40,46 @@ type Account @entity {
 	events: [Event!]! @derivedFrom(field: "emitter")
 }
 
-# TODO: figure out why unions aren't working
-# union CheqData =  BYOAData | SelfSignedCheqData
+interface Event {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+}
+
+type Transfer implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  cheq: Cheq!
+  from: Account!
+  to: Account!
+}
+type Escrow implements Event @entity(immutable: true) {  # Instances of escrowing and direct sending, not current balance/state
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  cheq: Cheq!
+  from: Account!
+  # TODO need to do amounts and exact amounts?
+  amount: BigInt!
+  directAmount: BigInt!
+  # directAmountExact: BigInt! # TODO
+}
+type Approval implements Event @entity {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  cheq: Cheq!
+  owner: Account!
+  approved: Account!
+}
 
 type Cheq @entity {
   id: ID!
+  timestamp: BigInt!
   createdAt: BigInt!
   erc20: ERC20!
   amount: BigDecimal!
@@ -96,23 +88,22 @@ type Cheq @entity {
   drawer: Account!
   recipient: Account!
   module: Module!
-  # Mutable attributes
+  
   uri: String
   escrowed: BigDecimal!
   escrowedExact: BigInt!
+
   owner: Account!
   transfers: [Transfer!]! @derivedFrom(field: "cheq")
-  directSends: [DirectSend]!
-  directSendNum: BigInt!
-  totalDirectSent: BigInt!
-
   escrows: [Escrow!]! @derivedFrom(field: "cheq")
   approval: Account!
   approvals: [Approval!]! @derivedFrom(field: "cheq")
   directPayData: DirectPayData # optional
+  # Should the creation hash be stored here?
 }
 
-
+# TODO: figure out why unions aren't working
+# union CheqData =  BYOAData | SelfSignedCheqData
 type CheqRegistrar @entity {
   id: ID!  # Should this be the registrar's address?
   name: String!
@@ -135,11 +126,9 @@ interface Module {  # Allows new modules to inherit from Module interface
   cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
   numCheqsManaged: BigInt!
 }
-
 type DirectPayModule implements Module @entity {
   id: ID!
 }
-
 type DirectPayData @entity {
   id: ID!
   isCashed: Boolean!

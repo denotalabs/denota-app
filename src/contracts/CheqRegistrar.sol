@@ -274,8 +274,9 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
 
         emit Events.Cashed(
             _msgSender(),
-            to,
             cheqId,
+            to,
+            amount,
             cashData,
             cheqFee,
             moduleFee,

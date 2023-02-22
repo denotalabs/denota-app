@@ -52,6 +52,7 @@ library Events {
         uint256 moduleFee,
         uint256 timestamp
     );
+    // Not used
     event Transferred(
         uint256 indexed tokenId,
         address indexed from,
@@ -72,8 +73,9 @@ library Events {
     );
     event Cashed(
         address indexed casher,
-        address to,
         uint256 indexed cheqId,
+        address to,
+        uint256 amount,
         bytes indexed cashData,
         uint256 cheqFee,
         uint256 moduleFee,
