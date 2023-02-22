@@ -15,6 +15,7 @@ import {
   Transfer,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
 
+import { MemoWritten as MemoWrittenEvent } from "../subgraph/generated/DirectPay/DirectPay";
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
   newAccount.save();
@@ -43,9 +44,9 @@ function saveTransaction(
 }
 
 export function handleWrite(event: WrittenEvent): void {
-  const currency = "event.params.cheq[0].toString()";
-  const drawer = "event.params.cheq[2].toString()";
-  const recipient = "event.params.cheq[4].toString()";
+  const currency = event.params.currency;
+  const drawer = event.params.drawer.toString();
+  const recipient = event.params.recipient.toString();
   const owner = event.params.owner.toHexString();
   const transactionHexHash = event.transaction.hash.toHex();
   // Load entities if they exist, else create them
@@ -74,7 +75,7 @@ export function handleWrite(event: WrittenEvent): void {
   newCheq.amountExact = cheqAmount; // .divDecimal(BigInt.fromI32(18).toBigDecimal())
   newCheq.drawer = drawingAccount.id;
   newCheq.recipient = receivingAccount.id;
-  newCheq.module = "event.params.cheq[5].toString()";
+  newCheq.module = event.params.module.toString();
   newCheq.uri = ""; // TODO Add URI here
   const cheqEscrowed = BigInt.fromI32(0);
   newCheq.escrowed = cheqEscrowed.divDecimal(BigInt.fromI32(18).toBigDecimal());
@@ -242,11 +243,11 @@ export function handleCash(event: CashedEvent): void {
 //   // const moduleName = event.params.moduleName;
 // }
 
-// export function handleMemoWritten(event: MemoWrittenEvent): void {
-//   const cheqId = event.params.cheqId.toString();
-//   let cheq = Cheq.load(cheqId);
-//   if (cheq != null) {
-//     cheq.uri = event.params.memoHash.toString();
-//     cheq.save();
-//   }
-// }
+export function handleMemoWritten(event: MemoWrittenEvent): void {
+  const cheqId = event.params.cheqId.toString();
+  const cheq = Cheq.load(cheqId);
+  if (cheq != null) {
+    cheq.uri = event.params.memoHash.toString();
+    cheq.save();
+  }
+}

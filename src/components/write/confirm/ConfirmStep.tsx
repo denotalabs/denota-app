@@ -32,6 +32,8 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
 
   const { refreshWithDelay } = useCheqContext();
 
+  console.log({ xp: ethers.utils.formatBytes32String(formData.noteKey) });
+
   const tokenAddress = useMemo(() => {
     switch (formData.token) {
       case "DAI":

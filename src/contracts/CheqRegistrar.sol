@@ -82,6 +82,8 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         // require(msg.value >= _writeFlatFee, "INSUF_FEE"); // Question should flat fee be implemented?
         require(validWrite(cheq.module, cheq.currency), "NOT_WHITELISTED"); // Module+token whitelist check
 
+        writeEvent(cheq, owner, directAmount);
+
         // Module hook
         uint256 moduleFee = ICheqModule(cheq.module).processWrite(
             _msgSender(),
@@ -116,8 +118,6 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
                 owner,
                 directAmount
             );
-
-        writeEvent(cheq, owner, directAmount);
 
         unchecked {
             return _totalSupply++;

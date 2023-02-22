@@ -9,6 +9,7 @@ interface Props {
   address: string;
   escrowedWei: BigNumber;
   noteKey: string;
+  isInvoice: boolean;
 }
 
 export const useDirectPay = ({
@@ -18,6 +19,7 @@ export const useDirectPay = ({
   address,
   escrowedWei,
   noteKey,
+  isInvoice,
 }: Props) => {
   const { blockchainState } = useBlockchainData();
 
@@ -36,7 +38,7 @@ export const useDirectPay = ({
         blockchainState.directPayAddress,
         0,
       ],
-      address,
+      isInvoice ? blockchainState.account : address,
       escrowedWei,
       payload
     );
@@ -48,8 +50,8 @@ export const useDirectPay = ({
     blockchainState.cheq,
     blockchainState.directPayAddress,
     escrowedWei,
+    isInvoice,
     noteKey,
-    tokenAddress,
   ]);
 
   return { writeCheq };
