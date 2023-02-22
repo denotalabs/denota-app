@@ -1,17 +1,18 @@
 // import { fetchERC20, fetchERC20Balance, fetchERC20Approval } from "@openzeppelin/subgraphs/src/fetch/erc20"
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 // import { MemoWritten as MemoWrittenEvent } from "../subgraph/generated/DirectPay/DirectPay";
-import {
-  Transfer as TransferEvent
-} from "../subgraph/generated/CheqRegistrar/CheqRegistrar"; // Events to import
+import { Transfer as TransferEvent } from "../subgraph/generated/CheqRegistrar/CheqRegistrar"; // Events to import
 import {
   Cashed as CashedEvent,
-  Funded as FundedEvent, Written as WrittenEvent
+  Funded as FundedEvent,
 } from "../subgraph/generated/Events/Events"; // Events to import
+import { Written as WrittenEvent } from "../subgraph/generated/Events/Registrar";
 import {
   Account,
   Cheq,
-  ERC20, Escrow, Transaction, Transfer
+  Escrow,
+  Transaction,
+  Transfer,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
 
 function saveNewAccount(account: string): Account {
@@ -42,47 +43,44 @@ function saveTransaction(
 }
 
 export function handleWrite(event: WrittenEvent): void {
-  const currency = event.params.cheq[0].toString();;
-  const drawer = event.params.cheq[2].toString();
-  const recipient = event.params.cheq[4].toString();
+  const currency = "event.params.cheq[0].toString()";
+  const drawer = "event.params.cheq[2].toString()";
+  const recipient = "event.params.cheq[4].toString()";
   const owner = event.params.owner.toHexString();
   const transactionHexHash = event.transaction.hash.toHex();
-
   // Load entities if they exist, else create them
   let drawingAccount = Account.load(drawer);
   let receivingAccount = Account.load(recipient);
   let owningAccount = Account.load(owner);
-  let ERC20Token = ERC20.load(currency);
-  if (ERC20Token == null) {
-    ERC20Token = new ERC20(currency); // Query it's symbol and decimals here?
-    ERC20Token.save();
-  }
+  // let ERC20Token = ERC20.load(currency);
+  // if (ERC20Token == null) {
+  //   ERC20Token = new ERC20(currency); // Query it's symbol and decimals here?
+  //   ERC20Token.save();
+  // }
   drawingAccount =
     drawingAccount == null ? saveNewAccount(drawer) : drawingAccount;
   receivingAccount =
     receivingAccount == null ? saveNewAccount(recipient) : receivingAccount;
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
-
-  const cheqId = event.params.cheqId.toString();  // let [currency, amount, escrowed, drawer, recipient, module, mintTimestamp] = event.params.cheq;
+  const cheqId = event.params.cheqId.toString(); // let [currency, amount, escrowed, drawer, recipient, module, mintTimestamp] = event.params.cheq;
   const newCheq = new Cheq(cheqId);
-  let cheqTimestamp = BigInt.fromI32(event.params.cheq[6]);
+  const cheqTimestamp = BigInt.fromI32(0);
   newCheq.timestamp = cheqTimestamp;
-  let cheqCreatedAt = event.block.timestamp;//BigInt.fromI32(event.block.timestamp);
+  const cheqCreatedAt = event.block.timestamp; //BigInt.fromI32(event.block.timestamp);
   newCheq.createdAt = cheqCreatedAt;
-  newCheq.erc20 = ERC20Token.id;
-  let cheqAmount = BigInt.fromI32(event.params.cheq[1]);
+  newCheq.erc20 = "RC20Token.id";
+  const cheqAmount = BigInt.fromI32(0);
   newCheq.amount = cheqAmount.divDecimal(BigInt.fromI32(18).toBigDecimal());
-  newCheq.amountExact = cheqAmount;  // .divDecimal(BigInt.fromI32(18).toBigDecimal())
+  newCheq.amountExact = cheqAmount; // .divDecimal(BigInt.fromI32(18).toBigDecimal())
   newCheq.drawer = drawingAccount.id;
   newCheq.recipient = receivingAccount.id;
-  newCheq.module = event.params.cheq[5].toString();
+  newCheq.module = "event.params.cheq[5].toString()";
   newCheq.uri = ""; // TODO Add URI here
-  let cheqEscrowed = BigInt.fromI32(event.params.cheq[2]);
+  const cheqEscrowed = BigInt.fromI32(0);
   newCheq.escrowed = cheqEscrowed.divDecimal(BigInt.fromI32(18).toBigDecimal());
-  newCheq.escrowedExact = cheqEscrowed;  // .divDecimal(BigInt.fromI32(18).toBigDecimal());
-  newCheq.owner = owningAccount.id;  // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
+  newCheq.escrowedExact = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
+  newCheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
   newCheq.save();
-
   const escrow = new Escrow(transactionHexHash + "/" + cheqId); // How OZ does IDs entities that implements Event?
   escrow.emitter = drawingAccount.id;
   escrow.transaction = transactionHexHash; // TODO How OZ does it, how does it work?
@@ -94,12 +92,11 @@ export function handleWrite(event: WrittenEvent): void {
   // console.log(event.params.directAmount);
   // console.log(event.params.directAmount);
   // console.log(event.params.directAmount);
-  let directCheqAmount = event.params.directAmount;
+  const directCheqAmount = event.params.directAmount;
   escrow.directAmount = directCheqAmount; //.divDecimal(BigInt.fromI32(18).toBigDecimal());
   // escrow.directAmountExact = directAmount;
   escrow.save();
-
-  // const transaction = 
+  // const transaction =
   saveTransaction(
     transactionHexHash,
     cheqId,
@@ -107,7 +104,6 @@ export function handleWrite(event: WrittenEvent): void {
     event.block.number
   );
   // transaction.events.concat(event)  // TODO How does OZ do this? Need to add TransferEvent & FundedEvent
-
   // export function handleModule(event: MemoWritten): void {
   // TODO Let modules emit their own events and update them from there
   // let module = fetchModule(module)

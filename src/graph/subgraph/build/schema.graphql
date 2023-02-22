@@ -75,6 +75,7 @@ type Approval implements Event @entity {
   cheq: Cheq!
   owner: Account!
   approved: Account!
+  emitter: Account!
 }
 
 type Cheq @entity {
@@ -122,12 +123,20 @@ interface Module {  # Allows new modules to inherit from Module interface
   writeFee: Int!
   transferFee: Int!
   fundFee: Int!
-  cashFee: int!
+  cashFee: Int!
   cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
   numCheqsManaged: BigInt!
 }
 type DirectPayModule implements Module @entity {
   id: ID!
+  registrar: CheqRegistrar!
+  isWhitelisted: Boolean!
+  writeFee: Int!
+  transferFee: Int!
+  fundFee: Int!
+  cashFee: Int!
+  cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
+  numCheqsManaged: BigInt!
 }
 type DirectPayData @entity {
   id: ID!

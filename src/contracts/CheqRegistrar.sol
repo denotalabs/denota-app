@@ -35,6 +35,7 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
 // TODO determine proper fee uint sizes
 // TODO need to implement upgradable proxies
 // TODO make sure tokenURI is correct
+
 contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     using SafeERC20 for IERC20;
     /*//////////////////////////////////////////////////////////////
@@ -116,19 +117,29 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
                 directAmount
             );
 
-        emit Events.Written(
-            _totalSupply,
-            owner,
-            cheq,
-            directAmount,
-            moduleWriteData,
-            cheqFee,
-            moduleFee,
-            block.timestamp
-        );
+        writeEvent(cheq, owner, directAmount);
+
         unchecked {
             return _totalSupply++;
         } // NOTE: Will this ever overflow?
+    }
+
+    function writeEvent(
+        DataTypes.Cheq calldata cheq,
+        address owner,
+        uint256 directAmount // Separate from the cheq.escrowed
+    ) internal {
+        emit Events.Written(
+            _totalSupply,
+            owner,
+            directAmount,
+            cheq.mintTimestamp,
+            cheq.currency,
+            cheq.amount,
+            cheq.drawer,
+            cheq.recipient,
+            cheq.module
+        );
     }
 
     function transferFrom(

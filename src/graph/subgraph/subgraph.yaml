@@ -6,9 +6,9 @@ dataSources:
     name: Events
     network: mumbai
     source:
-      address: "0x548C4f87180051eC5D2630ac72002d0172FdDf62"
-      abi: Events
-      startBlock: 32267354
+      address: "0x4218F3C1B7ADb722603e976B4D249aff3C6196E8"
+      abi: Registrar
+      startBlock: 32236709
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -24,27 +24,27 @@ dataSources:
         - DirectPayData
         # - DirectPayData
       abis:
-        - name: Events
+        - name: Registrar
           file: ../../out/Events.sol/Events.json
       eventHandlers:
         # - event: ModuleBaseConstructed(indexed address,uint256)
         # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
         # - event: RuleWhitelisted(address,indexed address,indexed bool,uint256)
         # - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
-        - event: Written(indexed uint256,indexed address,(indexed address,uint256,uint256,address,address,address,uint256),uint256,bytes,uint256,uint256,uint256)
+        - event: Written(indexed uint256,indexed address,uint256,bytes,uint256,uint256,uint256)
           handler: handleWrite
-        - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleTransfer
-        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
-          handler: handleFund
-        - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256,uint256)
-          handler: handleCash
+        # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
+        #   handler: handleTransfer
+        # - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
+        #   handler: handleFund
+        # - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256,uint256)
+        #   handler: handleCash
       file: mapping.ts
   # - kind: ethereum/contract
   #   name: CheqRegistrar
-  #   network: {{network}}
+  #   network: mumbai
   #   source:
-  #     address: "{{registrar}}"
+  #     address: "0xB0420096BF61Bd79A37108aA7e1F654A7c4a5f2b"
   #     abi: CheqRegistrar
   #     startBlock: 31884801
   #   mapping:
