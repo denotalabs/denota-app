@@ -62,22 +62,24 @@ function CheqDetails({ cheq }: Props) {
           />
         </VStack>
       </RoundedBox>
-      <VStack gap={0} w="100%">
-        <Text pl={6} fontWeight={600} w="100%" textAlign={"left"}>
-          Notes
-        </Text>
-        <RoundedBox p={4} mb={4}>
-          {note !== undefined ? (
-            <Text fontWeight={300} textAlign={"left"}>
-              {note}
-            </Text>
-          ) : (
-            <Center>
-              <Spinner size="md" />
-            </Center>
-          )}
-        </RoundedBox>
-      </VStack>
+      {cheq.uri && (
+        <VStack gap={0} w="100%">
+          <Text pl={6} fontWeight={600} w="100%" textAlign={"left"}>
+            Notes
+          </Text>
+          <RoundedBox p={4} mb={4}>
+            {note !== undefined ? (
+              <Text fontWeight={300} textAlign={"left"}>
+                {note}
+              </Text>
+            ) : (
+              <Center>
+                <Spinner size="md" />
+              </Center>
+            )}
+          </RoundedBox>
+        </VStack>
+      )}
     </VStack>
   );
 }
