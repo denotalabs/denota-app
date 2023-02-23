@@ -227,6 +227,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         })
         .catch((err) => {
           console.log("Error fetching data: ", err);
+          setIsLoading(false);
         });
     }
   }, [account, mapField]);
