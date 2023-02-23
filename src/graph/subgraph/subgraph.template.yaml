@@ -6,7 +6,7 @@ dataSources:
     name: Events
     network: mumbai
     source:
-      address: "0x04B967D0597AE27167cA0bAEb7048eCf6f4F9102"
+      address: "0x7338C511171c6cabf35195448921a4dD044fcef6"
       abi: Registrar
       startBlock: 32236709
     mapping:
@@ -31,7 +31,7 @@ dataSources:
         # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
         # - event: RuleWhitelisted(address,indexed address,indexed bool,uint256)
         # - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
-        - event: Written(indexed uint256,indexed address,uint256,uint256,address,uint256,address,address,address)
+        - event: Written(indexed uint256,indexed address,uint256,uint256,address,uint256,address,address,address,uint256)
           handler: handleWrite
         # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
         #   handler: handleTransfer
@@ -44,7 +44,7 @@ dataSources:
     name: DirectPay
     network: mumbai
     source:
-      address: "0x0559eFaF9b944639B039E8F5009F0e2427f2E868"
+      address: "0xA9d4f82045eB2E3BB7309740A7210402acD542cE"
       abi: DirectPay
       startBlock: 32236709
     mapping:
