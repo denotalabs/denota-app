@@ -52,7 +52,7 @@ const TOOLTIP_MESSAGE_MAP = {
   cashable: "ready for payout",
   voidable: "payment in escrow",
   payable: "payment due",
-  paid: "complete",
+  paid: "paid",
   pending_escrow: "awaiting payment",
   pending_maturity: "payment in escrow",
   voided: "cancelled",

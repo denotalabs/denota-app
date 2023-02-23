@@ -18,9 +18,13 @@ function CheqDetails({ cheq }: Props) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
-        const resp = await axios.get(NOTE_URL);
-        setNote(resp.data.description);
+        if (cheq.uri) {
+          const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
+          const resp = await axios.get(NOTE_URL);
+          setNote(resp.data.description);
+        } else {
+          setNote("");
+        }
       } catch (error) {
         setNote("Error fetching note");
         console.log(error);
@@ -58,17 +62,22 @@ function CheqDetails({ cheq }: Props) {
           />
         </VStack>
       </RoundedBox>
-      <RoundedBox p={4} mb={4}>
-        {note !== undefined ? (
-          <Text fontWeight={600} textAlign={"center"}>
-            {note}
-          </Text>
-        ) : (
-          <Center>
-            <Spinner size="md" />
-          </Center>
-        )}
-      </RoundedBox>
+      <VStack gap={0} w="100%">
+        <Text pl={6} fontWeight={600} w="100%" textAlign={"left"}>
+          Notes
+        </Text>
+        <RoundedBox p={4} mb={4}>
+          {note !== undefined ? (
+            <Text fontWeight={300} textAlign={"left"}>
+              {note}
+            </Text>
+          ) : (
+            <Center>
+              <Spinner size="md" />
+            </Center>
+          )}
+        </RoundedBox>
+      </VStack>
     </VStack>
   );
 }
