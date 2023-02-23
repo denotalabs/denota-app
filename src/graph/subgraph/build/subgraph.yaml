@@ -29,6 +29,9 @@ dataSources:
         - event: Written(indexed uint256,indexed
             address,uint256,uint256,address,uint256,address,address,address,uint256)
           handler: handleWrite
+        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed
+            bytes,uint256,uint256,uint256)
+          handler: handleFund
       file: Events/Events.wasm
   - kind: ethereum/contract
     name: DirectPay

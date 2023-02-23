@@ -32,7 +32,7 @@ export const useDirectPay = ({
       [
         tokenAddress,
         amountWei,
-        escrowedWei,
+        0,
         blockchainState.account,
         address,
         blockchainState.directPayAddress,
