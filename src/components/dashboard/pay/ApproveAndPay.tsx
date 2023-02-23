@@ -1,5 +1,5 @@
 import { Box, Text, useToast } from "@chakra-ui/react";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useCheqContext } from "../../../context/CheqsContext";
@@ -73,10 +73,11 @@ function ApproveAndPay({ cheq, onClose }: Props) {
       } else {
         const cheqId = Number(cheq.id);
         const amount = BigNumber.from(cheq.amountRaw);
-        const tx = await blockchainState.selfSignBroker?.fundCheq(
-          cheqId,
-          amount
+        const payload = ethers.utils.defaultAbiCoder.encode(
+          ["address"],
+          [blockchainState.account]
         );
+        const tx = await blockchainState.cheq?.fund(cheqId, 0, amount, payload);
         await tx.wait();
         toast({
           title: "Transaction succeeded",
@@ -92,12 +93,14 @@ function ApproveAndPay({ cheq, onClose }: Props) {
       setIsLoading(false);
     }
   }, [
+    blockchainState.account,
+    blockchainState.cheq,
     blockchainState.cheqAddress,
-    blockchainState.selfSignBroker,
     cheq.amountRaw,
     cheq.id,
     needsApproval,
     onClose,
+    refreshWithDelay,
     toast,
     token?.functions,
   ]);
