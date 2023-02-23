@@ -133,12 +133,13 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             _totalSupply,
             owner,
             directAmount,
-            cheq.mintTimestamp,
+            block.timestamp,
             cheq.currency,
             cheq.amount,
             cheq.drawer,
             cheq.recipient,
-            cheq.module
+            cheq.module,
+            cheq.escrowed
         );
     }
 

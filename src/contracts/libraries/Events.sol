@@ -52,7 +52,8 @@ library Events {
         uint256 amount,
         address drawer, 
         address recipient,
-        address module
+        address module,
+        uint256 escrowed
     );
 
     // event Written(

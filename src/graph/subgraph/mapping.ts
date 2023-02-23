@@ -65,19 +65,19 @@ export function handleWrite(event: WrittenEvent): void {
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
   const cheqId = event.params.cheqId.toString(); // let [currency, amount, escrowed, drawer, recipient, module, mintTimestamp] = event.params.cheq;
   const newCheq = new Cheq(cheqId);
-  const cheqTimestamp = BigInt.fromI32(0);
+  const cheqTimestamp = event.params.timestamp;
   newCheq.timestamp = cheqTimestamp;
   const cheqCreatedAt = event.block.timestamp; //BigInt.fromI32(event.block.timestamp);
   newCheq.createdAt = cheqCreatedAt;
   newCheq.erc20 = "RC20Token.id";
-  const cheqAmount = BigInt.fromI32(0);
+  const cheqAmount = event.params.amount;
   newCheq.amount = cheqAmount.divDecimal(BigInt.fromI32(18).toBigDecimal());
   newCheq.amountExact = cheqAmount; // .divDecimal(BigInt.fromI32(18).toBigDecimal())
   newCheq.drawer = drawingAccount.id;
   newCheq.recipient = receivingAccount.id;
   newCheq.module = event.params.module.toString();
   newCheq.uri = ""; // TODO Add URI here
-  const cheqEscrowed = BigInt.fromI32(0);
+  const cheqEscrowed = event.params.escrowed;
   newCheq.escrowed = cheqEscrowed.divDecimal(BigInt.fromI32(18).toBigDecimal());
   newCheq.escrowedExact = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
   newCheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
