@@ -1,12 +1,11 @@
 // import { fetchERC20, fetchERC20Balance, fetchERC20Approval } from "@openzeppelin/subgraphs/src/fetch/erc20"
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-// import { MemoWritten as MemoWrittenEvent } from "../subgraph/generated/DirectPay/DirectPay";
 import { Transfer as TransferEvent } from "../subgraph/generated/CheqRegistrar/CheqRegistrar"; // Events to import
+import { Cashed as CashedEvent } from "../subgraph/generated/Events/Events"; // Events to import
 import {
-  Cashed as CashedEvent,
   Funded as FundedEvent,
-} from "../subgraph/generated/Events/Events"; // Events to import
-import { Written as WrittenEvent } from "../subgraph/generated/Events/Registrar";
+  Written as WrittenEvent,
+} from "../subgraph/generated/Events/Registrar";
 import {
   Account,
   Cheq,

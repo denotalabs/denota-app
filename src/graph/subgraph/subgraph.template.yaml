@@ -33,6 +33,8 @@ dataSources:
         # - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
         - event: Written(indexed uint256,indexed address,uint256,uint256,address,uint256,address,address,address,uint256)
           handler: handleWrite
+        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
+          handler: handleFund
         # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
         #   handler: handleTransfer
         # - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
@@ -69,8 +71,6 @@ dataSources:
           handler: handleMemoWritten
         # - event: Transferred(uint256 indexed,address indexed,address indexed,uint256,uint256,uint256)
         #   handler: handleTransfer
-        # - event: Funded(address indexed,uint256 indexed,uint256,uint256,bytes indexed,uint256,uint256,uint256)
-        #   handler: handleFund
         # - event: Cashed(address indexed,address,uint256 indexed,bytes indexed,uint256,uint256,uint256)
         #   handler: handleCash
       file: mapping.ts
