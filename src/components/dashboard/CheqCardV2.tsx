@@ -7,19 +7,11 @@ import {
   Flex,
   GridItem,
   HStack,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Skeleton,
-  Spinner,
   Text,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { BigNumber } from "ethers";
-import { useCallback, useMemo, useState } from "react";
-import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import { useMemo } from "react";
 import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
@@ -67,133 +59,23 @@ const TOOLTIP_MESSAGE_MAP = {
 };
 
 function CheqCardV2({ cheq }: Props) {
-  const { createdTransaction, isFunder, isInvoice, maturityDate } = cheq;
-  const { blockchainState } = useBlockchainData();
-
-  const [isEarlyReleased, setIsEarlyReleased] = useState<boolean | undefined>(
-    cheq.isEarlyReleased
-  );
-
-  const [isVoided, setIsVoided] = useState<boolean | undefined>(cheq.isVoided);
-
-  const [cashingInProgress, setCashingInProgress] = useState(false);
-
-  const [cashingComplete, setCashingComplete] = useState<boolean>(false);
-
-  const [releaseInProgress, setReleaseInProgress] = useState(false);
+  const { createdTransaction } = cheq;
 
   const createdLocaleDate = useMemo(() => {
     return createdTransaction.date.toLocaleDateString();
   }, [createdTransaction.date]);
 
   const status: CheqStatus | undefined = useMemo(() => {
-    if (cheq.isCashed || cashingComplete) {
-      if (isVoided) {
-        return "voided";
-      }
-      if (isFunder) {
-        return "paid";
-      } else {
-        return "cashed";
-      }
-    }
-
-    if (isEarlyReleased && isFunder) {
+    if (cheq.isPaid) {
       return "paid";
     }
 
-    if (cheq.isCashable) {
-      if (isFunder) {
-        return "voidable";
-      } else {
-        return "cashable";
-      }
+    if (!cheq.isPaid && cheq.isPayer) {
+      return "payable";
     }
 
-    if (!cheq.hasEscrow) {
-      if (isFunder) {
-        return "payable";
-      } else {
-        return "pending_escrow";
-      }
-    }
-
-    if (isFunder) {
-      return "paid";
-    }
-
-    return "pending_maturity";
-  }, [
-    cashingComplete,
-    cheq.hasEscrow,
-    cheq.isCashed,
-    cheq.isCashable,
-    isEarlyReleased,
-    isFunder,
-    isVoided,
-  ]);
-
-  const payer = useMemo(() => {
-    if (isInvoice === undefined) {
-      return undefined;
-    }
-    if (isInvoice) {
-      return cheq.formattedRecipient;
-    }
-    return cheq.formattedSender;
-  }, [cheq.formattedRecipient, cheq.formattedSender, isInvoice]);
-
-  const payee = useMemo(() => {
-    if (isInvoice === undefined) {
-      return undefined;
-    }
-    if (isInvoice) {
-      return cheq.formattedSender;
-    }
-    return cheq.formattedRecipient;
-  }, [cheq.formattedRecipient, cheq.formattedSender, isInvoice]);
-
-  const cashCheq = useCallback(
-    async (isVoid = false) => {
-      setCashingInProgress(true);
-
-      try {
-        if (blockchainState.selfSignBroker) {
-          const cheqId = BigNumber.from(cheq.id);
-          const tx = await blockchainState.selfSignBroker["cashCheq(uint256)"](
-            cheqId
-          );
-          await tx.wait();
-          setCashingComplete(true);
-          setIsVoided(isVoid);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setCashingInProgress(false);
-      }
-    },
-    [blockchainState.selfSignBroker, cheq.id]
-  );
-
-  const earlyRelease = useCallback(async () => {
-    setReleaseInProgress(true);
-
-    try {
-      const cheqId = BigNumber.from(cheq.id);
-
-      const tx = await blockchainState.selfSignBroker?.earlyRelease(
-        cheqId,
-        true
-      );
-      await tx.wait();
-      setIsEarlyReleased(true);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setReleaseInProgress(false);
-    }
-  }, [blockchainState.selfSignBroker, cheq.id]);
+    return "pending_escrow";
+  }, [cheq.isPaid, cheq.isPayer]);
 
   const {
     isOpen: isDetailsOpen,
@@ -206,10 +88,6 @@ function CheqCardV2({ cheq }: Props) {
     onOpen: onOpenPay,
     onClose: onClosePay,
   } = useDisclosure();
-
-  if (status === undefined || payer === undefined || payee === undefined) {
-    return <Skeleton h="225px" borderRadius={"10px"} />;
-  }
 
   return (
     <GridItem bg={STATUS_COLOR_MAP[status]} p={3} borderRadius={20}>
@@ -243,7 +121,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {payer}
+              {cheq.formattedPayer}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -252,7 +130,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {payee}
+              {cheq.formattedPayee}
             </Text>
           </HStack>
 
@@ -268,19 +146,6 @@ function CheqCardV2({ cheq }: Props) {
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
             <ButtonGroup>
-              {status === "cashable" ? (
-                <Button
-                  w="min(40vw, 100px)"
-                  borderRadius={5}
-                  colorScheme="teal"
-                  onClick={() => {
-                    cashCheq();
-                  }}
-                  isLoading={cashingInProgress}
-                >
-                  Cash
-                </Button>
-              ) : null}
               {status === "payable" ? (
                 <Button
                   w="min(40vw, 100px)"
@@ -290,31 +155,6 @@ function CheqCardV2({ cheq }: Props) {
                 >
                   Pay
                 </Button>
-              ) : null}
-
-              {status === "voidable" && !isEarlyReleased ? (
-                <Menu>
-                  <MenuButton
-                    disabled={releaseInProgress || cashingInProgress}
-                    as={Button}
-                    minW={0}
-                  >
-                    Options{" "}
-                    {releaseInProgress || cashingInProgress ? (
-                      <Spinner size="xs" />
-                    ) : null}
-                  </MenuButton>
-                  <MenuList alignItems={"center"}>
-                    <MenuItem onClick={earlyRelease}>Release</MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        cashCheq(true);
-                      }}
-                    >
-                      Void
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
               ) : null}
               <Button
                 bg="brand.300"
@@ -333,10 +173,6 @@ function CheqCardV2({ cheq }: Props) {
         isOpen={isDetailsOpen}
         onClose={onCloseDetails}
         cheq={cheq}
-        maturityDate={maturityDate}
-        isVoided={isVoided}
-        payee={payee}
-        payer={payer}
       />
       <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
     </GridItem>

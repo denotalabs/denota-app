@@ -3,7 +3,7 @@ import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
 import {
-  APIURL_REMOTE,
+  APIURL_LOCAL,
   useBlockchainData,
 } from "../context/BlockchainDataProvider";
 
@@ -40,10 +40,11 @@ export interface Cheq {
   createdTransaction: CheqTransaction;
   fundedTransaction: CheqTransaction | null;
   isPaid: boolean;
+  isPayer: boolean;
   uri: string;
 }
 
-const currencyForTokenId = (tokenId: any): CheqCurrency => {
+const currencyForTokenId = (): CheqCurrency => {
   // TODO: Map token addresses
   return "DAI";
 };
@@ -108,18 +109,20 @@ export const useCheqs = ({ cheqField }: Props) => {
         ? (gqlCheq.drawer.id as string)
         : (gqlCheq.recipient.id as string);
 
+      const isPayer = payer === blockchainState.account.toLowerCase();
+
       return {
         id: gqlCheq.id as string,
         amount: convertExponent(gqlCheq.amountExact as number),
         amountRaw: BigNumber.from(gqlCheq.amountExact),
-        token: currencyForTokenId(gqlCheq.erc20.id),
+        token: currencyForTokenId(),
         recipient: gqlCheq.recipient.id as string,
         sender: gqlCheq.drawer.id as string,
         owner: gqlCheq.owner.id as string,
         formattedPayer: formatAddress(payer, blockchainState.account),
         formattedPayee: formatAddress(payee, blockchainState.account),
         createdTransaction: {
-          date: new Date(Number(gqlCheq.createdAt) * 1000),
+          date: new Date(Number(gqlCheq.timestmap) * 1000),
           hash: createdTx,
         },
         fundedTransaction:
@@ -132,6 +135,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         isInvoice,
         isPaid: hasEscrow,
         uri: gqlCheq.uri,
+        isPayer,
       };
     },
     [blockchainState.account]
@@ -144,7 +148,7 @@ export const useCheqs = ({ cheqField }: Props) => {
       id
       amountExact
       escrowedExact
-      createdAt
+      timestamp
       uri
       drawer {
         id
@@ -153,9 +157,6 @@ export const useCheqs = ({ cheqField }: Props) => {
         id
       }
       owner {
-        id
-      }
-      erc20 {
         id
       }
       escrows {
@@ -188,7 +189,7 @@ export const useCheqs = ({ cheqField }: Props) => {
 
       // SWITCH BACK TO PROD URL BEFORE MERGE
       const client = new ApolloClient({
-        uri: APIURL_REMOTE,
+        uri: APIURL_LOCAL,
         cache: new InMemoryCache(),
       });
       client

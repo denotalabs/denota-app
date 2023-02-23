@@ -45,8 +45,8 @@ function saveTransaction(
 
 export function handleWrite(event: WrittenEvent): void {
   const currency = event.params.currency;
-  const drawer = event.params.drawer.toString();
-  const recipient = event.params.recipient.toString();
+  const drawer = event.params.drawer.toHexString();
+  const recipient = event.params.recipient.toHexString();
   const owner = event.params.owner.toHexString();
   const transactionHexHash = event.transaction.hash.toHex();
   // Load entities if they exist, else create them

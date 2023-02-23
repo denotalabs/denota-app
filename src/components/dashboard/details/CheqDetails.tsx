@@ -8,13 +8,9 @@ import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
   cheq: Cheq;
-  payer: string;
-  payee: string;
-  maturityDate?: Date;
-  isVoided?: boolean;
 }
 
-function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
+function CheqDetails({ cheq }: Props) {
   const { blockchainState } = useBlockchainData();
 
   const [note, setNote] = useState<string | undefined>(undefined);
@@ -38,8 +34,8 @@ function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
         <VStack gap={0}>
-          <DetailsRow title="Payer" value={payer} />
-          <DetailsRow title="Recipient" value={payee} />
+          <DetailsRow title="Payer" value={cheq.formattedPayer} />
+          <DetailsRow title="Recipient" value={cheq.formattedPayee} />
           <DetailsRow
             title="Created On"
             value={cheq.createdTransaction.date.toDateString()}
@@ -50,19 +46,6 @@ function CheqDetails({ cheq, maturityDate, isVoided, payer, payee }: Props) {
               title="Funded Date"
               value={cheq.fundedTransaction.date.toDateString()}
               link={`${blockchainState.explorer}${cheq.fundedTransaction.hash}`}
-            />
-          )}
-          {!cheq.isCashed && maturityDate && (
-            <DetailsRow
-              title="Maturity Date"
-              value={maturityDate.toDateString()}
-            />
-          )}
-          {cheq.isCashed && cheq.cashedTransaction && (
-            <DetailsRow
-              title={isVoided ? "Voided Date" : "Cashed Date"}
-              value={cheq.cashedTransaction.date.toDateString()}
-              link={`${blockchainState.explorer}${cheq.cashedTransaction.hash}`}
             />
           )}
           <DetailsRow
