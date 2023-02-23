@@ -41,11 +41,6 @@ export interface Cheq {
   uri: string;
 }
 
-const currencyForTokenId = (): CheqCurrency => {
-  // TODO: Map token addresses
-  return "DAI";
-};
-
 const convertExponent = (amountExact: number) => {
   // Use right exponent
   return Number(BigInt(amountExact) / BigInt(10 ** 16)) / 100;
@@ -66,6 +61,20 @@ export const useCheqs = ({ cheqField }: Props) => {
   );
   const [cheqsSent, setCheqsSent] = useState<Cheq[] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
+
+  const currencyForTokenId = useCallback(
+    (tokenAddress: string): CheqCurrency => {
+      switch (tokenAddress) {
+        case blockchainState.dai?.address.toLowerCase():
+          return "DAI";
+        case blockchainState.weth?.address.toLowerCase():
+          return "WETH";
+        default:
+          return "USDC";
+      }
+    },
+    [blockchainState.dai?.address, blockchainState.weth?.address]
+  );
 
   const mapField = useCallback(
     (gqlCheq: any) => {
@@ -112,7 +121,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         id: gqlCheq.id as string,
         amount: convertExponent(gqlCheq.amountExact as number),
         amountRaw: BigNumber.from(gqlCheq.amountExact),
-        token: currencyForTokenId(),
+        token: currencyForTokenId(gqlCheq.erc20.id),
         recipient: gqlCheq.recipient.id as string,
         sender: gqlCheq.drawer.id as string,
         owner: gqlCheq.owner.id as string,
@@ -135,7 +144,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         isPayer,
       };
     },
-    [blockchainState.account]
+    [blockchainState.account, currencyForTokenId]
   );
 
   const refresh = useCallback(() => {
@@ -154,6 +163,9 @@ export const useCheqs = ({ cheqField }: Props) => {
         id
       }
       owner {
+        id
+      }
+      erc20 {
         id
       }
       escrows {

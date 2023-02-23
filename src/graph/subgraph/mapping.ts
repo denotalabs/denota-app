@@ -10,6 +10,7 @@ import { Written as WrittenEvent } from "../subgraph/generated/Events/Registrar"
 import {
   Account,
   Cheq,
+  ERC20,
   Escrow,
   Transaction,
   Transfer,
@@ -44,7 +45,7 @@ function saveTransaction(
 }
 
 export function handleWrite(event: WrittenEvent): void {
-  const currency = event.params.currency;
+  const currency = event.params.currency.toHexString();
   const drawer = event.params.drawer.toHexString();
   const recipient = event.params.recipient.toHexString();
   const owner = event.params.owner.toHexString();
@@ -53,11 +54,11 @@ export function handleWrite(event: WrittenEvent): void {
   let drawingAccount = Account.load(drawer);
   let receivingAccount = Account.load(recipient);
   let owningAccount = Account.load(owner);
-  // let ERC20Token = ERC20.load(currency);
-  // if (ERC20Token == null) {
-  //   ERC20Token = new ERC20(currency); // Query it's symbol and decimals here?
-  //   ERC20Token.save();
-  // }
+  let ERC20Token = ERC20.load(currency);
+  if (ERC20Token == null) {
+    ERC20Token = new ERC20(currency); // Query it's symbol and decimals here?
+    ERC20Token.save();
+  }
   drawingAccount =
     drawingAccount == null ? saveNewAccount(drawer) : drawingAccount;
   receivingAccount =
@@ -69,7 +70,7 @@ export function handleWrite(event: WrittenEvent): void {
   newCheq.timestamp = cheqTimestamp;
   const cheqCreatedAt = event.block.timestamp; //BigInt.fromI32(event.block.timestamp);
   newCheq.createdAt = cheqCreatedAt;
-  newCheq.erc20 = "RC20Token.id";
+  newCheq.erc20 = ERC20Token.id;
   const cheqAmount = event.params.amount;
   newCheq.amount = cheqAmount.divDecimal(BigInt.fromI32(18).toBigDecimal());
   newCheq.amountExact = cheqAmount; // .divDecimal(BigInt.fromI32(18).toBigDecimal())
