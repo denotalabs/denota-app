@@ -30,7 +30,7 @@ export const useDirectPay = ({
     );
     const tx = await blockchainState.cheq?.write(
       [
-        "0xc5B6c09dc6595Eb949739f7Cd6A8d542C2aabF4b",
+        tokenAddress,
         amountWei,
         escrowedWei,
         blockchainState.account,
@@ -52,6 +52,7 @@ export const useDirectPay = ({
     escrowedWei,
     isInvoice,
     noteKey,
+    tokenAddress,
   ]);
 
   return { writeCheq };
