@@ -122,7 +122,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         formattedPayer: formatAddress(payer, blockchainState.account),
         formattedPayee: formatAddress(payee, blockchainState.account),
         createdTransaction: {
-          date: new Date(Number(gqlCheq.timestmap) * 1000),
+          date: new Date(Number(gqlCheq.timestamp) * 1000),
           hash: createdTx,
         },
         fundedTransaction:

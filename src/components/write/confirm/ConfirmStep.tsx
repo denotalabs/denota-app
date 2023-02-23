@@ -56,6 +56,7 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
     address: formData.address,
     escrowedWei,
     noteKey: formData.noteKey,
+    isInvoice,
   });
 
   const buttonText = useMemo(() => {

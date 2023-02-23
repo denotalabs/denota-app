@@ -18,8 +18,7 @@ function CheqDetails({ cheq }: Props) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const NOTE_URL =
-          "https://cheq-nft.s3-us-west-2.amazonaws.com/1d602fabb6cc.json";
+        const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
         const resp = await axios.get(NOTE_URL);
         setNote(resp.data.description);
       } catch (error) {
@@ -28,7 +27,7 @@ function CheqDetails({ cheq }: Props) {
       }
     }
     fetchData();
-  }, []);
+  }, [cheq.uri]);
 
   return (
     <VStack gap={4} mt={10} mb={6}>
