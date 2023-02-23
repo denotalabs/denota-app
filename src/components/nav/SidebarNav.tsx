@@ -81,9 +81,20 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       h="full"
       {...rest}
     >
-      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontFamily="DM Sans" fontWeight="bold">
-          Cheq Protocol
+      <Flex
+        pb={3}
+        pt={6}
+        alignItems="center"
+        mx={{ base: 8, md: 0 }}
+        justifyContent={{ base: "space-between", md: "center" }}
+      >
+        <Text
+          noOfLines={1}
+          fontSize="2xl"
+          fontFamily="DM Sans"
+          fontWeight="bold"
+        >
+          Denota Protocol
         </Text>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
@@ -160,7 +171,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       />
 
       <Text fontSize="2xl" fontFamily="DM Sans" fontWeight="bold">
-        Cheq Protocol
+        Denota Protocol
       </Text>
       <WalletInfo />
     </Flex>

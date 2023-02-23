@@ -40,8 +40,8 @@ if __name__ == "__main__":
       existing_addresses[chain][name] = str(address)
     else:
       address = existing_addresses[chain][name]
-      print(f"{name} library: {address}")
     lib_addresses.append(library_path + ":" + address)
+    print(f"{name} library: {address}")
   libraries_flag = f"--libraries {' '.join(lib_addresses)}"
 
   # Deploy the CheqRegistrar

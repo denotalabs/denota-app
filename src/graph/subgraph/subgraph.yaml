@@ -3,12 +3,12 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: CheqRegistrar
+    name: Events
     network: mumbai
     source:
-      address: "0x0C5B27CC5595eC1AAf720A538A6490c5aF6FaD64"
-      abi: CheqRegistrar
-      startBlock: 32214964
+      address: "0x7338C511171c6cabf35195448921a4dD044fcef6"
+      abi: Registrar
+      startBlock: 32236709
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -24,46 +24,53 @@ dataSources:
         - DirectPayData
         # - DirectPayData
       abis:
-        - name: CheqRegistrar
-          file: ../../out/CheqRegistrar.sol/CheqRegistrar.json
+        - name: Registrar
+          file: ../../out/Events.sol/Events.json
       eventHandlers:
-        - event: Written(uint256 indexed,address indexed,DataTypes.Cheq indexed,uint256,bytes,uint256,uint256,uint256)
+        # - event: ModuleBaseConstructed(indexed address,uint256)
+        # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
+        # - event: RuleWhitelisted(address,indexed address,indexed bool,uint256)
+        # - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
+        - event: Written(indexed uint256,indexed address,uint256,uint256,address,uint256,address,address,address,uint256)
           handler: handleWrite
-        - event: Transferred(uint256 indexed,address indexed,address indexed,uint256,uint256,uint256)
-          handler: handleTransfer
-        - event: Funded(address indexed,uint256 indexed,uint256,uint256,bytes indexed,uint256,uint256,uint256)
-          handler: handleFund
-        - event: Cashed(address indexed,address,uint256 indexed,bytes indexed,uint256,uint256,uint256)
-          handler: handleCash
+        # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
+        #   handler: handleTransfer
+        # - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
+        #   handler: handleFund
+        # - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256,uint256)
+        #   handler: handleCash
       file: mapping.ts
-
-  # - kind: ethereum/contract
-  #   name: DirectPay
-  #   network: mumbai
-  #   source:
-  #     address: "0xa9f0CE52c8De7496F7137cF807A6D33df06C2C87"
-  #     abi: DirectPay
-  #     startBlock: 31884801
-  #   mapping:
-  #     kind: ethereum/events
-  #     apiVersion: 0.0.5
-  #     language: wasm/assemblyscript
-  #     entities:
-  #       - Cheq
-  #       - Transfer
-  #       - Escrow
-  #       - ERC20
-  #       - Account
-  #       - Broker
-  #       - DirectSend
-  #       # - DirectPayData
-  #     abis:
-  #       - name: SelfSignTimeLock
-  #         file: ../../out/SelfSignTimeLock.sol/SelfSignTimeLock.json
-  #     eventHandlers:
-  #       - event: MemoWritten(indexed uint256, bytes32)
-  #       # - event: SelfSignedCheqWritten(indexed uint256,uint256,address)
-  #       #   handler: handleSelfSignedCheq
-  #       # - event: SelfSignedCheqReleased(indexed uint256)
-  #       #   handler: handleSelfSignedReleased
-  #     file: mapping.ts
+  - kind: ethereum/contract
+    name: DirectPay
+    network: mumbai
+    source:
+      address: "0xA9d4f82045eB2E3BB7309740A7210402acD542cE"
+      abi: DirectPay
+      startBlock: 32236709
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Cheq  # Cheqs
+        - Transfer  # Write/Transfers
+        - Escrow  # Fund/Cash
+        - ERC20  # ERC20s that have interacted with the protocol
+        - Account  # Accounts that have interacted with CheqRegistrar
+        - DirectSend  # Payment modules
+        - DirectPayModule
+        - DirectPayData
+        # - DirectPayData
+      abis:
+        - name: DirectPay
+          file: ../../out/DirectPay.sol/DirectPay.json
+      eventHandlers:
+        - event: MemoWritten(indexed uint256,bytes32)
+          handler: handleMemoWritten
+        # - event: Transferred(uint256 indexed,address indexed,address indexed,uint256,uint256,uint256)
+        #   handler: handleTransfer
+        # - event: Funded(address indexed,uint256 indexed,uint256,uint256,bytes indexed,uint256,uint256,uint256)
+        #   handler: handleFund
+        # - event: Cashed(address indexed,address,uint256 indexed,bytes indexed,uint256,uint256,uint256)
+        #   handler: handleCash
+      file: mapping.ts

@@ -1,11 +1,3 @@
-type ERC20 @entity(immutable: true) {
-  id: ID!
-  # name: String
-	# symbol: String
-	# decimals: Int!
-  # totalSupply: 
-}
-
 type Transaction @entity {
   id: ID!
   timestamp: BigInt!
@@ -13,17 +5,39 @@ type Transaction @entity {
   transactionHash: String!
   events: [Event!]! @derivedFrom(field: "transaction")
 }
-
-type SelfSignedCheqData @entity {
+type ERC20 @entity(immutable: true) {
   id: ID!
-  cheqFunder: Account!
-  cheqInspectionPeriod: BigInt!
-  isEarlyReleased: Boolean!
+  isWhitelisted: Boolean!
+  # name: String
+	# symbol: String
+	# decimals: Int!
+  # totalSupply: 
 }
 
-type BYOAData @entity {
+type Account @entity {
   id: ID!
-  cheqAuditor: Account!
+  # TODO need to query every new user's token balances for future modules that may depend on token balance logic
+  # ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
+  cheqsOwned: [Cheq!]! @derivedFrom(field: "owner")
+  numCheqsOwned: BigInt!
+
+  cheqsSent: [Cheq!]! @derivedFrom(field: "drawer")
+  numCheqsSent: BigInt!
+  cheqsReceived: [Cheq!]! @derivedFrom(field: "recipient")
+  numCheqsReceived: BigInt!
+
+  transfersFrom: [Transfer!]! @derivedFrom(field: "from")
+  transfersTo: [Transfer!]! @derivedFrom(field: "to")
+
+  # Funding data
+  # DirectSend data
+
+  approvalsOwner: [Approval!]! @derivedFrom(field: "owner")
+  approvalsApproved: [Approval!]! @derivedFrom(field: "approved")
+  # Operators are disallowed
+  # approvalsForAllOwner: [ApprovalForAll!]! @derivedFrom(field: "owner")
+  # approvalsForAllOperator: [ApprovalForAll!]! @derivedFrom(field: "operator")
+	events: [Event!]! @derivedFrom(field: "emitter")
 }
 
 interface Event {
@@ -32,15 +46,7 @@ interface Event {
   transaction: Transaction!
   timestamp: BigInt!
 }
-# type Deposit implements Event @entity {
-#   id: ID!
-#   emitter: Account!
-#   transaction: Transaction!
-#   timestamp: BigInt!
-#   ercToken: ERC20!
-#   amount: BigInt!
-#   from: Account!
-# }
+
 type Transfer implements Event @entity(immutable: true) {
   id: ID!
   emitter: Account!
@@ -50,77 +56,92 @@ type Transfer implements Event @entity(immutable: true) {
   from: Account!
   to: Account!
 }
-type Escrow implements Event @entity(immutable: true) {
+type Escrow implements Event @entity(immutable: true) {  # Instances of escrowing and direct sending, not current balance/state
   id: ID!
   emitter: Account!
   transaction: Transaction!
   timestamp: BigInt!
-  cheq: Cheq!  # Erc20 token can only be static for now
+  cheq: Cheq!
   from: Account!
+  # TODO need to do amounts and exact amounts?
   amount: BigInt!
+  directAmount: BigInt!
+  # directAmountExact: BigInt! # TODO
 }
-type Account @entity {
+type Approval implements Event @entity {
   id: ID!
-# TODO need to query every new user's token balances for future modules that may depend on token balance logic
-  # ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
-  # deposits: [Deposit]!
-  cheqsOwned: [Cheq!]! @derivedFrom(field: "owner")
-  numCheqsOwned: BigInt!
-  cheqsSent: [Cheq!]! @derivedFrom(field: "drawer")
-  numCheqsSent: BigInt!
-  cheqsReceived: [Cheq!]! @derivedFrom(field: "recipient")
-  numCheqsReceived: BigInt!
-  transfersFrom: [Transfer!]! @derivedFrom(field: "from")
-  transfersTo: [Transfer!]! @derivedFrom(field: "to")
-# TODO approvals happen on the module side
-  # approvalsOwner: [Approval!]! @derivedFrom(field: "owner")
-  # approvalsApproved: [Approval!]! @derivedFrom(field: "approved")
-  # approvalsForAllOwner: [ApprovalForAll!]! @derivedFrom(field: "owner")
-  # approvalsForAllOperator: [ApprovalForAll!]! @derivedFrom(field: "operator")
-	events: [Event!]! @derivedFrom(field: "emitter")
+  transaction: Transaction!
+  timestamp: BigInt!
+  cheq: Cheq!
+  owner: Account!
+  approved: Account!
+  emitter: Account!
 }
-
-# TODO: figure out why unions aren't working
-# union CheqData =  BYOAData | SelfSignedCheqData
 
 type Cheq @entity {
   id: ID!
+  timestamp: BigInt!
   createdAt: BigInt!
   erc20: ERC20!
   amount: BigDecimal!
   amountExact: BigInt!
+
   drawer: Account!
   recipient: Account!
   module: Module!
-  # Mutable attributes
+  
   uri: String
   escrowed: BigDecimal!
   escrowedExact: BigInt!
+
   owner: Account!
   transfers: [Transfer!]! @derivedFrom(field: "cheq")
   escrows: [Escrow!]! @derivedFrom(field: "cheq")
-  # approval: Account!
-  # approvals: [Approval!]! @derivedFrom(field: "token")
-  selfSignedData: SelfSignedCheqData
+  approval: Account!
+  approvals: [Approval!]! @derivedFrom(field: "cheq")
+  directPayData: DirectPayData # optional
+  # Should the creation hash be stored here?
 }
-type ModuleRegistry @entity {
-  id: ID!  # Should this be the modules' address?
+
+# TODO: figure out why unions aren't working
+# union CheqData =  BYOAData | SelfSignedCheqData
+type CheqRegistrar @entity {
+  id: ID!  # Should this be the registrar's address?
   name: String!
-  module: Module! @derivedFrom(field: "registry")
+  writeFee: Int!
+  transferFee: Int!
+  fundFee: Int!
+  cashFee: Int!
+  tokenWhitelist: [ERC20!]!
+  moduleWhitelist: [Module!]! @derivedFrom(field: "registrar")
 }
+
 interface Module {  # Allows new modules to inherit from Module interface
   id: ID!
-  registry: ModuleRegistry!  # The module's registration number
+  registrar: CheqRegistrar!
+  isWhitelisted: Boolean!
+  writeFee: Int!
+  transferFee: Int!
+  fundFee: Int!
+  cashFee: Int!
   cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
   numCheqsManaged: BigInt!
 }
-# TODO How scalable is creating a module for each module?
-type SelfSignTimeLock implements Module @entity {
+type DirectPayModule implements Module @entity {
   id: ID!
-  registry: ModuleRegistry!
+  registrar: CheqRegistrar!
+  isWhitelisted: Boolean!
+  writeFee: Int!
+  transferFee: Int!
+  fundFee: Int!
+  cashFee: Int!
   cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
   numCheqsManaged: BigInt!
-  tokenWhitelist: [ERC20!]!
+}
+type DirectPayData @entity {
+  id: ID!
+  isCashed: Boolean!
+  memo: Bytes!
 }
 
 # type ERC20Balance @entity {  # Might want to query token balances to prevent user from using token-gated functions
@@ -167,14 +188,6 @@ type SelfSignTimeLock implements Module @entity {
 #   operator: Account!
 #   approved: Boolean!
 #   events: [ApprovalForAll!]! @derivedFrom(field: "delegation")
-# }
-# type Approval implements Event @entity {
-#   id: ID!
-#   transaction: Transaction!
-#   timestamp: BigInt!
-#   token: Token!
-#   owner: Account!
-#   approved: Account!
 # }
 # type ApprovalForAll implements Event @entity {
 #   id: ID!

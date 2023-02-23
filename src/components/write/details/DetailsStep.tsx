@@ -35,13 +35,12 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
           email: formData.email ?? "",
         }}
         onSubmit={async (values, actions) => {
-          const noteKey = "";
-          // TODO: re-enable once contract integration is ready
-          // if (formData.note === values.note && formData.note) {
-          //   noteKey = formData.noteKey;
-          // } else {
-          //   noteKey = (await uploadNote(values.note)) ?? "";
-          // }
+          let noteKey = "";
+          if (formData.note === values.note && formData.note) {
+            noteKey = formData.noteKey;
+          } else if (values.note) {
+            noteKey = (await uploadNote(values.note)) ?? "";
+          }
           appendFormData({
             token: values.token,
             amount: values.amount.toString(),

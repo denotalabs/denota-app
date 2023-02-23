@@ -3,12 +3,12 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: CheqRegistrar
+    name: Events
     network: mumbai
     source:
-      address: "0xB0420096BF61Bd79A37108aA7e1F654A7c4a5f2b"
-      abi: CheqRegistrar
-      startBlock: 31884801
+      address: "0x7338C511171c6cabf35195448921a4dD044fcef6"
+      abi: Registrar
+      startBlock: 32236709
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -19,29 +19,24 @@ dataSources:
         - Escrow
         - ERC20
         - Account
-        - Broker
-        - SelfSignTimeLock
+        - DirectSend
+        - DirectPayModule
+        - DirectPayData
       abis:
-        - name: CheqRegistrar
-          file: ../out/CheqRegistrar.sol/CheqRegistrar.json
+        - name: Registrar
+          file: ../out/Events.sol/Events.json
       eventHandlers:
-        - event: Written(indexed uint256,address,uint256,uint256,indexed address,address,indexed
-            address,address)
+        - event: Written(indexed uint256,indexed
+            address,uint256,uint256,address,uint256,address,address,address,uint256)
           handler: handleWrite
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
-        - event: Funded(indexed uint256,indexed address,uint256)
-          handler: handleFund
-        - event: Cashed(indexed uint256,indexed address,uint256)
-          handler: handleCash
-      file: CheqRegistrar/CheqRegistrar.wasm
+      file: Events/Events.wasm
   - kind: ethereum/contract
-    name: SelfSignedBroker
+    name: DirectPay
     network: mumbai
     source:
-      address: "0xa9f0CE52c8De7496F7137cF807A6D33df06C2C87"
-      abi: SelfSignTimeLock
-      startBlock: 31884801
+      address: "0xA9d4f82045eB2E3BB7309740A7210402acD542cE"
+      abi: DirectPay
+      startBlock: 32236709
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -52,15 +47,13 @@ dataSources:
         - Escrow
         - ERC20
         - Account
-        - Broker
-        - SelfSignTimeLock
-        - SelfSignedCheqData
+        - DirectSend
+        - DirectPayModule
+        - DirectPayData
       abis:
-        - name: SelfSignTimeLock
-          file: ../out/SelfSignTimeLock.sol/SelfSignTimeLock.json
+        - name: DirectPay
+          file: ../out/DirectPay.sol/DirectPay.json
       eventHandlers:
-        - event: SelfSignedCheqWritten(indexed uint256,uint256,address)
-          handler: handleSelfSignedCheq
-        - event: SelfSignedCheqReleased(indexed uint256)
-          handler: handleSelfSignedReleased
-      file: CheqRegistrar/CheqRegistrar.wasm
+        - event: MemoWritten(indexed uint256,bytes32)
+          handler: handleMemoWritten
+      file: Events/Events.wasm

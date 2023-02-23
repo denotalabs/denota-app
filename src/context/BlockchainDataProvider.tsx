@@ -11,7 +11,6 @@ import React, {
 import Web3Modal from "web3modal";
 import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
-import SelfSignedBroker from "../out/SelfSignTimeLock.sol/SelfSignTimeLock.json";
 import { mappingForChainId } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
@@ -33,12 +32,13 @@ interface BlockchainDataInterface {
   account: string;
   dai: null | ethers.Contract;
   weth: null | ethers.Contract;
-  selfSignBroker: null | ethers.Contract;
   daiAllowance: BigNumber;
   wethAllowance: BigNumber;
   cheqAddress: string;
   userDaiBalance: string;
   userWethBalance: string;
+  cheq: null | ethers.Contract;
+  directPayAddress: string;
 
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
@@ -67,6 +67,7 @@ const defaultBlockchainState = {
   cheqTotalSupply: "",
   signer: null,
   explorer: "",
+  directPayAddress: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -128,11 +129,7 @@ export const BlockchainDataProvider = memo(
             CheqRegistrar.abi,
             signer
           );
-          const selfSignBroker = new ethers.Contract(
-            mapping.selfSignedBroker,
-            SelfSignedBroker.abi,
-            signer
-          );
+
           const weth = new ethers.Contract(mapping.weth, erc20.abi, signer);
           const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
 
@@ -147,13 +144,14 @@ export const BlockchainDataProvider = memo(
             account,
             dai,
             weth,
-            selfSignBroker,
             daiAllowance,
             wethAllowance,
             cheqAddress: mapping.cheq,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: mapping.explorer,
+            cheq,
+            directPayAddress: mapping.directPayModule,
           });
           setIsInitializing(false);
         }

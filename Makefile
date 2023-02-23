@@ -44,10 +44,16 @@ run:
 	(npm run dev | sed -e 's/^/[NPM] : /' & anvil | sed -e 's/^/[ANVIL] : /')
 
 deploy-local:
+	# source .env
 	python3 deployCheq.py ${PRIVATE_KEY} "local"
 	
 deploy-mumbai:
+	# source .env
 	python3 deployCheq.py ${PRIVATE_KEY} "mumbai"
+
+create-mumbai-data: # write cheqs from different modules, transfer, fund, cash
+	# source .env
+	python3 createCheq.py ${PRIVATE_KEY} "mumbai"
 
 graph-start:
 	# Requires docker to be running

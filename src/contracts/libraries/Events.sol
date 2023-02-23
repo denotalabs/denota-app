@@ -42,16 +42,31 @@ library Events {
         uint256 timestamp
     );
 
+
     event Written(
         uint256 indexed cheqId,
         address indexed owner,
-        DataTypes.Cheq indexed cheq,
         uint256 directAmount,
-        bytes data,
-        uint256 cheqFee,
-        uint256 moduleFee,
-        uint256 timestamp
+        uint256 timestamp,
+        address currency,
+        uint256 amount,
+        address drawer, 
+        address recipient,
+        address module,
+        uint256 escrowed
     );
+
+    // event Written(
+    //     uint256 indexed cheqId,
+    //     address indexed owner,
+    //     DataTypes.Cheq indexed cheq,
+    //     uint256 directAmount,
+    //     bytes data,
+    //     uint256 cheqFee,
+    //     uint256 moduleFee,
+    //     uint256 timestamp
+    // );
+    // Not used
     event Transferred(
         uint256 indexed tokenId,
         address indexed from,
@@ -72,8 +87,9 @@ library Events {
     );
     event Cashed(
         address indexed casher,
-        address to,
         uint256 indexed cheqId,
+        address to,
+        uint256 amount,
         bytes indexed cashData,
         uint256 cheqFee,
         uint256 moduleFee,

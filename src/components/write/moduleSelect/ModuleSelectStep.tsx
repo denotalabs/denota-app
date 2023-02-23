@@ -60,16 +60,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
             <Text>Funds are held in escrow until released by the payer </Text>
           </CardBody>
           <CardFooter>
-            <Button
-              onClick={() => {
-                appendFormData({
-                  module: "escrow",
-                });
-                next?.();
-              }}
-            >
-              Select
-            </Button>
+            <Button isDisabled>Coming Soon</Button>
           </CardFooter>
         </Card>
         <Card>
@@ -80,16 +71,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
             <Text>Funds are released on completion of milestones </Text>
           </CardBody>
           <CardFooter>
-            <Button
-              onClick={() => {
-                appendFormData({
-                  module: "milestone",
-                });
-                next?.();
-              }}
-            >
-              Select
-            </Button>
+            <Button isDisabled>Coming Soon</Button>
           </CardFooter>
         </Card>
       </SimpleGrid>

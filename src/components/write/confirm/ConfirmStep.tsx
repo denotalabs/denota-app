@@ -4,6 +4,7 @@ import { Form, Formik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useCheqContext } from "../../../context/CheqsContext";
+import { useDirectPay } from "../../../hooks/modules/useDirectPay";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ConfirmDetails from "./ConfirmDetails";
@@ -26,7 +27,37 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
 
   const amountWei = ethers.utils.parseEther(formData.amount);
 
+  const escrowedWei =
+    formData.mode === "invoice" ? BigNumber.from(0) : amountWei;
+
   const { refreshWithDelay } = useCheqContext();
+
+  console.log({ xp: ethers.utils.formatBytes32String(formData.noteKey) });
+
+  const tokenAddress = useMemo(() => {
+    switch (formData.token) {
+      case "DAI":
+        return blockchainState.dai?.address ?? "";
+      case "WETH":
+        return blockchainState.weth?.address ?? "";
+      default:
+        return "";
+    }
+  }, [
+    blockchainState.dai?.address,
+    blockchainState.weth?.address,
+    formData.token,
+  ]);
+
+  const { writeCheq: writeDirectPayCheq } = useDirectPay({
+    dueDate: formData.dueDate,
+    tokenAddress,
+    amountWei,
+    address: formData.address,
+    escrowedWei,
+    noteKey: formData.noteKey,
+    isInvoice,
+  });
 
   const buttonText = useMemo(() => {
     if (needsApproval) {
@@ -79,29 +110,14 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
             setNeedsApproval(false);
             actions.setSubmitting(false);
           } else {
-            // TODO: handle modules
-            let tokenAddress = "";
-
-            switch (formData.token) {
-              case "DAI":
-                tokenAddress = blockchainState.dai?.address ?? "";
-                break;
-              case "WETH":
-                tokenAddress = blockchainState.weth?.address ?? "";
-                break;
-            }
-
-            const escrowedWei = formData.mode === "invoice" ? 0 : amountWei;
-
             try {
-              const tx = await blockchainState.selfSignBroker?.writeCheq(
-                tokenAddress,
-                amountWei,
-                escrowedWei,
-                formData.address,
-                formData.inspection
-              );
-              await tx.wait();
+              switch (formData.module) {
+                case "direct":
+                  await writeDirectPayCheq();
+                  break;
+                default:
+                  break;
+              }
               const message =
                 formData.mode === "invoice"
                   ? "Invoice created"
@@ -116,6 +132,7 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
               refreshWithDelay();
               onClose?.();
             } catch (error) {
+              console.log(error);
               toast({
                 title: "Transaction failed",
                 status: "error",
