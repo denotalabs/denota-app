@@ -18,9 +18,13 @@ function CheqDetails({ cheq }: Props) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
-        const resp = await axios.get(NOTE_URL);
-        setNote(resp.data.description);
+        if (cheq.uri) {
+          const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
+          const resp = await axios.get(NOTE_URL);
+          setNote(resp.data.description);
+        } else {
+          setNote("");
+        }
       } catch (error) {
         setNote("Error fetching note");
         console.log(error);
