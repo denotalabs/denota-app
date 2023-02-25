@@ -15,6 +15,10 @@ import AWS from "aws-sdk";
 
 import crypto from "crypto";
 
+import multer from "multer";
+
+const upload = multer();
+
 var s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_ACCESS_SECRET,
@@ -97,6 +101,39 @@ app.post("/", jsonParser, async function (req, res) {
     const resp = await storeS3(req.body.name, req.body.description);
     res.send(resp);
   }
+});
+
+app.post("/upload", upload.single("file"), (req, res) => {
+  // req.file contains the uploaded file
+  // req.body contains the other form fields
+
+  const file = req.file;
+  const data = JSON.parse(req.body.data);
+
+  console.log("File:", file);
+  console.log("JSON Data:", data);
+
+  const fileContent = req.file.buffer;
+  const fileName = req.file.originalname;
+
+  const params = {
+    Bucket: "cheq-nft",
+    Key: fileName,
+    Body: fileContent,
+    ACL: "public-read",
+  };
+
+  s3.putObject(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error uploading file");
+    } else {
+      console.log(`File uploaded successfully: ${data.Location}`);
+      res.send("File uploaded successfully!");
+    }
+  });
+
+  res.send("File uploaded successfully!");
 });
 
 app.listen(6000);

@@ -33,14 +33,16 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
           note: formData.note,
           mode: initialMode,
           email: formData.email ?? "",
+          file: undefined,
         }}
         onSubmit={async (values, actions) => {
           let noteKey = "";
-          if (formData.note === values.note && formData.note) {
+          if (formData.note === values.note && formData.note && !values.file) {
             noteKey = formData.noteKey;
           } else if (values.note) {
             noteKey = (await uploadNote(values.note)) ?? "";
           }
+          console.log({ file: values.file });
           appendFormData({
             token: values.token,
             amount: values.amount.toString(),
