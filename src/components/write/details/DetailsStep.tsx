@@ -14,7 +14,7 @@ interface Props extends ScreenProps {
 
 const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
   const { next, appendFormData, formData } = useStep();
-  const { uploadNote } = useUploadNote();
+  const { uploadFile } = useUploadNote();
   const [hasConsented, setHasConsented] = useState(true);
 
   let initialMode = formData.mode;
@@ -39,10 +39,9 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
           let noteKey = "";
           if (formData.note === values.note && formData.note && !values.file) {
             noteKey = formData.noteKey;
-          } else if (values.note) {
-            noteKey = (await uploadNote(values.note)) ?? "";
+          } else if (values.note || values.file) {
+            noteKey = (await uploadFile(values.file, values.note)) ?? "";
           }
-          console.log({ file: values.file });
           appendFormData({
             token: values.token,
             amount: values.amount.toString(),

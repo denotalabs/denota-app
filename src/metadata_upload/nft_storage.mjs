@@ -103,37 +103,57 @@ app.post("/", jsonParser, async function (req, res) {
   }
 });
 
-app.post("/upload", upload.single("file"), (req, res) => {
-  // req.file contains the uploaded file
-  // req.body contains the other form fields
+const cpUpload = upload.fields([
+  { name: "file", maxCount: 1 },
+  { name: "document", maxCount: 8 },
+]);
 
-  const file = req.file;
-  const data = JSON.parse(req.body.data);
+app.post("/upload", cpUpload, async (req, res) => {
+  const fileContent = req.files.file[0].buffer;
+  const fileExt = req.files.file[0].originalname.split(".")[1];
 
-  console.log("File:", file);
-  console.log("JSON Data:", data);
-
-  const fileContent = req.file.buffer;
-  const fileName = req.file.originalname;
+  const imageKey = crypto.randomBytes(6).toString("hex");
 
   const params = {
     Bucket: "cheq-nft",
-    Key: fileName,
+    Key: imageKey,
     Body: fileContent,
     ACL: "public-read",
   };
 
-  s3.putObject(params, (err, data) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Error uploading file");
-    } else {
-      console.log(`File uploaded successfully: ${data.Location}`);
-      res.send("File uploaded successfully!");
-    }
-  });
+  const stored = await s3.upload(params).promise();
 
-  res.send("File uploaded successfully!");
+  const noteContent = JSON.parse(req.files.document[0].buffer.toString());
+
+  var obj = {
+    name: "Denota NFT",
+    description: noteContent.desc,
+    file: "https://cheq-nft.s3-us-west-2.amazonaws.com/" + imageKey,
+  };
+
+  var buf = Buffer.from(JSON.stringify(obj));
+
+  const key = crypto.randomBytes(6).toString("hex") + ".json";
+
+  var data = {
+    Bucket: "cheq-nft",
+    Key: key,
+    Body: buf,
+    ContentEncoding: "base64",
+    ContentType: "application/json",
+    ACL: "public-read",
+  };
+
+  try {
+    const stored = await s3.upload(data).promise();
+    res.send({
+      url: "https://cheq-nft.s3-us-west-2.amazonaws.com/" + key,
+      key,
+    });
+  } catch (err) {
+    console.log(err);
+    return undefined;
+  }
 });
 
-app.listen(6000);
+app.listen(3001);
