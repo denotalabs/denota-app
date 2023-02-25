@@ -22,6 +22,9 @@ export const useUploadNote = () => {
   }, []);
 
   const uploadFile = useCallback(async (file: any, note: string) => {
+    if (!file && !note) {
+      return;
+    }
     try {
       const config = {
         headers: {
@@ -29,18 +32,21 @@ export const useUploadNote = () => {
         },
       };
 
-      const rqData = {
-        desc: note,
-      };
-
-      const json = JSON.stringify(rqData);
-      const blob = new Blob([json], {
-        type: "application/json",
-      });
-
       const formData = new FormData();
-      formData.append("file", file);
-      formData.append("document", blob);
+      if (file) {
+        formData.append("file", file);
+      }
+      if (note) {
+        const rqData = {
+          desc: note,
+        };
+
+        const json = JSON.stringify(rqData);
+        const blob = new Blob([json], {
+          type: "application/json",
+        });
+        formData.append("document", blob);
+      }
 
       const resp = await axios.post(CHEQ_FILE_SERVICE, formData, config);
       console.log(resp.data.url);

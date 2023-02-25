@@ -109,27 +109,34 @@ const cpUpload = upload.fields([
 ]);
 
 app.post("/upload", cpUpload, async (req, res) => {
-  const fileContent = req.files.file[0].buffer;
-  const fileExt = req.files.file[0].originalname.split(".")[1];
+  // const fileExt = req.files.file[0].originalname.split(".")[1];
 
-  const imageKey = crypto.randomBytes(6).toString("hex");
+  const fileKey = crypto.randomBytes(6).toString("hex");
 
-  const params = {
-    Bucket: "cheq-nft",
-    Key: imageKey,
-    Body: fileContent,
-    ACL: "public-read",
-  };
-
-  const stored = await s3.upload(params).promise();
-
-  const noteContent = JSON.parse(req.files.document[0].buffer.toString());
+  if (req.files.file) {
+    const fileContent = req.files.file[0].buffer;
+    const params = {
+      Bucket: "cheq-nft",
+      Key: fileKey,
+      Body: fileContent,
+      ACL: "public-read",
+    };
+    const stored = await s3.upload(params).promise();
+  }
 
   var obj = {
     name: "Denota NFT",
-    description: noteContent.desc,
-    file: "https://cheq-nft.s3-us-west-2.amazonaws.com/" + imageKey,
   };
+
+  if (req.files.document) {
+    const noteContent = JSON.parse(req.files.document[0].buffer.toString());
+    obj.description = noteContent.desc;
+  }
+
+  if (req.files.file) {
+    obj.filename = req.files.file[0].originalname;
+    obj.file = "https://cheq-nft.s3-us-west-2.amazonaws.com/" + fileKey;
+  }
 
   var buf = Buffer.from(JSON.stringify(obj));
 
