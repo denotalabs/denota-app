@@ -14,6 +14,9 @@ function CheqDetails({ cheq }: Props) {
   const { blockchainState } = useBlockchainData();
 
   const [note, setNote] = useState<string | undefined>(undefined);
+  const [file, setFile] = useState<string | undefined>(undefined);
+  const [fileName, setFilename] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -22,12 +25,18 @@ function CheqDetails({ cheq }: Props) {
           const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
           const resp = await axios.get(NOTE_URL);
           setNote(resp.data.description);
+          if (resp.data.file) {
+            setFile(resp.data.file);
+            setFilename(resp.data.filename);
+          }
+          setIsLoading(false);
         } else {
           setNote("");
         }
       } catch (error) {
         setNote("Error fetching note");
         console.log(error);
+        setIsLoading(false);
       }
     }
     fetchData();
@@ -62,24 +71,39 @@ function CheqDetails({ cheq }: Props) {
           />
         </VStack>
       </RoundedBox>
-      {cheq.uri && (
-        <VStack gap={0} w="100%">
-          <Text pl={6} fontWeight={600} w="100%" textAlign={"left"}>
-            Notes
-          </Text>
-          <RoundedBox p={4} mb={4}>
-            {note !== undefined ? (
-              <Text fontWeight={300} textAlign={"left"}>
-                {note}
-              </Text>
-            ) : (
-              <Center>
-                <Spinner size="md" />
-              </Center>
+      {cheq.uri &&
+        (!isLoading ? (
+          <>
+            {note && (
+              <VStack gap={0} w="100%">
+                <Text pl={6} fontWeight={600} w="100%" textAlign={"left"}>
+                  Notes
+                </Text>
+                <RoundedBox p={4} mb={4}>
+                  <Text fontWeight={300} textAlign={"left"}>
+                    {note}
+                  </Text>
+                </RoundedBox>
+              </VStack>
             )}
-          </RoundedBox>
-        </VStack>
-      )}
+            {file && (
+              <VStack gap={0} w="100%">
+                <Text pl={6} fontWeight={600} w="100%" textAlign={"left"}>
+                  File
+                </Text>
+                <RoundedBox p={4} mb={4}>
+                  <a href={file} download>
+                    {fileName}
+                  </a>
+                </RoundedBox>
+              </VStack>
+            )}
+          </>
+        ) : (
+          <Center>
+            <Spinner size="md" />
+          </Center>
+        ))}
     </VStack>
   );
 }

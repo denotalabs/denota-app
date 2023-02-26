@@ -15,6 +15,8 @@ export interface StepperContextInterface extends StepperReducerInterface {
   onClose?: () => void;
   formData: StringMap;
   appendFormData: (data: StringMap) => void;
+  file?: File;
+  setFile?: (file: File) => void;
 }
 
 const stepperContext = createContext<StepperContextInterface>({

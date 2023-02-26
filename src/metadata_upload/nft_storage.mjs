@@ -15,6 +15,10 @@ import AWS from "aws-sdk";
 
 import crypto from "crypto";
 
+import multer from "multer";
+
+const upload = multer();
+
 var s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_ACCESS_SECRET,
@@ -89,13 +93,78 @@ async function fileFromPath(filePath) {
   return new File([content], path.basename(filePath), { type });
 }
 
-app.post("/", jsonParser, async function (req, res) {
-  if (req.body.mode === "IPFS") {
-    const resp = await storeNFT(req.body.name, req.body.description);
-    res.send(resp);
-  } else {
-    const resp = await storeS3(req.body.name, req.body.description);
-    res.send(resp);
+// TODO: decentralize/break dependence on S3 (use Lighthouse)
+
+// app.post("/", jsonParser, async function (req, res) {
+//   if (req.body.mode === "IPFS") {
+//     const resp = await storeNFT(req.body.name, req.body.description);
+//     res.send(resp);
+//   } else {
+//     const resp = await storeS3(req.body.name, req.body.description);
+//     res.send(resp);
+//   }
+// });
+
+const cpUpload = upload.fields([
+  { name: "file", maxCount: 1 },
+  { name: "document", maxCount: 8 },
+]);
+
+app.post("/", cpUpload, async (req, res) => {
+  var obj = {
+    name: "Denota NFT",
+  };
+
+  if (req.files.file) {
+    let fileExt = req.files.file[0].originalname.split(".").slice(-1)[0];
+
+    let fileKey;
+    if (["jpg", "jpeg", "png", "gif", "pdf", "docx", "csv"].includes(fileExt)) {
+      fileKey = crypto.randomBytes(6).toString("hex") + "." + fileExt;
+    } else {
+      fileKey = crypto.randomBytes(6).toString("hex");
+    }
+
+    const fileContent = req.files.file[0].buffer;
+    const params = {
+      Bucket: "cheq-nft",
+      Key: fileKey,
+      Body: fileContent,
+      ACL: "public-read",
+    };
+    const stored = await s3.upload(params).promise();
+
+    obj.filename = req.files.file[0].originalname;
+    obj.file = "https://cheq-nft.s3-us-west-2.amazonaws.com/" + fileKey;
+  }
+
+  if (req.files.document) {
+    const noteContent = JSON.parse(req.files.document[0].buffer.toString());
+    obj.description = noteContent.desc;
+  }
+
+  var buf = Buffer.from(JSON.stringify(obj));
+
+  const key = crypto.randomBytes(6).toString("hex") + ".json";
+
+  var data = {
+    Bucket: "cheq-nft",
+    Key: key,
+    Body: buf,
+    ContentEncoding: "base64",
+    ContentType: "application/json",
+    ACL: "public-read",
+  };
+
+  try {
+    const stored = await s3.upload(data).promise();
+    res.send({
+      url: "https://cheq-nft.s3-us-west-2.amazonaws.com/" + key,
+      key,
+    });
+  } catch (err) {
+    console.log(err);
+    return undefined;
   }
 });
 

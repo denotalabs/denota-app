@@ -74,6 +74,8 @@ function Stepper({ children, onClose }: StepperProps) {
     allScreens,
   });
   const [formData, setFormData] = useState<StringMap>({});
+  const [file, setFile] = useState<File | undefined>(undefined);
+
   const next = () => {
     dispatch({ type: StepperActionKind.NEXT });
   };
@@ -103,6 +105,8 @@ function Stepper({ children, onClose }: StepperProps) {
         onClose,
         formData,
         appendFormData,
+        file,
+        setFile,
       }}
     >
       <StepperHeader

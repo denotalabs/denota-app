@@ -5,6 +5,7 @@ import AccountField from "../../fields/input/AccountField";
 import AmountField from "../../fields/input/AmountField";
 import EmailField from "../../fields/input/EmailField";
 import NoteField from "../../fields/input/NoteField";
+import FileControl from "./FileUpload";
 
 interface Props {
   isInvoice: boolean;
@@ -41,6 +42,15 @@ function DetailsBox({ isInvoice }: Props) {
           maxW="100%"
         >
           <NoteField fieldName="note" />
+        </Flex>
+        <Flex
+          alignItems="center"
+          justifyContent="space-between"
+          flexShrink={0}
+          flexGrow={1}
+          maxW="100%"
+        >
+          <FileControl name="file" />
         </Flex>
       </Flex>
     </RoundedBox>
