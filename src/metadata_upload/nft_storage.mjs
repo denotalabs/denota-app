@@ -93,27 +93,38 @@ async function fileFromPath(filePath) {
   return new File([content], path.basename(filePath), { type });
 }
 
-app.post("/", jsonParser, async function (req, res) {
-  if (req.body.mode === "IPFS") {
-    const resp = await storeNFT(req.body.name, req.body.description);
-    res.send(resp);
-  } else {
-    const resp = await storeS3(req.body.name, req.body.description);
-    res.send(resp);
-  }
-});
+// TODO: decentralize/break dependence on S3 (use Lighthouse)
+
+// app.post("/", jsonParser, async function (req, res) {
+//   if (req.body.mode === "IPFS") {
+//     const resp = await storeNFT(req.body.name, req.body.description);
+//     res.send(resp);
+//   } else {
+//     const resp = await storeS3(req.body.name, req.body.description);
+//     res.send(resp);
+//   }
+// });
 
 const cpUpload = upload.fields([
   { name: "file", maxCount: 1 },
   { name: "document", maxCount: 8 },
 ]);
 
-app.post("/upload", cpUpload, async (req, res) => {
-  // const fileExt = req.files.file[0].originalname.split(".")[1];
-
-  const fileKey = crypto.randomBytes(6).toString("hex");
+app.post("/", cpUpload, async (req, res) => {
+  var obj = {
+    name: "Denota NFT",
+  };
 
   if (req.files.file) {
+    let fileExt = req.files.file[0].originalname.split(".").slice(-1)[0];
+
+    let fileKey;
+    if (["jpg", "jpeg", "png", "gif", "pdf", "docx", "csv"].includes(fileExt)) {
+      fileKey = crypto.randomBytes(6).toString("hex") + "." + fileExt;
+    } else {
+      fileKey = crypto.randomBytes(6).toString("hex");
+    }
+
     const fileContent = req.files.file[0].buffer;
     const params = {
       Bucket: "cheq-nft",
@@ -122,20 +133,14 @@ app.post("/upload", cpUpload, async (req, res) => {
       ACL: "public-read",
     };
     const stored = await s3.upload(params).promise();
-  }
 
-  var obj = {
-    name: "Denota NFT",
-  };
+    obj.filename = req.files.file[0].originalname;
+    obj.file = "https://cheq-nft.s3-us-west-2.amazonaws.com/" + fileKey;
+  }
 
   if (req.files.document) {
     const noteContent = JSON.parse(req.files.document[0].buffer.toString());
     obj.description = noteContent.desc;
-  }
-
-  if (req.files.file) {
-    obj.filename = req.files.file[0].originalname;
-    obj.file = "https://cheq-nft.s3-us-west-2.amazonaws.com/" + fileKey;
   }
 
   var buf = Buffer.from(JSON.stringify(obj));
@@ -163,4 +168,4 @@ app.post("/upload", cpUpload, async (req, res) => {
   }
 });
 
-app.listen(3001);
+app.listen(6000);

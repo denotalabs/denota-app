@@ -5,7 +5,7 @@ const CHEQ_NOTE_SERVICE_URL_LOCAL = "http://127.0.0.1:3001/";
 
 const CHEQ_NOTE_SERVICE = "https://klymr.me/nft";
 
-const CHEQ_FILE_SERVICE = "http://127.0.0.1:3001/upload";
+const CHEQ_FILE_SERVICE = "http://127.0.0.1:3001/";
 
 export const useUploadNote = () => {
   const uploadNote = useCallback(async (note: string) => {
@@ -51,7 +51,8 @@ export const useUploadNote = () => {
       const resp = await axios.post(CHEQ_FILE_SERVICE, formData, config);
       console.log(resp.data.url);
       return resp.data.key as string;
-    } catch {
+    } catch (error) {
+      console.log(error);
       return undefined;
     }
   }, []);
