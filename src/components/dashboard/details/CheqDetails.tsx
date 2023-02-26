@@ -1,3 +1,4 @@
+import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -94,6 +95,7 @@ function CheqDetails({ cheq }: Props) {
                 <RoundedBox p={4} mb={4}>
                   <a href={file} download>
                     {fileName}
+                    <DownloadIcon ml={2} />
                   </a>
                 </RoundedBox>
               </VStack>
