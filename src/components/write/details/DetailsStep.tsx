@@ -38,13 +38,15 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
         }}
         onSubmit={async (values, actions) => {
           let noteKey = "";
-          if (
-            formData.note === values.note &&
-            values.file?.name === file?.name
-          ) {
-            noteKey = formData.noteKey;
-          } else if (values.note || values.file) {
-            noteKey = (await uploadFile(values.file, values.note)) ?? "";
+          if (values.note || values.file) {
+            if (
+              formData.note === values.note &&
+              values.file?.name === file?.name
+            ) {
+              noteKey = formData.noteKey;
+            } else {
+              noteKey = (await uploadFile(values.file, values.note)) ?? "";
+            }
           }
           if (noteKey === undefined) {
             toast({
