@@ -5,7 +5,13 @@ import customTheme from "../theme";
 export default function Document() {
   return (
     <Html>
-      <Head />
+      <Head>
+        <title>Denota App</title>
+        <meta
+          name="description"
+          content="Supercharged web3 pay for the future of work"
+        />
+      </Head>
       <body>
         <ColorModeScript
           initialColorMode={customTheme.config.initialColorMode}
