@@ -44,6 +44,8 @@ interface ICheqRegistrar {
 
     function approve(address to, uint256 tokenId) external;
 
+    // function burn(uint256 tokenId) external;
+
     // Cheq data
     function cheqInfo(uint256 cheqId)
         external
@@ -59,16 +61,6 @@ interface ICheqRegistrar {
     // function totalSupply() public view returns (uint256);
 
     /// Whitlistings
-    function ruleWhitelisted(address rule) external view returns (bool);
-
-    function rulesWhitelisted(
-        address writeRule,
-        address transferRule,
-        address fundRule,
-        address cashRule,
-        address approveRule
-    ) external view returns (bool);
-
     function moduleWhitelisted(address module)
         external
         view

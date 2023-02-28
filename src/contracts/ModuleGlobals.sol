@@ -1,10 +1,9 @@
-// // SPDX-License-Identifier: BUSL-1.1
-// pragma solidity ^0.8.16;
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity ^0.8.16;
 
 // import {Errors} from "../contracts/libraries/Errors.sol";
 // import {Events} from "../contracts/libraries/Events.sol";
 // import {IModuleGlobals} from "../contracts/interfaces/IModuleGlobals.sol";
-
 
 // // TODO NOT IMPLEMENTED
 // contract ModuleGlobals is IModuleGlobals {

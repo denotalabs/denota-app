@@ -9,17 +9,15 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 /**
  * @notice A simple payment module that includes an IPFS hash for memos (included in the URI)
  * Ownership grants the right to receive direct payment
- * Can be used to track: Promise of payment, Request for payment, Payment, or a Past payment (Invoice + Payment)
-
- Write: must
+ * Can be used to track: Promise of payment, Request for payment, Payment, or a Past payment (Payment & Invoice)
+ * Essentially what Bulla and Request currently support
  */
-// Both payment and invoicing
 contract DirectPay is ModuleBase {
     struct Payment {
         address drawer;
         address recipient;
         uint256 amount; // Face value of the payment
-        uint256 timestamp;
+        uint256 timestamp; // Relevant timestamp
         bytes32 memoHash;
         bool wasPaid; // TODO is this needed if using instant pay?
     }
@@ -35,24 +33,9 @@ contract DirectPay is ModuleBase {
 
     constructor(
         address registrar,
-        address _writeRule,
-        address _transferRule,
-        address _fundRule,
-        address _cashRule,
-        address _approveRule,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
-    )
-        ModuleBase(
-            registrar,
-            _writeRule,
-            _transferRule,
-            _fundRule,
-            _cashRule,
-            _approveRule,
-            _fees
-        )
-    {
+    ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
     }
 
@@ -66,18 +49,26 @@ contract DirectPay is ModuleBase {
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         /// TODO figure out how to know who paid and who is requesting?
+        require(escrowed == 0, "Rule: Escrowing not supported");
         (
             address drawer,
             address recipient,
             uint256 amount,
-            bytes32 memoHash,
             uint256 timestamp,
-            address referer
+            address dappOperator,
+            bytes32 memoHash
         ) = abi.decode(
                 initData,
-                (address, address, uint256, bytes32, uint256, address)
-            ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        require(escrowed == 0, "Rule: Escrowing not supported");
+                (address, address, uint256, uint256, address, bytes32)
+            );
+
+        payInfo[cheqId].drawer = drawer;
+        payInfo[cheqId].recipient = recipient;
+        payInfo[cheqId].amount = amount;
+        payInfo[cheqId].timestamp = timestamp;
+        payInfo[cheqId].memoHash = memoHash;
+        payInfo[cheqId].wasPaid = instant == amount ? true : false;
+        // TODO convert to reverts
         require(amount != 0, "Rule: Amount == 0");
         require(
             instant == amount || instant == 0, // instant=0 is for invoicing
@@ -99,33 +90,29 @@ contract DirectPay is ModuleBase {
             "Rule: Can't use zero address"
         ); // TODO can be simplified
 
-        payInfo[cheqId].amount = amount;
-        payInfo[cheqId].memoHash = memoHash;
-        payInfo[cheqId].timestamp = timestamp;
-
         uint256 moduleFee;
         {
             uint256 totalAmount = escrowed + instant;
             moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
         }
-        revenue[referer][currency] += moduleFee;
+        revenue[dappOperator][currency] += moduleFee;
 
-        emit PaymentCreated(cheqId, memoHash, amount, timestamp, referer);
+        // emit PaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
         return moduleFee;
     }
 
     function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address from,
-        address to,
-        uint256 cheqId,
-        address currency,
+        address, /*caller*/
+        address, /*approved*/
+        address, /*owner*/
+        address, /*from*/
+        address, /*to*/
+        uint256, /*cheqId*/
+        address, /*currency*/
         uint256 escrowed,
-        uint256 createdAt,
-        bytes memory data
-    ) external override onlyRegistrar returns (uint256) {
+        uint256, /*createdAt*/
+        bytes memory /*data*/
+    ) external view override onlyRegistrar returns (uint256) {
         require(false, "Rule: Disallowed");
         // require(payInfo[cheqId].wasPaid, "Module: Only after cashing");
         uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
@@ -148,8 +135,8 @@ contract DirectPay is ModuleBase {
             "Rule: Only full direct amount"
         );
         require(
-            caller == payInfo[cheqId].recipient ||
-                caller == payInfo[cheqId].drawer,
+            caller == payInfo[cheqId].drawer ||
+                caller == payInfo[cheqId].recipient,
             "Rule: Only drawer/recipient"
         );
         require(caller != owner, "Rule: Not owner");
@@ -161,14 +148,14 @@ contract DirectPay is ModuleBase {
     }
 
     function processCash(
-        address caller,
-        address owner,
-        address to,
+        address, /*caller*/
+        address, /*owner*/
+        address, /*to*/
         uint256 amount,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external override onlyRegistrar returns (uint256) {
+        uint256, /*cheqId*/
+        DataTypes.Cheq calldata, /*cheq*/
+        bytes calldata /*initData*/
+    ) external view override onlyRegistrar returns (uint256) {
         require(false, "Rule: Disallowed");
         // address referer = abi.decode(initData, (address));
         // revenue[referer][cheq.currency] += moduleFee;
@@ -178,21 +165,14 @@ contract DirectPay is ModuleBase {
     }
 
     function processApproval(
-        address caller,
-        address owner,
-        address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes memory initData
-    ) external override onlyRegistrar {
-        IApproveRule(approveRule).canApprove(
-            caller,
-            owner,
-            to,
-            cheqId,
-            cheq,
-            initData
-        );
+        address, /*caller*/
+        address, /*owner*/
+        address, /*to*/
+        uint256, /*cheqId*/
+        DataTypes.Cheq calldata, /*cheq*/
+        bytes memory /*initData*/
+    ) external view override onlyRegistrar {
+        require(false, "Rule: Disallowed");
         // require(wasPaid[cheqId], "Module: Must be cashed first");
     }
 }

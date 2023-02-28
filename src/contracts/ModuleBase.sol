@@ -17,11 +17,6 @@ abstract contract ModuleBase is ICheqModule {
     string public _URI;
     mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
     uint256 internal constant BPS_MAX = 10_000; // Lens uses uint16
-    address public writeRule;
-    address public transferRule;
-    address public fundRule;
-    address public cashRule;
-    address public approveRule; // Question can allow psuedo-operators (stored on module) to grant approvals
     DataTypes.WTFCFees public fees;
 
     modifier onlyRegistrar() {
@@ -29,33 +24,10 @@ abstract contract ModuleBase is ICheqModule {
         _;
     }
 
-    constructor(
-        address registrar,
-        address _writeRule,
-        address _transferRule,
-        address _fundRule,
-        address _cashRule,
-        address _approveRule,
-        DataTypes.WTFCFees memory _fees
-    ) {
+    constructor(address registrar, DataTypes.WTFCFees memory _fees) {
         if (registrar == address(0)) revert Errors.InitParamsInvalid();
         REGISTRAR = registrar; // Question: Should this be before or after rule checking?
 
-        require(
-            ICheqRegistrar(REGISTRAR).rulesWhitelisted(
-                _writeRule,
-                _transferRule,
-                _fundRule,
-                _cashRule,
-                _approveRule
-            ),
-            "RULES_INVALID"
-        );
-        writeRule = _writeRule;
-        transferRule = _transferRule;
-        fundRule = _fundRule;
-        cashRule = _cashRule;
-        approveRule = _approveRule;
         require(_fees.writeBPS < BPS_MAX, "Module: Fee too high");
         require(_fees.transferBPS < BPS_MAX, "Module: Fee too high");
         require(_fees.fundBPS < BPS_MAX, "Module: Fee too high");
@@ -74,16 +46,6 @@ abstract contract ModuleBase is ICheqModule {
         uint256 instant,
         bytes calldata initData
     ) external virtual override onlyRegistrar returns (uint256) {
-        // Fails here if not possible
-        // IWriteRule(writeRule).canWrite(
-        //     caller,
-        //     owner,
-        //     cheqId,
-        //     currency,
-        //     escrowed,
-        //     instant,
-        //     initData
-        // );
         // Add module logic here
         return fees.writeBPS;
     }
@@ -100,16 +62,6 @@ abstract contract ModuleBase is ICheqModule {
         uint256 createdAt,
         bytes calldata data
     ) external virtual override onlyRegistrar returns (uint256) {
-        // ITransferRule(transferRule).canTransfer(
-        //     caller,
-        //     approved,
-        //     owner,
-        //     from,
-        //     to,
-        //     cheqId,
-        //     cheq,
-        //     data
-        // ); // Checks if caller is ownerOrApproved
         // Add module logic here
         return fees.transferBPS;
     }
@@ -123,15 +75,6 @@ abstract contract ModuleBase is ICheqModule {
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external virtual override onlyRegistrar returns (uint256) {
-        IFundRule(fundRule).canFund(
-            caller,
-            owner,
-            amount,
-            instant,
-            cheqId,
-            cheq,
-            initData
-        );
         // Add module logic here
         return fees.fundBPS;
     }
@@ -145,15 +88,6 @@ abstract contract ModuleBase is ICheqModule {
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external virtual override onlyRegistrar returns (uint256) {
-        ICashRule(cashRule).canCash(
-            caller,
-            owner,
-            to,
-            amount,
-            cheqId,
-            cheq,
-            initData
-        );
         // Add module logic here
         return fees.cashBPS;
     }
@@ -166,14 +100,6 @@ abstract contract ModuleBase is ICheqModule {
         DataTypes.Cheq calldata cheq,
         bytes memory initData
     ) external virtual override onlyRegistrar {
-        IApproveRule(approveRule).canApprove(
-            caller,
-            owner,
-            to,
-            cheqId,
-            cheq,
-            initData
-        );
         // Add module logic here
     }
 

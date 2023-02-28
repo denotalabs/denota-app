@@ -361,7 +361,7 @@
     "canWrite(address,address,uint256,address,uint256,uint256,bytes)": "0055d86e",
     "paused()": "5c975abb"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canApprove\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canCash\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canFund\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canWrite\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"paused()\":{\"details\":\"Returns true if the contract is paused, and false otherwise.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/SimpleAdmin.sol\":\"SimpleAdmin\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/security/Pausable.sol\":{\"keccak256\":\"0x0849d93b16c9940beb286a7864ed02724b248b93e0d80ef6355af5ef15c64773\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4ddabb16009cd17eaca3143feadf450ac13e72919ebe2ca50e00f61cb78bc004\",\"dweb:/ipfs/QmSPwPxX7d6TTWakN5jy5wsaGkS1y9TW8fuhGSraMkLk2B\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0xf82497bb53af650d7eff7e3b1c795ceaa096ce81293f5156d3663e691b2c40a9\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://96beddb9243d6783fdbff9268615e5ea02a1d1cffd19a7e2694d18b5618bac9a\",\"dweb:/ipfs/QmQatXP88XWoNA3AuVLAfLbkex28wWB14p5FaS4RWm7Lxc\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x4a43ac364dabf0ed354f389238e329456247a3cb7b41a4c67256843c9b4852b5\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://532ab40b54881771b24cee8dbf62ce9bc5b385755e95649f706c7e79bbad156b\",\"dweb:/ipfs/QmVHgg9x7fgKBTs5wTKQe1jdE1nBJn7bRBi9SQkyxXBSqD\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0xb7c53bb3fdc8723644e0a12ec2cced4fce60c8a61e2cfadc8e9acb9537128349\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://7304cbc1b143b8bd445a90926e054bbe8957d6c12ba2ad8a28c63630fee4e100\",\"dweb:/ipfs/QmTNG7pMkZkGe9M8WQxwB5ApFuWHGsyVtezs5m5rZDYJRF\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0x868252443effd2fc7e652df6382d82b693b155e2ca8517dcf987d0ee33265e5c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c06a40e107680578e9cdf5ee8e03aa4f3a373414f4eaf4d77ff6ebf2311d56f1\",\"dweb:/ipfs/QmfWMv9t5CZpkzwsRDjSBCLMXzmUxNh7zz4DSyGcZwLv9y\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0x372b3c914dd86a4e954a63f372bb3f648f61462259d71e56db5ea9a0abb1be6a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://a0a3b76e02cca1edd174efaed7aa05ddd5b3bf92f32ce655c1c719f03ea234c0\",\"dweb:/ipfs/QmYVNB1PAM8GT8Ls7RBY8ddTKW7TXJCV4jvzCDyfkhD4jN\"]},\"src/contracts/modules/SimpleAdmin.sol\":{\"keccak256\":\"0x365bf98867687773251e1860a227d879cfa3e5989fcb36033d47f343a8847ea9\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://b383e28db3276341e27be4c5c947a2b2e592131ca4e590a1b9e66248a5147708\",\"dweb:/ipfs/Qmaviw4AQqbcXBFSVCpzTdcfDuBXDDm2NgwykLKcfvN7vE\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canApprove\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canCash\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canFund\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canWrite\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"paused()\":{\"details\":\"Returns true if the contract is paused, and false otherwise.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/SimpleAdmin.sol\":\"SimpleAdmin\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/security/Pausable.sol\":{\"keccak256\":\"0x0849d93b16c9940beb286a7864ed02724b248b93e0d80ef6355af5ef15c64773\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4ddabb16009cd17eaca3143feadf450ac13e72919ebe2ca50e00f61cb78bc004\",\"dweb:/ipfs/QmSPwPxX7d6TTWakN5jy5wsaGkS1y9TW8fuhGSraMkLk2B\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x6f1f5f318460711b00a98c7768b95ff9948c6518ebeefa87ebe3708e33f7efe6\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://532de8e9dd5ae5c0920b121a41c3870e7049e718943cfb7bb65d913efbbe9b04\",\"dweb:/ipfs/Qmeg3G4D5jSwcx18oHTD2V1AnAPNkAd2hhz4g76kJpL98F\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0xeda93c9d5999108bb399733c078c656330b000c68b5354d220285247d442b05c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://ad9d6a884890667b6dcc3948b30dcc1e05f6c2f45f3b1c6c118cebcc9039cc49\",\"dweb:/ipfs/QmePBjBzgHXM5mofYN5BT7AV6KmG5eEdCv7aqRStLcChYm\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0xb7c53bb3fdc8723644e0a12ec2cced4fce60c8a61e2cfadc8e9acb9537128349\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://7304cbc1b143b8bd445a90926e054bbe8957d6c12ba2ad8a28c63630fee4e100\",\"dweb:/ipfs/QmTNG7pMkZkGe9M8WQxwB5ApFuWHGsyVtezs5m5rZDYJRF\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0xf235167617e3eb1a6aa7e41a27df91fea2c4e051d4524e6296a3a8043c3d3d96\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://816ebd0bbd472201cfbe998c3834d836641ee1ff67373198ba9ee1eb5ae98559\",\"dweb:/ipfs/QmNzm5wpyjHy4RibbofmN7ur748giVweUoH8iwk8fwQAaK\"]},\"src/contracts/modules/SimpleAdmin.sol\":{\"keccak256\":\"0x365bf98867687773251e1860a227d879cfa3e5989fcb36033d47f343a8847ea9\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://b383e28db3276341e27be4c5c947a2b2e592131ca4e590a1b9e66248a5147708\",\"dweb:/ipfs/Qmaviw4AQqbcXBFSVCpzTdcfDuBXDDm2NgwykLKcfvN7vE\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -783,10 +783,10 @@
         "license": "MIT"
       },
       "src/contracts/ModuleBase.sol": {
-        "keccak256": "0xf82497bb53af650d7eff7e3b1c795ceaa096ce81293f5156d3663e691b2c40a9",
+        "keccak256": "0x6f1f5f318460711b00a98c7768b95ff9948c6518ebeefa87ebe3708e33f7efe6",
         "urls": [
-          "bzz-raw://96beddb9243d6783fdbff9268615e5ea02a1d1cffd19a7e2694d18b5618bac9a",
-          "dweb:/ipfs/QmQatXP88XWoNA3AuVLAfLbkex28wWB14p5FaS4RWm7Lxc"
+          "bzz-raw://532de8e9dd5ae5c0920b121a41c3870e7049e718943cfb7bb65d913efbbe9b04",
+          "dweb:/ipfs/Qmeg3G4D5jSwcx18oHTD2V1AnAPNkAd2hhz4g76kJpL98F"
         ],
         "license": "BUSL-1.1"
       },
@@ -799,10 +799,10 @@
         "license": "BUSL-1.1"
       },
       "src/contracts/interfaces/ICheqRegistrar.sol": {
-        "keccak256": "0x4a43ac364dabf0ed354f389238e329456247a3cb7b41a4c67256843c9b4852b5",
+        "keccak256": "0xeda93c9d5999108bb399733c078c656330b000c68b5354d220285247d442b05c",
         "urls": [
-          "bzz-raw://532ab40b54881771b24cee8dbf62ce9bc5b385755e95649f706c7e79bbad156b",
-          "dweb:/ipfs/QmVHgg9x7fgKBTs5wTKQe1jdE1nBJn7bRBi9SQkyxXBSqD"
+          "bzz-raw://ad9d6a884890667b6dcc3948b30dcc1e05f6c2f45f3b1c6c118cebcc9039cc49",
+          "dweb:/ipfs/QmePBjBzgHXM5mofYN5BT7AV6KmG5eEdCv7aqRStLcChYm"
         ],
         "license": "BUSL-1.1"
       },
@@ -823,18 +823,18 @@
         "license": "BUSL-1.1"
       },
       "src/contracts/libraries/Errors.sol": {
-        "keccak256": "0x868252443effd2fc7e652df6382d82b693b155e2ca8517dcf987d0ee33265e5c",
+        "keccak256": "0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13",
         "urls": [
-          "bzz-raw://c06a40e107680578e9cdf5ee8e03aa4f3a373414f4eaf4d77ff6ebf2311d56f1",
-          "dweb:/ipfs/QmfWMv9t5CZpkzwsRDjSBCLMXzmUxNh7zz4DSyGcZwLv9y"
+          "bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a",
+          "dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw"
         ],
         "license": "BUSL-1.1"
       },
       "src/contracts/libraries/Events.sol": {
-        "keccak256": "0x372b3c914dd86a4e954a63f372bb3f648f61462259d71e56db5ea9a0abb1be6a",
+        "keccak256": "0xf235167617e3eb1a6aa7e41a27df91fea2c4e051d4524e6296a3a8043c3d3d96",
         "urls": [
-          "bzz-raw://a0a3b76e02cca1edd174efaed7aa05ddd5b3bf92f32ce655c1c719f03ea234c0",
-          "dweb:/ipfs/QmYVNB1PAM8GT8Ls7RBY8ddTKW7TXJCV4jvzCDyfkhD4jN"
+          "bzz-raw://816ebd0bbd472201cfbe998c3834d836641ee1ff67373198ba9ee1eb5ae98559",
+          "dweb:/ipfs/QmNzm5wpyjHy4RibbofmN7ur748giVweUoH8iwk8fwQAaK"
         ],
         "license": "BUSL-1.1"
       },
@@ -851,52 +851,52 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/SimpleAdmin.sol",
-    "id": 34563,
+    "id": 31570,
     "exportedSymbols": {
       "Context": [
         27735
       ],
       "DataTypes": [
-        33435
+        30823
       ],
       "IApproveRule": [
-        33313
+        30701
       ],
       "ICashRule": [
-        33296
+        30684
       ],
       "ICheqModule": [
-        33050
+        30460
       ],
       "ICheqRegistrar": [
-        33215
+        30603
       ],
       "IFundRule": [
-        33277
+        30665
       ],
       "ITransferRule": [
-        33258
+        30646
       ],
       "IWriteRule": [
-        33237
+        30625
       ],
       "ModuleBase": [
-        32585
+        30337
       ],
       "Pausable": [
         25270
       ],
       "SimpleAdmin": [
-        34562
+        31569
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:536:60",
+    "src": "37:536:49",
     "nodes": [
       {
-        "id": 34534,
+        "id": 31541,
         "nodeType": "PragmaDirective",
-        "src": "37:24:60",
+        "src": "37:24:49",
         "nodes": [],
         "literals": [
           "solidity",
@@ -906,37 +906,37 @@
         ]
       },
       {
-        "id": 34535,
+        "id": 31542,
         "nodeType": "ImportDirective",
-        "src": "63:44:60",
+        "src": "63:44:49",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/security/Pausable.sol",
         "file": "openzeppelin/security/Pausable.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34563,
+        "scope": 31570,
         "sourceUnit": 25271,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 34537,
+        "id": 31544,
         "nodeType": "ImportDirective",
-        "src": "108:45:60",
+        "src": "108:45:49",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34563,
-        "sourceUnit": 32586,
+        "scope": 31570,
+        "sourceUnit": 30338,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34536,
+              "id": 31543,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 32585,
-              "src": "116:10:60",
+              "referencedDeclaration": 30337,
+              "src": "116:10:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -945,24 +945,24 @@
         "unitAlias": ""
       },
       {
-        "id": 34539,
+        "id": 31546,
         "nodeType": "ImportDirective",
-        "src": "154:53:60",
+        "src": "154:53:49",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34563,
-        "sourceUnit": 33436,
+        "scope": 31570,
+        "sourceUnit": 30824,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34538,
+              "id": 31545,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33435,
-              "src": "162:9:60",
+              "referencedDeclaration": 30823,
+              "src": "162:9:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -971,24 +971,24 @@
         "unitAlias": ""
       },
       {
-        "id": 34541,
+        "id": 31548,
         "nodeType": "ImportDirective",
-        "src": "208:58:60",
+        "src": "208:58:49",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34563,
-        "sourceUnit": 33051,
+        "scope": 31570,
+        "sourceUnit": 30461,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34540,
+              "id": 31547,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33050,
-              "src": "216:11:60",
+              "referencedDeclaration": 30460,
+              "src": "216:11:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -997,24 +997,24 @@
         "unitAlias": ""
       },
       {
-        "id": 34543,
+        "id": 31550,
         "nodeType": "ImportDirective",
-        "src": "267:64:60",
+        "src": "267:64:49",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34563,
-        "sourceUnit": 33216,
+        "scope": 31570,
+        "sourceUnit": 30604,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34542,
+              "id": 31549,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33215,
-              "src": "275:14:60",
+              "referencedDeclaration": 30603,
+              "src": "275:14:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1023,72 +1023,72 @@
         "unitAlias": ""
       },
       {
-        "id": 34549,
+        "id": 31556,
         "nodeType": "ImportDirective",
-        "src": "332:107:60",
+        "src": "332:107:49",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
         "file": "../interfaces/IWTFCRules.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34563,
-        "sourceUnit": 33314,
+        "scope": 31570,
+        "sourceUnit": 30702,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34544,
+              "id": 31551,
               "name": "IWriteRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33237,
-              "src": "340:10:60",
+              "referencedDeclaration": 30625,
+              "src": "340:10:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 34545,
+              "id": 31552,
               "name": "ITransferRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33258,
-              "src": "352:13:60",
+              "referencedDeclaration": 30646,
+              "src": "352:13:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 34546,
+              "id": 31553,
               "name": "IFundRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33277,
-              "src": "367:9:60",
+              "referencedDeclaration": 30665,
+              "src": "367:9:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 34547,
+              "id": 31554,
               "name": "ICashRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33296,
-              "src": "378:9:60",
+              "referencedDeclaration": 30684,
+              "src": "378:9:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 34548,
+              "id": 31555,
               "name": "IApproveRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33313,
-              "src": "389:12:60",
+              "referencedDeclaration": 30701,
+              "src": "389:12:49",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1097,101 +1097,101 @@
         "unitAlias": ""
       },
       {
-        "id": 34562,
+        "id": 31569,
         "nodeType": "ContractDefinition",
-        "src": "441:131:60",
+        "src": "441:131:49",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 34550,
+              "id": 31557,
               "name": "Pausable",
               "nameLocations": [
-                "478:8:60"
+                "478:8:49"
               ],
               "nodeType": "IdentifierPath",
               "referencedDeclaration": 25270,
-              "src": "478:8:60"
+              "src": "478:8:49"
             },
-            "id": 34551,
+            "id": 31558,
             "nodeType": "InheritanceSpecifier",
-            "src": "478:8:60"
+            "src": "478:8:49"
           },
           {
             "baseName": {
-              "id": 34552,
+              "id": 31559,
               "name": "IWriteRule",
               "nameLocations": [
-                "492:10:60"
+                "492:10:49"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 33237,
-              "src": "492:10:60"
+              "referencedDeclaration": 30625,
+              "src": "492:10:49"
             },
-            "id": 34553,
+            "id": 31560,
             "nodeType": "InheritanceSpecifier",
-            "src": "492:10:60"
+            "src": "492:10:49"
           },
           {
             "baseName": {
-              "id": 34554,
+              "id": 31561,
               "name": "ITransferRule",
               "nameLocations": [
-                "508:13:60"
+                "508:13:49"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 33258,
-              "src": "508:13:60"
+              "referencedDeclaration": 30646,
+              "src": "508:13:49"
             },
-            "id": 34555,
+            "id": 31562,
             "nodeType": "InheritanceSpecifier",
-            "src": "508:13:60"
+            "src": "508:13:49"
           },
           {
             "baseName": {
-              "id": 34556,
+              "id": 31563,
               "name": "IFundRule",
               "nameLocations": [
-                "527:9:60"
+                "527:9:49"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 33277,
-              "src": "527:9:60"
+              "referencedDeclaration": 30665,
+              "src": "527:9:49"
             },
-            "id": 34557,
+            "id": 31564,
             "nodeType": "InheritanceSpecifier",
-            "src": "527:9:60"
+            "src": "527:9:49"
           },
           {
             "baseName": {
-              "id": 34558,
+              "id": 31565,
               "name": "ICashRule",
               "nameLocations": [
-                "542:9:60"
+                "542:9:49"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 33296,
-              "src": "542:9:60"
+              "referencedDeclaration": 30684,
+              "src": "542:9:49"
             },
-            "id": 34559,
+            "id": 31566,
             "nodeType": "InheritanceSpecifier",
-            "src": "542:9:60"
+            "src": "542:9:49"
           },
           {
             "baseName": {
-              "id": 34560,
+              "id": 31567,
               "name": "IApproveRule",
               "nameLocations": [
-                "557:12:60"
+                "557:12:49"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 33313,
-              "src": "557:12:60"
+              "referencedDeclaration": 30701,
+              "src": "557:12:49"
             },
-            "id": 34561,
+            "id": 31568,
             "nodeType": "InheritanceSpecifier",
-            "src": "557:12:60"
+            "src": "557:12:49"
           }
         ],
         "canonicalName": "SimpleAdmin",
@@ -1199,22 +1199,22 @@
         "contractKind": "contract",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          34562,
-          33313,
-          33296,
-          33277,
-          33258,
-          33237,
+          31569,
+          30701,
+          30684,
+          30665,
+          30646,
+          30625,
           25270,
           27735
         ],
         "name": "SimpleAdmin",
-        "nameLocation": "459:11:60",
-        "scope": 34563,
+        "nameLocation": "459:11:49",
+        "scope": 31570,
         "usedErrors": []
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 60
+  "id": 49
 }

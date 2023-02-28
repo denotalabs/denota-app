@@ -2,49 +2,41 @@
 pragma solidity ^0.8.16;
 
 library Errors {
+    error NotWhitelisted();
+    error TokenNotWhitelisted();
+    error ModuleNotWhitelisted();
+    error NotRegistrar();
+    // error NotGovernance();
+
+    // // Module Errors
+    error ModuleParamsInvalid();
+    error InitParamsInvalid();
+
+    // Cheq Errors
+    error CheqInvalid();
+    error ZeroAddress();
+    error ZeroEscrow();
+
+    // MultiState Errors
+    error Paused();
+    error WritingPaused();
+    error TransferringPaused();
+    error FundingPaused();
+    error CashingPaused();
+    error ApprovingPaused();
+    error BurningPaused();
+
     // error CannotInitImplementation();
     // error Initialized();
     // error SignatureExpired();
     // error ZeroSpender();
     // error SignatureInvalid();
     // error NotOwnerOrApproved();
-    error NotRegistrar();
     // error TokenDoesNotExist();
-    error NotGovernance();
     // error NotGovernanceOrEmergencyAdmin();
     // error EmergencyAdminCannotUnpause();
-    // error CallerNotWhitelistedModule();
-    // error CollectModuleNotWhitelisted();
-    // error FollowModuleNotWhitelisted();
-    // error ReferenceModuleNotWhitelisted();
-    // error ProfileCreatorNotWhitelisted();
-    // error NotProfileOwner();
-    // error NotProfileOwnerOrDispatcher();
     // error NotDispatcher();
-    // error PublicationDoesNotExist();
-    // error HandleTaken();
-    // error HandleLengthInvalid();
-    // error HandleContainsInvalidCharacters();
-    // error HandleFirstCharInvalid();
-    // error ProfileImageURILengthInvalid();
-    // error CallerNotFollowNFT();
-    // error CallerNotCollectNFT();
     // error BlockNumberInvalid();
     // error ArrayMismatch();
-    // error CannotCommentOnSelf();
-    // error NotWhitelisted();
     // error InvalidParameter();
-
-    // // Module Errors
-    error InitParamsInvalid();
-    // error CollectExpired();
-    // error FollowInvalid();
-    // error ModuleDataMismatch();
-    // error FollowNotApproved();
-    // error MintLimitExceeded();
-    // error CollectNotAllowed();
-
-    // MultiState Errors
-    error Paused();
-    error PublishingPaused();
 }

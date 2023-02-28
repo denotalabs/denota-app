@@ -35,12 +35,6 @@ library Events {
         bool indexed accepted,
         uint256 timestamp
     );
-    event RuleWhitelisted(
-        address caller,
-        address indexed rule,
-        bool indexed accepted,
-        uint256 timestamp
-    );
 
     event Written(
         uint256 indexed cheqId,
@@ -49,19 +43,11 @@ library Events {
         address currency,
         uint256 escrowed,
         uint256 createdAt,
-        address module
+        uint256 cheqFee,
+        uint256 moduleFee,
+        address indexed module,
+        bytes moduleData
     );
-
-    // event Written(
-    //     uint256 indexed cheqId,
-    //     address indexed owner,
-    //     DataTypes.Cheq indexed cheq,
-    //     uint256 instant,
-    //     bytes data,
-    //     uint256 cheqFee,
-    //     uint256 moduleFee,
-    //     uint256 timestamp
-    // );
     // Not used
     event Transferred(
         uint256 indexed tokenId,

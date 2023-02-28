@@ -18,24 +18,9 @@ contract HandshakeTimeLock is ModuleBase {
 
     constructor(
         address registrar,
-        address _writeRule,
-        address _transferRule,
-        address _fundRule,
-        address _cashRule,
-        address _approveRule,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
-    )
-        ModuleBase(
-            registrar,
-            _writeRule,
-            _transferRule,
-            _fundRule,
-            _cashRule,
-            _approveRule,
-            _fees
-        )
-    {
+    ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
     }
 

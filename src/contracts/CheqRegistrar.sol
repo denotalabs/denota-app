@@ -14,7 +14,7 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
  * @title  The Cheq Payment Registrar
  * @notice The main contract where users can WTFCA cheqs
  * @author Alejandro Almaraz
- * @dev    Tracks ownership of cheqs' data & escrow, whitelists tokens/modules/rulesets, and collects revenue.
+ * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.
  */
 
 // Revert if frontend gives the wrong amount (MM should know if it would revert (using Ethers call estimateGas, will also tell you if it will revert))
@@ -26,14 +26,14 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
 // Question: Implement ownerOf(cheqId) { cheq.module.processOwner(); } to allow ownership revokation?
 
 // Question should registrar have a function payload(cheqid, bytes) to forward updates to the cheq's respective module for easier front-end manipulation?
-// TODO support burning from registrar and module
+// TODO support burning (from registrar and module)
 // TODO add WTFCA EIP712 signature methods
 // TODO ensure BPS avoids over/underflow
 // TODO need to convert IWTFCRules to libraries
 // TODO determine proper fee uint sizes
 // TODO need to implement upgradable proxies
 // TODO make sure tokenURI is working
-
+// TODO TODO modify ERC721 to allow non owner/approved/operators to call transferFrom (let module decide)
 contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     using SafeERC20 for IERC20;
     /*//////////////////////////////////////////////////////////////
@@ -44,7 +44,6 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
 
     mapping(bytes32 => bool) private _bytecodeWhitelist; // Question Can these be done without two mappings? Having both redeployable and static modules?
     mapping(address => bool) private _addressWhitelist;
-    mapping(address => bool) private _ruleWhitelist; // Question make these bytecode specific? Rule specific?
     mapping(address => bool) private _tokenWhitelist;
 
     mapping(address => mapping(address => uint256)) private _moduleRevenue; // Could collapse this into a single mapping
@@ -92,27 +91,31 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             moduleWriteData
         );
 
+        uint256 cheqFee;
+        {
+            // Fee taking and escrowing
+            uint256 totalAmount = escrowed + instant; // TODO could optimize when 0
+            cheqFee = (totalAmount * fees.writeBPS) / BPS_MAX; // uint256 totalBPS = fees.writeBPS + moduleBPS; but need to emit and add to reserves
+            uint256 toEscrow = escrowed + cheqFee + moduleFee;
+            if (toEscrow > 0) {
+                IERC20(currency).safeTransferFrom(
+                    _msgSender(),
+                    address(this),
+                    toEscrow
+                );
+                _registrarRevenue[currency] += cheqFee;
+                _moduleRevenue[module][currency] += moduleFee;
+            }
+            if (instant > 0)
+                IERC20(currency).safeTransferFrom(_msgSender(), owner, instant);
+        }
+
         // Cheq Minting  // Question put this before or after escrow?
         _safeMint(owner, _totalSupply);
-        _cheqInfo[_totalSupply].currency = currency; // Not ideal
-        _cheqInfo[_totalSupply].escrowed = escrowed; // Not ideal
+        _cheqInfo[_totalSupply].currency = currency;
+        _cheqInfo[_totalSupply].escrowed = escrowed;
         _cheqInfo[_totalSupply].createdAt = block.timestamp;
-
-        // Fee taking and escrowing
-        uint256 totalAmount = escrowed + instant; // TODO could optimize when 0
-        uint256 cheqFee = (totalAmount * fees.writeBPS) / BPS_MAX; // uint256 totalBPS = fees.writeBPS + moduleBPS; but need to emit and add to reserves
-        uint256 toEscrow = escrowed + cheqFee + moduleFee;
-        if (toEscrow > 0) {
-            IERC20(currency).safeTransferFrom(
-                _msgSender(),
-                address(this),
-                toEscrow
-            );
-            _registrarRevenue[currency] += cheqFee;
-            _moduleRevenue[module][currency] += moduleFee;
-        }
-        if (instant > 0)
-            IERC20(currency).safeTransferFrom(_msgSender(), owner, instant);
+        _cheqInfo[_totalSupply].module = module;
 
         emit Events.Written(
             _totalSupply,
@@ -121,7 +124,10 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             currency,
             escrowed,
             block.timestamp,
-            module
+            cheqFee,
+            moduleFee,
+            module,
+            moduleWriteData
         );
         unchecked {
             return _totalSupply++;
@@ -398,16 +404,6 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         );
     }
 
-    function whitelistRule(address rule, bool accepted) external onlyOwner {
-        _ruleWhitelist[rule] = accepted;
-        emit Events.RuleWhitelisted(
-            _msgSender(),
-            rule,
-            accepted,
-            block.timestamp
-        );
-    }
-
     function _returnCodeHash(address module) public view returns (bytes32) {
         bytes32 moduleCodeHash;
         assembly {
@@ -462,25 +458,6 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
 
     function tokenWhitelisted(address token) public view returns (bool) {
         return _tokenWhitelist[token];
-    }
-
-    function ruleWhitelisted(address rule) external view returns (bool) {
-        return _ruleWhitelist[rule];
-    }
-
-    function rulesWhitelisted(
-        address writeRule,
-        address transferRule,
-        address fundRule,
-        address cashRule,
-        address approveRule
-    ) external view returns (bool) {
-        return
-            _ruleWhitelist[writeRule] &&
-            _ruleWhitelist[transferRule] &&
-            _ruleWhitelist[fundRule] &&
-            _ruleWhitelist[cashRule] &&
-            _ruleWhitelist[approveRule];
     }
 
     function tokenURI(uint256 _tokenId)
