@@ -9,7 +9,7 @@ import NewInvoice from "./NewInvoice";
 
 function HomeScreen() {
   return (
-    <Center alignItems={"flex-start"} width="100%" maxWidth="60rem">
+    <Center alignItems={"flex-start"} width="100%" maxWidth="65rem">
       <HomeScreenContent />
     </Center>
   );
