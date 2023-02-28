@@ -11,6 +11,9 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
  * @notice
  */
 contract GiftCard is ModuleBase {
+    mapping(uint256 => bytes32) public dataHash;
+    event DataWritten(uint256 cheqId, bytes32 dataHash);
+
     constructor(
         address registrar,
         address _writeRule,
@@ -38,54 +41,59 @@ contract GiftCard is ModuleBase {
         address caller,
         address owner,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        uint256 directAmount,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         IWriteRule(writeRule).canWrite(
             caller,
             owner,
             cheqId,
-            cheq,
-            directAmount,
+            currency,
+            escrowed,
+            instant,
             initData
         );
 
-        (bytes32 memoHash, address referer) = abi.decode(
+        (bytes32 hashedData, address referer) = abi.decode(
             initData,
             (bytes32, address)
         ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        memo[cheqId] = memoHash;
+        dataHash[cheqId] = hashedData;
 
-        uint256 totalAmount = cheq.escrowed + directAmount;
+        uint256 totalAmount = escrowed + instant;
         uint256 moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        revenue[referer][cheq.currency] += moduleFee;
+        revenue[referer][currency] += moduleFee;
 
-        emit MemoWritten(cheqId, memoHash);
+        emit DataWritten(cheqId, hashedData);
         return moduleFee;
     }
 
     function processTransfer(
         address caller,
-        bool isApproved,
+        address approved,
         address owner,
         address from,
         address to,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        address currency,
+        uint256 escrowed,
+        uint256 createdAt,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
-        ITransferRule(transferRule).canTransfer(
-            caller,
-            isApproved,
-            owner,
-            from,
-            to,
-            cheqId,
-            cheq,
-            data
-        );
-        uint256 moduleFee = (cheq.escrowed * fees.transferBPS) / BPS_MAX;
+        // ITransferRule(transferRule).canTransfer(
+        //     caller,
+        //     approved,
+        //     owner,
+        //     from,
+        //     to,
+        //     cheqId,
+        //     currency,
+        //     escrowed,
+        //     data
+        // );
+        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
         // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes?
         return moduleFee;
     }
@@ -94,7 +102,7 @@ contract GiftCard is ModuleBase {
         address caller,
         address owner,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
@@ -103,14 +111,14 @@ contract GiftCard is ModuleBase {
             caller,
             owner,
             amount,
-            directAmount,
+            instant,
             cheqId,
             cheq,
             initData
         );
         // require(!isCashed[cheqId], "Module: Already cashed");
         address referer = abi.decode(initData, (address));
-        uint256 moduleFee = ((amount + directAmount) * fees.fundBPS) / BPS_MAX;
+        uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
         revenue[referer][cheq.currency] += moduleFee;
         return moduleFee;
     }
@@ -153,6 +161,5 @@ contract GiftCard is ModuleBase {
             cheq,
             initData
         );
-        // require(isCashed[cheqId], "Module: Must be cashed first");
     }
 }

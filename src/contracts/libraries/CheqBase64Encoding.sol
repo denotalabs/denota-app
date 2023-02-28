@@ -37,10 +37,7 @@ library CheqBase64Encoding {
     function buildMetadata(
         uint256 _tokenId,
         address currency,
-        uint256 amount,
         uint256 escrowed,
-        address drawer,
-        address recipient,
         address module
     ) external pure returns (string memory) {
         return
@@ -65,20 +62,12 @@ library CheqBase64Encoding {
                                 currency,
                                 "}",
                                 '{"trait_type": "Amount",',
-                                '"value":',
-                                amount,
                                 "}",
                                 '{"trait_type": "Escrowed",',
                                 '"value":',
                                 escrowed,
                                 "}",
                                 '{"trait_type": "Drawer",',
-                                '"value":',
-                                drawer,
-                                "}",
-                                '{"trait_type": "Recipient",',
-                                '"value":',
-                                recipient,
                                 "}",
                                 '{"trait_type": "Module",',
                                 '"value":',

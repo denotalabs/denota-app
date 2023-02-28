@@ -31,33 +31,18 @@
             },
             {
               "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
               "name": "escrowed",
               "type": "uint256"
             },
             {
-              "internalType": "address",
-              "name": "drawer",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "recipient",
-              "type": "address"
+              "internalType": "uint256",
+              "name": "createdAt",
+              "type": "uint256"
             },
             {
               "internalType": "address",
               "name": "module",
               "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "mintTimestamp",
-              "type": "uint256"
             }
           ],
           "internalType": "struct DataTypes.Cheq",
@@ -111,33 +96,18 @@
             },
             {
               "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
               "name": "escrowed",
               "type": "uint256"
             },
             {
-              "internalType": "address",
-              "name": "drawer",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "recipient",
-              "type": "address"
+              "internalType": "uint256",
+              "name": "createdAt",
+              "type": "uint256"
             },
             {
               "internalType": "address",
               "name": "module",
               "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "mintTimestamp",
-              "type": "uint256"
             }
           ],
           "internalType": "struct DataTypes.Cheq",
@@ -174,7 +144,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "directAmount",
+          "name": "instant",
           "type": "uint256"
         },
         {
@@ -191,33 +161,18 @@
             },
             {
               "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
               "name": "escrowed",
               "type": "uint256"
             },
             {
-              "internalType": "address",
-              "name": "drawer",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "recipient",
-              "type": "address"
+              "internalType": "uint256",
+              "name": "createdAt",
+              "type": "uint256"
             },
             {
               "internalType": "address",
               "name": "module",
               "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "mintTimestamp",
-              "type": "uint256"
             }
           ],
           "internalType": "struct DataTypes.Cheq",
@@ -243,9 +198,9 @@
           "type": "address"
         },
         {
-          "internalType": "bool",
-          "name": "isApproved",
-          "type": "bool"
+          "internalType": "address",
+          "name": "approved",
+          "type": "address"
         },
         {
           "internalType": "address",
@@ -276,33 +231,18 @@
             },
             {
               "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
               "name": "escrowed",
               "type": "uint256"
             },
             {
-              "internalType": "address",
-              "name": "drawer",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "recipient",
-              "type": "address"
+              "internalType": "uint256",
+              "name": "createdAt",
+              "type": "uint256"
             },
             {
               "internalType": "address",
               "name": "module",
               "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "mintTimestamp",
-              "type": "uint256"
             }
           ],
           "internalType": "struct DataTypes.Cheq",
@@ -338,50 +278,18 @@
           "type": "uint256"
         },
         {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "currency",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "escrowed",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "drawer",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "recipient",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "module",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "mintTimestamp",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct DataTypes.Cheq",
-          "name": "cheq",
-          "type": "tuple"
+          "internalType": "address",
+          "name": "currency",
+          "type": "address"
         },
         {
           "internalType": "uint256",
-          "name": "directAmount",
+          "name": "escrowed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "instant",
           "type": "uint256"
         },
         {
@@ -407,13 +315,13 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {
-    "canApprove(address,address,address,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "275ecee1",
-    "canCash(address,address,address,uint256,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "53ba2df3",
-    "canFund(address,address,uint256,uint256,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "a730617c",
-    "canTransfer(address,bool,address,address,address,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "26c41e5c",
-    "canWrite(address,address,uint256,(address,uint256,uint256,address,address,address,uint256),uint256,bytes)": "8893ae9d"
+    "canApprove(address,address,address,uint256,(address,uint256,uint256,address),bytes)": "06d25e61",
+    "canCash(address,address,address,uint256,uint256,(address,uint256,uint256,address),bytes)": "a81fc395",
+    "canFund(address,address,uint256,uint256,uint256,(address,uint256,uint256,address),bytes)": "741c9639",
+    "canTransfer(address,address,address,address,address,uint256,(address,uint256,uint256,address),bytes)": "54b6a7db",
+    "canWrite(address,address,uint256,address,uint256,uint256,bytes)": "0055d86e"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canApprove\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canCash\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"directAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canFund\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"directAmount\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canWrite\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/Subscription.sol\":\"Subscription\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x00af01c4b2f9f67db319f682c15d7381b214bce0e90fd8dfb56e2de6d77fd3c4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://1a0099e868dcdab9906ef72a5d3f5cfb3cd78a988a086d50ac41b49ad29bd4d7\",\"dweb:/ipfs/QmbBJzvveJoq6Ar1ZTkMJ9xFdy7MWSt942orS7QAYiN7cU\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x376f34bb58f549e05dee824ab59a7cb3570385ea06d0a80041a095ca7878fbce\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://772044bf0d9e75b4fad6ff0415de376c6ff6a3f49c91bcf464c3ed232d58cb62\",\"dweb:/ipfs/QmcN73yueWzJB2DkyxXtg3KinvYcWxmsUD3x21jccNKRp8\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x91daaa6fe3a0a10214b7dfd667700e61a43ddbd39567e74e920878319f9ff09b\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://318cd3e4d911496bc34599b6bb41bfb035254d8f15cfafb67b3a8490eebabd0a\",\"dweb:/ipfs/QmZUSBK39X5pMQRhJj1bEH9pGG3JW5bvMsSnk1RbpPwJn4\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x29ddd243fb841bd77481e50941ec52fde82ca4aaf08ed6a3f6d9bda5a57ca8db\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://7de57e8a7bc064a68de409c912c965038a64780dfb0f2b947ba9f37f6da55ce3\",\"dweb:/ipfs/QmZyraBmAreCzYH7fvQcsTJxe964ZQ95oYujckqJn3xNMS\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0xc1cb84aa9010748224f029a651e3ad038ad9520aa3d647ba6ffff805a4d33c93\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://efd5e01ae13b7b230f9a1916bc69b45614a859221b5e3025f4d737044a6e87c1\",\"dweb:/ipfs/QmV5K98bzx2fZXtpU55neSd16aNL2MkmjQ7zeADUgm4fud\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0x868252443effd2fc7e652df6382d82b693b155e2ca8517dcf987d0ee33265e5c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c06a40e107680578e9cdf5ee8e03aa4f3a373414f4eaf4d77ff6ebf2311d56f1\",\"dweb:/ipfs/QmfWMv9t5CZpkzwsRDjSBCLMXzmUxNh7zz4DSyGcZwLv9y\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0xe2e95a4e88595c8f7c613ad0a8ef9fc9b6e2948ff8b444143924d95e6c9f2339\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://7b0a96c45a7e4f2ed77e78e29c52f70fa5d7511d361cd7f63e013fd92f6d513c\",\"dweb:/ipfs/QmZ6FKdobmSGNB5bcownjmMBTaX1U3VDZsytHVYapc2HtA\"]},\"src/contracts/modules/Subscription.sol\":{\"keccak256\":\"0xc4244e0dde848ff3efce8af9604c0de5494a702468e29e2ebd8c8b86b56521b3\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://91bbd35597d43a6c1c18e2e4621f9035e145f8a011728b1c176feba515f0b16e\",\"dweb:/ipfs/QmPiJ4nUNKfFXrWdDGyypsvMahc9QjGkeuKm71dB1Sr9on\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canApprove\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canCash\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canFund\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canWrite\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/Subscription.sol\":\"Subscription\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0xf82497bb53af650d7eff7e3b1c795ceaa096ce81293f5156d3663e691b2c40a9\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://96beddb9243d6783fdbff9268615e5ea02a1d1cffd19a7e2694d18b5618bac9a\",\"dweb:/ipfs/QmQatXP88XWoNA3AuVLAfLbkex28wWB14p5FaS4RWm7Lxc\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x4a43ac364dabf0ed354f389238e329456247a3cb7b41a4c67256843c9b4852b5\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://532ab40b54881771b24cee8dbf62ce9bc5b385755e95649f706c7e79bbad156b\",\"dweb:/ipfs/QmVHgg9x7fgKBTs5wTKQe1jdE1nBJn7bRBi9SQkyxXBSqD\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0xb7c53bb3fdc8723644e0a12ec2cced4fce60c8a61e2cfadc8e9acb9537128349\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://7304cbc1b143b8bd445a90926e054bbe8957d6c12ba2ad8a28c63630fee4e100\",\"dweb:/ipfs/QmTNG7pMkZkGe9M8WQxwB5ApFuWHGsyVtezs5m5rZDYJRF\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0x868252443effd2fc7e652df6382d82b693b155e2ca8517dcf987d0ee33265e5c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c06a40e107680578e9cdf5ee8e03aa4f3a373414f4eaf4d77ff6ebf2311d56f1\",\"dweb:/ipfs/QmfWMv9t5CZpkzwsRDjSBCLMXzmUxNh7zz4DSyGcZwLv9y\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0x372b3c914dd86a4e954a63f372bb3f648f61462259d71e56db5ea9a0abb1be6a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://a0a3b76e02cca1edd174efaed7aa05ddd5b3bf92f32ce655c1c719f03ea234c0\",\"dweb:/ipfs/QmYVNB1PAM8GT8Ls7RBY8ddTKW7TXJCV4jvzCDyfkhD4jN\"]},\"src/contracts/modules/Subscription.sol\":{\"keccak256\":\"0xc4244e0dde848ff3efce8af9604c0de5494a702468e29e2ebd8c8b86b56521b3\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://91bbd35597d43a6c1c18e2e4621f9035e145f8a011728b1c176feba515f0b16e\",\"dweb:/ipfs/QmPiJ4nUNKfFXrWdDGyypsvMahc9QjGkeuKm71dB1Sr9on\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -455,33 +363,18 @@
                 },
                 {
                   "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
                   "name": "escrowed",
                   "type": "uint256"
                 },
                 {
-                  "internalType": "address",
-                  "name": "drawer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
+                  "internalType": "uint256",
+                  "name": "createdAt",
+                  "type": "uint256"
                 },
                 {
                   "internalType": "address",
                   "name": "module",
                   "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "mintTimestamp",
-                  "type": "uint256"
                 }
               ]
             },
@@ -534,33 +427,18 @@
                 },
                 {
                   "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
                   "name": "escrowed",
                   "type": "uint256"
                 },
                 {
-                  "internalType": "address",
-                  "name": "drawer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
+                  "internalType": "uint256",
+                  "name": "createdAt",
+                  "type": "uint256"
                 },
                 {
                   "internalType": "address",
                   "name": "module",
                   "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "mintTimestamp",
-                  "type": "uint256"
                 }
               ]
             },
@@ -593,7 +471,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "directAmount",
+              "name": "instant",
               "type": "uint256"
             },
             {
@@ -613,33 +491,18 @@
                 },
                 {
                   "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
                   "name": "escrowed",
                   "type": "uint256"
                 },
                 {
-                  "internalType": "address",
-                  "name": "drawer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
+                  "internalType": "uint256",
+                  "name": "createdAt",
+                  "type": "uint256"
                 },
                 {
                   "internalType": "address",
                   "name": "module",
                   "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "mintTimestamp",
-                  "type": "uint256"
                 }
               ]
             },
@@ -661,9 +524,9 @@
               "type": "address"
             },
             {
-              "internalType": "bool",
-              "name": "isApproved",
-              "type": "bool"
+              "internalType": "address",
+              "name": "approved",
+              "type": "address"
             },
             {
               "internalType": "address",
@@ -697,33 +560,18 @@
                 },
                 {
                   "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
                   "name": "escrowed",
                   "type": "uint256"
                 },
                 {
-                  "internalType": "address",
-                  "name": "drawer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
+                  "internalType": "uint256",
+                  "name": "createdAt",
+                  "type": "uint256"
                 },
                 {
                   "internalType": "address",
                   "name": "module",
                   "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "mintTimestamp",
-                  "type": "uint256"
                 }
               ]
             },
@@ -755,50 +603,18 @@
               "type": "uint256"
             },
             {
-              "internalType": "struct DataTypes.Cheq",
-              "name": "cheq",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "currency",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "escrowed",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "drawer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "recipient",
-                  "type": "address"
-                },
-                {
-                  "internalType": "address",
-                  "name": "module",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "mintTimestamp",
-                  "type": "uint256"
-                }
-              ]
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
             },
             {
               "internalType": "uint256",
-              "name": "directAmount",
+              "name": "escrowed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "instant",
               "type": "uint256"
             },
             {
@@ -876,42 +692,42 @@
         "license": "MIT"
       },
       "src/contracts/ModuleBase.sol": {
-        "keccak256": "0x00af01c4b2f9f67db319f682c15d7381b214bce0e90fd8dfb56e2de6d77fd3c4",
+        "keccak256": "0xf82497bb53af650d7eff7e3b1c795ceaa096ce81293f5156d3663e691b2c40a9",
         "urls": [
-          "bzz-raw://1a0099e868dcdab9906ef72a5d3f5cfb3cd78a988a086d50ac41b49ad29bd4d7",
-          "dweb:/ipfs/QmbBJzvveJoq6Ar1ZTkMJ9xFdy7MWSt942orS7QAYiN7cU"
+          "bzz-raw://96beddb9243d6783fdbff9268615e5ea02a1d1cffd19a7e2694d18b5618bac9a",
+          "dweb:/ipfs/QmQatXP88XWoNA3AuVLAfLbkex28wWB14p5FaS4RWm7Lxc"
         ],
         "license": "BUSL-1.1"
       },
       "src/contracts/interfaces/ICheqModule.sol": {
-        "keccak256": "0x376f34bb58f549e05dee824ab59a7cb3570385ea06d0a80041a095ca7878fbce",
+        "keccak256": "0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb",
         "urls": [
-          "bzz-raw://772044bf0d9e75b4fad6ff0415de376c6ff6a3f49c91bcf464c3ed232d58cb62",
-          "dweb:/ipfs/QmcN73yueWzJB2DkyxXtg3KinvYcWxmsUD3x21jccNKRp8"
+          "bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa",
+          "dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE"
         ],
         "license": "BUSL-1.1"
       },
       "src/contracts/interfaces/ICheqRegistrar.sol": {
-        "keccak256": "0x91daaa6fe3a0a10214b7dfd667700e61a43ddbd39567e74e920878319f9ff09b",
+        "keccak256": "0x4a43ac364dabf0ed354f389238e329456247a3cb7b41a4c67256843c9b4852b5",
         "urls": [
-          "bzz-raw://318cd3e4d911496bc34599b6bb41bfb035254d8f15cfafb67b3a8490eebabd0a",
-          "dweb:/ipfs/QmZUSBK39X5pMQRhJj1bEH9pGG3JW5bvMsSnk1RbpPwJn4"
+          "bzz-raw://532ab40b54881771b24cee8dbf62ce9bc5b385755e95649f706c7e79bbad156b",
+          "dweb:/ipfs/QmVHgg9x7fgKBTs5wTKQe1jdE1nBJn7bRBi9SQkyxXBSqD"
         ],
         "license": "BUSL-1.1"
       },
       "src/contracts/interfaces/IWTFCRules.sol": {
-        "keccak256": "0x29ddd243fb841bd77481e50941ec52fde82ca4aaf08ed6a3f6d9bda5a57ca8db",
+        "keccak256": "0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e",
         "urls": [
-          "bzz-raw://7de57e8a7bc064a68de409c912c965038a64780dfb0f2b947ba9f37f6da55ce3",
-          "dweb:/ipfs/QmZyraBmAreCzYH7fvQcsTJxe964ZQ95oYujckqJn3xNMS"
+          "bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6",
+          "dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt"
         ],
         "license": "BUSL-1.1"
       },
       "src/contracts/libraries/DataTypes.sol": {
-        "keccak256": "0xc1cb84aa9010748224f029a651e3ad038ad9520aa3d647ba6ffff805a4d33c93",
+        "keccak256": "0xb7c53bb3fdc8723644e0a12ec2cced4fce60c8a61e2cfadc8e9acb9537128349",
         "urls": [
-          "bzz-raw://efd5e01ae13b7b230f9a1916bc69b45614a859221b5e3025f4d737044a6e87c1",
-          "dweb:/ipfs/QmV5K98bzx2fZXtpU55neSd16aNL2MkmjQ7zeADUgm4fud"
+          "bzz-raw://7304cbc1b143b8bd445a90926e054bbe8957d6c12ba2ad8a28c63630fee4e100",
+          "dweb:/ipfs/QmTNG7pMkZkGe9M8WQxwB5ApFuWHGsyVtezs5m5rZDYJRF"
         ],
         "license": "BUSL-1.1"
       },
@@ -924,10 +740,10 @@
         "license": "BUSL-1.1"
       },
       "src/contracts/libraries/Events.sol": {
-        "keccak256": "0xe2e95a4e88595c8f7c613ad0a8ef9fc9b6e2948ff8b444143924d95e6c9f2339",
+        "keccak256": "0x372b3c914dd86a4e954a63f372bb3f648f61462259d71e56db5ea9a0abb1be6a",
         "urls": [
-          "bzz-raw://7b0a96c45a7e4f2ed77e78e29c52f70fa5d7511d361cd7f63e013fd92f6d513c",
-          "dweb:/ipfs/QmZ6FKdobmSGNB5bcownjmMBTaX1U3VDZsytHVYapc2HtA"
+          "bzz-raw://a0a3b76e02cca1edd174efaed7aa05ddd5b3bf92f32ce655c1c719f03ea234c0",
+          "dweb:/ipfs/QmYVNB1PAM8GT8Ls7RBY8ddTKW7TXJCV4jvzCDyfkhD4jN"
         ],
         "license": "BUSL-1.1"
       },
@@ -944,46 +760,46 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/Subscription.sol",
-    "id": 31062,
+    "id": 34734,
     "exportedSymbols": {
       "DataTypes": [
-        27298
+        33435
       ],
       "IApproveRule": [
-        27149
+        33313
       ],
       "ICashRule": [
-        27132
+        33296
       ],
       "ICheqModule": [
-        26848
+        33050
       ],
       "ICheqRegistrar": [
-        27052
+        33215
       ],
       "IFundRule": [
-        27113
+        33277
       ],
       "ITransferRule": [
-        27094
+        33258
       ],
       "IWriteRule": [
-        27073
+        33237
       ],
       "ModuleBase": [
-        26521
+        32585
       ],
       "Subscription": [
-        31061
+        34733
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:478:49",
+    "src": "37:478:68",
     "nodes": [
       {
-        "id": 31036,
+        "id": 34708,
         "nodeType": "PragmaDirective",
-        "src": "37:24:49",
+        "src": "37:24:68",
         "nodes": [],
         "literals": [
           "solidity",
@@ -993,24 +809,24 @@
         ]
       },
       {
-        "id": 31038,
+        "id": 34710,
         "nodeType": "ImportDirective",
-        "src": "63:45:49",
+        "src": "63:45:68",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31062,
-        "sourceUnit": 26522,
+        "scope": 34734,
+        "sourceUnit": 32586,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31037,
+              "id": 34709,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26521,
-              "src": "71:10:49",
+              "referencedDeclaration": 32585,
+              "src": "71:10:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1019,24 +835,24 @@
         "unitAlias": ""
       },
       {
-        "id": 31040,
+        "id": 34712,
         "nodeType": "ImportDirective",
-        "src": "109:53:49",
+        "src": "109:53:68",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31062,
-        "sourceUnit": 27299,
+        "scope": 34734,
+        "sourceUnit": 33436,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31039,
+              "id": 34711,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27298,
-              "src": "117:9:49",
+              "referencedDeclaration": 33435,
+              "src": "117:9:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1045,24 +861,24 @@
         "unitAlias": ""
       },
       {
-        "id": 31042,
+        "id": 34714,
         "nodeType": "ImportDirective",
-        "src": "163:58:49",
+        "src": "163:58:68",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31062,
-        "sourceUnit": 26849,
+        "scope": 34734,
+        "sourceUnit": 33051,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31041,
+              "id": 34713,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26848,
-              "src": "171:11:49",
+              "referencedDeclaration": 33050,
+              "src": "171:11:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1071,24 +887,24 @@
         "unitAlias": ""
       },
       {
-        "id": 31044,
+        "id": 34716,
         "nodeType": "ImportDirective",
-        "src": "222:64:49",
+        "src": "222:64:68",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31062,
-        "sourceUnit": 27053,
+        "scope": 34734,
+        "sourceUnit": 33216,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31043,
+              "id": 34715,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27052,
-              "src": "230:14:49",
+              "referencedDeclaration": 33215,
+              "src": "230:14:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1097,72 +913,72 @@
         "unitAlias": ""
       },
       {
-        "id": 31050,
+        "id": 34722,
         "nodeType": "ImportDirective",
-        "src": "287:107:49",
+        "src": "287:107:68",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
         "file": "../interfaces/IWTFCRules.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31062,
-        "sourceUnit": 27150,
+        "scope": 34734,
+        "sourceUnit": 33314,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31045,
+              "id": 34717,
               "name": "IWriteRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27073,
-              "src": "295:10:49",
+              "referencedDeclaration": 33237,
+              "src": "295:10:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 31046,
+              "id": 34718,
               "name": "ITransferRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27094,
-              "src": "307:13:49",
+              "referencedDeclaration": 33258,
+              "src": "307:13:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 31047,
+              "id": 34719,
               "name": "IFundRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27113,
-              "src": "322:9:49",
+              "referencedDeclaration": 33277,
+              "src": "322:9:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 31048,
+              "id": 34720,
               "name": "ICashRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27132,
-              "src": "333:9:49",
+              "referencedDeclaration": 33296,
+              "src": "333:9:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 31049,
+              "id": 34721,
               "name": "IApproveRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27149,
-              "src": "344:12:49",
+              "referencedDeclaration": 33313,
+              "src": "344:12:68",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1171,86 +987,86 @@
         "unitAlias": ""
       },
       {
-        "id": 31061,
+        "id": 34733,
         "nodeType": "ContractDefinition",
-        "src": "396:118:49",
+        "src": "396:118:68",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 31051,
+              "id": 34723,
               "name": "IWriteRule",
               "nameLocations": [
-                "434:10:49"
+                "434:10:68"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 27073,
-              "src": "434:10:49"
+              "referencedDeclaration": 33237,
+              "src": "434:10:68"
             },
-            "id": 31052,
+            "id": 34724,
             "nodeType": "InheritanceSpecifier",
-            "src": "434:10:49"
+            "src": "434:10:68"
           },
           {
             "baseName": {
-              "id": 31053,
+              "id": 34725,
               "name": "ITransferRule",
               "nameLocations": [
-                "450:13:49"
+                "450:13:68"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 27094,
-              "src": "450:13:49"
+              "referencedDeclaration": 33258,
+              "src": "450:13:68"
             },
-            "id": 31054,
+            "id": 34726,
             "nodeType": "InheritanceSpecifier",
-            "src": "450:13:49"
+            "src": "450:13:68"
           },
           {
             "baseName": {
-              "id": 31055,
+              "id": 34727,
               "name": "IFundRule",
               "nameLocations": [
-                "469:9:49"
+                "469:9:68"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 27113,
-              "src": "469:9:49"
+              "referencedDeclaration": 33277,
+              "src": "469:9:68"
             },
-            "id": 31056,
+            "id": 34728,
             "nodeType": "InheritanceSpecifier",
-            "src": "469:9:49"
+            "src": "469:9:68"
           },
           {
             "baseName": {
-              "id": 31057,
+              "id": 34729,
               "name": "ICashRule",
               "nameLocations": [
-                "484:9:49"
+                "484:9:68"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 27132,
-              "src": "484:9:49"
+              "referencedDeclaration": 33296,
+              "src": "484:9:68"
             },
-            "id": 31058,
+            "id": 34730,
             "nodeType": "InheritanceSpecifier",
-            "src": "484:9:49"
+            "src": "484:9:68"
           },
           {
             "baseName": {
-              "id": 31059,
+              "id": 34731,
               "name": "IApproveRule",
               "nameLocations": [
-                "499:12:49"
+                "499:12:68"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 27149,
-              "src": "499:12:49"
+              "referencedDeclaration": 33313,
+              "src": "499:12:68"
             },
-            "id": 31060,
+            "id": 34732,
             "nodeType": "InheritanceSpecifier",
-            "src": "499:12:49"
+            "src": "499:12:68"
           }
         ],
         "canonicalName": "Subscription",
@@ -1258,20 +1074,20 @@
         "contractKind": "contract",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          31061,
-          27149,
-          27132,
-          27113,
-          27094,
-          27073
+          34733,
+          33313,
+          33296,
+          33277,
+          33258,
+          33237
         ],
         "name": "Subscription",
-        "nameLocation": "414:12:49",
-        "scope": 31062,
+        "nameLocation": "414:12:68",
+        "scope": 34734,
         "usedErrors": []
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 49
+  "id": 68
 }

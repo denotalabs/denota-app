@@ -15,7 +15,23 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
  */
 // Both payment and invoicing
 contract DirectPay is ModuleBase {
-    mapping(uint256 => bool) public isCashed;
+    struct Payment {
+        address drawer;
+        address recipient;
+        uint256 amount; // Face value of the payment
+        uint256 timestamp;
+        bytes32 memoHash;
+        bool wasPaid; // TODO is this needed if using instant pay?
+    }
+    mapping(uint256 => Payment) public payInfo;
+
+    event PaymentCreated(
+        uint256 cheqId,
+        bytes32 memoHash,
+        uint256 amount,
+        uint256 timestamp,
+        address referer
+    );
 
     constructor(
         address registrar,
@@ -44,56 +60,76 @@ contract DirectPay is ModuleBase {
         address caller,
         address owner,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        uint256 directAmount,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        IWriteRule(writeRule).canWrite(
-            caller,
-            owner,
-            cheqId,
-            cheq,
-            directAmount,
-            initData
+        /// TODO figure out how to know who paid and who is requesting?
+        (
+            address drawer,
+            address recipient,
+            uint256 amount,
+            bytes32 memoHash,
+            uint256 timestamp,
+            address referer
+        ) = abi.decode(
+                initData,
+                (address, address, uint256, bytes32, uint256, address)
+            ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
+        require(escrowed == 0, "Rule: Escrowing not supported");
+        require(amount != 0, "Rule: Amount == 0");
+        require(
+            instant == amount || instant == 0, // instant=0 is for invoicing
+            "Rule: Must send full"
         );
+        require(drawer != recipient, "Rule: Drawer == recipient");
+        require(
+            caller == drawer || caller == recipient,
+            "Rule: Only drawer/receiver"
+        );
+        require(
+            owner == drawer || owner == recipient,
+            "Rule: Drawer/recipient != owner"
+        );
+        require(
+            recipient != address(0) &&
+                owner != address(0) &&
+                drawer != address(0),
+            "Rule: Can't use zero address"
+        ); // TODO can be simplified
 
-        (bytes32 memoHash, address referer) = abi.decode(
-            initData,
-            (bytes32, address)
-        ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        memo[cheqId] = memoHash;
+        payInfo[cheqId].amount = amount;
+        payInfo[cheqId].memoHash = memoHash;
+        payInfo[cheqId].timestamp = timestamp;
 
-        uint256 totalAmount = cheq.escrowed + directAmount;
-        uint256 moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        revenue[referer][cheq.currency] += moduleFee;
+        uint256 moduleFee;
+        {
+            uint256 totalAmount = escrowed + instant;
+            moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
+        }
+        revenue[referer][currency] += moduleFee;
 
-        emit MemoWritten(cheqId, memoHash);
+        emit PaymentCreated(cheqId, memoHash, amount, timestamp, referer);
         return moduleFee;
     }
 
     function processTransfer(
         address caller,
-        bool isApproved,
+        address approved,
         address owner,
         address from,
         address to,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        address currency,
+        uint256 escrowed,
+        uint256 createdAt,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
-        ITransferRule(transferRule).canTransfer(
-            caller,
-            isApproved,
-            owner,
-            from,
-            to,
-            cheqId,
-            cheq,
-            data
-        );
-        require(isCashed[cheqId], "Module: Only after cashing");
-        uint256 moduleFee = (cheq.escrowed * fees.transferBPS) / BPS_MAX;
-        // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes?
+        require(false, "Rule: Disallowed");
+        // require(payInfo[cheqId].wasPaid, "Module: Only after cashing");
+        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
+        // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
         return moduleFee;
     }
 
@@ -101,23 +137,25 @@ contract DirectPay is ModuleBase {
         address caller,
         address owner,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        IFundRule(fundRule).canFund(
-            caller,
-            owner,
-            amount,
-            directAmount,
-            cheqId,
-            cheq,
-            initData
+        require(amount == 0, "Rule: Only direct pay");
+        require(
+            instant == payInfo[cheqId].amount,
+            "Rule: Only full direct amount"
         );
-        // require(!isCashed[cheqId], "Module: Already cashed");
+        require(
+            caller == payInfo[cheqId].recipient ||
+                caller == payInfo[cheqId].drawer,
+            "Rule: Only drawer/recipient"
+        );
+        require(caller != owner, "Rule: Not owner");
+        require(!payInfo[cheqId].wasPaid, "Module: Already cashed");
         address referer = abi.decode(initData, (address));
-        uint256 moduleFee = ((amount + directAmount) * fees.fundBPS) / BPS_MAX;
+        uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
         revenue[referer][cheq.currency] += moduleFee;
         return moduleFee;
     }
@@ -131,20 +169,11 @@ contract DirectPay is ModuleBase {
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        ICashRule(cashRule).canCash(
-            caller,
-            owner,
-            to,
-            amount,
-            cheqId,
-            cheq,
-            initData
-        );
-        // require(!isCashed[cheqId], "Module: Already cashed");
-        address referer = abi.decode(initData, (address));
+        require(false, "Rule: Disallowed");
+        // address referer = abi.decode(initData, (address));
+        // revenue[referer][cheq.currency] += moduleFee;
+        // payInfo[cheqId].wasPaid = true;
         uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-        revenue[referer][cheq.currency] += moduleFee;
-        isCashed[cheqId] = true;
         return moduleFee;
     }
 
@@ -164,6 +193,6 @@ contract DirectPay is ModuleBase {
             cheq,
             initData
         );
-        // require(isCashed[cheqId], "Module: Must be cashed first");
+        // require(wasPaid[cheqId], "Module: Must be cashed first");
     }
 }

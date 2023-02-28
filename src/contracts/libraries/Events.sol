@@ -42,25 +42,21 @@ library Events {
         uint256 timestamp
     );
 
-
     event Written(
         uint256 indexed cheqId,
         address indexed owner,
-        uint256 directAmount,
-        uint256 timestamp,
+        uint256 instant,
         address currency,
-        uint256 amount,
-        address drawer, 
-        address recipient,
-        address module,
-        uint256 escrowed
+        uint256 escrowed,
+        uint256 createdAt,
+        address module
     );
 
     // event Written(
     //     uint256 indexed cheqId,
     //     address indexed owner,
     //     DataTypes.Cheq indexed cheq,
-    //     uint256 directAmount,
+    //     uint256 instant,
     //     bytes data,
     //     uint256 cheqFee,
     //     uint256 moduleFee,
@@ -79,7 +75,7 @@ library Events {
         address indexed funder,
         uint256 indexed cheqId,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         bytes indexed fundData,
         uint256 cheqFee,
         uint256 moduleFee,

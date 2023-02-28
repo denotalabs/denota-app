@@ -11,11 +11,12 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
  * TODO: send cheq as a struct or individual variables?
  */
 interface ICheqRegistrar {
-    /// Cheq manipulations
     function write(
-        DataTypes.Cheq calldata cheq,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         address owner,
-        uint256 directAmount,
+        address module,
         bytes calldata moduleWriteData
     ) external payable returns (uint256);
 
@@ -30,7 +31,7 @@ interface ICheqRegistrar {
     function fund(
         uint256 cheqId,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         bytes calldata fundData
     ) external payable;
 
@@ -49,27 +50,7 @@ interface ICheqRegistrar {
         view
         returns (DataTypes.Cheq memory); // Question: Should this be the only _cheqInfo view method?
 
-    function cheqDrawerRecipient(uint256 cheqId)
-        external
-        view
-        returns (address, address);
-
-    function cheqCurrencyValueEscrow(uint256 cheqId)
-        external
-        view
-        returns (
-            address,
-            uint256,
-            uint256
-        );
-
-    function cheqDrawer(uint256 cheqId) external view returns (address);
-
-    function cheqRecipient(uint256 cheqId) external view returns (address);
-
     function cheqCurrency(uint256 cheqId) external view returns (address);
-
-    function cheqAmount(uint256 cheqId) external view returns (uint256);
 
     function cheqEscrowed(uint256 cheqId) external view returns (uint256);
 

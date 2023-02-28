@@ -15,8 +15,7 @@ abstract contract ModuleBase is ICheqModule {
     address public immutable REGISTRAR; // Question: Make this a hardcoded address?
 
     string public _URI;
-    mapping(uint256 => bytes32) public memo; // How to turn this into an image that OpenSea can display? Might need to be encrypted
-    mapping(address => mapping(address => uint256)) revenue; // rewardAddress => token => rewardAmount
+    mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
     uint256 internal constant BPS_MAX = 10_000; // Lens uses uint16
     address public writeRule;
     address public transferRule;
@@ -24,8 +23,6 @@ abstract contract ModuleBase is ICheqModule {
     address public cashRule;
     address public approveRule; // Question can allow psuedo-operators (stored on module) to grant approvals
     DataTypes.WTFCFees public fees;
-
-    event MemoWritten(uint256 indexed cheqId, bytes32 memoHash);
 
     modifier onlyRegistrar() {
         if (msg.sender != REGISTRAR) revert Errors.NotRegistrar();
@@ -72,47 +69,47 @@ abstract contract ModuleBase is ICheqModule {
         address caller,
         address owner,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        uint256 directAmount,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         bytes calldata initData
     ) external virtual override onlyRegistrar returns (uint256) {
         // Fails here if not possible
-        IWriteRule(writeRule).canWrite(
-            caller,
-            owner,
-            cheqId,
-            cheq,
-            directAmount,
-            initData
-        );
-        bytes32 memoHash = abi.decode(initData, (bytes32)); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        memo[cheqId] = memoHash;
-
-        emit MemoWritten(cheqId, memoHash);
+        // IWriteRule(writeRule).canWrite(
+        //     caller,
+        //     owner,
+        //     cheqId,
+        //     currency,
+        //     escrowed,
+        //     instant,
+        //     initData
+        // );
         // Add module logic here
         return fees.writeBPS;
     }
 
     function processTransfer(
         address caller,
-        bool isApproved,
+        address approved,
         address owner,
         address from,
         address to,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        address currency,
+        uint256 escrowed,
+        uint256 createdAt,
         bytes calldata data
     ) external virtual override onlyRegistrar returns (uint256) {
-        ITransferRule(transferRule).canTransfer(
-            caller,
-            isApproved,
-            owner,
-            from,
-            to,
-            cheqId,
-            cheq,
-            data
-        ); // Checks if caller is ownerOrApproved
+        // ITransferRule(transferRule).canTransfer(
+        //     caller,
+        //     approved,
+        //     owner,
+        //     from,
+        //     to,
+        //     cheqId,
+        //     cheq,
+        //     data
+        // ); // Checks if caller is ownerOrApproved
         // Add module logic here
         return fees.transferBPS;
     }
@@ -121,7 +118,7 @@ abstract contract ModuleBase is ICheqModule {
         address caller,
         address owner,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
@@ -130,7 +127,7 @@ abstract contract ModuleBase is ICheqModule {
             caller,
             owner,
             amount,
-            directAmount,
+            instant,
             cheqId,
             cheq,
             initData
@@ -187,8 +184,7 @@ abstract contract ModuleBase is ICheqModule {
         override
         returns (string memory)
     {
-        bytes32 memoHash = memo[tokenId];
-        return string(abi.encodePacked(_URI, memoHash)); // ipfs://baseURI/memoHash --> memo // TODO encrypt upload on frontend
+        return string(abi.encodePacked(_URI, tokenId));
     }
 
     function getFees()

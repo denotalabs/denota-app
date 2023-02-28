@@ -223,16 +223,16 @@ contract DirectPayTest is Test {
         );
 
         // CheqRegistrar wrote correctly to its storage
-        assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
-        assertTrue(
-            REGISTRAR.cheqRecipient(cheqId) == recipient,
-            "Incorrect recipient"
-        );
+        // assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
+        // assertTrue(
+        //     REGISTRAR.cheqRecipient(cheqId) == recipient,
+        //     "Incorrect recipient"
+        // );
         assertTrue(
             REGISTRAR.cheqCurrency(cheqId) == address(dai),
             "Incorrect token"
         );
-        assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
+        // assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
         assertTrue(
             REGISTRAR.cheqEscrowed(cheqId) == escrowed,
             "Incorrect escrow"
@@ -282,22 +282,20 @@ contract DirectPayTest is Test {
         vm.assume(dai.balanceOf(caller) >= totalWithFees);
 
         registrarWriteBefore(caller, recipient);
-        DataTypes.Cheq memory cheq = DataTypes.Cheq({
-            currency: address(dai),
-            amount: amount,
-            escrowed: 0,
-            drawer: drawer,
-            recipient: recipient,
-            module: address(directPay),
-            mintTimestamp: block.timestamp
-        });
         bytes memory initData = abi.encode(
             bytes32(keccak256("this is a hash")),
             caller
         );
 
         vm.prank(caller);
-        uint256 cheqId = REGISTRAR.write(cheq, owner, directAmount, initData); // Sets caller as owner
+        uint256 cheqId = REGISTRAR.write(
+            address(dai),
+            0,
+            directAmount,
+            owner,
+            address(directPay),
+            initData
+        ); // Sets caller as owner
         registrarWriteAfter(
             cheqId,
             amount,
@@ -353,22 +351,20 @@ contract DirectPayTest is Test {
         vm.assume(dai.balanceOf(caller) >= totalWithFees);
 
         registrarWriteBefore(caller, recipient);
-        DataTypes.Cheq memory cheq = DataTypes.Cheq({
-            currency: address(dai),
-            amount: amount,
-            escrowed: 0,
-            drawer: drawer,
-            recipient: recipient,
-            module: address(directPay),
-            mintTimestamp: block.timestamp
-        });
         bytes memory initData = abi.encode(
             bytes32(keccak256("this is another hash")),
             caller
         );
 
         vm.prank(caller);
-        uint256 cheqId = REGISTRAR.write(cheq, owner, directAmount, initData); // Sets caller as owner
+        uint256 cheqId = REGISTRAR.write(
+            address(dai),
+            0,
+            directAmount,
+            owner,
+            address(directPay),
+            initData
+        ); // Sets caller as owner
         registrarWriteAfter(
             cheqId,
             amount,
@@ -429,15 +425,7 @@ contract DirectPayTest is Test {
         vm.assume(dai.balanceOf(caller) >= totalWithFees);
 
         registrarWriteBefore(caller, recipient);
-        DataTypes.Cheq memory cheq = DataTypes.Cheq({
-            currency: address(dai),
-            amount: amount,
-            escrowed: escrowed,
-            drawer: drawer,
-            recipient: recipient,
-            module: address(directPay),
-            mintTimestamp: block.timestamp
-        });
+
         bytes memory initData = abi.encode(
             bytes32(keccak256("this is a hash")),
             caller
@@ -445,7 +433,14 @@ contract DirectPayTest is Test {
 
         console.log(amount, directAmount, totalWithFees);
         vm.prank(caller);
-        uint256 cheqId = REGISTRAR.write(cheq, owner, directAmount, initData); // Sets caller as owner
+        uint256 cheqId = REGISTRAR.write(
+            address(dai),
+            escrowed,
+            directAmount,
+            owner,
+            address(directPay),
+            initData
+        ); // Sets caller as owner
         registrarWriteAfter(
             cheqId,
             amount,
