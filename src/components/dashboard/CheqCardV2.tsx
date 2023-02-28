@@ -1,6 +1,5 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Button,
   ButtonGroup,
   Center,
@@ -8,24 +7,23 @@ import {
   GridItem,
   HStack,
   Text,
+  Tooltip,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
+import {
+  MdOutlineAttachMoney,
+  MdOutlineDoneAll,
+  MdOutlineHourglassEmpty,
+} from "react-icons/md";
 import { Cheq } from "../../hooks/useCheqs";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
-export type CheqStatus =
-  | "pending_escrow"
-  | "pending_maturity"
-  | "cashed"
-  | "voidable"
-  | "payable"
-  | "cashable"
-  | "paid"
-  | "voided";
+// Add more state when the escrow module is ready
+export type CheqStatus = "pending_payment" | "payable" | "paid";
 
 export type CheqType = "invoice" | "escrow";
 
@@ -37,25 +35,15 @@ interface Props {
 // Gray -> complete
 // Purple -> pending
 const STATUS_COLOR_MAP = {
-  cashed: "gray.600",
-  cashable: "green.900",
-  voidable: "green.800",
   payable: "purple.900",
   paid: "gray.600",
-  pending_escrow: "purple.900",
-  pending_maturity: "purple.900",
-  voided: "gray.600",
+  pending_payment: "purple.900",
 };
 
 const TOOLTIP_MESSAGE_MAP = {
-  cashed: "complete",
-  cashable: "ready for payout",
-  voidable: "payment in escrow",
   payable: "payment due",
   paid: "paid",
-  pending_escrow: "awaiting payment",
-  pending_maturity: "payment in escrow",
-  voided: "cancelled",
+  pending_payment: "awaiting payment",
 };
 
 function CheqCardV2({ cheq }: Props) {
@@ -74,7 +62,7 @@ function CheqCardV2({ cheq }: Props) {
       return "payable";
     }
 
-    return "pending_escrow";
+    return "pending_payment";
   }, [cheq.isPaid, cheq.isPayer]);
 
   const {
@@ -89,31 +77,69 @@ function CheqCardV2({ cheq }: Props) {
     onClose: onClosePay,
   } = useDisclosure();
 
+  const icon = useMemo(() => {
+    switch (status) {
+      case "paid":
+        return <MdOutlineDoneAll color="white" size={20} />;
+      case "payable":
+        return <MdOutlineAttachMoney color="white" size={20} />;
+      case "pending_payment":
+        return <MdOutlineHourglassEmpty color="white" size={20} />;
+    }
+  }, [status]);
+
+  const iconColor = useMemo(() => {
+    switch (status) {
+      case "paid":
+        return "#00C28E";
+      case "payable":
+        return "#4A67ED";
+      case "pending_payment":
+        return "#C5CCD8";
+    }
+  }, [status]);
+
   return (
-    <GridItem bg={STATUS_COLOR_MAP[status]} p={3} borderRadius={20}>
+    <GridItem
+      bg={STATUS_COLOR_MAP[status]}
+      px={6}
+      pt={4}
+      pb={3}
+      borderRadius={20}
+    >
       <VStack
         alignItems="flex-start"
         justifyContent="space-between"
         h="100%"
-        gap={2}
+        gap={2.5}
       >
-        <HStack maxW="100%">
-          <Box borderWidth="1px" borderRadius="full" boxShadow="md" p={2}>
-            <Text fontSize="sm" textAlign="center">
-              {TOOLTIP_MESSAGE_MAP[status]}
-            </Text>
-          </Box>
-        </HStack>
-
         <Flex
           alignItems="flex-start"
           flexDirection="column"
           maxW="100%"
-          gap={1}
+          w="100%"
+          gap={2.5}
         >
-          <Text textOverflow="clip" noOfLines={1}>
-            {createdLocaleDate}
-          </Text>
+          <HStack justifyContent={"space-between"} w="100%">
+            <Text textOverflow="clip" noOfLines={1} fontSize="lg">
+              {createdLocaleDate}
+            </Text>
+            <Tooltip
+              label={TOOLTIP_MESSAGE_MAP[status]}
+              aria-label="status tooltip"
+              placement="bottom"
+            >
+              <Center
+                bgColor={iconColor}
+                aria-label="status"
+                borderRadius={"full"}
+                w={"30px"}
+                h={"30px"}
+              >
+                {icon}
+              </Center>
+            </Tooltip>
+          </HStack>
           <HStack maxW="100%">
             <Text
               fontWeight={600}
