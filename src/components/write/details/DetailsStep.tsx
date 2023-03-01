@@ -29,7 +29,7 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
       <Formik
         initialValues={{
           token: formData.token ?? "DAI",
-          amount: formData.amount ? Number(formData.amount) : 0,
+          amount: formData.amount ? Number(formData.amount) : undefined,
           address: formData.address ?? "",
           note: formData.note,
           mode: initialMode,
@@ -58,7 +58,7 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
           } else {
             appendFormData({
               token: values.token,
-              amount: values.amount.toString(),
+              amount: values.amount ? values.amount.toString() : "0",
               address: values.address,
               mode: values.mode,
               note: values.note,
@@ -72,44 +72,60 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
           }
         }}
       >
-        {(props) => (
-          <Form>
-            <CurrencySelectorV2></CurrencySelectorV2>
-            <DetailsBox isInvoice={isInvoice}></DetailsBox>
-            {props.values.email && (
-              <Checkbox
-                defaultChecked
-                py={2}
-                onChange={(e) => setHasConsented(e.target.checked)}
+        {(props) => {
+          const isValid =
+            !props.errors.address &&
+            !props.errors.amount &&
+            props.values.address &&
+            props.values.amount;
+          return (
+            <Form>
+              <CurrencySelectorV2></CurrencySelectorV2>
+              <DetailsBox
+                isInvoice={isInvoice}
+                token={props.values.token}
+                mode={props.values.mode}
+              ></DetailsBox>
+              {props.values.email && (
+                <Checkbox
+                  defaultChecked
+                  py={2}
+                  onChange={(e) => setHasConsented(e.target.checked)}
+                >
+                  I agree to Cheq's{" "}
+                  <Link
+                    isExternal
+                    textDecoration={"underline"}
+                    href={notionOnboardingLink}
+                  >
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    isExternal
+                    textDecoration={"underline"}
+                    href={notionOnboardingLink}
+                  >
+                    Privacy Policy
+                  </Link>
+                </Checkbox>
+              )}
+              <RoundedButton
+                mt={2}
+                type="submit"
+                isLoading={props.isSubmitting}
+                isDisabled={
+                  (props.values.email != "" &&
+                    !hasConsented &&
+                    !props.errors) ||
+                  !isValid
+                }
               >
-                I agree to Cheq's{" "}
-                <Link
-                  isExternal
-                  textDecoration={"underline"}
-                  href={notionOnboardingLink}
-                >
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  isExternal
-                  textDecoration={"underline"}
-                  href={notionOnboardingLink}
-                >
-                  Privacy Policy
-                </Link>
-              </Checkbox>
-            )}
-            <RoundedButton
-              mt={2}
-              type="submit"
-              isLoading={props.isSubmitting}
-              isDisabled={props.values.email != "" && !hasConsented}
-            >
-              {props.isSubmitting ? "Uploading note" : "Next"}
-            </RoundedButton>
-          </Form>
-        )}
+                {props.isSubmitting ? "Uploading note" : "Next"}
+              </RoundedButton>
+            </Form>
+          );
+        }}
       </Formik>
     </Box>
   );
