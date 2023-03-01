@@ -25,8 +25,8 @@ function ModeSelect({ isInvoice }: Props) {
           onBlur={() => setFieldTouched("mode", true)}
           value={values.mode}
         >
-          <option value="invoice">Invoicing</option>
-          <option value="pay">Paying</option>
+          <option value="invoice">Invoice</option>
+          <option value="pay">Payment</option>
         </Select>
       )}
     </Field>
