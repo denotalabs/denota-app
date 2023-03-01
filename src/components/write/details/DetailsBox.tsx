@@ -9,14 +9,15 @@ import FileControl from "./FileUpload";
 
 interface Props {
   isInvoice: boolean;
+  token: string;
+  mode: string;
 }
 
-function DetailsBox({ isInvoice }: Props) {
+function DetailsBox({ isInvoice, token, mode }: Props) {
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
         <Flex
-          alignItems="center"
           justifyContent="space-between"
           flexShrink={0}
           flexGrow={1}
@@ -24,14 +25,9 @@ function DetailsBox({ isInvoice }: Props) {
         >
           <FormControl w="200px" mr={5}>
             <FormLabel>Amount</FormLabel>
-            <AmountField />
+            <AmountField token={token} mode={mode} />
           </FormControl>
-          <FormControl>
-            <FormLabel noOfLines={1} flexShrink={0}>
-              Client Address
-            </FormLabel>
-            <AccountField fieldName="address" placeholder="0x" />
-          </FormControl>
+          <AccountField fieldName="address" placeholder="0x" />
         </Flex>
         <EmailField fieldName="email" placeholder="" />
         <Flex
