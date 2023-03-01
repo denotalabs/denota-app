@@ -57,7 +57,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     displayName: "Polygon Mumbai",
     name: "Polygon Testnet Mumbai",
     chainId: "0x13881",
-    logoSrc: "/images/polygon-logo.png",
+    logoSrc: "/logos/polygon-logo.svg",
     nativeCurrency: {
       name: "Matic",
       symbol: "MATIC",
@@ -71,7 +71,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     name: "Celo Testnet Alfajores",
     displayName: "Celo Alfajores",
     chainId: "0xAEF3",
-    logoSrc: "/images/celo-logo.png",
+    logoSrc: "/logos/celo-logo.svg",
     nativeCurrency: {
       name: "Celo",
       symbol: "CELO",
@@ -85,7 +85,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     name: "Ethereum Mainnet",
     displayName: "Ethereum",
     chainId: "0x1",
-    logoSrc: "/images/ethereum-logo.png",
+    logoSrc: "/logos/ethereum-logo.svg",
     blockExplorerUrls: ["https://etherscan.io/"],
     rpcUrls: ["https://eth.llamarpc.com"],
   },
