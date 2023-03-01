@@ -3,7 +3,6 @@ import { Flex } from "@chakra-ui/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 import ChainSwitcher from "./ChainSwitcher";
-import ToggleColor from "./ToggleColor";
 import WalletInfo from "./WalletInfo";
 
 const DesktopHeader = () => {
@@ -22,7 +21,6 @@ const DesktopHeader = () => {
     >
       <ChainSwitcher chainId={chainId} />
       <WalletInfo />
-      <ToggleColor />
     </Flex>
   );
 };

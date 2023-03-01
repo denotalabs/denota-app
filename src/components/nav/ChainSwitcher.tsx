@@ -6,7 +6,6 @@ import {
   Flex,
   Menu,
   MenuButton,
-  MenuItem,
   MenuList,
   Spacer,
   Text,
@@ -15,7 +14,7 @@ import Image from "next/image";
 
 import { deployedChains } from "../../context/chainInfo";
 import { switchNetwork } from "../../context/SwitchNetwork";
-
+import StyledMenuItem from "../designSystem/StyledMenuItem";
 interface ChainSwitcherProps {
   chainId: string;
 }
@@ -68,13 +67,10 @@ export default function ChainSwitcher({ chainId }: ChainSwitcherProps) {
       </MenuButton>
       <MenuList bg="brand.100">
         {filteredChains.map((chain) => (
-          <MenuItem
+          <StyledMenuItem
             key={chain.chainId}
             onClick={() => handleSelectChain(chain)}
             isDisabled={chain.isDisabled}
-            bg="brand.100"
-            _hover={{ bg: "brand.400" }}
-            fontSize="lg"
           >
             <Flex alignItems="center">
               <Image
@@ -86,7 +82,7 @@ export default function ChainSwitcher({ chainId }: ChainSwitcherProps) {
               <Spacer mx="1" />
               {chain.displayName}
             </Flex>
-          </MenuItem>
+          </StyledMenuItem>
         ))}
       </MenuList>
     </Menu>
