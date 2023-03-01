@@ -1,12 +1,15 @@
+import { useEffect, useState } from "react";
+
 import { Button, Center, Spinner, Text, useDisclosure } from "@chakra-ui/react";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import NewUserModal from "../nux/NewUserModal";
 import ConnectWallet from "./ConnectWallet";
 import MyCheqsView from "./MyCheqsView";
 import NewInvoice from "./NewInvoice";
-
+import { switchNetwork } from "../../context/SwitchNetwork";
+import { MUMBAI_ADDRESS } from "../../context/chainInfo";
 function HomeScreen() {
   return (
     <Center alignItems={"flex-start"} width="100%" maxWidth="65rem">
@@ -16,41 +19,13 @@ function HomeScreen() {
 }
 
 const switchToMumbai = async () => {
-  try {
-    await (window as any).ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x13881" }], // chainId must be in hexadecimal numbers
-    });
-  } catch (error: any) {
-    if (error.code === 4902) {
-      try {
-        await (window as any).ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              chainId: "0x13881",
-              chainName: "Matic Mumbai Testnet",
-              nativeCurrency: {
-                name: "Matic",
-                symbol: "MATIC",
-                decimals: 18,
-              },
-              blockExplorerUrls: ["https://mumbai.polygonscan.com"],
-              rpcUrls: ["https://matic-mumbai.chainstacklabs.com/"],
-            },
-          ],
-        });
-      } catch (addError) {
-        console.error(addError);
-      }
-    }
-  }
+  await switchNetwork(MUMBAI_ADDRESS);
 };
 
 function HomeScreenContent() {
   const { blockchainState, isInitializing, isWrongChain } = useBlockchainData();
   const [hasShownNux, setHasShownNux] = useState(false);
-
+  const { account } = blockchainState;
   const {
     isOpen: isNuxOpen,
     onOpen: onOpenNux,
@@ -58,22 +33,11 @@ function HomeScreenContent() {
   } = useDisclosure();
 
   useEffect(() => {
-    if (
-      !isInitializing &&
-      blockchainState.account &&
-      !Cookies.get(blockchainState.account) &&
-      !hasShownNux
-    ) {
+    if (!isInitializing && account && !Cookies.get(account) && !hasShownNux) {
       setHasShownNux(true);
       onOpenNux();
     }
-  }, [
-    blockchainState.account,
-    hasShownNux,
-    isInitializing,
-    isNuxOpen,
-    onOpenNux,
-  ]);
+  }, [account, hasShownNux, isInitializing, isNuxOpen, onOpenNux]);
 
   if (isInitializing) {
     return (
@@ -104,7 +68,7 @@ function HomeScreenContent() {
     );
   }
 
-  return blockchainState.account === "" ? (
+  return account === "" ? (
     <ConnectWallet />
   ) : (
     <Center flexDirection={"column"} width="100%" p={{ base: "4", lg: "0" }}>

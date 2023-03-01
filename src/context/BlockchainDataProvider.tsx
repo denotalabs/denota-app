@@ -1,5 +1,3 @@
-import { useColorMode } from "@chakra-ui/react";
-import { BigNumber, ethers } from "ethers";
 import React, {
   createContext,
   memo,
@@ -8,10 +6,19 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
+import { useColorMode } from "@chakra-ui/react";
+import { BigNumber, ethers } from "ethers";
 import Web3Modal from "web3modal";
+
 import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
-import { mappingForChainId } from "./chainInfo";
+import {
+  ChainInfo,
+  chainInfoForChainId,
+  chainNumberToChainHex,
+  contractMappingForChainId,
+} from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
 // TODO: Use cheq subdomain
@@ -39,9 +46,9 @@ interface BlockchainDataInterface {
   userWethBalance: string;
   cheq: null | ethers.Contract;
   directPayAddress: string;
-
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
+  chainId: string;
 }
 
 interface BlockchainDataContextInterface {
@@ -68,6 +75,7 @@ const defaultBlockchainState = {
   signer: null,
   explorer: "",
   directPayAddress: "",
+  chainId: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -117,27 +125,43 @@ export const BlockchainDataProvider = memo(
           window.location.reload();
         });
 
-        const mapping = mappingForChainId(chainId);
+        const contractMapping = contractMappingForChainId(chainId);
+        const deployedChainInfo: ChainInfo = chainInfoForChainId(chainId);
+        const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
 
-        if (mapping === undefined) {
+        if (contractMapping === undefined) {
           setIsInitializing(false);
           setIsWrongChain(true);
         } else {
           // Load contracts
           const cheq = new ethers.Contract(
-            mapping.cheq,
+            contractMapping.cheq,
             CheqRegistrar.abi,
             signer
           );
 
-          const weth = new ethers.Contract(mapping.weth, erc20.abi, signer);
-          const dai = new ethers.Contract(mapping.dai, erc20.abi, signer);
+          const weth = new ethers.Contract(
+            contractMapping.weth,
+            erc20.abi,
+            signer
+          );
+          const dai = new ethers.Contract(
+            contractMapping.dai,
+            erc20.abi,
+            signer
+          );
 
           const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
-          const daiAllowance = await dai.allowance(account, mapping.cheq);
+          const daiAllowance = await dai.allowance(
+            account,
+            contractMapping.cheq
+          );
 
           const userWethBalance = await weth.balanceOf(account); // User's Weth balance
-          const wethAllowance = await weth.allowance(account, mapping.cheq);
+          const wethAllowance = await weth.allowance(
+            account,
+            contractMapping.cheq
+          );
 
           setBlockchainState({
             signer,
@@ -146,12 +170,13 @@ export const BlockchainDataProvider = memo(
             weth,
             daiAllowance,
             wethAllowance,
-            cheqAddress: mapping.cheq,
+            cheqAddress: contractMapping.cheq,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
-            explorer: mapping.explorer,
+            explorer: firstBlockExplorer,
             cheq,
-            directPayAddress: mapping.directPayModule,
+            directPayAddress: contractMapping.directPayModule,
+            chainId: chainNumberToChainHex(chainId),
           });
           setIsInitializing(false);
         }
