@@ -60,6 +60,7 @@ export default function ChainSwitcher({ chainId }: ChainSwitcherProps) {
             alt={selectedChain.displayName}
             width={20}
             height={20}
+            unoptimized={true}
           />
           <Spacer mx="1" />
           <Text fontSize="lg">{selectedChain.displayName}</Text>
@@ -78,6 +79,7 @@ export default function ChainSwitcher({ chainId }: ChainSwitcherProps) {
                 alt={chain.displayName}
                 width={20}
                 height={20}
+                unoptimized={true}
               />
               <Spacer mx="1" />
               {chain.displayName}
