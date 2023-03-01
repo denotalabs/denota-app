@@ -1,19 +1,23 @@
 import {
   Box,
   BoxProps,
+  Center,
   CloseButton,
   Drawer,
   DrawerContent,
   Flex,
   FlexProps,
+  HStack,
   Icon,
   IconButton,
   Link,
   Text,
   useColorModeValue,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { useRouter } from "next/router";
+import { ReactNode, useEffect, useMemo } from "react";
 import { IconType } from "react-icons";
 import { FiMenu } from "react-icons/fi";
 import {
@@ -21,21 +25,43 @@ import {
   MdOutlineDescription,
   MdOutlineDynamicFeed,
 } from "react-icons/md";
+import { SiDiscord } from "react-icons/si";
+import { SocialIcon } from "react-social-icons";
 import DesktopHeader from "./DesktopHeader";
 import WalletInfo from "./WalletInfo";
 
 interface LinkItemProps {
   name: string;
   icon: IconType;
+  href: string;
+  isExternal: boolean;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Dashboard", icon: MdOutlineDynamicFeed },
-  { name: "Documentation", icon: MdOutlineDescription },
-  { name: "About", icon: MdInfoOutline },
+  {
+    name: "Dashboard",
+    icon: MdOutlineDynamicFeed,
+    href: "/",
+    isExternal: false,
+  },
+  {
+    name: "Documentation",
+    icon: MdOutlineDescription,
+    href: "https://cheq-finance.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80",
+    isExternal: true,
+  },
+  { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
+
+interface SocialItemsProps {
+  icon: IconType;
+  href: string;
+}
+
+const socialItems: Array<SocialItemsProps> = [];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box minH="100vh">
       <SidebarContent
@@ -81,42 +107,106 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       h="full"
       {...rest}
     >
-      <Flex
-        pb={3}
-        pt={6}
-        alignItems="center"
-        mx={{ base: 8, md: 0 }}
-        justifyContent={{ base: "space-between", md: "center" }}
-      >
-        <Text
-          noOfLines={1}
-          fontSize="2xl"
-          fontFamily="DM Sans"
-          fontWeight="bold"
-        >
-          Denota Protocol
-        </Text>
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
-      </Flex>
-      {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
-          {link.name}
-        </NavItem>
-      ))}
+      <VStack h="full" justifyContent="space-between">
+        <Box>
+          <Flex
+            pb={3}
+            pt={6}
+            alignItems="center"
+            mx={{ base: 8, md: 0 }}
+            justifyContent={{ base: "space-between", md: "center" }}
+          >
+            <Text
+              noOfLines={1}
+              fontSize="2xl"
+              fontFamily="DM Sans"
+              fontWeight="bold"
+            >
+              Denota Protocol
+            </Text>
+            <CloseButton
+              display={{ base: "flex", md: "none" }}
+              onClick={onClose}
+            />
+          </Flex>
+          <VStack gap={3} alignItems="flex-start">
+            {LinkItems.map((link) => (
+              <NavItem key={link.name} {...link}>
+                <Text fontSize="lg">{link.name}</Text>
+              </NavItem>
+            ))}
+          </VStack>
+        </Box>
+        <HStack maxW="full" pb={5}>
+          <SocialIcon
+            fgColor="white"
+            bgColor="transparent"
+            url="https://twitter.com/DenotaLabs"
+            style={{ height: 40, width: 40 }}
+          />
+          <Link
+            style={{ textDecoration: "none" }}
+            href="https://discord.gg/DpXr3MsX"
+            isExternal={true}
+          >
+            <Center h="40px" w="40px">
+              <Icon
+                fontSize="20"
+                _groupHover={{
+                  color: "white",
+                }}
+                as={SiDiscord}
+              />
+            </Center>
+          </Link>
+          <SocialIcon
+            fgColor="white"
+            bgColor="transparent"
+            url="https://www.linkedin.com/company/denota-labs/"
+            style={{ height: 40, width: 40 }}
+          />
+        </HStack>
+      </VStack>
     </Box>
   );
 };
 
 interface NavItemProps extends FlexProps {
   icon: IconType;
-  children: ReactNode;
+  href: string;
+  isExternal: boolean;
+  children?: ReactNode;
 }
-const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
+const NavItem = ({
+  icon,
+  children,
+  href,
+  isExternal,
+  ...rest
+}: NavItemProps) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/send");
+  }, [router]);
+
+  const isSelected = useMemo(() => {
+    return router.pathname === href;
+  }, [href, router.pathname]);
   return (
     <Link
-      href="#"
       style={{ textDecoration: "none" }}
-      _focus={{ boxShadow: "none" }}
+      onClick={
+        isExternal
+          ? undefined
+          : () => {
+              router.push(href, undefined, { shallow: true });
+            }
+      }
+      href={isExternal ? href : undefined}
+      isExternal={isExternal}
+      _selected={{ bg: "teal.600" }}
+      w="100%"
     >
       <Flex
         align="center"
@@ -126,9 +216,10 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: "brand.400",
+          bg: isSelected ? undefined : "brand.400",
           color: "white",
         }}
+        bgColor={isSelected ? "brand.400" : undefined}
         {...rest}
       >
         {icon && (
