@@ -4,12 +4,13 @@ import { useClipboard } from "@chakra-ui/hooks";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
-  SmallCloseIcon,
   CopyIcon,
   InfoIcon,
   MoonIcon,
   SmallAddIcon,
+  SmallCloseIcon,
 } from "@chakra-ui/icons";
+import { useBreakpointValue } from "@chakra-ui/react";
 import jazzicon from "jazzicon-ts";
 import Web3Modal from "web3modal";
 
@@ -61,7 +62,7 @@ export default function WalletInfo() {
   const avatarRef = useRef<HTMLDivElement | null>(null);
   const { colorMode, toggleColorMode } = useColorMode();
   const { onCopy } = useClipboard(blockchainState.account);
-
+  const isMobile = useBreakpointValue({ base: true, md: false });
   useEffect(() => {
     const element = avatarRef.current;
     if (element && blockchainState.account) {
@@ -76,7 +77,6 @@ export default function WalletInfo() {
   }, [blockchainState.account, avatarRef]);
   const [isOpen, setIsOpen] = useState(false);
 
-  // TODO style menu - https://chakra-ui.com/docs/components/menu/theming
   return (
     <Menu isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <MenuButton
@@ -97,12 +97,17 @@ export default function WalletInfo() {
             ref={avatarRef}
           ></div>
           <Spacer mx="1" />
-          <Text fontSize="lg">
-            {blockchainState.account &&
-              blockchainState.account.slice(0, 6) +
-                "..." +
-                blockchainState.account.slice(-4)}
-          </Text>
+          {isMobile ? null : (
+            <>
+              <Spacer mx="1" />
+              <Text fontSize="lg">
+                {blockchainState.account &&
+                  blockchainState.account.slice(0, 6) +
+                    "..." +
+                    blockchainState.account.slice(-4)}
+              </Text>
+            </>
+          )}
         </Flex>
       </MenuButton>
       <MenuList alignItems="center" bg="brand.100">

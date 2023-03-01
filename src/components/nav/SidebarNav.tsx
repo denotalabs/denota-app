@@ -9,10 +9,10 @@ import {
   Icon,
   IconButton,
   Link,
-  Text,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import Image from "next/image";
 import { ReactNode } from "react";
 import { IconType } from "react-icons";
 import { FiMenu } from "react-icons/fi";
@@ -88,14 +88,15 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         mx={{ base: 8, md: 0 }}
         justifyContent={{ base: "space-between", md: "center" }}
       >
-        <Text
-          noOfLines={1}
-          fontSize="2xl"
-          fontFamily="DM Sans"
-          fontWeight="bold"
-        >
-          Denota Protocol
-        </Text>
+        <Box mt={3} mb={3}>
+        <Image
+          src="logos/denota-logo-text.svg"
+          alt="denota logo text"
+          width={400}
+          height={40}
+          unoptimized={true}
+        />
+        </Box>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
@@ -169,10 +170,13 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         aria-label="open menu"
         icon={<FiMenu />}
       />
-
-      <Text fontSize="2xl" fontFamily="DM Sans" fontWeight="bold">
-        Denota Protocol
-      </Text>
+      <Image
+        src="logos/denota-logo.svg"
+        alt="denota logo"
+        width={30}
+        height={30}
+        unoptimized={true}
+      />
       <WalletInfo />
     </Flex>
   );
