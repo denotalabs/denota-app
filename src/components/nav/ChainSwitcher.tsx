@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 import {
   Button,
   Flex,
@@ -11,7 +12,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import Image from "next/image";
-import { FaCaretDown } from "react-icons/fa";
 
 import { deployedChains } from "../../context/chainInfo";
 import { switchNetwork } from "../../context/SwitchNetwork";
@@ -30,6 +30,7 @@ export default function ChainSwitcher({ chainId }: ChainSwitcherProps) {
     filteredChains.find((chain) => chain.chainId === chainId) ??
       filteredChains[0]
   );
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSelectChain = async (chain: {
     displayName: string;
@@ -39,18 +40,20 @@ export default function ChainSwitcher({ chainId }: ChainSwitcherProps) {
   }) => {
     const { displayName, chainId, logoSrc, isDisabled } = chain;
     setSelectedChain({ displayName, chainId, logoSrc, isDisabled });
+    setIsOpen(false);
     await switchNetwork(chain.chainId);
   };
 
   return (
-    <Menu>
+    <Menu isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <MenuButton
         as={Button}
         variant="ghost"
-        rightIcon={<FaCaretDown />}
+        rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
         size="sm"
         mr={2}
         aria-label="Select chain"
+        onClick={() => setIsOpen(!isOpen)}
       >
         <Flex alignItems="center">
           <Image
