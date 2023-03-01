@@ -1,3 +1,6 @@
 module.exports = {
-    trailingSlash: true,
-  };
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+};
