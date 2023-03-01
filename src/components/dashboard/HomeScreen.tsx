@@ -9,6 +9,7 @@ import ConnectWallet from "./ConnectWallet";
 import MyCheqsView from "./MyCheqsView";
 import NewInvoice from "./NewInvoice";
 import { switchNetwork } from "../../context/SwitchNetwork";
+import { MUMBAI_ADDRESS } from "../../context/chainInfo";
 function HomeScreen() {
   return (
     <Center alignItems={"flex-start"} width="100%" maxWidth="65rem">
@@ -18,7 +19,7 @@ function HomeScreen() {
 }
 
 const switchToMumbai = async () => {
-  await switchNetwork("0x13881");
+  await switchNetwork(MUMBAI_ADDRESS);
 };
 
 function HomeScreenContent() {

@@ -1,4 +1,4 @@
-import { deployedChains } from "./chainInfo";
+import { deployedChains, METAMASK_ERROR_CODE } from "./chainInfo";
 
 export const switchNetwork = async (chainId: string) => {
   const network = deployedChains[chainId];
@@ -21,7 +21,7 @@ export const switchNetwork = async (chainId: string) => {
       params: [{ chainId: id }],
     });
   } catch (error: any) {
-    if (error.code === 4902) {
+    if (error.code === METAMASK_ERROR_CODE) {
       try {
         await (window as any).ethereum.request({
           method: "wallet_addEthereumChain",

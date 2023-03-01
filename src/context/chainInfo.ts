@@ -1,3 +1,6 @@
+export const MUMBAI_ADDRESS = "0x13881";
+export const METAMASK_ERROR_CODE = 4902;
+
 export const ContractAddressMapping = {
   mumbai: {
     cheq: "0x7338C511171c6cabf35195448921a4dD044fcef6",
