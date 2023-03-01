@@ -21,6 +21,9 @@ const cheqTheme = extendTheme({
       500: "#282D59",
       600: "#141A29",
     },
+    cheqPurple: {
+      100: "#7476D3",
+    },
   },
 });
 

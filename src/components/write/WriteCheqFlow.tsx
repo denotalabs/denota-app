@@ -14,7 +14,7 @@ function WriteCheqFlow({ onClose, isInvoice }: Props) {
     <Stepper onClose={onClose}>
       <DetailsStep
         screenKey="write"
-        screenTitle={isInvoice ? "Invoice Details" : "Recipient Details"}
+        screenTitle={"Payment Details"}
         isInvoice={isInvoice}
       ></DetailsStep>
       <ModuleSelectStep

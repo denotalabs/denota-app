@@ -12,14 +12,17 @@ import {
   Text,
   useColorModeValue,
   useDisclosure,
+  VStack,
 } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { useRouter } from "next/router";
+import { ReactNode, useEffect, useMemo } from "react";
 import { IconType } from "react-icons";
 import { FiMenu } from "react-icons/fi";
 import {
   MdInfoOutline,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
+  MdOutlineSend,
 } from "react-icons/md";
 import DesktopHeader from "./DesktopHeader";
 import WalletInfo from "./WalletInfo";
@@ -27,15 +30,29 @@ import WalletInfo from "./WalletInfo";
 interface LinkItemProps {
   name: string;
   icon: IconType;
+  href: string;
+  isExternal: boolean;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: "Dashboard", icon: MdOutlineDynamicFeed },
-  { name: "Documentation", icon: MdOutlineDescription },
-  { name: "About", icon: MdInfoOutline },
+  {
+    name: "Dashboard",
+    icon: MdOutlineDynamicFeed,
+    href: "/",
+    isExternal: false,
+  },
+  { name: "Send", icon: MdOutlineSend, href: "/send", isExternal: false },
+  {
+    name: "Documentation",
+    icon: MdOutlineDescription,
+    href: "https://cheq-finance.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80",
+    isExternal: true,
+  },
+  { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box minH="100vh">
       <SidebarContent
@@ -98,25 +115,53 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         </Text>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
-      {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
-          {link.name}
-        </NavItem>
-      ))}
+      <VStack gap={3} alignItems="flex-start">
+        {LinkItems.map((link) => (
+          <NavItem key={link.name} {...link}>
+            <Text fontSize="lg">{link.name}</Text>
+          </NavItem>
+        ))}
+      </VStack>
     </Box>
   );
 };
 
 interface NavItemProps extends FlexProps {
   icon: IconType;
+  href: string;
+  isExternal: boolean;
   children: ReactNode;
 }
-const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
+const NavItem = ({
+  icon,
+  children,
+  href,
+  isExternal,
+  ...rest
+}: NavItemProps) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/send");
+  }, [router]);
+
+  const isSelected = useMemo(() => {
+    return router.pathname === href;
+  }, [href, router.pathname]);
   return (
     <Link
-      href="#"
       style={{ textDecoration: "none" }}
-      _focus={{ boxShadow: "none" }}
+      onClick={
+        isExternal
+          ? undefined
+          : () => {
+              router.push(href, undefined, { shallow: true });
+            }
+      }
+      href={isExternal ? href : undefined}
+      isExternal={isExternal}
+      _selected={{ bg: "teal.600" }}
+      w="100%"
     >
       <Flex
         align="center"
@@ -126,9 +171,10 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: "brand.400",
+          bg: isSelected ? undefined : "brand.400",
           color: "white",
         }}
+        bgColor={isSelected ? "cheqPurple.100" : undefined}
         {...rest}
       >
         {icon && (
