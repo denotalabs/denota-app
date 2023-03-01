@@ -24,7 +24,7 @@ const switchToMumbai = async () => {
 function HomeScreenContent() {
   const { blockchainState, isInitializing, isWrongChain } = useBlockchainData();
   const [hasShownNux, setHasShownNux] = useState(false);
-  const { chainId, account } = blockchainState;
+  const { account } = blockchainState;
   const {
     isOpen: isNuxOpen,
     onOpen: onOpenNux,

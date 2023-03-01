@@ -11,7 +11,7 @@ import React, {
 import Web3Modal from "web3modal";
 import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
-import { mappingForChainId } from "./chainInfo";
+import { contractMappingForChainId } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
 // TODO: Use cheq subdomain
@@ -39,7 +39,6 @@ interface BlockchainDataInterface {
   userWethBalance: string;
   cheq: null | ethers.Contract;
   directPayAddress: string;
-
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
   chainId: string;
@@ -119,7 +118,7 @@ export const BlockchainDataProvider = memo(
           window.location.reload();
         });
 
-        const contractMapping = mappingForChainId(chainId);
+        const contractMapping = contractMappingForChainId(chainId);
 
         if (contractMapping === undefined) {
           setIsInitializing(false);
@@ -132,14 +131,28 @@ export const BlockchainDataProvider = memo(
             signer
           );
 
-          const weth = new ethers.Contract(contractMapping.weth, erc20.abi, signer);
-          const dai = new ethers.Contract(contractMapping.dai, erc20.abi, signer);
+          const weth = new ethers.Contract(
+            contractMapping.weth,
+            erc20.abi,
+            signer
+          );
+          const dai = new ethers.Contract(
+            contractMapping.dai,
+            erc20.abi,
+            signer
+          );
 
           const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
-          const daiAllowance = await dai.allowance(account, contractMapping.cheq);
+          const daiAllowance = await dai.allowance(
+            account,
+            contractMapping.cheq
+          );
 
           const userWethBalance = await weth.balanceOf(account); // User's Weth balance
-          const wethAllowance = await weth.allowance(account, contractMapping.cheq);
+          const wethAllowance = await weth.allowance(
+            account,
+            contractMapping.cheq
+          );
 
           setBlockchainState({
             signer,
@@ -151,6 +164,7 @@ export const BlockchainDataProvider = memo(
             cheqAddress: contractMapping.cheq,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
+            // TODO get explorer from network mapping
             explorer: contractMapping.explorer,
             cheq,
             directPayAddress: contractMapping.directPayModule,

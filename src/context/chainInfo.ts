@@ -1,4 +1,4 @@
-export const AddressMapping = {
+export const ContractAddressMapping = {
   mumbai: {
     cheq: "0x7338C511171c6cabf35195448921a4dD044fcef6",
     dai: "0xc5B6c09dc6595Eb949739f7Cd6A8d542C2aabF4b",
@@ -17,13 +17,67 @@ export const AddressMapping = {
   },
 };
 
-export const mappingForChainId = (chainId: number) => {
+export const contractMappingForChainId = (chainId: number) => {
   switch (chainId) {
     case 80001:
-      return AddressMapping.mumbai;
+      return ContractAddressMapping.mumbai;
     case 31337:
-      return AddressMapping.local;
+      return ContractAddressMapping.local;
     default:
       return undefined;
   }
+};
+
+interface ChainInfo {
+  displayName: string;
+  name: string;
+  chainId: string;
+  logoSrc: string;
+  rpcUrls: string[];
+  blockExplorerUrls: string[];
+  isDisabled?: boolean;
+  nativeCurrency?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+}
+
+export const deployedChains: Record<string, ChainInfo> = {
+  "0x13881": {
+    displayName: "Polygon Mumbai",
+    name: "Polygon Testnet Mumbai",
+    chainId: "0x13881",
+    logoSrc: "/images/polygon-logo.png",
+    nativeCurrency: {
+      name: "Matic",
+      symbol: "MATIC",
+      decimals: 18,
+    },
+    blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+    rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+  },
+  "0xAEF3": {
+    isDisabled: true,
+    name: "Celo Testnet Alfajores",
+    displayName: "Celo Alfajores",
+    chainId: "0xAEF3",
+    logoSrc: "/images/celo-logo.png",
+    nativeCurrency: {
+      name: "Celo",
+      symbol: "CELO",
+      decimals: 18,
+    },
+    blockExplorerUrls: ["https://alfajores-blockscout.celo-testnet.org/"],
+    rpcUrls: ["https://alfajores-forno.celo-testnet.org"],
+  },
+  "0x1": {
+    name: "Ethereum Mainnet",
+    displayName: "Ethereum",
+    chainId: "0x1",
+    logoSrc: "/images/ethereum-logo.png",
+    isDisabled: true,
+    blockExplorerUrls: ["https://etherscan.io/"],
+    rpcUrls: ["https://eth.llamarpc.com"],
+  },
 };

@@ -24,7 +24,7 @@ const networkForChainId = (chainId: string): Network | undefined => {
         blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
         rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
       };
-    case "0xa4ec":
+    case "0xAEF3":
       return {
         chainId,
         chainName: "Celo Testnet Alfajores",
