@@ -35,8 +35,6 @@ function AccountField({ fieldName, placeholder }: Props) {
   return (
     <Field name={fieldName} validate={validateAddress}>
       {({ field, form: { errors, touched } }: any) => {
-        console.log(errors);
-
         return (
           <FormControl isInvalid={errors.address && hasStarted}>
             <FormLabel noOfLines={1} flexShrink={0}>

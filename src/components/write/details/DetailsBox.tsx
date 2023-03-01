@@ -18,7 +18,6 @@ function DetailsBox({ isInvoice, token, mode }: Props) {
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
         <Flex
-          // alignItems="center"
           justifyContent="space-between"
           flexShrink={0}
           flexGrow={1}
