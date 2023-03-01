@@ -78,7 +78,14 @@ export default function WalletInfo() {
         onClick={() => setIsOpen(!isOpen)}
       >
         <Flex alignItems="center" justifyContent="center">
-          <div ref={avatarRef}></div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            ref={avatarRef}
+          ></div>
           <Spacer mx="1" />
           <Text fontSize="lg">
             {blockchainState.account &&
