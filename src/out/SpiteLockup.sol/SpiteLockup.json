@@ -1,6 +1,93 @@
 {
   "abi": [
     {
+      "inputs": [],
+      "name": "InitParamsInvalid",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "REGISTRAR",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "_URI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "fees",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "writeBPS",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "transferBPS",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "fundBPS",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "cashBPS",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getFees",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -55,7 +142,7 @@
           "type": "bytes"
         }
       ],
-      "name": "canApprove",
+      "name": "processApproval",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -120,8 +207,14 @@
           "type": "bytes"
         }
       ],
-      "name": "canCash",
-      "outputs": [],
+      "name": "processCash",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -185,9 +278,34 @@
           "type": "bytes"
         }
       ],
-      "name": "canFund",
-      "outputs": [],
+      "name": "processFund",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "processTokenURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -223,40 +341,34 @@
           "type": "uint256"
         },
         {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "currency",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "escrowed",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "createdAt",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "module",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct DataTypes.Cheq",
-          "name": "cheq",
-          "type": "tuple"
+          "internalType": "address",
+          "name": "currency",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "escrowed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "createdAt",
+          "type": "uint256"
         },
         {
           "internalType": "bytes",
-          "name": "initData",
+          "name": "data",
           "type": "bytes"
         }
       ],
-      "name": "canTransfer",
-      "outputs": [],
+      "name": "processTransfer",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -298,7 +410,50 @@
           "type": "bytes"
         }
       ],
-      "name": "canWrite",
+      "name": "processWrite",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "revenue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawFees",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -315,13 +470,20 @@
     "linkReferences": {}
   },
   "methodIdentifiers": {
-    "canApprove(address,address,address,uint256,(address,uint256,uint256,address),bytes)": "06d25e61",
-    "canCash(address,address,address,uint256,uint256,(address,uint256,uint256,address),bytes)": "a81fc395",
-    "canFund(address,address,uint256,uint256,uint256,(address,uint256,uint256,address),bytes)": "741c9639",
-    "canTransfer(address,address,address,address,address,uint256,(address,uint256,uint256,address),bytes)": "54b6a7db",
-    "canWrite(address,address,uint256,address,uint256,uint256,bytes)": "0055d86e"
+    "REGISTRAR()": "cb609077",
+    "_URI()": "b4e87e8f",
+    "fees()": "9af1d35a",
+    "getFees()": "db8d55f1",
+    "processApproval(address,address,address,uint256,(address,uint256,uint256,address),bytes)": "e4175968",
+    "processCash(address,address,address,uint256,uint256,(address,uint256,uint256,address),bytes)": "06890cd0",
+    "processFund(address,address,uint256,uint256,uint256,(address,uint256,uint256,address),bytes)": "be2f3fdd",
+    "processTokenURI(uint256)": "4fe17e1a",
+    "processTransfer(address,address,address,address,address,uint256,address,uint256,uint256,bytes)": "c0c9572c",
+    "processWrite(address,address,uint256,address,uint256,uint256,bytes)": "b5d701ba",
+    "revenue(address,address)": "9a0ea37a",
+    "withdrawFees(address)": "164e68de"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canApprove\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canCash\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canFund\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canWrite\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Sender pays reciever and can spite where the sender gets back the money after X amount of time\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/SpiteLockup.sol\":\"SpiteLockup\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x1c2ea4ca139eb0be32bf94aa8114bff50b4241bead709c8cddcd281c08d0f0f2\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://1d6dcfd0665b454b61d76e31b3ad763727f0dd31b81995092e01d52df9d03e1d\",\"dweb:/ipfs/Qmc2Nesigviwr1ZHqixLxpT8PDgFBQ19iNQXDKfzXbbYXn\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x808868b5fe6034f6c55628dbc9bfc212d2b2cdaebedac85d35b2a73c69a0bc26\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://8a59620d925229df4251ca146bdea305576eab623f82f19a284d8eac5275e124\",\"dweb:/ipfs/QmeWK12YC7m2ucnooLnr6dvL42yw8GAhdYzAzWewg4WQNr\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0xb7c53bb3fdc8723644e0a12ec2cced4fce60c8a61e2cfadc8e9acb9537128349\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://7304cbc1b143b8bd445a90926e054bbe8957d6c12ba2ad8a28c63630fee4e100\",\"dweb:/ipfs/QmTNG7pMkZkGe9M8WQxwB5ApFuWHGsyVtezs5m5rZDYJRF\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0xf235167617e3eb1a6aa7e41a27df91fea2c4e051d4524e6296a3a8043c3d3d96\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://816ebd0bbd472201cfbe998c3834d836641ee1ff67373198ba9ee1eb5ae98559\",\"dweb:/ipfs/QmNzm5wpyjHy4RibbofmN7ur748giVweUoH8iwk8fwQAaK\"]},\"src/contracts/modules/SpiteLockup.sol\":{\"keccak256\":\"0xdeee06b9a6b885293fa9f949914f7d2cdbeab47b980eb2b99dd88e552315bdd0\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://8de7bd906d43dfd649b5afec093c17501c2b5505cefc9de6f9df61788bc17494\",\"dweb:/ipfs/QmZQkc6qRN4Kc3mNfcFNNU79BuH63HKeBXcKpsb9NJCk72\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"InitParamsInvalid\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"REGISTRAR\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_URI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processApproval\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processCash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processFund\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"processTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"processTransfer\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processWrite\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"revenue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"withdrawFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Sender pays reciever and can spite where the sender gets back the money after X amount of time\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/SpiteLockup.sol\":\"SpiteLockup\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x1c2ea4ca139eb0be32bf94aa8114bff50b4241bead709c8cddcd281c08d0f0f2\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://1d6dcfd0665b454b61d76e31b3ad763727f0dd31b81995092e01d52df9d03e1d\",\"dweb:/ipfs/Qmc2Nesigviwr1ZHqixLxpT8PDgFBQ19iNQXDKfzXbbYXn\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x808868b5fe6034f6c55628dbc9bfc212d2b2cdaebedac85d35b2a73c69a0bc26\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://8a59620d925229df4251ca146bdea305576eab623f82f19a284d8eac5275e124\",\"dweb:/ipfs/QmeWK12YC7m2ucnooLnr6dvL42yw8GAhdYzAzWewg4WQNr\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0xb7c53bb3fdc8723644e0a12ec2cced4fce60c8a61e2cfadc8e9acb9537128349\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://7304cbc1b143b8bd445a90926e054bbe8957d6c12ba2ad8a28c63630fee4e100\",\"dweb:/ipfs/QmTNG7pMkZkGe9M8WQxwB5ApFuWHGsyVtezs5m5rZDYJRF\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0xf235167617e3eb1a6aa7e41a27df91fea2c4e051d4524e6296a3a8043c3d3d96\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://816ebd0bbd472201cfbe998c3834d836641ee1ff67373198ba9ee1eb5ae98559\",\"dweb:/ipfs/QmNzm5wpyjHy4RibbofmN7ur748giVweUoH8iwk8fwQAaK\"]},\"src/contracts/modules/SpiteLockup.sol\":{\"keccak256\":\"0xbb5bcb3b6f6b0e0441ea9e83a1766f263c6fb32b87941b2dd64103822f345bec\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://7884d7a6fd58a47028d20ae85f769a6f183b14d5e2f7fdb7d9d13dd0d00c39e4\",\"dweb:/ipfs/QmQEa4pzbdBYEgDpbgk3vwDY1moWNDjNh2AMCdpx2so7CC\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -329,6 +491,93 @@
     "language": "Solidity",
     "output": {
       "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "InitParamsInvalid"
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "REGISTRAR",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "_URI",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "fees",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "writeBPS",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "transferBPS",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fundBPS",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "cashBPS",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getFees",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
         {
           "inputs": [
             {
@@ -386,7 +635,7 @@
           ],
           "stateMutability": "nonpayable",
           "type": "function",
-          "name": "canApprove"
+          "name": "processApproval"
         },
         {
           "inputs": [
@@ -450,7 +699,14 @@
           ],
           "stateMutability": "nonpayable",
           "type": "function",
-          "name": "canCash"
+          "name": "processCash",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
         },
         {
           "inputs": [
@@ -514,7 +770,33 @@
           ],
           "stateMutability": "nonpayable",
           "type": "function",
-          "name": "canFund"
+          "name": "processFund",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "processTokenURI",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
         },
         {
           "inputs": [
@@ -549,41 +831,36 @@
               "type": "uint256"
             },
             {
-              "internalType": "struct DataTypes.Cheq",
-              "name": "cheq",
-              "type": "tuple",
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "currency",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "escrowed",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "createdAt",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "module",
-                  "type": "address"
-                }
-              ]
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "escrowed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "createdAt",
+              "type": "uint256"
             },
             {
               "internalType": "bytes",
-              "name": "initData",
+              "name": "data",
               "type": "bytes"
             }
           ],
           "stateMutability": "nonpayable",
           "type": "function",
-          "name": "canTransfer"
+          "name": "processTransfer",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
         },
         {
           "inputs": [
@@ -625,7 +902,50 @@
           ],
           "stateMutability": "nonpayable",
           "type": "function",
-          "name": "canWrite"
+          "name": "processWrite",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "revenue",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "withdrawFees"
         }
       ],
       "devdoc": {
@@ -748,10 +1068,10 @@
         "license": "BUSL-1.1"
       },
       "src/contracts/modules/SpiteLockup.sol": {
-        "keccak256": "0xdeee06b9a6b885293fa9f949914f7d2cdbeab47b980eb2b99dd88e552315bdd0",
+        "keccak256": "0xbb5bcb3b6f6b0e0441ea9e83a1766f263c6fb32b87941b2dd64103822f345bec",
         "urls": [
-          "bzz-raw://8de7bd906d43dfd649b5afec093c17501c2b5505cefc9de6f9df61788bc17494",
-          "dweb:/ipfs/QmZQkc6qRN4Kc3mNfcFNNU79BuH63HKeBXcKpsb9NJCk72"
+          "bzz-raw://7884d7a6fd58a47028d20ae85f769a6f183b14d5e2f7fdb7d9d13dd0d00c39e4",
+          "dweb:/ipfs/QmQEa4pzbdBYEgDpbgk3vwDY1moWNDjNh2AMCdpx2so7CC"
         ],
         "license": "BUSL-1.1"
       }
@@ -760,46 +1080,28 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/SpiteLockup.sol",
-    "id": 32077,
+    "id": 32227,
     "exportedSymbols": {
       "DataTypes": [
-        30691
-      ],
-      "IApproveRule": [
-        30569
-      ],
-      "ICashRule": [
-        30552
-      ],
-      "ICheqModule": [
-        30328
+        30626
       ],
       "ICheqRegistrar": [
-        30471
-      ],
-      "IFundRule": [
-        30533
-      ],
-      "ITransferRule": [
-        30514
-      ],
-      "IWriteRule": [
-        30493
+        30406
       ],
       "ModuleBase": [
-        30205
+        30140
       ],
       "SpiteLockup": [
-        32076
+        32226
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:586:56",
+    "src": "37:348:52",
     "nodes": [
       {
-        "id": 32050,
+        "id": 32216,
         "nodeType": "PragmaDirective",
-        "src": "37:24:56",
+        "src": "37:24:52",
         "nodes": [],
         "literals": [
           "solidity",
@@ -809,24 +1111,24 @@
         ]
       },
       {
-        "id": 32052,
+        "id": 32218,
         "nodeType": "ImportDirective",
-        "src": "63:45:56",
+        "src": "63:45:52",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 32077,
-        "sourceUnit": 30206,
+        "scope": 32227,
+        "sourceUnit": 30141,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 32051,
+              "id": 32217,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30205,
-              "src": "71:10:56",
+              "referencedDeclaration": 30140,
+              "src": "71:10:52",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -835,24 +1137,24 @@
         "unitAlias": ""
       },
       {
-        "id": 32054,
+        "id": 32220,
         "nodeType": "ImportDirective",
-        "src": "109:53:56",
+        "src": "109:53:52",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 32077,
-        "sourceUnit": 30692,
+        "scope": 32227,
+        "sourceUnit": 30627,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 32053,
+              "id": 32219,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30691,
-              "src": "117:9:56",
+              "referencedDeclaration": 30626,
+              "src": "117:9:52",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -861,50 +1163,24 @@
         "unitAlias": ""
       },
       {
-        "id": 32056,
+        "id": 32222,
         "nodeType": "ImportDirective",
-        "src": "163:58:56",
-        "nodes": [],
-        "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
-        "file": "../interfaces/ICheqModule.sol",
-        "nameLocation": "-1:-1:-1",
-        "scope": 32077,
-        "sourceUnit": 30329,
-        "symbolAliases": [
-          {
-            "foreign": {
-              "id": 32055,
-              "name": "ICheqModule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30328,
-              "src": "171:11:56",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          }
-        ],
-        "unitAlias": ""
-      },
-      {
-        "id": 32058,
-        "nodeType": "ImportDirective",
-        "src": "222:64:56",
+        "src": "163:64:52",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 32077,
-        "sourceUnit": 30472,
+        "scope": 32227,
+        "sourceUnit": 30407,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 32057,
+              "id": 32221,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30471,
-              "src": "230:14:56",
+              "referencedDeclaration": 30406,
+              "src": "171:14:52",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -913,187 +1189,52 @@
         "unitAlias": ""
       },
       {
-        "id": 32064,
-        "nodeType": "ImportDirective",
-        "src": "287:107:56",
-        "nodes": [],
-        "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
-        "file": "../interfaces/IWTFCRules.sol",
-        "nameLocation": "-1:-1:-1",
-        "scope": 32077,
-        "sourceUnit": 30570,
-        "symbolAliases": [
-          {
-            "foreign": {
-              "id": 32059,
-              "name": "IWriteRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30493,
-              "src": "295:10:56",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          },
-          {
-            "foreign": {
-              "id": 32060,
-              "name": "ITransferRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30514,
-              "src": "307:13:56",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          },
-          {
-            "foreign": {
-              "id": 32061,
-              "name": "IFundRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30533,
-              "src": "322:9:56",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          },
-          {
-            "foreign": {
-              "id": 32062,
-              "name": "ICashRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30552,
-              "src": "333:9:56",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          },
-          {
-            "foreign": {
-              "id": 32063,
-              "name": "IApproveRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30569,
-              "src": "344:12:56",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          }
-        ],
-        "unitAlias": ""
-      },
-      {
-        "id": 32076,
+        "id": 32226,
         "nodeType": "ContractDefinition",
-        "src": "503:119:56",
+        "src": "336:48:52",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 32066,
-              "name": "IWriteRule",
+              "id": 32224,
+              "name": "ModuleBase",
               "nameLocations": [
-                "540:10:56"
+                "369:10:52"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30493,
-              "src": "540:10:56"
+              "referencedDeclaration": 30140,
+              "src": "369:10:52"
             },
-            "id": 32067,
+            "id": 32225,
             "nodeType": "InheritanceSpecifier",
-            "src": "540:10:56"
-          },
-          {
-            "baseName": {
-              "id": 32068,
-              "name": "ITransferRule",
-              "nameLocations": [
-                "556:13:56"
-              ],
-              "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30514,
-              "src": "556:13:56"
-            },
-            "id": 32069,
-            "nodeType": "InheritanceSpecifier",
-            "src": "556:13:56"
-          },
-          {
-            "baseName": {
-              "id": 32070,
-              "name": "IFundRule",
-              "nameLocations": [
-                "575:9:56"
-              ],
-              "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30533,
-              "src": "575:9:56"
-            },
-            "id": 32071,
-            "nodeType": "InheritanceSpecifier",
-            "src": "575:9:56"
-          },
-          {
-            "baseName": {
-              "id": 32072,
-              "name": "ICashRule",
-              "nameLocations": [
-                "590:9:56"
-              ],
-              "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30552,
-              "src": "590:9:56"
-            },
-            "id": 32073,
-            "nodeType": "InheritanceSpecifier",
-            "src": "590:9:56"
-          },
-          {
-            "baseName": {
-              "id": 32074,
-              "name": "IApproveRule",
-              "nameLocations": [
-                "605:12:56"
-              ],
-              "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30569,
-              "src": "605:12:56"
-            },
-            "id": 32075,
-            "nodeType": "InheritanceSpecifier",
-            "src": "605:12:56"
+            "src": "369:10:52"
           }
         ],
         "canonicalName": "SpiteLockup",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 32065,
+          "id": 32223,
           "nodeType": "StructuredDocumentation",
-          "src": "396:107:56",
+          "src": "229:107:52",
           "text": "@notice Sender pays reciever and can spite where the sender gets back the money after X amount of time"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          32076,
-          30569,
-          30552,
-          30533,
-          30514,
-          30493
+          32226,
+          30140,
+          30263
         ],
         "name": "SpiteLockup",
-        "nameLocation": "521:11:56",
-        "scope": 32077,
-        "usedErrors": []
+        "nameLocation": "354:11:52",
+        "scope": 32227,
+        "usedErrors": [
+          30640
+        ]
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 56
+  "id": 52
 }

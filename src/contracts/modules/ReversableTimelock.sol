@@ -58,9 +58,9 @@ contract ReversableRelease is ModuleBase {
     }
 
     function processTransfer(
-        address, /*caller*/
-        address, /*approved*/
-        address, /*owner*/
+        address caller,
+        address approved,
+        address owner,
         address, /*from*/
         address, /*to*/
         uint256, /*cheqId*/
@@ -69,6 +69,10 @@ contract ReversableRelease is ModuleBase {
         uint256, /*createdAt*/
         bytes memory /*data*/
     ) external view override onlyRegistrar returns (uint256) {
+        require(
+            caller == owner || caller == approved,
+            "Only owner or approved"
+        );
         uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
         // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
         return moduleFee;

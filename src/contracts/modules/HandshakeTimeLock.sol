@@ -6,7 +6,6 @@ pragma solidity ^0.8.16;
 // import "openzeppelin/token/ERC721/ERC721.sol";
 // import {ModuleBase} from "../ModuleBase.sol";
 // import {DataTypes} from "../libraries/DataTypes.sol";
-// import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 // contract HandshakeTimeLock is ModuleBase {
 //     //     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor

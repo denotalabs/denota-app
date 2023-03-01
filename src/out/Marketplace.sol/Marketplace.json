@@ -10,58 +10,43 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/Marketplace.sol",
-    "id": 31912,
+    "id": 31287,
     "exportedSymbols": {
       "Context": [
-        27735
+        27699
       ],
       "DataTypes": [
-        30691
-      ],
-      "IApproveRule": [
-        30569
-      ],
-      "ICashRule": [
-        30552
+        30626
       ],
       "ICheqModule": [
-        30328
+        30263
       ],
       "ICheqRegistrar": [
-        30471
+        30406
       ],
       "IERC20": [
-        25935
-      ],
-      "IFundRule": [
-        30533
-      ],
-      "ITransferRule": [
-        30514
-      ],
-      "IWriteRule": [
-        30493
+        25899
       ],
       "Math": [
-        28811
+        28775
       ],
       "ModuleBase": [
-        30205
+        30140
       ],
       "Ownable": [
-        25162
+        25126
       ],
       "Strings": [
-        27910
+        27874
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:14384:47",
+    "src": "37:14276:45",
     "nodes": [
       {
-        "id": 31894,
+        "id": 31275,
         "nodeType": "PragmaDirective",
-        "src": "37:24:47",
+        "src": "37:24:45",
         "nodes": [],
         "literals": [
           "solidity",
@@ -71,63 +56,63 @@
         ]
       },
       {
-        "id": 31895,
+        "id": 31276,
         "nodeType": "ImportDirective",
-        "src": "62:40:47",
+        "src": "62:40:45",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "file": "openzeppelin/utils/Strings.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31912,
-        "sourceUnit": 27911,
+        "scope": 31287,
+        "sourceUnit": 27875,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 31896,
+        "id": 31277,
         "nodeType": "ImportDirective",
-        "src": "103:45:47",
+        "src": "103:45:45",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "file": "openzeppelin/token/ERC20/IERC20.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31912,
-        "sourceUnit": 25936,
+        "scope": 31287,
+        "sourceUnit": 25900,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 31897,
+        "id": 31278,
         "nodeType": "ImportDirective",
-        "src": "149:41:47",
+        "src": "149:41:45",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "file": "openzeppelin/access/Ownable.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31912,
-        "sourceUnit": 25163,
+        "scope": 31287,
+        "sourceUnit": 25127,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 31899,
+        "id": 31280,
         "nodeType": "ImportDirective",
-        "src": "191:45:47",
+        "src": "191:45:45",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31912,
-        "sourceUnit": 30206,
+        "scope": 31287,
+        "sourceUnit": 30141,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31898,
+              "id": 31279,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30205,
-              "src": "199:10:47",
+              "referencedDeclaration": 30140,
+              "src": "199:10:45",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -136,24 +121,24 @@
         "unitAlias": ""
       },
       {
-        "id": 31901,
+        "id": 31282,
         "nodeType": "ImportDirective",
-        "src": "237:53:47",
+        "src": "237:53:45",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31912,
-        "sourceUnit": 30692,
+        "scope": 31287,
+        "sourceUnit": 30627,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31900,
+              "id": 31281,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30691,
-              "src": "245:9:47",
+              "referencedDeclaration": 30626,
+              "src": "245:9:45",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -162,24 +147,24 @@
         "unitAlias": ""
       },
       {
-        "id": 31903,
+        "id": 31284,
         "nodeType": "ImportDirective",
-        "src": "291:58:47",
+        "src": "291:58:45",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31912,
-        "sourceUnit": 30329,
+        "scope": 31287,
+        "sourceUnit": 30264,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31902,
+              "id": 31283,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30328,
-              "src": "299:11:47",
+              "referencedDeclaration": 30263,
+              "src": "299:11:45",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -188,98 +173,24 @@
         "unitAlias": ""
       },
       {
-        "id": 31905,
+        "id": 31286,
         "nodeType": "ImportDirective",
-        "src": "350:64:47",
+        "src": "350:64:45",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31912,
-        "sourceUnit": 30472,
+        "scope": 31287,
+        "sourceUnit": 30407,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31904,
+              "id": 31285,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30471,
-              "src": "358:14:47",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          }
-        ],
-        "unitAlias": ""
-      },
-      {
-        "id": 31911,
-        "nodeType": "ImportDirective",
-        "src": "415:107:47",
-        "nodes": [],
-        "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
-        "file": "../interfaces/IWTFCRules.sol",
-        "nameLocation": "-1:-1:-1",
-        "scope": 31912,
-        "sourceUnit": 30570,
-        "symbolAliases": [
-          {
-            "foreign": {
-              "id": 31906,
-              "name": "IWriteRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30493,
-              "src": "423:10:47",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          },
-          {
-            "foreign": {
-              "id": 31907,
-              "name": "ITransferRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30514,
-              "src": "435:13:47",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          },
-          {
-            "foreign": {
-              "id": 31908,
-              "name": "IFundRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30533,
-              "src": "450:9:47",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          },
-          {
-            "foreign": {
-              "id": 31909,
-              "name": "ICashRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30552,
-              "src": "461:9:47",
-              "typeDescriptions": {}
-            },
-            "nameLocation": "-1:-1:-1"
-          },
-          {
-            "foreign": {
-              "id": 31910,
-              "name": "IApproveRule",
-              "nodeType": "Identifier",
-              "overloadedDeclarations": [],
-              "referencedDeclaration": 30569,
-              "src": "472:12:47",
+              "referencedDeclaration": 30406,
+              "src": "358:14:45",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -290,5 +201,5 @@
     ],
     "license": "BUSL-1.1"
   },
-  "id": 47
+  "id": 45
 }
