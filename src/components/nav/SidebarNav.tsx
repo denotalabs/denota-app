@@ -1,11 +1,13 @@
 import {
   Box,
   BoxProps,
+  Center,
   CloseButton,
   Drawer,
   DrawerContent,
   Flex,
   FlexProps,
+  HStack,
   Icon,
   IconButton,
   Link,
@@ -22,8 +24,9 @@ import {
   MdInfoOutline,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
-  MdOutlineSend,
 } from "react-icons/md";
+import { SiDiscord } from "react-icons/si";
+import { SocialIcon } from "react-social-icons";
 import DesktopHeader from "./DesktopHeader";
 import WalletInfo from "./WalletInfo";
 
@@ -40,7 +43,7 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/",
     isExternal: false,
   },
-  { name: "Send", icon: MdOutlineSend, href: "/send", isExternal: false },
+  // { name: "Send", icon: MdOutlineSend, href: "/send", isExternal: false },
   {
     name: "Documentation",
     icon: MdOutlineDescription,
@@ -49,6 +52,13 @@ const LinkItems: Array<LinkItemProps> = [
   },
   { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
+
+interface SocialItemsProps {
+  icon: IconType;
+  href: string;
+}
+
+const socialItems: Array<SocialItemsProps> = [];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -98,29 +108,67 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       h="full"
       {...rest}
     >
-      <Flex
-        pb={3}
-        pt={6}
-        alignItems="center"
-        mx={{ base: 8, md: 0 }}
-        justifyContent={{ base: "space-between", md: "center" }}
-      >
-        <Text
-          noOfLines={1}
-          fontSize="2xl"
-          fontFamily="DM Sans"
-          fontWeight="bold"
-        >
-          Denota Protocol
-        </Text>
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
-      </Flex>
-      <VStack gap={3} alignItems="flex-start">
-        {LinkItems.map((link) => (
-          <NavItem key={link.name} {...link}>
-            <Text fontSize="lg">{link.name}</Text>
-          </NavItem>
-        ))}
+      <VStack h="full" justifyContent="space-between">
+        <Box>
+          <Flex
+            pb={3}
+            pt={6}
+            alignItems="center"
+            mx={{ base: 8, md: 0 }}
+            justifyContent={{ base: "space-between", md: "center" }}
+          >
+            <Text
+              noOfLines={1}
+              fontSize="2xl"
+              fontFamily="DM Sans"
+              fontWeight="bold"
+            >
+              Denota Protocol
+            </Text>
+            <CloseButton
+              display={{ base: "flex", md: "none" }}
+              onClick={onClose}
+            />
+          </Flex>
+          <VStack gap={3} alignItems="flex-start">
+            {LinkItems.map((link) => (
+              <NavItem key={link.name} {...link}>
+                <Text fontSize="lg">{link.name}</Text>
+              </NavItem>
+            ))}
+          </VStack>
+        </Box>
+        <HStack maxW="full" pb={5}>
+          <SocialIcon
+            fgColor="white"
+            bgColor="transparent"
+            url="https://twitter.com/DenotaLabs"
+            style={{ height: 40, width: 40 }}
+          />
+          <Link
+            style={{ textDecoration: "none" }}
+            href="https://discord.gg/DpXr3MsX"
+            isExternal={true}
+          >
+            <Center h="40px" w="40px">
+              <Icon
+                fontSize="25"
+                // h="50px"
+                // w="50px"
+                _groupHover={{
+                  color: "white",
+                }}
+                as={SiDiscord}
+              />
+            </Center>
+          </Link>
+          <SocialIcon
+            fgColor="white"
+            bgColor="transparent"
+            url="https://www.linkedin.com/company/denota-labs/"
+            style={{ height: 40, width: 40 }}
+          />
+        </HStack>
       </VStack>
     </Box>
   );
@@ -130,7 +178,7 @@ interface NavItemProps extends FlexProps {
   icon: IconType;
   href: string;
   isExternal: boolean;
-  children: ReactNode;
+  children?: ReactNode;
 }
 const NavItem = ({
   icon,
@@ -174,7 +222,7 @@ const NavItem = ({
           bg: isSelected ? undefined : "brand.400",
           color: "white",
         }}
-        bgColor={isSelected ? "cheqPurple.100" : undefined}
+        bgColor={isSelected ? "brand.400" : undefined}
         {...rest}
       >
         {icon && (
