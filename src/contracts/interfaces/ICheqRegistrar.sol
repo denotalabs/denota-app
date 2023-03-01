@@ -58,6 +58,8 @@ interface ICheqRegistrar {
 
     function cheqModule(uint256 cheqId) external view returns (address);
 
+    // function ownerOf(uint256 cheqId) external view returns (address);
+
     // function totalSupply() public view returns (uint256);
 
     /// Whitlistings

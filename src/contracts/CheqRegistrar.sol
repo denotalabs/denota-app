@@ -34,6 +34,7 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
 // TODO need to implement upgradable proxies
 // TODO make sure tokenURI is working
 // TODO TODO modify ERC721 to allow non owner/approved/operators to call transferFrom (let module decide)
+// TODO allow batched usage of functions
 contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     using SafeERC20 for IERC20;
     /*//////////////////////////////////////////////////////////////

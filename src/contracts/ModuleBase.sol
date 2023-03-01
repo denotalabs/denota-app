@@ -37,71 +37,71 @@ abstract contract ModuleBase is ICheqModule {
         emit Events.ModuleBaseConstructed(registrar, block.timestamp);
     }
 
-    function processWrite(
-        address caller,
-        address owner,
-        uint256 cheqId,
-        address currency,
-        uint256 escrowed,
-        uint256 instant,
-        bytes calldata initData
-    ) external virtual override onlyRegistrar returns (uint256) {
-        // Add module logic here
-        return fees.writeBPS;
-    }
+    // function processWrite(
+    //     address caller,
+    //     address owner,
+    //     uint256 cheqId,
+    //     address currency,
+    //     uint256 escrowed,
+    //     uint256 instant,
+    //     bytes calldata initData
+    // ) external virtual override onlyRegistrar returns (uint256) {
+    //     // Add module logic here
+    //     return fees.writeBPS;
+    // }
 
-    function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address from,
-        address to,
-        uint256 cheqId,
-        address currency,
-        uint256 escrowed,
-        uint256 createdAt,
-        bytes calldata data
-    ) external virtual override onlyRegistrar returns (uint256) {
-        // Add module logic here
-        return fees.transferBPS;
-    }
+    // function processTransfer(
+    //     address caller,
+    //     address approved,
+    //     address owner,
+    //     address from,
+    //     address to,
+    //     uint256 cheqId,
+    //     address currency,
+    //     uint256 escrowed,
+    //     uint256 createdAt,
+    //     bytes calldata data
+    // ) external virtual override onlyRegistrar returns (uint256) {
+    //     // Add module logic here
+    //     return fees.transferBPS;
+    // }
 
-    function processFund(
-        address caller,
-        address owner,
-        uint256 amount,
-        uint256 instant,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external virtual override onlyRegistrar returns (uint256) {
-        // Add module logic here
-        return fees.fundBPS;
-    }
+    // function processFund(
+    //     address caller,
+    //     address owner,
+    //     uint256 amount,
+    //     uint256 instant,
+    //     uint256 cheqId,
+    //     DataTypes.Cheq calldata cheq,
+    //     bytes calldata initData
+    // ) external virtual override onlyRegistrar returns (uint256) {
+    //     // Add module logic here
+    //     return fees.fundBPS;
+    // }
 
-    function processCash(
-        address caller,
-        address owner,
-        address to,
-        uint256 amount,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external virtual override onlyRegistrar returns (uint256) {
-        // Add module logic here
-        return fees.cashBPS;
-    }
+    // function processCash(
+    //     address caller,
+    //     address owner,
+    //     address to,
+    //     uint256 amount,
+    //     uint256 cheqId,
+    //     DataTypes.Cheq calldata cheq,
+    //     bytes calldata initData
+    // ) external virtual override onlyRegistrar returns (uint256) {
+    //     // Add module logic here
+    //     return fees.cashBPS;
+    // }
 
-    function processApproval(
-        address caller,
-        address owner,
-        address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes memory initData
-    ) external virtual override onlyRegistrar {
-        // Add module logic here
-    }
+    // function processApproval(
+    //     address caller,
+    //     address owner,
+    //     address to,
+    //     uint256 cheqId,
+    //     DataTypes.Cheq calldata cheq,
+    //     bytes memory initData
+    // ) external virtual override onlyRegistrar {
+    //     // Add module logic here
+    // }
 
     function processTokenURI(uint256 tokenId)
         external
