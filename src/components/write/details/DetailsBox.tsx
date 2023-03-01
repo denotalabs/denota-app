@@ -7,7 +7,6 @@ import EmailField from "../../fields/input/EmailField";
 import NoteField from "../../fields/input/NoteField";
 import TagsField from "../../fields/input/TagsField";
 import FileControl from "./FileUpload";
-import ModeSelect from "./ModeSelect";
 
 interface Props {
   isInvoice: boolean;
@@ -19,7 +18,7 @@ function DetailsBox({ isInvoice, token, mode }: Props) {
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
-        <FormControl
+        {/* <FormControl
           alignItems={"center"}
           justifyContent={"space-between"}
           flexShrink={0}
@@ -27,7 +26,7 @@ function DetailsBox({ isInvoice, token, mode }: Props) {
         >
           <FormLabel>Type</FormLabel>
           <ModeSelect isInvoice={isInvoice} />
-        </FormControl>
+        </FormControl> */}
         <Flex
           justifyContent="space-between"
           flexShrink={0}
