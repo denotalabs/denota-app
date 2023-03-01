@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { useClipboard } from "@chakra-ui/hooks";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  SmallCloseIcon,
+  CopyIcon,
+  InfoIcon,
+  MoonIcon,
+  SmallAddIcon,
+} from "@chakra-ui/icons";
 import jazzicon from "jazzicon-ts";
 import Web3Modal from "web3modal";
 
@@ -51,6 +60,7 @@ export default function WalletInfo() {
   const { blockchainState } = useBlockchainData();
   const avatarRef = useRef<HTMLDivElement | null>(null);
   const { colorMode, toggleColorMode } = useColorMode();
+  const { onCopy } = useClipboard(blockchainState.account);
 
   useEffect(() => {
     const element = avatarRef.current;
@@ -97,10 +107,12 @@ export default function WalletInfo() {
       </MenuButton>
       <MenuList alignItems="center" bg="brand.100">
         <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
+          <InfoIcon mr={2} />
           Testnet Mode
           <Switch isChecked disabled={true} id="testnet-mode" />
         </StyledMenuItem>
         <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
+          <MoonIcon mr={2} />
           Dark Mode
           <Switch
             onChange={() => {
@@ -115,11 +127,13 @@ export default function WalletInfo() {
         <StyledMenuItem
           onClick={() => addToken(blockchainState.dai?.address ?? "", "DAI")}
         >
+          <SmallAddIcon mr={2} />
           Add DAI
         </StyledMenuItem>
         <StyledMenuItem
           onClick={() => addToken(blockchainState.weth?.address ?? "", "WETH")}
         >
+          <SmallAddIcon mr={2} />
           Add WETH
         </StyledMenuItem>
         <StyledMenuItem
@@ -127,7 +141,12 @@ export default function WalletInfo() {
             logout(providerOptions);
           }}
         >
+          <SmallCloseIcon mr={2} />
           Logout
+        </StyledMenuItem>
+        <StyledMenuItem onClick={onCopy} isDisabled={!blockchainState.account}>
+          <CopyIcon mr={2} />
+          Copy Address
         </StyledMenuItem>
       </MenuList>
     </Menu>
