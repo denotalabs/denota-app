@@ -151,7 +151,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
           >
             <Center h="40px" w="40px">
               <Icon
-                fontSize="25"
+                fontSize="20"
                 _groupHover={{
                   color: "white",
                 }}
