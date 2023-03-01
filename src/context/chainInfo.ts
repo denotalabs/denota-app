@@ -41,6 +41,14 @@ export interface ChainInfo {
   };
 }
 
+export const chainNumberToChainHex = (chainId: number) => {
+  return "0x" + chainId.toString(16);
+}
+
+export const chainInfoForChainId = (chainId: number) => {
+  return deployedChains["0x" + chainId.toString(16)];
+}
+
 export const deployedChains: Record<string, ChainInfo> = {
   "0x13881": {
     displayName: "Polygon Mumbai",

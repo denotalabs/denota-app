@@ -1,5 +1,3 @@
-import { useColorMode } from "@chakra-ui/react";
-import { BigNumber, ethers } from "ethers";
 import React, {
   createContext,
   memo,
@@ -8,10 +6,19 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
+import { useColorMode } from "@chakra-ui/react";
+import { BigNumber, ethers } from "ethers";
 import Web3Modal from "web3modal";
+
 import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
-import { contractMappingForChainId, deployedChains, ChainInfo } from "./chainInfo";
+import {
+  ChainInfo,
+  chainInfoForChainId,
+  chainNumberToChainHex,
+  contractMappingForChainId,
+} from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
 // TODO: Use cheq subdomain
@@ -119,7 +126,8 @@ export const BlockchainDataProvider = memo(
         });
 
         const contractMapping = contractMappingForChainId(chainId);
-        const deployedChainInfo: ChainInfo = deployedChains[chainId];
+        const deployedChainInfo: ChainInfo = chainInfoForChainId(chainId);
+        const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
 
         if (contractMapping === undefined) {
           setIsInitializing(false);
@@ -165,10 +173,10 @@ export const BlockchainDataProvider = memo(
             cheqAddress: contractMapping.cheq,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
-            explorer: deployedChainInfo.blockExplorerUrls[0],
+            explorer: firstBlockExplorer,
             cheq,
             directPayAddress: contractMapping.directPayModule,
-            chainId: chainId.toString(16),
+            chainId: chainNumberToChainHex(chainId),
           });
           setIsInitializing(false);
         }
