@@ -11,7 +11,7 @@ import React, {
 import Web3Modal from "web3modal";
 import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
-import { contractMappingForChainId } from "./chainInfo";
+import { contractMappingForChainId, deployedChains, ChainInfo } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
 // TODO: Use cheq subdomain
@@ -119,6 +119,7 @@ export const BlockchainDataProvider = memo(
         });
 
         const contractMapping = contractMappingForChainId(chainId);
+        const deployedChainInfo: ChainInfo = deployedChains[chainId];
 
         if (contractMapping === undefined) {
           setIsInitializing(false);
@@ -164,8 +165,7 @@ export const BlockchainDataProvider = memo(
             cheqAddress: contractMapping.cheq,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
-            // TODO get explorer from network mapping
-            explorer: contractMapping.explorer,
+            explorer: deployedChainInfo.blockExplorerUrls[0],
             cheq,
             directPayAddress: contractMapping.directPayModule,
             chainId: chainId.toString(16),

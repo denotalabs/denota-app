@@ -5,7 +5,6 @@ export const ContractAddressMapping = {
     weth: "0xe37F99b03C7B4f4d71eE20e8eF3AC4E138D47F80",
     selfSignedBroker: "0xa9f0CE52c8De7496F7137cF807A6D33df06C2C87",
     directPayModule: "0xA9d4f82045eB2E3BB7309740A7210402acD542cE",
-    explorer: "https://mumbai.polygonscan.com/tx/",
   },
   local: {
     cheq: "0x5B631dD0d2984513C65A1b1538777FdF4E5f2B2A",
@@ -13,7 +12,6 @@ export const ContractAddressMapping = {
     weth: "0x612f8B2878Fc8DFB6747bc635b8B3DeDFDaeb39e",
     selfSignedBroker: "0x8Df6c6fb81d3d1DAAFCd5FD5564038b0d9006FbB",
     directPayModule: "0xa9f0CE52c8De7496F7137cF807A6D33df06C2C87",
-    explorer: "https://mumbai.polygonscan.com/tx/",
   },
 };
 
@@ -28,7 +26,7 @@ export const contractMappingForChainId = (chainId: number) => {
   }
 };
 
-interface ChainInfo {
+export interface ChainInfo {
   displayName: string;
   name: string;
   chainId: string;
@@ -72,11 +70,11 @@ export const deployedChains: Record<string, ChainInfo> = {
     rpcUrls: ["https://alfajores-forno.celo-testnet.org"],
   },
   "0x1": {
+    isDisabled: true,
     name: "Ethereum Mainnet",
     displayName: "Ethereum",
     chainId: "0x1",
     logoSrc: "/images/ethereum-logo.png",
-    isDisabled: true,
     blockExplorerUrls: ["https://etherscan.io/"],
     rpcUrls: ["https://eth.llamarpc.com"],
   },
