@@ -43,7 +43,6 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/",
     isExternal: false,
   },
-  // { name: "Send", icon: MdOutlineSend, href: "/send", isExternal: false },
   {
     name: "Documentation",
     icon: MdOutlineDescription,
@@ -153,8 +152,6 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             <Center h="40px" w="40px">
               <Icon
                 fontSize="25"
-                // h="50px"
-                // w="50px"
                 _groupHover={{
                   color: "white",
                 }}

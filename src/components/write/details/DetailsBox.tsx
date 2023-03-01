@@ -15,15 +15,6 @@ function DetailsBox({ isInvoice }: Props) {
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
-        {/* <FormControl
-          alignItems={"center"}
-          justifyContent={"space-between"}
-          flexShrink={0}
-          w="200px"
-        >
-          <FormLabel>Type</FormLabel>
-          <ModeSelect isInvoice={isInvoice} />
-        </FormControl> */}
         <Flex
           alignItems="center"
           justifyContent="space-between"
