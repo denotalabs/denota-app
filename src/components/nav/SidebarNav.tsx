@@ -23,6 +23,7 @@ import {
   MdInfoOutline,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
+  MdOutlineSend,
   MdSwapHoriz,
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
@@ -43,6 +44,7 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/",
     isExternal: false,
   },
+  { name: "Send", icon: MdOutlineSend, href: "/send", isExternal: false },
   {
     name: "Documentation",
     icon: MdOutlineDescription,
@@ -55,6 +57,7 @@ const LinkItems: Array<LinkItemProps> = [
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box minH="100vh">
       <SidebarContent

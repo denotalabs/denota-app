@@ -24,6 +24,7 @@ function StepperHeader({ onClose, back, currentIndex, title }: Props) {
         aria-label="Next"
         icon={<SmallCloseIcon />}
         onClick={onClose}
+        opacity={0}
       />
     </Flex>
   );
