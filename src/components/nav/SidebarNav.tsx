@@ -16,6 +16,7 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { ReactNode, useEffect, useMemo } from "react";
 import { IconType } from "react-icons";
@@ -27,6 +28,7 @@ import {
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
+import ChainSwitcher from "./ChainSwitcher";
 import DesktopHeader from "./DesktopHeader";
 import WalletInfo from "./WalletInfo";
 
@@ -51,13 +53,6 @@ const LinkItems: Array<LinkItemProps> = [
   },
   { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
-
-interface SocialItemsProps {
-  icon: IconType;
-  href: string;
-}
-
-const socialItems: Array<SocialItemsProps> = [];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -116,14 +111,15 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             mx={{ base: 8, md: 0 }}
             justifyContent={{ base: "space-between", md: "center" }}
           >
-            <Text
-              noOfLines={1}
-              fontSize="2xl"
-              fontFamily="DM Sans"
-              fontWeight="bold"
-            >
-              Denota Protocol
-            </Text>
+            <Box mt={3} mb={3}>
+              <Image
+                src="logos/denota-logo-text.svg"
+                alt="denota logo text"
+                width={400}
+                height={40}
+                unoptimized={true}
+              />
+            </Box>
             <CloseButton
               display={{ base: "flex", md: "none" }}
               onClick={onClose}
@@ -145,11 +141,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             style={{ height: 40, width: 40 }}
             target="_blank"
           />
-          <Link
-            style={{ textDecoration: "none" }}
-            href="https://discord.gg/DpXr3MsX"
-            isExternal={true}
-          >
+          <Link href="https://discord.gg/DpXr3MsX" isExternal={true}>
             <Center h="40px" w="40px">
               <Icon
                 fontSize="20"
@@ -218,7 +210,7 @@ const NavItem = ({
         role="group"
         cursor="pointer"
         _hover={{
-          bg: isSelected ? undefined : "brand.400",
+          bg: isSelected ? undefined : "brand.500",
           color: "white",
         }}
         bgColor={isSelected ? "brand.400" : undefined}
@@ -254,6 +246,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       borderBottomWidth="1px"
       borderBottomColor={useColorModeValue("gray.200", "gray.700")}
       justifyContent="space-between"
+      display="flex"
       {...rest}
     >
       <IconButton
@@ -262,11 +255,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         aria-label="open menu"
         icon={<FiMenu />}
       />
-
-      <Text fontSize="2xl" fontFamily="DM Sans" fontWeight="bold">
-        Denota Protocol
-      </Text>
-      <WalletInfo />
+      <Flex alignItems="center">
+        <ChainSwitcher />
+        <WalletInfo />
+      </Flex>
     </Flex>
   );
 };

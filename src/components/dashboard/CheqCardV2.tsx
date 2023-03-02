@@ -128,6 +128,8 @@ function CheqCardV2({ cheq }: Props) {
               label={TOOLTIP_MESSAGE_MAP[status]}
               aria-label="status tooltip"
               placement="bottom"
+              bg="brand.100"
+              textColor="white"
             >
               <Center
                 bgColor={iconColor}
