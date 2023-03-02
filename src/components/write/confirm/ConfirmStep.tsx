@@ -123,7 +123,7 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
               }
 
               if (txHash) {
-                sendEmail(
+                await sendEmail(
                   formData.email,
                   txHash,
                   blockchainState.chainId,
