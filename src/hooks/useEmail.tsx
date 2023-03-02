@@ -10,7 +10,8 @@ export const useEmail = () => {
       txHash: string,
       network: string,
       token: string,
-      amount: number,
+      amount: string,
+      module: string,
       isInvoice: boolean
     ) => {
       try {
@@ -21,6 +22,7 @@ export const useEmail = () => {
           token,
           amount,
           isInvoice,
+          module,
         });
       } catch (error) {
         console.log(error);

@@ -129,6 +129,7 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
                   blockchainState.chainId,
                   formData.token,
                   formData.amount,
+                  "direct",
                   isInvoice
                 );
               }

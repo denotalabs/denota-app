@@ -1,4 +1,5 @@
 import bodyParser from "body-parser";
+import { ethers } from "ethers";
 import express from "express";
 import nodemailer from "nodemailer";
 
@@ -8,7 +9,6 @@ const port = 3000;
 var jsonParser = bodyParser.json();
 
 app.post("/send-email", jsonParser, async (req, res) => {
-  // Create a transport object using the Gmail SMTP server
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -17,15 +17,31 @@ app.post("/send-email", jsonParser, async (req, res) => {
     },
   });
 
-  // Create an email object with the HTML content and recipient
+  const { email, txHash, token, amount, isInvoice } = req.body;
+
+  // TODO: handle other chains
+  const provider = new ethers.providers.JsonRpcProvider(
+    "https://rpc-mumbai.maticvigil.com"
+  );
+
+  const tx = await provider.getTransaction(txHash);
+
+  const sender = tx.from.slice(0, 5) + "..." + tx.from.slice(-4);
+
+  const notaType = req.body.isInvoice ? "an invoice" : "a payment";
+
+  const notaDescription = isInvoice
+    ? `${sender} requests ${amount} ${token}.`
+    : `${sender} paid you ${amount} ${token}.`;
+
+  // TODO: add Denota logo/branding
   const mailOptions = {
     from: "denotatest@gmail.com",
-    to: req.body.email,
-    subject: "Hola from Denota",
-    html: "<h1>You've received a Nota!</h1><p>Visit denota.xyz to view it</p>",
+    to: email,
+    subject: `You received ${notaType}`,
+    html: `<h3>Hola from Denota!</h3><p>${notaDescription} Visit app.denota.xyz for more details</p>`,
   };
 
-  // Use the transport object to send the email
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
