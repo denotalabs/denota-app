@@ -139,6 +139,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             bgColor="transparent"
             url="https://twitter.com/DenotaLabs"
             style={{ height: 40, width: 40 }}
+            target="_blank"
           />
           <Link href="https://discord.gg/DpXr3MsX" isExternal={true}>
             <Center h="40px" w="40px">
@@ -156,6 +157,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             bgColor="transparent"
             url="https://www.linkedin.com/company/denota-labs/"
             style={{ height: 40, width: 40 }}
+            target="_blank"
           />
         </HStack>
       </VStack>

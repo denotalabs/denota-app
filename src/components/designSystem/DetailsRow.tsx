@@ -1,15 +1,32 @@
-import { ExternalLinkIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
+import {
+  CopyIcon,
+  ExternalLinkIcon,
+  QuestionOutlineIcon,
+} from "@chakra-ui/icons";
 
-import { Box, Flex, HStack, Link, Text, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  HStack,
+  Link,
+  Text,
+  Tooltip,
+  useClipboard,
+  useToast,
+} from "@chakra-ui/react";
 
 interface Props {
   title: string;
   value: string;
   link?: string | null;
   tooltip?: string;
+  copyValue?: string;
 }
 
-function DetailsRow({ title, value, link, tooltip }: Props) {
+function DetailsRow({ title, value, link, tooltip, copyValue }: Props) {
+  const { onCopy } = useClipboard(copyValue ?? "");
+  const toast = useToast();
+
   return (
     <Box py={3} w="100%">
       <Flex direction="row" justifyContent="space-between" maxW="100%">
@@ -40,6 +57,20 @@ function DetailsRow({ title, value, link, tooltip }: Props) {
             <Link href={link} isExternal>
               <ExternalLinkIcon mb={1} />
             </Link>
+          )}
+          {copyValue && (
+            <CopyIcon
+              cursor={"pointer"}
+              onClick={() => {
+                onCopy();
+                toast({
+                  title: "Address copied",
+                  status: "success",
+                  duration: 1000,
+                  isClosable: true,
+                });
+              }}
+            />
           )}
         </HStack>
       </Flex>

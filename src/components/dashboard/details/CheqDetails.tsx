@@ -47,8 +47,16 @@ function CheqDetails({ cheq }: Props) {
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
         <VStack gap={0}>
-          <DetailsRow title="Payer" value={cheq.formattedPayer} />
-          <DetailsRow title="Recipient" value={cheq.formattedPayee} />
+          <DetailsRow
+            title="Payer"
+            value={cheq.formattedPayer}
+            copyValue={!cheq.isPayer ? cheq.payer : undefined}
+          />
+          <DetailsRow
+            title="Recipient"
+            value={cheq.formattedPayee}
+            copyValue={!cheq.isPayer ? undefined : cheq.payee}
+          />
           <DetailsRow
             title="Created On"
             value={cheq.createdTransaction.date.toDateString()}
