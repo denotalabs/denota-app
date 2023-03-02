@@ -28,6 +28,7 @@ import {
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
+import ChainSwitcher from "./ChainSwitcher";
 import DesktopHeader from "./DesktopHeader";
 import WalletInfo from "./WalletInfo";
 
@@ -139,11 +140,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             url="https://twitter.com/DenotaLabs"
             style={{ height: 40, width: 40 }}
           />
-          <Link
-            style={{ textDecoration: "none" }}
-            href="https://discord.gg/DpXr3MsX"
-            isExternal={true}
-          >
+          <Link href="https://discord.gg/DpXr3MsX" isExternal={true}>
             <Center h="40px" w="40px">
               <Icon
                 fontSize="20"
@@ -211,7 +208,7 @@ const NavItem = ({
         role="group"
         cursor="pointer"
         _hover={{
-          bg: isSelected ? undefined : "brand.400",
+          bg: isSelected ? undefined : "brand.500",
           color: "white",
         }}
         bgColor={isSelected ? "brand.400" : undefined}
@@ -247,6 +244,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       borderBottomWidth="1px"
       borderBottomColor={useColorModeValue("gray.200", "gray.700")}
       justifyContent="space-between"
+      display="flex"
       {...rest}
     >
       <IconButton
@@ -255,14 +253,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         aria-label="open menu"
         icon={<FiMenu />}
       />
-      <Image
-        src="logos/denota-logo.svg"
-        alt="denota logo"
-        width={30}
-        height={30}
-        unoptimized={true}
-      />
-      <WalletInfo />
+      <Flex alignItems="center">
+        <ChainSwitcher />
+        <WalletInfo />
+      </Flex>
     </Flex>
   );
 };
