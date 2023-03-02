@@ -39,6 +39,8 @@ export interface Cheq {
   isPaid: boolean;
   isPayer: boolean;
   uri: string;
+  payer: string;
+  payee: string;
 }
 
 const convertExponent = (amountExact: number) => {
@@ -142,6 +144,8 @@ export const useCheqs = ({ cheqField }: Props) => {
         isPaid: hasEscrow,
         uri: gqlCheq.uri,
         isPayer,
+        payer,
+        payee,
       };
     },
     [blockchainState.account, currencyForTokenId]
