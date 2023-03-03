@@ -196,8 +196,6 @@ function CheqCardV2({ cheq }: Props) {
               ) : null}
               <Button
                 variant="outline"
-                borderColor="brand.200"
-                color="brand.200"
                 w="min(40vw, 100px)"
                 borderRadius={5}
                 onClick={onOpenDetails}
