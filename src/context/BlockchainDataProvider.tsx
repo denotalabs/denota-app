@@ -126,11 +126,14 @@ export const BlockchainDataProvider = memo(
         });
         const contractMapping = contractMappingForChainId(chainId);
         const deployedChainInfo: ChainInfo = chainInfoForChainId(chainId);
-        
 
         if (contractMapping === undefined || deployedChainInfo == undefined) {
           setIsInitializing(false);
           setIsWrongChain(true);
+          setBlockchainState({
+            ...blockchainState,
+            account,
+          });
         } else {
           // Load contracts
           const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];

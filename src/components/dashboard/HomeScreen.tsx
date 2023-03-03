@@ -4,12 +4,13 @@ import { Button, Center, Spinner, Text, useDisclosure } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import { MUMBAI_ADDRESS } from "../../context/chainInfo";
+import { switchNetwork } from "../../context/SwitchNetwork";
 import NewUserModal from "../nux/NewUserModal";
-import ConnectWallet from "./ConnectWallet";
 import MyCheqsView from "./MyCheqsView";
 import NewInvoice from "./NewInvoice";
-import { switchNetwork } from "../../context/SwitchNetwork";
-import { MUMBAI_ADDRESS } from "../../context/chainInfo";
+import NewUserScreen from "./NewUserScreen";
+
 function HomeScreen() {
   return (
     <Center alignItems={"flex-start"} width="100%" maxWidth="65rem">
@@ -69,7 +70,7 @@ function HomeScreenContent() {
   }
 
   return account === "" ? (
-    <ConnectWallet />
+    <NewUserScreen />
   ) : (
     <Center flexDirection={"column"} width="100%" p={{ base: "4", lg: "0" }}>
       <NewUserModal isOpen={isNuxOpen} onClose={onCloseNux} />

@@ -58,11 +58,16 @@ const logout = (providerOptions: any) => {
 };
 
 export default function WalletInfo() {
-  const { blockchainState } = useBlockchainData();
+  const { isInitializing, connectWallet, blockchainState } =
+    useBlockchainData();
+  const { account } = blockchainState;
   const avatarRef = useRef<HTMLDivElement | null>(null);
+
   const { colorMode, toggleColorMode } = useColorMode();
   const { onCopy } = useClipboard(blockchainState.account);
+
   const isMobile = useBreakpointValue({ base: true, md: false });
+
   useEffect(() => {
     const element = avatarRef.current;
     if (element && blockchainState.account) {
@@ -76,84 +81,101 @@ export default function WalletInfo() {
     }
   }, [blockchainState.account, avatarRef]);
   const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <Menu isOpen={isOpen} onClose={() => setIsOpen(false)}>
-      <MenuButton
-        as={Button}
-        rounded="full"
-        cursor="pointer"
-        bg="brand.600"
-        rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-        onClick={() => setIsOpen(!isOpen)}
+  if (isInitializing) return <></>;
+  if (account === "")
+    return (
+      <Button
+        colorScheme="blue"
+        onClick={() => {
+          connectWallet?.();
+        }}
       >
-        <Flex alignItems="center" justifyContent="center">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            ref={avatarRef}
-          ></div>
-          <Spacer mx="1" />
-          {isMobile ? null : (
-            <>
-              <Spacer mx="1" />
-              <Text fontSize="lg">
-                {blockchainState.account &&
-                  blockchainState.account.slice(0, 6) +
-                    "..." +
-                    blockchainState.account.slice(-4)}
-              </Text>
-            </>
-          )}
-        </Flex>
-      </MenuButton>
-      <MenuList alignItems="center" bg="brand.100">
-        <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
-          <InfoIcon mr={2} />
-          Testnet Mode
-          <Switch isChecked disabled={true} id="testnet-mode" />
-        </StyledMenuItem>
-        <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
-          <MoonIcon mr={2} />
-          Dark Mode
-          <Switch
-            onChange={() => {
-              toggleColorMode();
-            }}
-            isChecked={colorMode === "dark"}
-            id="dark-mode"
-            disabled={true}
-          />
-        </StyledMenuItem>
+        Connect Wallet
+      </Button>
+    );
+  else
+    return (
+      <Menu isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <MenuButton
+          as={Button}
+          rounded="full"
+          cursor="pointer"
+          bg="brand.600"
+          rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <Flex alignItems="center" justifyContent="center">
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              ref={avatarRef}
+            ></div>
+            <Spacer mx="1" />
+            {isMobile ? null : (
+              <>
+                <Spacer mx="1" />
+                <Text fontSize="lg">
+                  {blockchainState.account &&
+                    blockchainState.account.slice(0, 6) +
+                      "..." +
+                      blockchainState.account.slice(-4)}
+                </Text>
+              </>
+            )}
+          </Flex>
+        </MenuButton>
+        <MenuList alignItems="center" bg="brand.100">
+          <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
+            <InfoIcon mr={2} />
+            Testnet Mode
+            <Switch isChecked disabled={true} id="testnet-mode" />
+          </StyledMenuItem>
+          <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
+            <MoonIcon mr={2} />
+            Dark Mode
+            <Switch
+              onChange={() => {
+                toggleColorMode();
+              }}
+              isChecked={colorMode === "dark"}
+              id="dark-mode"
+              disabled={true}
+            />
+          </StyledMenuItem>
 
-        <StyledMenuItem
-          onClick={() => addToken(blockchainState.dai?.address ?? "", "DAI")}
-        >
-          <SmallAddIcon mr={2} />
-          Add DAI
-        </StyledMenuItem>
-        <StyledMenuItem
-          onClick={() => addToken(blockchainState.weth?.address ?? "", "WETH")}
-        >
-          <SmallAddIcon mr={2} />
-          Add WETH
-        </StyledMenuItem>
-        <StyledMenuItem
-          onClick={() => {
-            logout(providerOptions);
-          }}
-        >
-          <SmallCloseIcon mr={2} />
-          Logout
-        </StyledMenuItem>
-        <StyledMenuItem onClick={onCopy} isDisabled={!blockchainState.account}>
-          <CopyIcon mr={2} />
-          Copy Address
-        </StyledMenuItem>
-      </MenuList>
-    </Menu>
-  );
+          <StyledMenuItem
+            onClick={() => addToken(blockchainState.dai?.address ?? "", "DAI")}
+          >
+            <SmallAddIcon mr={2} />
+            Add DAI
+          </StyledMenuItem>
+          <StyledMenuItem
+            onClick={() =>
+              addToken(blockchainState.weth?.address ?? "", "WETH")
+            }
+          >
+            <SmallAddIcon mr={2} />
+            Add WETH
+          </StyledMenuItem>
+          <StyledMenuItem
+            onClick={() => {
+              logout(providerOptions);
+            }}
+          >
+            <SmallCloseIcon mr={2} />
+            Logout
+          </StyledMenuItem>
+          <StyledMenuItem
+            onClick={onCopy}
+            isDisabled={!blockchainState.account}
+          >
+            <CopyIcon mr={2} />
+            Copy Address
+          </StyledMenuItem>
+        </MenuList>
+      </Menu>
+    );
 }
