@@ -1,9 +1,10 @@
 import { useState } from "react";
 
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronUpIcon, WarningIcon } from "@chakra-ui/icons";
 import {
   Button,
   Flex,
+  Icon,
   Menu,
   MenuButton,
   MenuList,
@@ -21,18 +22,13 @@ import StyledMenuItem from "../designSystem/StyledMenuItem";
 export default function ChainSwitcher() {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const { blockchainState } = useBlockchainData();
-  const { chainId } = blockchainState;
+  const { isInitializing, blockchainState } = useBlockchainData();
+  const { account, chainId } = blockchainState;
 
-  const filteredChains = Object.values(deployedChains).map((chain) => {
-    const { displayName, chainId, logoSrc, isDisabled } = chain;
-    return { displayName, chainId, logoSrc, isDisabled };
-  });
+  console.log(chainId);
 
-  const [selectedChain, setSelectedChain] = useState(
-    filteredChains.find((chain) => chain.chainId === chainId) ??
-      filteredChains[0]
-  );
+  const selectedChain = deployedChains[chainId];
+
   const [isOpen, setIsOpen] = useState(false);
 
   const handleSelectChain = async (chain: {
@@ -41,12 +37,10 @@ export default function ChainSwitcher() {
     logoSrc: string;
     isDisabled?: boolean;
   }) => {
-    const { displayName, chainId, logoSrc, isDisabled } = chain;
-    setSelectedChain({ displayName, chainId, logoSrc, isDisabled });
     setIsOpen(false);
     await switchNetwork(chain.chainId);
   };
-
+  if (account === "" || isInitializing) return <></>;
   return (
     <Menu isOpen={isOpen} onClose={() => setIsOpen(false)}>
       <MenuButton
@@ -59,21 +53,27 @@ export default function ChainSwitcher() {
         onClick={() => setIsOpen(!isOpen)}
       >
         <Flex alignItems="center">
-          <Image
-            src={selectedChain.logoSrc}
-            alt={selectedChain.displayName}
-            width={20}
-            height={20}
-            unoptimized={true}
-          />
+          {selectedChain ? (
+            <Image
+              src={selectedChain.logoSrc}
+              alt={selectedChain.displayName}
+              width={20}
+              height={20}
+              unoptimized={true}
+            />
+          ) : (
+            <Icon as={WarningIcon} boxSize={5} />
+          )}
           <Spacer mx="1" />
           {isMobile ? null : (
-            <Text fontSize="lg">{selectedChain.displayName}</Text>
+            <Text fontSize="lg">
+              {selectedChain ? selectedChain.displayName : "Unsupported Chain"}
+            </Text>
           )}
         </Flex>
       </MenuButton>
       <MenuList bg="brand.100">
-        {filteredChains.map((chain) => (
+        {Object.values(deployedChains).map((chain) => (
           <StyledMenuItem
             key={chain.chainId}
             onClick={() => handleSelectChain(chain)}
