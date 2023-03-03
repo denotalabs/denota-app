@@ -131,7 +131,7 @@ export const BlockchainDataProvider = memo(
           setIsInitializing(false);
           setIsWrongChain(true);
           setBlockchainState({
-            ...blockchainState,
+            ...defaultBlockchainState,
             account,
           });
         } else {

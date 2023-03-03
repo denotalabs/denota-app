@@ -160,6 +160,14 @@ export default function WalletInfo() {
             <SmallAddIcon mr={2} />
             Add WETH
           </StyledMenuItem>
+
+          <StyledMenuItem
+            onClick={onCopy}
+            isDisabled={!blockchainState.account}
+          >
+            <CopyIcon mr={2} />
+            Copy Address
+          </StyledMenuItem>
           <StyledMenuItem
             onClick={() => {
               logout(providerOptions);
@@ -167,13 +175,6 @@ export default function WalletInfo() {
           >
             <SmallCloseIcon mr={2} />
             Logout
-          </StyledMenuItem>
-          <StyledMenuItem
-            onClick={onCopy}
-            isDisabled={!blockchainState.account}
-          >
-            <CopyIcon mr={2} />
-            Copy Address
           </StyledMenuItem>
         </MenuList>
       </Menu>

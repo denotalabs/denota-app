@@ -62,7 +62,7 @@ export default function ChainSwitcher() {
               unoptimized={true}
             />
           ) : (
-            <Icon as={WarningIcon} />
+            <Icon as={WarningIcon} boxSize={5} />
           )}
           <Spacer mx="1" />
           {isMobile ? null : (
