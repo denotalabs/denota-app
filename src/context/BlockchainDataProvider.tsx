@@ -124,16 +124,16 @@ export const BlockchainDataProvider = memo(
         window.ethereum.on("accountsChanged", () => {
           window.location.reload();
         });
-
         const contractMapping = contractMappingForChainId(chainId);
         const deployedChainInfo: ChainInfo = chainInfoForChainId(chainId);
-        const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
+        
 
-        if (contractMapping === undefined) {
+        if (contractMapping === undefined || deployedChainInfo == undefined) {
           setIsInitializing(false);
           setIsWrongChain(true);
         } else {
           // Load contracts
+          const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
           const cheq = new ethers.Contract(
             contractMapping.cheq,
             CheqRegistrar.abi,
