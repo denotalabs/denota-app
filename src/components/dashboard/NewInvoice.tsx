@@ -18,8 +18,7 @@ function NewInvoice() {
       <Center>
         <ButtonGroup gap="4">
           <Button
-            bg="brand.100"
-            color="brand.200"
+            bg="cheqPurple.100"
             w="min(40vw, 200px)"
             onClick={() => {
               setIsInvoice(false);
@@ -32,8 +31,7 @@ function NewInvoice() {
             Pay
           </Button>
           <Button
-            bg="brand.100"
-            color="brand.200"
+            bg="cheqPurple.100"
             w="min(40vw, 200px)"
             onClick={() => {
               setIsInvoice(true);
