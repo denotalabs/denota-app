@@ -176,6 +176,7 @@ function CheqCardV2({ cheq }: Props) {
             <ButtonGroup>
               {status === "payable" ? (
                 <Button
+                  variant="outline"
                   w="min(40vw, 100px)"
                   borderRadius={5}
                   colorScheme="teal"
@@ -185,7 +186,8 @@ function CheqCardV2({ cheq }: Props) {
                 </Button>
               ) : null}
               <Button
-                bg="brand.300"
+                variant="outline"
+                borderColor="brand.200"
                 color="brand.200"
                 w="min(40vw, 100px)"
                 borderRadius={5}

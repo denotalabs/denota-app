@@ -202,7 +202,7 @@ const NavItem = ({
         role="group"
         cursor="pointer"
         _hover={{
-          bg: isSelected ? undefined : "brand.500",
+          bg: "brand.500",
           color: "white",
         }}
         bgColor={isSelected ? "brand.400" : undefined}
