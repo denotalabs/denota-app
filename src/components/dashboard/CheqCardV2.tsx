@@ -31,15 +31,6 @@ interface Props {
   cheq: Cheq;
 }
 
-// TODO: color coding should be part of design system
-// Gray -> complete
-// Purple -> pending
-const STATUS_COLOR_MAP = {
-  payable: "purple.900",
-  paid: "gray.600",
-  pending_payment: "purple.900",
-};
-
 const TOOLTIP_MESSAGE_MAP = {
   payable: "payment due",
   paid: "paid",
@@ -47,6 +38,30 @@ const TOOLTIP_MESSAGE_MAP = {
 };
 
 function CheqCardV2({ cheq }: Props) {
+  const hashCode = (s: string) =>
+    s.split("").reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+  const GRADIENT_COLORS = [
+    ["#6E7C9A", "#202C4F"],
+    ["#8691A4", "#3F444D"],
+    ["#9099A2", "#283455"],
+    ["#343C9B", "#292D5D"],
+    ["#A59EA9", "#3B475A"],
+    ["#B4A4D4", "#4E4D5C"],
+    ["#C1C1C1", "#1C1C1C"],
+    ["#6D4C41", "#E6B8B8"],
+  ];
+
+  const generateCheqGradient = (cheq: Cheq): string => {
+    const { id, amount, sender, recipient } = cheq;
+    const hash = hashCode(`${id}${amount}${sender}${recipient}`);
+    const colorIndex = Math.abs(hash) % GRADIENT_COLORS.length;
+    const [startColor, endColor] = GRADIENT_COLORS[colorIndex];
+    return `linear-gradient(180deg, ${startColor}, ${endColor})`;
+  };
+
   const { createdTransaction } = cheq;
 
   const createdLocaleDate = useMemo(() => {
@@ -98,15 +113,9 @@ function CheqCardV2({ cheq }: Props) {
         return "#C5CCD8";
     }
   }, [status]);
-
+  const gradient = generateCheqGradient(cheq);
   return (
-    <GridItem
-      bg={STATUS_COLOR_MAP[status]}
-      px={6}
-      pt={4}
-      pb={3}
-      borderRadius={20}
-    >
+    <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
       <VStack
         alignItems="flex-start"
         justifyContent="space-between"
