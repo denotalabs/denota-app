@@ -25,8 +25,6 @@ export default function ChainSwitcher() {
   const { isInitializing, blockchainState } = useBlockchainData();
   const { account, chainId } = blockchainState;
 
-  console.log(chainId);
-
   const selectedChain = deployedChains[chainId];
 
   const [isOpen, setIsOpen] = useState(false);
