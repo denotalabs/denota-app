@@ -27,6 +27,7 @@ export interface ChainInfo {
     symbol: string;
     decimals: number;
   };
+  graphUrl: string;
 }
 
 export const chainNumberToChainHex = (chainId: number) => {
@@ -50,6 +51,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     },
     blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
     rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+    graphUrl: "https://klymr.me/graph-mumbai",
   },
   "0xAEF3": {
     isDisabled: true,
@@ -64,6 +66,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     },
     blockExplorerUrls: ["https://alfajores-blockscout.celo-testnet.org/"],
     rpcUrls: ["https://alfajores-forno.celo-testnet.org"],
+    graphUrl: "https://klymr.me/graph/alfajores", // TODO: update
   },
   "0x1": {
     isDisabled: true,
@@ -73,5 +76,6 @@ export const deployedChains: Record<string, ChainInfo> = {
     logoSrc: "/logos/ethereum-logo.svg",
     blockExplorerUrls: ["https://etherscan.io/"],
     rpcUrls: ["https://eth.llamarpc.com"],
+    graphUrl: "https://klymr.me/graph/ethereum", // TODO: update
   },
 };

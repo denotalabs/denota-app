@@ -18,7 +18,9 @@ Steps to deploy to a new chain:
 (Optionally, add new make command for the chain)
 
 5. If neccesary, update chainInfo.ts with info for the new chain and set isDisabled=false
-(contractAddresses.tsx should automatically have been updated)
+
+contractAddresses.tsx should automatically have been updated
+https://klymr.me/graph/{chain} should automatically redirect to {GQL_HOST}/subgraphs/name/CheqRegistrar/{chain}
 """
 
 def extract_address(input):
