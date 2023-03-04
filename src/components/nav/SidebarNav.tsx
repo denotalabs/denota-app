@@ -23,6 +23,7 @@ import {
   MdInfoOutline,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
+  MdSwapHoriz,
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
@@ -48,6 +49,7 @@ const LinkItems: Array<LinkItemProps> = [
     href: "https://cheq-finance.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80",
     isExternal: true,
   },
+  { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
 
@@ -105,7 +107,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
           >
             <Box mt={3} mb={3}>
               <Image
-                src="logos/denota-logo-text.svg"
+                src="/logos/denota-logo-text.svg"
                 alt="denota logo text"
                 width={400}
                 height={40}
@@ -125,35 +127,41 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             ))}
           </VStack>
         </Box>
-        <HStack maxW="full" pb={5}>
-          <SocialIcon
-            fgColor="white"
-            bgColor="transparent"
-            url="https://twitter.com/DenotaLabs"
-            style={{ height: 40, width: 40 }}
-            target="_blank"
-          />
-          <Link href="https://discord.gg/DpXr3MsX" isExternal={true}>
-            <Center h="40px" w="40px">
-              <Icon
-                fontSize="20"
-                _groupHover={{
-                  color: "white",
-                }}
-                as={SiDiscord}
-              />
-            </Center>
-          </Link>
-          <SocialIcon
-            fgColor="white"
-            bgColor="transparent"
-            url="https://www.linkedin.com/company/denota-labs/"
-            style={{ height: 40, width: 40 }}
-            target="_blank"
-          />
-        </HStack>
+        <SocialIcons />
       </VStack>
     </Box>
+  );
+};
+
+const SocialIcons = () => {
+  return (
+    <HStack maxW="full" pb={5}>
+      <SocialIcon
+        fgColor="white"
+        bgColor="transparent"
+        url="https://twitter.com/DenotaLabs"
+        style={{ height: 40, width: 40 }}
+        target="_blank"
+      />
+      <Link href="https://discord.gg/DpXr3MsX" isExternal={true}>
+        <Center h="40px" w="40px">
+          <Icon
+            fontSize="20"
+            _groupHover={{
+              color: "white",
+            }}
+            as={SiDiscord}
+          />
+        </Center>
+      </Link>
+      <SocialIcon
+        fgColor="white"
+        bgColor="transparent"
+        url="https://www.linkedin.com/company/denota-labs/"
+        style={{ height: 40, width: 40 }}
+        target="_blank"
+      />
+    </HStack>
   );
 };
 
