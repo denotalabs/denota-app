@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { File, NFTStorage } from "nft.storage";
 
 import mime from "mime";

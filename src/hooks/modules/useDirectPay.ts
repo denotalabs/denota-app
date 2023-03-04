@@ -42,7 +42,8 @@ export const useDirectPay = ({
       escrowedWei,
       payload
     );
-    await tx.wait();
+    const receipt = await tx.wait();
+    return receipt.transactionHash;
   }, [
     address,
     amountWei,
