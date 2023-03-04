@@ -42,6 +42,8 @@ def eth_call(command, error):
 def rpc_for_chain(chain):
   if chain == "mumbai":
     return "https://matic-mumbai.chainstacklabs.com"
+  if chain == "alfajores":
+    return "https://alfajores-forno.celo-testnet.org"
   return "http://127.0.0.1:8545"
 
 if __name__ == "__main__":
