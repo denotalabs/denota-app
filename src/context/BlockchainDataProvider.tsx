@@ -21,20 +21,6 @@ import {
 } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
-// TODO: Use denota subdomain
-export const APIURL_REMOTE = "https://klymr.me/graph-mumbai";
-
-export const APIURL_TESTING =
-  "http://ec2-18-204-63-18.compute-1.amazonaws.com/subgraphs/name/CheqRegistrar/CheqRegistrar";
-
-export const APIURL_LOCAL =
-  "http://localhost:8000/subgraphs/name/CheqRegistrar/CheqRegistrar";
-
-export const APIURL_HOSTED =
-  "https://api.thegraph.com/subgraphs/name/soolaymahn/cheq-test";
-
-export const APIURL = APIURL_REMOTE;
-
 interface BlockchainDataInterface {
   account: string;
   dai: null | ethers.Contract;
@@ -115,11 +101,11 @@ export const BlockchainDataProvider = memo(
         const [provider, signer, account] = await connectWalletWeb3Modal(); // console.log(provider, signer, account)
         const { chainId } = await provider.getNetwork();
 
-        window.ethereum.on("chainChanged", () => {
+        window.ethereum?.on("chainChanged", () => {
           document.location.reload();
         });
 
-        window.ethereum.on("accountsChanged", () => {
+        window.ethereum?.on("accountsChanged", () => {
           window.location.reload();
         });
         const contractMapping = contractMappingForChainId(chainId);
