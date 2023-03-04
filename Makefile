@@ -75,6 +75,10 @@ graph-deploy-remote-mumbai:
 graph-deploy-remote-alfajores:
 	export GRAPH_CHAIN=alfajores
 	npm run graph-prepare
-	npm run graph-create-remote # 
-	npm run graph-ship-remote  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
+	npm run graph-create-remote  
+	npm run graph-ship-remote  
  
+ graph-deploy-remote:
+	npm run graph-prepare
+	npm run graph-create-remote  
+	npm run graph-ship-remote  
