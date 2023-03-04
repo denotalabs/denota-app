@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useCallback } from "react";
 
-const DENOTA_EMAIL_SERVICE_URL_LOCAL = "http://127.0.0.1:3001/";
+const DENOTA_EMAIL_SERVICE_URL_LOCAL = "http://127.0.0.1:3001/send-email";
 
 export const useEmail = () => {
   const sendEmail = useCallback(
