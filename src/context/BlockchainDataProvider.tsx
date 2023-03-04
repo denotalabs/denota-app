@@ -21,7 +21,7 @@ import {
 } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
-// TODO: Use cheq subdomain
+// TODO: Use denota subdomain
 export const APIURL_REMOTE = "https://klymr.me/graph-mumbai";
 
 export const APIURL_TESTING =
@@ -49,6 +49,7 @@ interface BlockchainDataInterface {
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
   chainId: string;
+  graphUrl: string;
 }
 
 interface BlockchainDataContextInterface {
@@ -72,6 +73,7 @@ const defaultBlockchainState = {
   explorer: "",
   directPayAddress: "",
   chainId: "",
+  graphUrl: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -134,7 +136,7 @@ export const BlockchainDataProvider = memo(
           // Load contracts
           const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
           const cheq = new ethers.Contract(
-            contractMapping.cheq,
+            contractMapping.registrar,
             CheqRegistrar.abi,
             signer
           );
@@ -153,13 +155,13 @@ export const BlockchainDataProvider = memo(
           const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
           const daiAllowance = await dai.allowance(
             account,
-            contractMapping.cheq
+            contractMapping.registrar
           );
 
           const userWethBalance = await weth.balanceOf(account); // User's Weth balance
           const wethAllowance = await weth.allowance(
             account,
-            contractMapping.cheq
+            contractMapping.registrar
           );
 
           setBlockchainState({
@@ -169,13 +171,14 @@ export const BlockchainDataProvider = memo(
             weth,
             daiAllowance,
             wethAllowance,
-            cheqAddress: contractMapping.cheq,
+            cheqAddress: contractMapping.registrar,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: firstBlockExplorer,
             cheq,
-            directPayAddress: contractMapping.directPayModule,
+            directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
+            graphUrl: deployedChainInfo.graphUrl,
           });
           setIsInitializing(false);
         }

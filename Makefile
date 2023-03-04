@@ -66,7 +66,25 @@ graph-deploy-local:
 	npm run create-local # 
 	npm run graph-ship-local  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
 
-graph-deploy-remote:
-	npm run graph-prepare-mumbai
-	npm run graph-create-remote # 
-	npm run graph-ship-remote  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
+graph-deploy-local-alfajores:
+	export GRAPH_CHAIN=alfajores
+	npm run graph-prepare
+	npm run create-local # 
+	npm run graph-ship-local
+
+graph-deploy-remote-mumbai:
+	export GRAPH_CHAIN=mumbai
+	npm run graph-prepare
+	npm run graph-create-remote 
+	npm run graph-ship-remote  
+
+graph-deploy-remote-alfajores:
+	export GRAPH_CHAIN=alfajores
+	npm run graph-prepare
+	npm run graph-create-remote  
+	npm run graph-ship-remote  
+ 
+ graph-deploy-remote:
+	npm run graph-prepare
+	npm run graph-create-remote  
+	npm run graph-ship-remote  
