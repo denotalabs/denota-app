@@ -8,8 +8,8 @@ import React, {
 } from "react";
 
 import { useColorMode } from "@chakra-ui/react";
+import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
-import Web3Modal from "web3modal";
 
 import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../out/ERC20.sol/TestERC20.json";
@@ -95,12 +95,12 @@ export const BlockchainDataProvider = memo(
     const { colorMode } = useColorMode();
 
     const connectWalletWeb3Modal = useCallback(async () => {
-      const web3Modal = new Web3Modal({
+      const safeAppWeb3Modal = new SafeAppWeb3Modal({
         cacheProvider: true, // optional
         providerOptions, // required
         theme: colorMode,
       });
-      const web3ModalConnection = await web3Modal.connect();
+      const web3ModalConnection = await safeAppWeb3Modal.connect();
       const provider = new ethers.providers.Web3Provider(web3ModalConnection);
       const signer = provider.getSigner(); //console.log(provider)
       const account = await signer.getAddress(); //console.log(account)
@@ -191,11 +191,11 @@ export const BlockchainDataProvider = memo(
     }, [connectWalletWeb3Modal]);
 
     useEffect(() => {
-      const web3Modal = new Web3Modal({
+      const safeAppWeb3Modal = new SafeAppWeb3Modal({
         cacheProvider: true, // optional
         providerOptions, // required
       });
-      if (web3Modal.cachedProvider) {
+      if (safeAppWeb3Modal.cachedProvider) {
         loadBlockchainData();
       } else {
         setIsInitializing(false);

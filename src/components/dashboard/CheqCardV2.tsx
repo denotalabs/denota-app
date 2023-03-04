@@ -51,7 +51,7 @@ function CheqCardV2({ cheq }: Props) {
     ["#A59EA9", "#3B475A"],
     ["#B4A4D4", "#4E4D5C"],
     ["#C1C1C1", "#1C1C1C"],
-    ["#6D4C41", "#E6B8B8"],
+    ["#E6B8B8", "#6D4C41"],
   ];
 
   const generateCheqGradient = (cheq: Cheq): string => {

@@ -11,8 +11,8 @@ import {
   SmallCloseIcon,
 } from "@chakra-ui/icons";
 import { useBreakpointValue } from "@chakra-ui/react";
+import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import jazzicon from "jazzicon-ts";
-import Web3Modal from "web3modal";
 
 import {
   Button,
@@ -49,11 +49,11 @@ const addToken = async (tokenAddress: string, symbol: string) => {
 };
 
 const logout = (providerOptions: any) => {
-  const web3Modal = new Web3Modal({
-    cacheProvider: true,
-    providerOptions,
+  const safeAppWeb3Modal = new SafeAppWeb3Modal({
+    cacheProvider: true, // optional
+    providerOptions, // required
   });
-  web3Modal.clearCachedProvider();
+  safeAppWeb3Modal.clearCachedProvider();
   window.location.reload();
 };
 
