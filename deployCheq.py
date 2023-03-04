@@ -20,7 +20,7 @@ Steps to deploy to a new chain:
 5. If neccesary, update chainInfo.ts with info for the new chain and set isDisabled=false
 
 contractAddresses.tsx should automatically have been updated
-https://klymr.me/graph/{chain} should automatically redirect to {GQL_HOST}/subgraphs/name/CheqRegistrar/{chain}
+TODO: figure out how to get nginx wildcard paths working properly, manually add a path for each chain for now
 """
 
 def extract_address(input):

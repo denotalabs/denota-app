@@ -53,7 +53,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     },
     blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
     rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
-    graphUrl: "https://klymr.me/graph-mumbai",
+    graphUrl: "https://klymr.me/graph/mumbai",
   },
   "0xaef3": {
     name: "Celo Testnet Alfajores",
