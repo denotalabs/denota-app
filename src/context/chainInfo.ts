@@ -9,6 +9,8 @@ export const contractMappingForChainId = (chainId: number) => {
       return ContractAddressMapping.mumbai;
     case 31337:
       return ContractAddressMapping.local;
+    case 44787:
+      return ContractAddressMapping.alfajores;
     default:
       return undefined;
   }

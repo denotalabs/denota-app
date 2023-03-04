@@ -47,8 +47,8 @@ def rpc_for_chain(chain):
   return "http://127.0.0.1:8545"
 
 if __name__ == "__main__":
-  chain = sys.argv[2]; chain = chain if chain == "mumbai" else "local"
-  key = sys.argv[1]; key = key if chain == "mumbai" else "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"  # load up from from the .env file directly?
+  chain = sys.argv[2]
+  key = sys.argv[1]  # load up from from the .env file directly?
   rpc = rpc_for_chain(chain)
   rpc_key_flags = f"--private-key {key} --rpc-url {rpc} --gas-price 30gwei"
   with open("contractAddresses.json", 'r') as f:
