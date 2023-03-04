@@ -267,7 +267,6 @@ contract DirectPayTest is Test {
         registrarWriteBefore(caller, recipient);
 
         bytes memory initData = abi.encode(
-            drawer,
             recipient,
             amount,
             block.timestamp,
@@ -340,7 +339,6 @@ contract DirectPayTest is Test {
 
         registrarWriteBefore(caller, recipient);
         bytes memory initData = abi.encode(
-            drawer,
             recipient,
             amount,
             block.timestamp,
@@ -430,7 +428,6 @@ contract DirectPayTest is Test {
         registrarWriteBefore(caller, recipient);
 
         bytes memory initData = abi.encode(
-            drawer,
             recipient,
             amount,
             block.timestamp,

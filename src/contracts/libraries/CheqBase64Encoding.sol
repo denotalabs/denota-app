@@ -30,7 +30,6 @@ Animation_url also supports HTML pages, allowing you to build rich experiences a
 
 youtube_url
 A URL to a YouTube video.
-
  */
 
 library CheqBase64Encoding {
@@ -38,7 +37,9 @@ library CheqBase64Encoding {
         uint256 _tokenId,
         address currency,
         uint256 escrowed,
-        address module
+        uint256 createdAt,
+        address module,
+        string memory _tokenURI
     ) external pure returns (string memory) {
         return
             string(
@@ -52,6 +53,8 @@ library CheqBase64Encoding {
                                 _tokenId,
                                 // '", "description":"',
                                 // cheq.description,
+                                '", "external_url":"',
+                                _tokenURI,
                                 // '", "image": "',
                                 // "data:image/svg+xml;base64,",
                                 // buildImage(_tokenId),
@@ -61,13 +64,17 @@ library CheqBase64Encoding {
                                 '"value":',
                                 currency,
                                 "}",
-                                '{"trait_type": "Amount",',
-                                "}",
+                                // '{"trait_type": "Amount",',
+                                // "}",
                                 '{"trait_type": "Escrowed",',
                                 '"value":',
                                 escrowed,
                                 "}",
                                 '{"trait_type": "Drawer",',
+                                "}",
+                                '{"trait_type": "Created At",',
+                                '"value":',
+                                createdAt,
                                 "}",
                                 '{"trait_type": "Module",',
                                 '"value":',

@@ -10,64 +10,64 @@
   },
   "ast": {
     "absolutePath": "src/contracts/rules/NFTGateRules.sol",
-    "id": 34916,
+    "id": 34124,
     "exportedSymbols": {
       "Address": [
-        27713
+        27649
       ],
       "Context": [
-        27735
+        27671
       ],
       "DataTypes": [
-        33435
+        30977
       ],
       "ERC165": [
-        27934
+        27870
       ],
       "ERC721": [
-        27222
+        27158
       ],
       "IApproveRule": [
-        33313
+        30847
       ],
       "ICashRule": [
-        33296
+        30830
       ],
       "IERC165": [
-        27946
+        27882
       ],
       "IERC721": [
-        27338
+        27274
       ],
       "IERC721Metadata": [
-        27383
+        27319
       ],
       "IERC721Receiver": [
-        27356
+        27292
       ],
       "IFundRule": [
-        33277
+        30811
       ],
       "ITransferRule": [
-        33258
+        30792
       ],
       "IWriteRule": [
-        33237
+        30771
       ],
       "Math": [
-        28811
+        28747
       ],
       "Strings": [
-        27910
+        27846
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:2961:73",
+    "src": "37:2961:63",
     "nodes": [
       {
-        "id": 34905,
+        "id": 34113,
         "nodeType": "PragmaDirective",
-        "src": "37:24:73",
+        "src": "37:24:63",
         "nodes": [],
         "literals": [
           "solidity",
@@ -77,50 +77,50 @@
         ]
       },
       {
-        "id": 34906,
+        "id": 34114,
         "nodeType": "ImportDirective",
-        "src": "62:46:73",
+        "src": "62:46:63",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
         "file": "openzeppelin/token/ERC721/ERC721.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34916,
-        "sourceUnit": 27223,
+        "scope": 34124,
+        "sourceUnit": 27159,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 34907,
+        "id": 34115,
         "nodeType": "ImportDirective",
-        "src": "109:54:73",
+        "src": "109:54:63",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "file": "openzeppelin/utils/introspection/IERC165.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34916,
-        "sourceUnit": 27947,
+        "scope": 34124,
+        "sourceUnit": 27883,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 34909,
+        "id": 34117,
         "nodeType": "ImportDirective",
-        "src": "164:53:73",
+        "src": "164:53:63",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34916,
-        "sourceUnit": 33436,
+        "scope": 34124,
+        "sourceUnit": 30978,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34908,
+              "id": 34116,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33435,
-              "src": "172:9:73",
+              "referencedDeclaration": 30977,
+              "src": "172:9:63",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -129,72 +129,72 @@
         "unitAlias": ""
       },
       {
-        "id": 34915,
+        "id": 34123,
         "nodeType": "ImportDirective",
-        "src": "218:107:73",
+        "src": "218:107:63",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
         "file": "../interfaces/IWTFCRules.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34916,
-        "sourceUnit": 33314,
+        "scope": 34124,
+        "sourceUnit": 30848,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34910,
+              "id": 34118,
               "name": "IWriteRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33237,
-              "src": "226:10:73",
+              "referencedDeclaration": 30771,
+              "src": "226:10:63",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 34911,
+              "id": 34119,
               "name": "ITransferRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33258,
-              "src": "238:13:73",
+              "referencedDeclaration": 30792,
+              "src": "238:13:63",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 34912,
+              "id": 34120,
               "name": "IFundRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33277,
-              "src": "253:9:73",
+              "referencedDeclaration": 30811,
+              "src": "253:9:63",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 34913,
+              "id": 34121,
               "name": "ICashRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33296,
-              "src": "264:9:73",
+              "referencedDeclaration": 30830,
+              "src": "264:9:63",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 34914,
+              "id": 34122,
               "name": "IApproveRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33313,
-              "src": "275:12:73",
+              "referencedDeclaration": 30847,
+              "src": "275:12:63",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -205,5 +205,5 @@
     ],
     "license": "BUSL-1.1"
   },
-  "id": 73
+  "id": 63
 }

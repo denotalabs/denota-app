@@ -7,10 +7,11 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 
 /**
- * @notice A simple time release module
+ * @notice A simple time release module. The longer the release time, the more in fees you have to pay
  * Escrowed tokens are cashable after the releaseDate
+ * Question: Allow cheq creator to update the URI?
  */
-contract SimpleTimelock is ModuleBase {
+contract SimpleTimelockFee is ModuleBase {
     mapping(uint256 => uint256) public releaseDate;
     event Timelock(uint256 cheqId, uint256 _releaseDate);
 
@@ -26,22 +27,15 @@ contract SimpleTimelock is ModuleBase {
         address, /*caller*/
         address, /*owner*/
         uint256 cheqId,
-        address currency,
-        uint256 escrowed,
-        uint256 instant,
+        address, /*currency*/
+        uint256, /*escrowed*/
+        uint256, /*instant*/
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        require(instant == 0, "Instant not supported");
-        (uint256 _releaseDate, address dappOperator) = abi.decode(
-            initData,
-            (uint256, address)
-        ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
+        uint256 _releaseDate = abi.decode(initData, (uint256)); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
         releaseDate[cheqId] = _releaseDate;
-
-        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-        revenue[dappOperator][currency] += moduleFee;
         emit Timelock(cheqId, _releaseDate);
-        return moduleFee;
+        return fees.writeBPS;
     }
 
     function processTransfer(
@@ -57,7 +51,7 @@ contract SimpleTimelock is ModuleBase {
         bytes memory /*data*/
     ) external view override onlyRegistrar returns (uint256) {
         require(caller == owner || caller == approved, "Not owner or approved");
-        return 0;
+        return fees.transferBPS;
     }
 
     function processFund(
@@ -70,25 +64,20 @@ contract SimpleTimelock is ModuleBase {
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
-        return 0;
+        return fees.fundBPS;
     }
 
     function processCash(
         address, /*caller*/
-        address owner,
-        address to,
+        address, /*owner*/
+        address, /*to*/
         uint256 amount,
-        uint256 cheqId,
+        uint256, /*cheqId*/
         DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external override onlyRegistrar returns (uint256) {
-        require(to == owner, "Only cashable to owner");
+        bytes calldata /*initData*/
+    ) external view override onlyRegistrar returns (uint256) {
         require(amount == cheq.escrowed, "Must fully cash");
-        require(releaseDate[cheqId] < block.timestamp, "TIMELOCK");
-        address dappOperator = abi.decode(initData, (address));
-        uint256 moduleFee = (amount * fees.transferBPS) / BPS_MAX;
-        revenue[dappOperator][cheq.currency] += moduleFee;
-        return moduleFee;
+        return fees.cashBPS;
     }
 
     function processApproval(
@@ -108,9 +97,6 @@ contract SimpleTimelock is ModuleBase {
         override
         returns (string memory)
     {
-        return
-            bytes(_URI).length > 0
-                ? string(abi.encodePacked(_URI, tokenId))
-                : "";
+        return string(abi.encodePacked(_URI, tokenId));
     }
 }

@@ -16,25 +16,6 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
  * @author Alejandro Almaraz
  * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.
  */
-
-// Revert if frontend gives the wrong amount (MM should know if it would revert (using Ethers call estimateGas, will also tell you if it will revert))
-// Note Arseniy: "calling contracts may not be able to convert their storage to calldata when calling functions" "developers want to develop if we already have a lot of users and they can make money from fees, or " // deploy your own DAO and see how difficult it is
-// Question what would a gnosis app need?
-// Question accept native token using address(0) as it's address? Or use wrapped version?
-// Question Create a module labeling schema?
-// Question: Add function to deploy modules from the registrar?
-// Question: Implement ownerOf(cheqId) { cheq.module.processOwner(); } to allow ownership revokation?
-
-// Question should registrar have a function payload(cheqid, bytes) to forward updates to the cheq's respective module for easier front-end manipulation?
-// TODO support burning (from registrar and module)
-// TODO add WTFCA EIP712 signature methods
-// TODO ensure BPS avoids over/underflow
-// TODO need to convert IWTFCRules to libraries
-// TODO determine proper fee uint sizes
-// TODO need to implement upgradable proxies
-// TODO make sure tokenURI is working
-// TODO TODO modify ERC721 to allow non owner/approved/operators to call transferFrom (let module decide)
-// TODO allow batched usage of functions
 contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     using SafeERC20 for IERC20;
     /*//////////////////////////////////////////////////////////////
@@ -43,18 +24,18 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     mapping(uint256 => DataTypes.Cheq) private _cheqInfo;
     uint256 private _totalSupply;
 
+    mapping(address => mapping(address => uint256)) private _moduleRevenue; // Could collapse this into a single mapping
+    mapping(address => uint256) private _registrarRevenue;
+
     mapping(bytes32 => bool) private _bytecodeWhitelist; // Question Can these be done without two mappings? Having both redeployable and static modules?
     mapping(address => bool) private _addressWhitelist;
     mapping(address => bool) private _tokenWhitelist;
-
-    mapping(address => mapping(address => uint256)) private _moduleRevenue; // Could collapse this into a single mapping
-    mapping(address => uint256) private _registrarRevenue;
     uint256 internal constant BPS_MAX = 10_000; // TODO Lens uses uint16
     DataTypes.WTFCFees public fees;
     uint256 public _writeFlatFee; // Question: is this needed?
 
     constructor(DataTypes.WTFCFees memory _fees)
-        ERC721("CheqProtocol", "CHEQ")
+        ERC721("denotaProtocol", "NOTA")
     {
         fees = _fees;
     }
@@ -99,19 +80,28 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             cheqFee = (totalAmount * fees.writeBPS) / BPS_MAX; // uint256 totalBPS = fees.writeBPS + moduleBPS; but need to emit and add to reserves
             uint256 toEscrow = escrowed + cheqFee + moduleFee;
             if (toEscrow > 0) {
-                IERC20(currency).safeTransferFrom(
-                    _msgSender(),
-                    address(this),
-                    toEscrow
-                );
+                if (currency == address(0)) {
+                    require(msg.value == toEscrow, "");
+                } else {
+                    IERC20(currency).safeTransferFrom(
+                        _msgSender(),
+                        address(this),
+                        toEscrow
+                    );
+                }
                 _registrarRevenue[currency] += cheqFee;
                 _moduleRevenue[module][currency] += moduleFee;
             }
             if (instant > 0)
-                IERC20(currency).safeTransferFrom(_msgSender(), owner, instant);
+                if (currency != address(0)) {
+                    IERC20(currency).safeTransferFrom(
+                        _msgSender(),
+                        owner,
+                        instant
+                    );
+                }
         }
 
-        // Cheq Minting  // Question put this before or after escrow?
         _safeMint(owner, _totalSupply);
         _cheqInfo[_totalSupply].currency = currency;
         _cheqInfo[_totalSupply].escrowed = escrowed;
@@ -119,6 +109,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         _cheqInfo[_totalSupply].module = module;
 
         emit Events.Written(
+            _msgSender(),
             _totalSupply,
             owner,
             instant,
@@ -272,8 +263,13 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         require(cheq.escrowed >= totalAmount, "CANT_CASH_AMOUNT"); // TODO may cause funds to be stuck if fees are added
         unchecked {
             cheq.escrowed -= totalAmount;
-        } // Could this just underflow and revert anyway to save gas?
-        IERC20(cheq.currency).safeTransfer(to, amount);
+        } // Could this just underflow and revert anyway (save gas)?
+        if (cheq.currency == address(0)) {
+            (bool sent, ) = to.call{value: msg.value}("");
+            require(sent, "TRANSF_FAILED");
+        } else {
+            IERC20(cheq.currency).safeTransfer(to, amount);
+        }
         _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
         _registrarRevenue[cheq.currency] += cheqFee;
 
@@ -467,24 +463,19 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         override
         returns (string memory)
     {
-        // Question: Should this switch case depend on if module has their own tokenURI()?
         _requireMinted(_tokenId);
-        DataTypes.Cheq memory cheq = cheqInfo(_tokenId);
-        string memory _tokenURI = ICheqModule(cheq.module).processTokenURI(
-            _tokenId
-        );
+        string memory _tokenURI = ICheqModule(_cheqInfo[_tokenId].module)
+            .processTokenURI(_tokenId);
 
-        if (bytes(_tokenURI).length == 0) {
-            return
-                CheqBase64Encoding.buildMetadata(
-                    _tokenId,
-                    cheq.currency,
-                    cheq.escrowed,
-                    cheq.module
-                );
-        } else {
-            return _tokenURI;
-        }
+        return
+            CheqBase64Encoding.buildMetadata(
+                _tokenId,
+                _cheqInfo[_tokenId].currency,
+                _cheqInfo[_tokenId].escrowed,
+                _cheqInfo[_tokenId].createdAt,
+                _cheqInfo[_tokenId].module,
+                _tokenURI
+            );
     }
     // function ownerOf(uint256 tokenId) public view override returns (address) {
     //     address owner = _ownerOf(tokenId);

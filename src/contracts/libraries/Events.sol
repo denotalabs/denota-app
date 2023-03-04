@@ -37,8 +37,9 @@ library Events {
     );
 
     event Written(
-        uint256 indexed cheqId,
-        address indexed owner,
+        address indexed caller,
+        uint256 cheqId,
+        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner from add(0) to owner?
         uint256 instant,
         address currency,
         uint256 escrowed,
