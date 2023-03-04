@@ -1,5 +1,25 @@
 
-import shlex, subprocess, re, sys, json
+import json
+import re
+import shlex
+import subprocess
+import sys
+
+"""
+Steps to deploy to a new chain:
+
+1. Add the RPC to rpc_for_chain in this file
+
+2. Append chain:rpc to environment/ethereum in docker-compose.yml
+
+3. Run python3 deployCheq [privateKey] [chain]
+
+4. Run export GQL_HOST=server && export GRAPH_CHAIN=chain && make graph-deploy-remote
+(Optionally, add new make command for the chain)
+
+5. If neccesary, update chainInfo.ts with info for the new chain and set isDisabled=false
+(contractAddresses.tsx should automatically have been updated)
+"""
 
 def extract_address(input):
   try:
@@ -17,10 +37,15 @@ def eth_call(command, error):
     sys.exit(result.stderr)
   return result
 
+def rpc_for_chain(chain):
+  if chain == "mumbai":
+    return "https://matic-mumbai.chainstacklabs.com"
+  return "http://127.0.0.1:8545"
+
 if __name__ == "__main__":
   chain = sys.argv[2]; chain = chain if chain == "mumbai" else "local"
   key = sys.argv[1]; key = key if chain == "mumbai" else "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"  # load up from from the .env file directly?
-  rpc = "https://matic-mumbai.chainstacklabs.com" if (chain == "mumbai") else "http://127.0.0.1:8545"
+  rpc = rpc_for_chain(chain)
   rpc_key_flags = f"--private-key {key} --rpc-url {rpc} --gas-price 30gwei"
   with open("contractAddresses.json", 'r') as f:
     existing_addresses = json.loads(f.read())
@@ -91,6 +116,12 @@ if __name__ == "__main__":
   # Update the address JSON
   with open("contractAddresses.json", 'w') as f:
     f.write(json.dumps(existing_addresses))
+
+  with open("src/context/contractAddresses.tsx", 'w') as f:
+    f.write("export const ContractAddressMapping = " + json.dumps(existing_addresses))
+
+  with open("src/graph/subgraph/config/" + chain + ".json", 'w') as f:
+    f.write(json.dumps(existing_addresses[chain]))
 
   # Whitelist the DirectPay module
   eth_call(f'cast send {registrar} "whitelistModule(address,bool,bool)" {direct_pay} "false" "true" {rpc_key_flags}', "Whitelist module failed")
