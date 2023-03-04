@@ -2,10 +2,7 @@ import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
-import {
-  APIURL_LOCAL,
-  useBlockchainData,
-} from "../context/BlockchainDataProvider";
+import { useBlockchainData } from "../context/BlockchainDataProvider";
 
 interface Props {
   cheqField: string;
@@ -205,7 +202,7 @@ export const useCheqs = ({ cheqField }: Props) => {
 
       // SWITCH BACK TO PROD URL BEFORE MERGE
       const client = new ApolloClient({
-        uri: APIURL_LOCAL,
+        uri: blockchainState.graphUrl,
         cache: new InMemoryCache(),
       });
       client
