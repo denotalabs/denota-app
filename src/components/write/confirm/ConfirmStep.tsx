@@ -122,7 +122,7 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
                   break;
               }
 
-              if (txHash) {
+              if (txHash && formData.email) {
                 await sendEmail(
                   formData.email,
                   txHash,
