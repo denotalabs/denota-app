@@ -58,7 +58,7 @@ export const deployedChains: Record<string, ChainInfo> = {
   "0xaef3": {
     name: "Celo Testnet Alfajores",
     displayName: "Celo Alfajores",
-    chainId: "0xAEF3",
+    chainId: "0xaef3",
     logoSrc: "/logos/celo-logo.svg",
     nativeCurrency: {
       name: "Celo",
