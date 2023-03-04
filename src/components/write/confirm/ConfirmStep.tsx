@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useCheqContext } from "../../../context/CheqsContext";
 import { useDirectPay } from "../../../hooks/modules/useDirectPay";
+import { useEmail } from "../../../hooks/useEmail";
+
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ConfirmDetails from "./ConfirmDetails";
@@ -56,6 +58,8 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
     noteKey: formData.noteKey,
     isInvoice,
   });
+
+  const { sendEmail } = useEmail();
 
   const buttonText = useMemo(() => {
     if (needsApproval) {
@@ -109,13 +113,27 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
             actions.setSubmitting(false);
           } else {
             try {
+              let txHash = "";
               switch (formData.module) {
                 case "direct":
-                  await writeDirectPayCheq();
+                  txHash = await writeDirectPayCheq();
                   break;
                 default:
                   break;
               }
+
+              if (txHash && formData.email) {
+                await sendEmail(
+                  formData.email,
+                  txHash,
+                  blockchainState.chainId,
+                  formData.token,
+                  formData.amount,
+                  "direct",
+                  isInvoice
+                );
+              }
+
               const message =
                 formData.mode === "invoice"
                   ? "Invoice created"
@@ -127,6 +145,7 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
                 duration: 3000,
                 isClosable: true,
               });
+
               refreshWithDelay();
               onClose?.();
             } catch (error) {
