@@ -1,5 +1,5 @@
-# Cheq v0.2
-Write cheques to others that are time locked and can be reversed
+# Denota v0.2
+Write notas (aka cheqs) to others that are time locked and can be reversed
 
 Contracts implementation located at [src/contracts](src/contracts)
 
