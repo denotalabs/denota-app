@@ -21,7 +21,7 @@ import {
 } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
-// TODO: Use cheq subdomain
+// TODO: Use denota subdomain
 export const APIURL_REMOTE = "https://klymr.me/graph-mumbai";
 
 export const APIURL_TESTING =
@@ -49,6 +49,7 @@ interface BlockchainDataInterface {
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
   chainId: string;
+  graphUrl: string;
 }
 
 interface BlockchainDataContextInterface {
@@ -72,6 +73,7 @@ const defaultBlockchainState = {
   explorer: "",
   directPayAddress: "",
   chainId: "",
+  graphUrl: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -176,6 +178,7 @@ export const BlockchainDataProvider = memo(
             cheq,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
+            graphUrl: deployedChainInfo.graphUrl,
           });
           setIsInitializing(false);
         }

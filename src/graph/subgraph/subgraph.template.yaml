@@ -6,9 +6,9 @@ dataSources:
     name: Events
     network: {{network}}
     source:
-      address: {{registrar}}
+      address: "{{registrar}}"
       abi: Registrar
-      startBlock: 32236709
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -44,11 +44,11 @@ dataSources:
       file: mapping.ts
   - kind: ethereum/contract
     name: DirectPay
-    network: mumbai
+    network: {{network}}
     source:
-      address: {{directPay}}
+      address: "{{directPay}}"
       abi: DirectPay
-      startBlock: 32236709
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5

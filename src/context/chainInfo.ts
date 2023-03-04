@@ -55,8 +55,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
     graphUrl: "https://klymr.me/graph-mumbai",
   },
-  "0xAEF3": {
-    isDisabled: true,
+  "0xaef3": {
     name: "Celo Testnet Alfajores",
     displayName: "Celo Alfajores",
     chainId: "0xAEF3",
@@ -68,7 +67,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     },
     blockExplorerUrls: ["https://alfajores-blockscout.celo-testnet.org/"],
     rpcUrls: ["https://alfajores-forno.celo-testnet.org"],
-    graphUrl: "https://klymr.me/graph/alfajores", // TODO: update
+    graphUrl: "https://klymr.me/graph/alfajores",
   },
   "0x1": {
     isDisabled: true,
@@ -78,6 +77,6 @@ export const deployedChains: Record<string, ChainInfo> = {
     logoSrc: "/logos/ethereum-logo.svg",
     blockExplorerUrls: ["https://etherscan.io/"],
     rpcUrls: ["https://eth.llamarpc.com"],
-    graphUrl: "https://klymr.me/graph/ethereum", // TODO: update
+    graphUrl: "https://klymr.me/graph/ethereum",
   },
 };
