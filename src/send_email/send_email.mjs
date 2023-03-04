@@ -19,7 +19,7 @@ var jsonParser = bodyParser.json();
 
 const registrar = "0x7338C511171c6cabf35195448921a4dD044fcef6";
 
-app.post("/send-email", jsonParser, async (req, res) => {
+app.post("/", jsonParser, async (req, res) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
