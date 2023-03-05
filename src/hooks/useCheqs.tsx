@@ -234,7 +234,7 @@ export const useCheqs = ({ cheqField }: Props) => {
           setIsLoading(false);
         });
     }
-  }, [account, mapField]);
+  }, [account, blockchainState.graphUrl, mapField]);
 
   useEffect(() => {
     refresh();
