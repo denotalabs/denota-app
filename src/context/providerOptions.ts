@@ -13,7 +13,7 @@ export const providerOptions = {
   walletconnect: {
     package: WalletConnectProvider, // required
     options: {
-      infuraId: process.env.NEXT_PUBLIC_INFURA_KEY, // required
+      infuraId: process.env.NEXT_PUBLIC_INFURA_KEY,
     },
   },
 };
