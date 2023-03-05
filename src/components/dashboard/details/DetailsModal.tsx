@@ -1,4 +1,5 @@
 import { Center } from "@chakra-ui/react";
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { Cheq } from "../../../hooks/useCheqs";
 import SimpleModal from "../../designSystem/SimpleModal";
 import CheqDetails from "./CheqDetails";
@@ -11,11 +12,17 @@ interface Props {
 }
 
 function DetailsModal(props: Props) {
+  const { blockchainState } = useBlockchainData();
+  const { explorer } = blockchainState;
   return (
     <SimpleModal {...props}>
       <CheqDetails cheq={props.cheq} />
       <Center>
-        <ShareToLensButton text="hello world" url="https://mycoolapp.xyz" />
+        <ShareToLensButton
+          text={`I just created a nota payment NFT! View my nota here: ${explorer}${props.cheq.createdTransaction.hash}`}
+          url="https://denota.xyz"
+          via="denota"
+        />
       </Center>
     </SimpleModal>
   );

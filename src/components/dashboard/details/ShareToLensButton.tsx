@@ -11,11 +11,11 @@ const ShareToLensButton = ({
   url,
   via,
 }: ShareToLensButtonProps): JSX.Element => {
-  const lensUrl = `https://lenster.xyz/?text=${encodeURIComponent(
+  const lensUrl = `https://testnet.lenster.xyz/?text=${encodeURIComponent(
     text
   )}&url=${encodeURIComponent(url)}${
     via ? `&via=${encodeURIComponent(via)}` : ""
-  }&hashtags=lens,web3`;
+  }&hashtags=lens,web3,denota,futureofwork`;
 
   const handleClick = () => {
     window.open(lensUrl, "_blank");
