@@ -66,3 +66,13 @@ In another tab, build and deploy the subgraph by running:
 
 ### Graph Resources/Links
 [AssemblyScript API](https://thegraph.com/docs/en/developing/assemblyscript-api/)
+
+## Polygon EthDenver notes
+
+*Why Polygon is a great technology choice for the project:*
+
+Polygon provides fast and cheap transactions, making it an ideal choice for our web3 payments upgrade. Its support for Ethereum Virtual Machine (EVM) smart contracts also allows us to easily integrate with existing Ethereum-based projects and leverage a large developer community.
+
+*Challenges or benefits encountered in the developer experience:*
+
+One challenge we encountered was navigating the differences between Polygon and Ethereum. However, the benefits of using Polygon outweighed the challenges, as we were able to quickly develop and test our project with minimal costs. Additionally, we found that the documentation and community support for Polygon were helpful in overcoming any obstacles we faced.
