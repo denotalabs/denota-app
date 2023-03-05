@@ -14,6 +14,10 @@ export const providerOptions = {
     package: WalletConnectProvider, // required
     options: {
       infuraId: process.env.NEXT_PUBLIC_INFURA_KEY,
+      rpc: {
+        80001: "https://matic-mumbai.chainstacklabs.com",
+        44787: "https://alfajores-forno.celo-testnet.org",
+      },
     },
   },
 };
