@@ -33,7 +33,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
             <Heading size="md"> Direct Pay</Heading>
           </CardHeader>
           <CardBody>
-            <Text>Funds are released immeidately upon payment</Text>
+            <Text>Funds are released immediately upon payment</Text>
           </CardBody>
           <CardFooter>
             <Button

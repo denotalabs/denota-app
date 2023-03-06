@@ -76,7 +76,7 @@ function CheqDetails({ cheq }: Props) {
           <DetailsRow
             title="Module"
             value="Direct Pay"
-            tooltip="Funds are released immeidately upon payment"
+            tooltip="Funds are released immediately upon payment"
           />
         </VStack>
       </RoundedBox>
