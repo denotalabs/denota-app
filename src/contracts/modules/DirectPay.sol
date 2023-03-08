@@ -4,39 +4,45 @@ pragma solidity ^0.8.16;
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
-import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 /**
  * @notice A simple payment module that includes an IPFS hash for memos (included in the URI)
  * Ownership grants the right to receive direct payment
- * Can be used to track: Promise of payment, Request for payment, Payment, or a Past payment (Invoice + Payment)
-
- Write: must
+ * Can be used to track: Promise of payment, Request for payment, Payment, or a Past payment (Payment & Invoice)
+ * Essentially what Bulla and Request currently support
  */
-// Both payment and invoicing
 contract DirectPay is ModuleBase {
-    mapping(uint256 => bool) public isCashed;
+    struct Payment {
+        address creditor;
+        address debtor; // QUESTION change to creditor and debtor?
+        uint256 amount; // Face value of the payment
+        uint256 timestamp; // Record keeping timestamp
+        bytes32 memoHash;
+        bool wasPaid; // TODO is this needed if using instant pay?
+    }
+    mapping(uint256 => Payment) public payInfo;
+
+    event PaymentCreated(
+        uint256 cheqId,
+        bytes32 memoHash,
+        uint256 amount,
+        uint256 timestamp,
+        address referer
+    );
+    error EscrowUnsupported();
+    error AmountZero();
+    error InvoiceWithPay();
+    error InsufficientPayment();
+    error AddressZero();
+    error Disallowed();
+    error OnlyOwner();
+    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
-        address _writeRule,
-        address _transferRule,
-        address _fundRule,
-        address _cashRule,
-        address _approveRule,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
-    )
-        ModuleBase(
-            registrar,
-            _writeRule,
-            _transferRule,
-            _fundRule,
-            _cashRule,
-            _approveRule,
-            _fees
-        )
-    {
+    ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
     }
 
@@ -44,126 +50,120 @@ contract DirectPay is ModuleBase {
         address caller,
         address owner,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        uint256 directAmount,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         bytes calldata initData
-    ) external override onlyRegistrar returns (uint256) {
-        IWriteRule(writeRule).canWrite(
-            caller,
-            owner,
-            cheqId,
-            cheq,
-            directAmount,
-            initData
-        );
+    ) public override onlyRegistrar returns (uint256) {
+        (
+            address toNotify,
+            uint256 amount, // Face value (for invoices)
+            uint256 timestamp,
+            address dappOperator,
+            bytes32 memoHash
+        ) = abi.decode(initData, (address, uint256, uint256, address, bytes32));
+        if (escrowed != 0) revert EscrowUnsupported();
+        if (amount == 0) revert AmountZero(); // Removing this would allow user to send memos
 
-        (bytes32 memoHash, address referer) = abi.decode(
-            initData,
-            (bytes32, address)
-        ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        memo[cheqId] = memoHash;
+        if (caller == owner) // Invoice
+        {
+            if (instant != 0) revert InvoiceWithPay();
+            payInfo[cheqId].creditor = caller;
+            payInfo[cheqId].debtor = toNotify;
+        } else if (owner == toNotify) // Payment
+        {
+            if (instant != amount) revert InsufficientPayment();
+            if (owner == address(0)) revert AddressZero();
+            payInfo[cheqId].creditor = toNotify;
+            payInfo[cheqId].debtor = caller;
+            payInfo[cheqId].wasPaid = true;
+        } else {
+            revert Disallowed();
+        }
 
-        uint256 totalAmount = cheq.escrowed + directAmount;
-        uint256 moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        revenue[referer][cheq.currency] += moduleFee;
+        payInfo[cheqId].amount = amount;
+        payInfo[cheqId].timestamp = timestamp;
+        payInfo[cheqId].memoHash = memoHash;
 
-        emit MemoWritten(cheqId, memoHash);
+        uint256 moduleFee;
+        {
+            uint256 totalAmount = escrowed + instant;
+            moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
+        }
+        revenue[dappOperator][currency] += moduleFee;
+
+        emit PaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
         return moduleFee;
     }
 
     function processTransfer(
         address caller,
-        bool isApproved,
+        address approved,
         address owner,
-        address from,
-        address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        address, /*from*/
+        address, /*to*/
+        uint256, /*cheqId*/
+        address currency,
+        uint256 escrowed,
+        uint256, /*createdAt*/
         bytes memory data
-    ) external override onlyRegistrar returns (uint256) {
-        ITransferRule(transferRule).canTransfer(
-            caller,
-            isApproved,
-            owner,
-            from,
-            to,
-            cheqId,
-            cheq,
-            data
-        );
-        require(isCashed[cheqId], "Module: Only after cashing");
-        uint256 moduleFee = (cheq.escrowed * fees.transferBPS) / BPS_MAX;
-        // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes?
+    ) public override onlyRegistrar returns (uint256) {
+        if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
+        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
+        revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
         return moduleFee;
     }
 
     function processFund(
-        address caller,
-        address owner,
+        address, /*caller*/
+        address, /*owner*/
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
-    ) external override onlyRegistrar returns (uint256) {
-        IFundRule(fundRule).canFund(
-            caller,
-            owner,
-            amount,
-            directAmount,
-            cheqId,
-            cheq,
-            initData
-        );
-        // require(!isCashed[cheqId], "Module: Already cashed");
-        address referer = abi.decode(initData, (address));
-        uint256 moduleFee = ((amount + directAmount) * fees.fundBPS) / BPS_MAX;
-        revenue[referer][cheq.currency] += moduleFee;
+    ) public override onlyRegistrar returns (uint256) {
+        if (amount != 0) revert EscrowUnsupported();
+        if (instant != payInfo[cheqId].amount) revert InsufficientPayment();
+        if (payInfo[cheqId].wasPaid) revert Disallowed();
+        // require(caller == payInfo[cheqId].debtor, "Only debtor"); // Should anyone be allowed to pay?
+        payInfo[cheqId].wasPaid = true;
+
+        uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
+        revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
         return moduleFee;
     }
 
     function processCash(
-        address caller,
-        address owner,
-        address to,
-        uint256 amount,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external override onlyRegistrar returns (uint256) {
-        ICashRule(cashRule).canCash(
-            caller,
-            owner,
-            to,
-            amount,
-            cheqId,
-            cheq,
-            initData
-        );
-        // require(!isCashed[cheqId], "Module: Already cashed");
-        address referer = abi.decode(initData, (address));
-        uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-        revenue[referer][cheq.currency] += moduleFee;
-        isCashed[cheqId] = true;
-        return moduleFee;
+        address, /*caller*/
+        address, /*owner*/
+        address, /*to*/
+        uint256, /*amount*/
+        uint256, /*cheqId*/
+        DataTypes.Cheq calldata, /*cheq*/
+        bytes calldata /*initData*/
+    ) public view override onlyRegistrar returns (uint256) {
+        revert Disallowed();
     }
 
     function processApproval(
         address caller,
         address owner,
-        address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes memory initData
-    ) external override onlyRegistrar {
-        IApproveRule(approveRule).canApprove(
-            caller,
-            owner,
-            to,
-            cheqId,
-            cheq,
-            initData
-        );
-        // require(isCashed[cheqId], "Module: Must be cashed first");
+        address, /*to*/
+        uint256, /*cheqId*/
+        DataTypes.Cheq calldata, /*cheq*/
+        bytes memory /*initData*/
+    ) public view override onlyRegistrar {
+        if (caller != owner) revert OnlyOwner();
+        // require(wasPaid[cheqId], "Module: Must be cashed first");
+    }
+
+    function processTokenURI(uint256 tokenId)
+        external
+        view
+        override
+        returns (string memory)
+    {
+        return string(abi.encodePacked(_URI, payInfo[tokenId].memoHash));
     }
 }

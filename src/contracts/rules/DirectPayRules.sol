@@ -14,36 +14,15 @@ contract DirectPayRules is
         address caller,
         address owner,
         uint256, /*cheqId*/
-        DataTypes.Cheq calldata cheq,
-        uint256 directAmount,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         bytes calldata /*initData*/
-    ) external pure {
-        require(cheq.escrowed == 0, "Rule: Escrowing not supported");
-        require(cheq.amount != 0, "Rule: Amount == 0");
-        require(
-            directAmount == cheq.amount || directAmount == 0, // directAmount=0 is for invoicing
-            "Rule: Must send full"
-        );
-        require(cheq.drawer != cheq.recipient, "Rule: Drawer == recipient");
-        require(
-            caller == cheq.drawer || caller == cheq.recipient,
-            "Rule: Only drawer/receiver"
-        );
-        require(
-            owner == cheq.drawer || owner == cheq.recipient,
-            "Rule: Drawer/recipient != owner"
-        );
-        require(
-            cheq.recipient != address(0) &&
-                owner != address(0) &&
-                cheq.drawer != address(0),
-            "Rule: Can't use zero address"
-        ); // TODO can be simplified
-    }
+    ) external pure {}
 
     function canTransfer(
         address caller,
-        bool isApproved,
+        address approved,
         address owner,
         address, /*from*/
         address to,
@@ -58,19 +37,11 @@ contract DirectPayRules is
         address caller,
         address owner,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         uint256, /*cheqId*/
         DataTypes.Cheq calldata cheq,
         bytes calldata /*initData*/
-    ) external pure {
-        require(amount == 0, "Rule: Only direct pay");
-        require(directAmount == cheq.amount, "Rule: Only full direct amount");
-        require(
-            caller == cheq.recipient || caller == cheq.drawer,
-            "Rule: Only drawer/recipient"
-        );
-        require(caller != owner, "Rule: Not owner");
-    }
+    ) external pure {}
 
     function canCash(
         address caller,

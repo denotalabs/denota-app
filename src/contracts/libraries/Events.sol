@@ -35,37 +35,20 @@ library Events {
         bool indexed accepted,
         uint256 timestamp
     );
-    event RuleWhitelisted(
-        address caller,
-        address indexed rule,
-        bool indexed accepted,
-        uint256 timestamp
-    );
-
 
     event Written(
-        uint256 indexed cheqId,
-        address indexed owner,
-        uint256 directAmount,
-        uint256 timestamp,
+        address indexed caller,
+        uint256 cheqId,
+        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner from add(0) to owner?
+        uint256 instant,
         address currency,
-        uint256 amount,
-        address drawer, 
-        address recipient,
-        address module,
-        uint256 escrowed
+        uint256 escrowed,
+        uint256 createdAt,
+        uint256 cheqFee,
+        uint256 moduleFee,
+        address indexed module,
+        bytes moduleData
     );
-
-    // event Written(
-    //     uint256 indexed cheqId,
-    //     address indexed owner,
-    //     DataTypes.Cheq indexed cheq,
-    //     uint256 directAmount,
-    //     bytes data,
-    //     uint256 cheqFee,
-    //     uint256 moduleFee,
-    //     uint256 timestamp
-    // );
     // Not used
     event Transferred(
         uint256 indexed tokenId,
@@ -79,7 +62,7 @@ library Events {
         address indexed funder,
         uint256 indexed cheqId,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         bytes indexed fundData,
         uint256 cheqFee,
         uint256 moduleFee,

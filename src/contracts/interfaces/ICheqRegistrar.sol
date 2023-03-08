@@ -8,14 +8,15 @@ import {ICheqModule} from "../interfaces/ICheqModule.sol";
  * @notice CheqRegistrar handles: Whitelisting/?Deploying modules, Escrowing funds, and Storing cheq data
  * Question: Take Flat fees in gas through WFC and Percent through module and transfers (reduces cheq.escrowed)?
  * Question: Should process_() return non-booleans?
- * TODO: send cheq as a struct or individual variables?
+ * TODO: pass cheq as a struct or individual variables?
  */
 interface ICheqRegistrar {
-    /// Cheq manipulations
     function write(
-        DataTypes.Cheq calldata cheq,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         address owner,
-        uint256 directAmount,
+        address module,
         bytes calldata moduleWriteData
     ) external payable returns (uint256);
 
@@ -30,7 +31,7 @@ interface ICheqRegistrar {
     function fund(
         uint256 cheqId,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         bytes calldata fundData
     ) external payable;
 
@@ -43,51 +44,25 @@ interface ICheqRegistrar {
 
     function approve(address to, uint256 tokenId) external;
 
+    // function burn(uint256 tokenId) external;
+
     // Cheq data
     function cheqInfo(uint256 cheqId)
         external
         view
         returns (DataTypes.Cheq memory); // Question: Should this be the only _cheqInfo view method?
 
-    function cheqDrawerRecipient(uint256 cheqId)
-        external
-        view
-        returns (address, address);
-
-    function cheqCurrencyValueEscrow(uint256 cheqId)
-        external
-        view
-        returns (
-            address,
-            uint256,
-            uint256
-        );
-
-    function cheqDrawer(uint256 cheqId) external view returns (address);
-
-    function cheqRecipient(uint256 cheqId) external view returns (address);
-
     function cheqCurrency(uint256 cheqId) external view returns (address);
-
-    function cheqAmount(uint256 cheqId) external view returns (uint256);
 
     function cheqEscrowed(uint256 cheqId) external view returns (uint256);
 
     function cheqModule(uint256 cheqId) external view returns (address);
 
+    // function ownerOf(uint256 cheqId) external view returns (address);
+
     // function totalSupply() public view returns (uint256);
 
     /// Whitlistings
-    function ruleWhitelisted(address rule) external view returns (bool);
-
-    function rulesWhitelisted(
-        address writeRule,
-        address transferRule,
-        address fundRule,
-        address cashRule,
-        address approveRule
-    ) external view returns (bool);
-
     function moduleWhitelisted(address module)
         external
         view

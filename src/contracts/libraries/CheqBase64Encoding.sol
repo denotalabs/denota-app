@@ -30,19 +30,17 @@ Animation_url also supports HTML pages, allowing you to build rich experiences a
 
 youtube_url
 A URL to a YouTube video.
-
  */
 
-library CheqBase64Encoding {
+contract CheqBase64Encoding {
     function buildMetadata(
         uint256 _tokenId,
         address currency,
-        uint256 amount,
         uint256 escrowed,
-        address drawer,
-        address recipient,
-        address module
-    ) external pure returns (string memory) {
+        uint256 createdAt,
+        address module,
+        string memory _tokenURI
+    ) internal pure returns (string memory) {
         return
             string(
                 abi.encodePacked(
@@ -55,6 +53,8 @@ library CheqBase64Encoding {
                                 _tokenId,
                                 // '", "description":"',
                                 // cheq.description,
+                                '", "external_url":"',
+                                _tokenURI,
                                 // '", "image": "',
                                 // "data:image/svg+xml;base64,",
                                 // buildImage(_tokenId),
@@ -64,21 +64,17 @@ library CheqBase64Encoding {
                                 '"value":',
                                 currency,
                                 "}",
-                                '{"trait_type": "Amount",',
-                                '"value":',
-                                amount,
-                                "}",
+                                // '{"trait_type": "Amount",',
+                                // "}",
                                 '{"trait_type": "Escrowed",',
                                 '"value":',
                                 escrowed,
                                 "}",
                                 '{"trait_type": "Drawer",',
-                                '"value":',
-                                drawer,
                                 "}",
-                                '{"trait_type": "Recipient",',
+                                '{"trait_type": "Created At",',
                                 '"value":',
-                                recipient,
+                                createdAt,
                                 "}",
                                 '{"trait_type": "Module",',
                                 '"value":',

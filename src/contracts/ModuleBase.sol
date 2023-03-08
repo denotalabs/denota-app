@@ -13,52 +13,21 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 // Question allow module owners to change the Rules on the fly?
 abstract contract ModuleBase is ICheqModule {
     address public immutable REGISTRAR; // Question: Make this a hardcoded address?
-
-    string public _URI;
-    mapping(uint256 => bytes32) public memo; // How to turn this into an image that OpenSea can display? Might need to be encrypted
-    mapping(address => mapping(address => uint256)) revenue; // rewardAddress => token => rewardAmount
+    mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
     uint256 internal constant BPS_MAX = 10_000; // Lens uses uint16
-    address public writeRule;
-    address public transferRule;
-    address public fundRule;
-    address public cashRule;
-    address public approveRule; // Question can allow psuedo-operators (stored on module) to grant approvals
     DataTypes.WTFCFees public fees;
 
-    event MemoWritten(uint256 indexed cheqId, bytes32 memoHash);
+    string public _URI; // Should this be in the ModuleBase?
 
     modifier onlyRegistrar() {
         if (msg.sender != REGISTRAR) revert Errors.NotRegistrar();
         _;
     }
 
-    constructor(
-        address registrar,
-        address _writeRule,
-        address _transferRule,
-        address _fundRule,
-        address _cashRule,
-        address _approveRule,
-        DataTypes.WTFCFees memory _fees
-    ) {
+    constructor(address registrar, DataTypes.WTFCFees memory _fees) {
         if (registrar == address(0)) revert Errors.InitParamsInvalid();
         REGISTRAR = registrar; // Question: Should this be before or after rule checking?
 
-        require(
-            ICheqRegistrar(REGISTRAR).rulesWhitelisted(
-                _writeRule,
-                _transferRule,
-                _fundRule,
-                _cashRule,
-                _approveRule
-            ),
-            "RULES_INVALID"
-        );
-        writeRule = _writeRule;
-        transferRule = _transferRule;
-        fundRule = _fundRule;
-        cashRule = _cashRule;
-        approveRule = _approveRule;
         require(_fees.writeBPS < BPS_MAX, "Module: Fee too high");
         require(_fees.transferBPS < BPS_MAX, "Module: Fee too high");
         require(_fees.fundBPS < BPS_MAX, "Module: Fee too high");
@@ -68,117 +37,80 @@ abstract contract ModuleBase is ICheqModule {
         emit Events.ModuleBaseConstructed(registrar, block.timestamp);
     }
 
-    function processWrite(
-        address caller,
-        address owner,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        uint256 directAmount,
-        bytes calldata initData
-    ) external virtual override onlyRegistrar returns (uint256) {
-        // Fails here if not possible
-        IWriteRule(writeRule).canWrite(
-            caller,
-            owner,
-            cheqId,
-            cheq,
-            directAmount,
-            initData
-        );
-        bytes32 memoHash = abi.decode(initData, (bytes32)); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        memo[cheqId] = memoHash;
-
-        emit MemoWritten(cheqId, memoHash);
-        // Add module logic here
-        return fees.writeBPS;
-    }
-
-    function processTransfer(
-        address caller,
-        bool isApproved,
-        address owner,
-        address from,
-        address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata data
-    ) external virtual override onlyRegistrar returns (uint256) {
-        ITransferRule(transferRule).canTransfer(
-            caller,
-            isApproved,
-            owner,
-            from,
-            to,
-            cheqId,
-            cheq,
-            data
-        ); // Checks if caller is ownerOrApproved
-        // Add module logic here
-        return fees.transferBPS;
-    }
-
-    function processFund(
-        address caller,
-        address owner,
+    function takeReturnFee(
+        address currency,
         uint256 amount,
-        uint256 directAmount,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external virtual override onlyRegistrar returns (uint256) {
-        IFundRule(fundRule).canFund(
-            caller,
-            owner,
-            amount,
-            directAmount,
-            cheqId,
-            cheq,
-            initData
-        );
-        // Add module logic here
-        return fees.fundBPS;
+        address dappOperator
+    ) internal returns (uint256 moduleFee) {
+        moduleFee = (amount * fees.transferBPS) / BPS_MAX;
+        revenue[dappOperator][currency] += moduleFee;
     }
 
-    function processCash(
-        address caller,
-        address owner,
-        address to,
-        uint256 amount,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external virtual override onlyRegistrar returns (uint256) {
-        ICashRule(cashRule).canCash(
-            caller,
-            owner,
-            to,
-            amount,
-            cheqId,
-            cheq,
-            initData
-        );
-        // Add module logic here
-        return fees.cashBPS;
-    }
+    // function processWrite(
+    //     address caller,
+    //     address owner,
+    //     uint256 cheqId,
+    //     address currency,
+    //     uint256 escrowed,
+    //     uint256 instant,
+    //     bytes calldata initData
+    // ) external virtual override onlyRegistrar returns (uint256) {
+    //     // Add module logic here
+    //     return fees.writeBPS;
+    // }
 
-    function processApproval(
-        address caller,
-        address owner,
-        address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes memory initData
-    ) external virtual override onlyRegistrar {
-        IApproveRule(approveRule).canApprove(
-            caller,
-            owner,
-            to,
-            cheqId,
-            cheq,
-            initData
-        );
-        // Add module logic here
-    }
+    // function processTransfer(
+    //     address caller,
+    //     address approved,
+    //     address owner,
+    //     address from,
+    //     address to,
+    //     uint256 cheqId,
+    //     address currency,
+    //     uint256 escrowed,
+    //     uint256 createdAt,
+    //     bytes calldata data
+    // ) external virtual override onlyRegistrar returns (uint256) {
+    //     // Add module logic here
+    //     return fees.transferBPS;
+    // }
+
+    // function processFund(
+    //     address caller,
+    //     address owner,
+    //     uint256 amount,
+    //     uint256 instant,
+    //     uint256 cheqId,
+    //     DataTypes.Cheq calldata cheq,
+    //     bytes calldata initData
+    // ) external virtual override onlyRegistrar returns (uint256) {
+    //     // Add module logic here
+    //     return fees.fundBPS;
+    // }
+
+    // function processCash(
+    //     address caller,
+    //     address owner,
+    //     address to,
+    //     uint256 amount,
+    //     uint256 cheqId,
+    //     DataTypes.Cheq calldata cheq,
+    //     bytes calldata initData
+    // ) external virtual override onlyRegistrar returns (uint256) {
+    //     // Add module logic here
+    //     return fees.cashBPS;
+    // }
+
+    // function processApproval(
+    //     address caller,
+    //     address owner,
+    //     address to,
+    //     uint256 cheqId,
+    //     DataTypes.Cheq calldata cheq,
+    //     bytes memory initData
+    // ) external virtual override onlyRegistrar {
+    //     // Add module logic here
+    // }
 
     function processTokenURI(uint256 tokenId)
         external
@@ -187,8 +119,7 @@ abstract contract ModuleBase is ICheqModule {
         override
         returns (string memory)
     {
-        bytes32 memoHash = memo[tokenId];
-        return string(abi.encodePacked(_URI, memoHash)); // ipfs://baseURI/memoHash --> memo // TODO encrypt upload on frontend
+        return string(abi.encodePacked(_URI, tokenId));
     }
 
     function getFees()

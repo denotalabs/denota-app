@@ -14,29 +14,11 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
  * @title  The Cheq Payment Registrar
  * @notice The main contract where users can WTFCA cheqs
  * @author Alejandro Almaraz
- * @dev    Tracks ownership of cheqs' data & escrow, whitelists tokens/modules/rulesets, and collects revenue.
+ * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.
  */
-
-// Revert if frontend gives the wrong amount (MM should know if it would revert (using Ethers call estimateGas, will also tell you if it will revert))
-// Note Arseniy: "calling contracts may not be able to convert their storage to calldata when calling functions" "developers want to develop if we already have a lot of users and they can make money from fees, or "
-// Question what would a gnosis app need?
-// Question accept native token using address(0) as it's address? Or use wrapped version?
-// Question Create a module labeling schema?
-// Question deploy your own DAO and see how difficult it is
-// Question: Add function to deploy modules from the registrar?
-// Question: Implement ownerOf(cheqId) { cheq.module.processOwner(); } to allow ownership revokation?
-// TODO allow native tokens? Can use address(0) as their currency address
-
-// Question should registrar have a function payload(cheqid, bytes) to forward updates to the cheq's respective module for easier front-end manipulation?
-// TODO support cheq burning
-// TODO add WTFCA EIP712 signature methods
-// TODO ensure BPS avoids over/underflow
-// TODO need to convert IWTFCRules to libraries
-// TODO determine proper fee uint sizes
-// TODO need to implement upgradable proxies
-// TODO make sure tokenURI is correct
-
-contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
+// IDEA: NFTs as Payment Agreements
+// Question: the CheqBase64 library isn't working when being delegated, only when used inside registrar
+contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
     using SafeERC20 for IERC20;
     /*//////////////////////////////////////////////////////////////
                                 STORAGE
@@ -44,19 +26,18 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     mapping(uint256 => DataTypes.Cheq) private _cheqInfo;
     uint256 private _totalSupply;
 
-    mapping(bytes32 => bool) private _bytecodeWhitelist; // Question Can these be done without two mappings? Having both redeployable and static modules?
-    mapping(address => bool) private _addressWhitelist;
-    mapping(address => bool) private _ruleWhitelist; // Question make these bytecode specific? Rule specific?
-    mapping(address => bool) private _tokenWhitelist;
-
     mapping(address => mapping(address => uint256)) private _moduleRevenue; // Could collapse this into a single mapping
     mapping(address => uint256) private _registrarRevenue;
+
+    mapping(bytes32 => bool) private _bytecodeWhitelist; // Question Can these be done without two mappings? Having both redeployable and static modules?
+    mapping(address => bool) private _addressWhitelist;
+    mapping(address => bool) private _tokenWhitelist;
     uint256 internal constant BPS_MAX = 10_000; // TODO Lens uses uint16
     DataTypes.WTFCFees public fees;
     uint256 public _writeFlatFee; // Question: is this needed?
 
     constructor(DataTypes.WTFCFees memory _fees)
-        ERC721("CheqProtocol", "CHEQ")
+        ERC721("denotaProtocol", "NOTA")
     {
         fees = _fees;
     }
@@ -72,75 +53,103 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         return _validModule(module) && _tokenWhitelist[token]; // Valid module and whitelisted currency
     }
 
-    function write(
-        DataTypes.Cheq calldata cheq,
+    function _escrow(
+        uint256 escrowed,
+        uint256 instant,
+        address currency,
         address owner,
-        uint256 directAmount, // Separate from the cheq.escrowed
+        uint256 cheqBPS,
+        uint256 moduleFee,
+        address module
+    ) private returns (uint256 cheqFee) {
+        uint256 totalAmount = escrowed + instant;
+        if (totalAmount != 0) {
+            cheqFee = (totalAmount * cheqBPS) / BPS_MAX;
+            uint256 toEscrow = escrowed + cheqFee + moduleFee;
+
+            if (toEscrow > 0) {
+                if (currency == address(0)) {
+                    require(msg.value == toEscrow, "INSUF_VAL");
+                } else {
+                    IERC20(currency).safeTransferFrom(
+                        _msgSender(),
+                        address(this),
+                        toEscrow
+                    );
+                }
+            }
+            if (instant > 0) {
+                if (currency != address(0)) {
+                    IERC20(currency).safeTransferFrom(
+                        _msgSender(),
+                        owner,
+                        instant
+                    );
+                } else {
+                    require(msg.value == instant, "INSUF_VAL"); // TODO needs to incorporate _writeFlatFee if it's turned on
+                    (bool sent, ) = owner.call{value: msg.value}("");
+                    require(sent, "TRANSF_FAILED");
+                }
+            }
+            _registrarRevenue[currency] += cheqFee;
+            _moduleRevenue[module][currency] += moduleFee;
+        }
+    }
+
+    function write(
+        address currency,
+        uint256 escrowed,
+        uint256 instant, // if nonFungible is supported make sure this can't be used
+        address owner,
+        address module,
         bytes calldata moduleWriteData
     ) public payable returns (uint256) {
-        // Writing checks
-        // require(msg.value >= _writeFlatFee, "INSUF_FEE"); // Question should flat fee be implemented?
-        require(validWrite(cheq.module, cheq.currency), "NOT_WHITELISTED"); // Module+token whitelist check
+        // require(msg.value >= _writeFlatFee, "INSUF_FEE"); // IDEA: discourages spamming of 0 value cheqs
+        require(validWrite(module, currency), "NOT_WHITELISTED"); // Module+token whitelist check
 
-        writeEvent(cheq, owner, directAmount);
-
-        // Module hook
-        uint256 moduleFee = ICheqModule(cheq.module).processWrite(
+        // Module hook (updates its storage, gets the fee)
+        uint256 moduleFee = ICheqModule(module).processWrite(
             _msgSender(),
             owner,
             _totalSupply,
-            cheq,
-            directAmount,
+            currency,
+            escrowed,
+            instant,
             moduleWriteData
         );
 
-        // Cheq Minting  // Question put this before or after escrow?
+        uint256 cheqFee = _escrow(
+            escrowed,
+            instant,
+            currency,
+            owner,
+            fees.writeBPS,
+            moduleFee,
+            module
+        );
+
         _safeMint(owner, _totalSupply);
-        _cheqInfo[_totalSupply] = cheq; // Question: Is this cheaper than defining each var?
-        _cheqInfo[_totalSupply].mintTimestamp = block.timestamp; // Not ideal
+        _cheqInfo[_totalSupply].currency = currency;
+        _cheqInfo[_totalSupply].escrowed = escrowed;
+        _cheqInfo[_totalSupply].createdAt = block.timestamp;
+        _cheqInfo[_totalSupply].module = module;
 
-        // Fee taking and escrowing
-        uint256 totalAmount = cheq.escrowed + directAmount; // TODO could optimize when 0
-        uint256 cheqFee = (totalAmount * fees.writeBPS) / BPS_MAX; // uint256 totalBPS = fees.writeBPS + moduleBPS; but need to emit and add to reserves
-        uint256 toEscrow = cheq.escrowed + cheqFee + moduleFee;
-        if (toEscrow > 0) {
-            IERC20(cheq.currency).safeTransferFrom(
-                _msgSender(),
-                address(this),
-                toEscrow
-            );
-            _registrarRevenue[cheq.currency] += cheqFee;
-            _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
-        }
-        if (directAmount > 0)
-            IERC20(cheq.currency).safeTransferFrom(
-                _msgSender(),
-                owner,
-                directAmount
-            );
-
+        emit Events.Written(
+            _msgSender(),
+            _totalSupply,
+            owner,
+            instant,
+            currency,
+            escrowed,
+            block.timestamp,
+            cheqFee,
+            moduleFee,
+            module,
+            moduleWriteData
+        );
         unchecked {
             return _totalSupply++;
         } // NOTE: Will this ever overflow?
-    }
-
-    function writeEvent(
-        DataTypes.Cheq calldata cheq,
-        address owner,
-        uint256 directAmount // Separate from the cheq.escrowed
-    ) internal {
-        emit Events.Written(
-            _totalSupply,
-            owner,
-            directAmount,
-            block.timestamp,
-            cheq.currency,
-            cheq.amount,
-            cheq.drawer,
-            cheq.recipient,
-            cheq.module,
-            cheq.escrowed
-        );
     }
 
     function transferFrom(
@@ -159,18 +168,19 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         bytes memory moduleTransferData
     ) public override(ERC721, ICheqRegistrar) {
         address owner = ownerOf(tokenId);
-        bool isApproved = _msgSender() == getApproved(tokenId);
         DataTypes.Cheq storage cheq = _cheqInfo[tokenId]; // Better to assign than to index?
 
         // Module hook
         uint256 moduleFee = ICheqModule(cheq.module).processTransfer(
             _msgSender(),
-            isApproved,
+            getApproved(tokenId),
             owner,
-            from,
+            from, // TODO Might not be needed
             to,
             tokenId,
-            cheq,
+            cheq.currency,
+            cheq.escrowed,
+            cheq.createdAt,
             moduleTransferData
         );
 
@@ -200,49 +210,39 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
     function fund(
         uint256 cheqId,
         uint256 amount,
-        uint256 directAmount,
+        uint256 instant,
         bytes calldata fundData
     ) external payable {
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
         address owner = ownerOf(cheqId); // Is used twice
 
         // Module hook
-        uint256 moduleBPS = ICheqModule(cheq.module).processFund(
+        uint256 moduleFee = ICheqModule(cheq.module).processFund(
             _msgSender(),
             owner,
             amount,
-            directAmount,
+            instant,
             cheqId,
             cheq,
             fundData
         );
 
         // Fee taking and escrow
-        uint256 totalAmount = amount + directAmount;
-        uint256 cheqFee = (totalAmount * fees.writeBPS) / BPS_MAX; // uint256 totalBPS = fees.writeBPS + moduleBPS; but need to emit and add to reserves
-        uint256 moduleFee = (totalAmount * moduleBPS) / BPS_MAX;
-        uint256 toEscrow = amount + cheqFee + moduleFee;
-        if (toEscrow > 0) {
-            IERC20(cheq.currency).safeTransferFrom(
-                _msgSender(),
-                address(this),
-                toEscrow
-            );
-            _registrarRevenue[cheq.currency] += cheqFee;
-            _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
-        }
-        if (directAmount > 0)
-            IERC20(cheq.currency).safeTransferFrom(
-                _msgSender(),
-                owner,
-                directAmount
-            );
+        uint256 cheqFee = _escrow(
+            cheq.escrowed,
+            instant,
+            cheq.currency,
+            owner,
+            fees.fundBPS,
+            moduleFee,
+            cheq.module
+        );
 
         emit Events.Funded(
             _msgSender(),
             cheqId,
             amount,
-            directAmount,
+            instant,
             fundData,
             cheqFee,
             moduleFee,
@@ -260,7 +260,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
 
         // Module Hook
-        uint256 moduleBPS = ICheqModule(cheq.module).processCash(
+        uint256 moduleFee = ICheqModule(cheq.module).processCash(
             _msgSender(),
             ownerOf(cheqId),
             to,
@@ -272,15 +272,19 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
 
         // Fee taking
         uint256 cheqFee = (amount * fees.cashBPS) / BPS_MAX;
-        uint256 moduleFee = (amount * moduleBPS) / BPS_MAX;
         uint256 totalAmount = amount + cheqFee + moduleFee;
 
         // Un-escrowing
         require(cheq.escrowed >= totalAmount, "CANT_CASH_AMOUNT"); // TODO may cause funds to be stuck if fees are added
         unchecked {
             cheq.escrowed -= totalAmount;
-        } // Could this just underflow and revert anyway to save gas?
-        IERC20(cheq.currency).safeTransfer(to, amount);
+        } // Could this just underflow and revert anyway (save gas)?
+        if (cheq.currency == address(0)) {
+            (bool sent, ) = to.call{value: amount}("");
+            require(sent, "TRANSF_FAILED");
+        } else {
+            IERC20(cheq.currency).safeTransfer(to, amount);
+        }
         _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
         _registrarRevenue[cheq.currency] += cheqFee;
 
@@ -412,16 +416,6 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         );
     }
 
-    function whitelistRule(address rule, bool accepted) external onlyOwner {
-        _ruleWhitelist[rule] = accepted;
-        emit Events.RuleWhitelisted(
-            _msgSender(),
-            rule,
-            accepted,
-            block.timestamp
-        );
-    }
-
     function _returnCodeHash(address module) public view returns (bytes32) {
         bytes32 moduleCodeHash;
         assembly {
@@ -447,44 +441,8 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         return _cheqInfo[cheqId];
     }
 
-    function cheqDrawerRecipient(uint256 cheqId)
-        external
-        view
-        returns (address, address)
-    {
-        return (_cheqInfo[cheqId].drawer, _cheqInfo[cheqId].recipient);
-    }
-
-    function cheqDrawer(uint256 cheqId) public view returns (address) {
-        return _cheqInfo[cheqId].drawer;
-    }
-
-    function cheqRecipient(uint256 cheqId) public view returns (address) {
-        return _cheqInfo[cheqId].recipient;
-    }
-
-    function cheqCurrencyValueEscrow(uint256 cheqId)
-        external
-        view
-        returns (
-            address,
-            uint256,
-            uint256
-        )
-    {
-        return (
-            _cheqInfo[cheqId].currency,
-            _cheqInfo[cheqId].amount,
-            _cheqInfo[cheqId].escrowed
-        );
-    }
-
     function cheqCurrency(uint256 cheqId) public view returns (address) {
         return _cheqInfo[cheqId].currency;
-    }
-
-    function cheqAmount(uint256 cheqId) public view returns (uint256) {
-        return _cheqInfo[cheqId].amount;
     }
 
     function cheqEscrowed(uint256 cheqId) public view returns (uint256) {
@@ -514,52 +472,25 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         return _tokenWhitelist[token];
     }
 
-    function ruleWhitelisted(address rule) external view returns (bool) {
-        return _ruleWhitelist[rule];
-    }
-
-    function rulesWhitelisted(
-        address writeRule,
-        address transferRule,
-        address fundRule,
-        address cashRule,
-        address approveRule
-    ) external view returns (bool) {
-        return
-            _ruleWhitelist[writeRule] &&
-            _ruleWhitelist[transferRule] &&
-            _ruleWhitelist[fundRule] &&
-            _ruleWhitelist[cashRule] &&
-            _ruleWhitelist[approveRule];
-    }
-
     function tokenURI(uint256 _tokenId)
         public
         view
         override
         returns (string memory)
     {
-        // Question: Should this switch case depend on if module has their own tokenURI()?
         _requireMinted(_tokenId);
-        DataTypes.Cheq memory cheq = cheqInfo(_tokenId);
-        string memory _tokenURI = ICheqModule(cheq.module).processTokenURI(
-            _tokenId
-        );
+        string memory _tokenURI = ICheqModule(_cheqInfo[_tokenId].module)
+            .processTokenURI(_tokenId);
 
-        if (bytes(_tokenURI).length == 0) {
-            return
-                CheqBase64Encoding.buildMetadata(
-                    _tokenId,
-                    address(cheq.currency),
-                    cheq.amount,
-                    cheq.escrowed,
-                    cheq.drawer,
-                    cheq.recipient,
-                    cheq.module
-                );
-        } else {
-            return _tokenURI;
-        }
+        return
+            buildMetadata(
+                _tokenId,
+                _cheqInfo[_tokenId].currency,
+                _cheqInfo[_tokenId].escrowed,
+                _cheqInfo[_tokenId].createdAt,
+                _cheqInfo[_tokenId].module,
+                _tokenURI
+            );
     }
     // function ownerOf(uint256 tokenId) public view override returns (address) {
     //     address owner = _ownerOf(tokenId);

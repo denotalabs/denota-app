@@ -1,11 +1,5 @@
 Scratch pad for psuedo code and feature ideas
 
-Rule libraries:
-When a user WTFCs a cheq, libraries can make comparisons between the argument parameters (including user provided bytesData)
-    > Assumes that the cheq writer's bytesData is trusted
-Conversely, storage that is only modifiable by calling module functions will require a new module
-
-
 General Features:
 * Global or Address Pausability
     function pauseWTFC(bool, bool, bool, bool) external onlyOwner {}
@@ -27,6 +21,7 @@ General Features:
     function buyCheq(cheqId) {REGISTRAR.transferFrom(cheqId, caller, address(this)); ERC20._mint(caller, cheq.escrowed)}; // AMM style cheq buybacks and issue tokens
 * ZK proving of past payments
     function proveModuleTotalSuccessfulPayment(address) { ZK.recoverCheqAmountsByAccount(address); }
+* Dynamically charging fees based on caller, cheqId, or other (if intervention was needed for ex)
 Admin role abilities: 
 1. Global pausing of WTFCA
 2. Operator-like transfer ability
@@ -45,7 +40,7 @@ Writing Features:
     require(cheq.amount == cheq.escrowed)
 * Proof-of-Reserves
     require(IERC20(cheq.currency).balanceOf(cheq.drawer) > cheq.amount)
-* Token Allowlists
+* Token Allowlists (by module or by user)
     require(tokenWhitelist[cheq.currency])
 * Payment Delegation
     require(cheq.drawer == cheq.payer)
@@ -65,6 +60,7 @@ Transferring:
 * Arbitrary External Contract Conditions (view functions)
     function onlyOnExternalState(address, string) { require(Contract(address).functionSelector(string), "FAILED") } OR
     function onlyOnExternalState(address, string, Comparison comparison, uint) { require(comparison(Contract(address).functionSelector(string), uint), "FAILED") } 
+* (Non)-tranferability (static from module or dynamic set by writer/admin)
 
 Funding:
 * Allowed Funding Amount

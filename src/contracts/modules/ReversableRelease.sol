@@ -5,35 +5,23 @@ import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {ICheqModule} from "../interfaces/ICheqModule.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
-import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 /**
  * Note: Only payments, allows sender to choose when to release and whether to reverse (assuming it's not released yet)
  */
-contract ReversableTimelock is ModuleBase {
-    mapping(uint256 => address) public inspector;
-    mapping(uint256 => bool) public isReleased;
+contract ReversableRelease is ModuleBase {
+    struct Payment {
+        address inspector;
+        address drawer;
+        bytes32 memoHash;
+    }
+    mapping(uint256 => Payment) public payInfo;
 
     constructor(
         address registrar,
-        address _writeRule,
-        address _transferRule,
-        address _fundRule,
-        address _cashRule,
-        address _approveRule,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
-    )
-        ModuleBase(
-            registrar,
-            _writeRule,
-            _transferRule,
-            _fundRule,
-            _cashRule,
-            _approveRule,
-            _fees
-        )
-    {
+    ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
     }
 
@@ -41,110 +29,77 @@ contract ReversableTimelock is ModuleBase {
         address caller,
         address owner,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        uint256 directAmount,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        /**
-        (cheq.amount != 0) &&  // Cheq must have a face value
-        (cheq.drawer != cheq.recipient) && // Drawer and recipient aren't the same
-        (owner == cheq.drawer || owner == cheq.recipient) &&  // Either drawer or recipient must be owner
-        (caller == cheq.drawer || caller == cheq.recipient) &&  // Delegated pay/requesting not allowed
-        (cheq.escrowed == 0 || cheq.escrowed == cheq.amount) &&  // Either send unfunded or fully funded cheq
-        (cheq.recipient != address(0) && owner != address(0))  // Can't send to zero address
-         */
-        IWriteRule(writeRule).canWrite(
-            caller,
-            owner,
-            cheqId,
-            cheq,
-            directAmount,
-            initData
-        );
-        (address _inspector, address referer) = abi.decode(
-            initData,
-            (address, address)
-        );
-        inspector[cheqId] = _inspector;
-        return fees.writeBPS;
+        (address inspector, address dappOperator, bytes32 memoHash) = abi
+            .decode(initData, (address, address, bytes32));
+        require((caller != owner) && (owner != address(0)), "Invalid Params");
+
+        payInfo[cheqId].inspector = inspector;
+        payInfo[cheqId].drawer = caller;
+        payInfo[cheqId].memoHash = memoHash;
+
+        uint256 moduleFee;
+        {
+            uint256 totalAmount = escrowed + instant;
+            moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
+        }
+        revenue[dappOperator][currency] += moduleFee;
+        return moduleFee;
     }
 
     function processTransfer(
         address caller,
-        bool isApproved,
+        address approved,
         address owner,
-        address from,
-        address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes memory data
-    ) external override onlyRegistrar returns (uint256) {
-        address cheqInspector = inspector[cheqId];
-        require(from == owner, "Not from NFT holder");
-        require(!isReleased[cheqId], "Is already released");
+        address, /*from*/
+        address, /*to*/
+        uint256, /*cheqId*/
+        address, /*currency*/
+        uint256 escrowed,
+        uint256, /*createdAt*/
+        bytes memory /*data*/
+    ) external view override onlyRegistrar returns (uint256) {
         require(
-            caller == owner || isApproved || caller == cheqInspector,
-            "Only owner or inspector"
+            caller == owner || caller == approved,
+            "Only owner or approved"
         );
-        if (caller == cheqInspector) {
-            require(to == cheq.drawer, "Only reverse to drawer");
-        }
-        ITransferRule(transferRule).canTransfer(
-            caller,
-            isApproved,
-            owner,
-            from,
-            to,
-            cheqId,
-            cheq,
-            data
-        );
-        return fees.transferBPS;
+        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
+        // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
+        return moduleFee;
     }
 
     function processFund(
-        address caller,
-        address owner,
-        uint256 amount,
-        uint256 directAmount,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external override onlyRegistrar returns (uint256) {
-        require(false, "Simple escrows only");
-        IFundRule(fundRule).canFund(
-            caller,
-            owner,
-            amount,
-            directAmount,
-            cheqId,
-            cheq,
-            initData
-        );
-        return fees.fundBPS;
+        address, // caller,
+        address, // owner,
+        uint256, // amount,
+        uint256, // instant,
+        uint256, // cheqId,
+        DataTypes.Cheq calldata, // cheq,
+        bytes calldata // initData
+    ) external view override onlyRegistrar returns (uint256) {
+        require(false, "");
+        return 0;
     }
 
     function processCash(
         address caller,
-        address owner,
-        address to,
+        address, /*owner*/
+        address, /*to*/
         uint256 amount,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes calldata initData
-    ) external override onlyRegistrar returns (uint256) {
-        ICashRule(cashRule).canCash(
-            caller,
-            owner,
-            to,
-            amount,
-            cheqId,
-            cheq,
-            initData
+        DataTypes.Cheq calldata, /*cheq*/
+        bytes calldata /*initData*/
+    ) external view override onlyRegistrar returns (uint256) {
+        require(
+            caller == payInfo[cheqId].inspector,
+            "Inspector cash for owner"
         );
-        // require(amount == cheq.escrowed, "Can only cash full amounts");
-        // require(cheq.mintTimestamp + inspectionPeriod[cheqId] <= block.timestamp, "Can only cash after inspection");
-        return fees.cashBPS;
+        uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
+        return moduleFee;
     }
 
     function processApproval(
@@ -154,16 +109,7 @@ contract ReversableTimelock is ModuleBase {
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes memory initData
-    ) external override onlyRegistrar {
-        IApproveRule(approveRule).canApprove(
-            caller,
-            owner,
-            to,
-            cheqId,
-            cheq,
-            initData
-        );
-    }
+    ) external override onlyRegistrar {}
 
     function processTokenURI(
         uint256 /*tokenId*/
