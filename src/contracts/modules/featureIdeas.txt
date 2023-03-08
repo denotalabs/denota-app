@@ -21,6 +21,7 @@ General Features:
     function buyCheq(cheqId) {REGISTRAR.transferFrom(cheqId, caller, address(this)); ERC20._mint(caller, cheq.escrowed)}; // AMM style cheq buybacks and issue tokens
 * ZK proving of past payments
     function proveModuleTotalSuccessfulPayment(address) { ZK.recoverCheqAmountsByAccount(address); }
+* Dynamically charging fees based on caller, cheqId, or other (if intervention was needed for ex)
 Admin role abilities: 
 1. Global pausing of WTFCA
 2. Operator-like transfer ability

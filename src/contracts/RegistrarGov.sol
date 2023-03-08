@@ -5,8 +5,10 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {Events} from "../contracts/libraries/Events.sol";
 import {DataTypes} from "../contracts/libraries/DataTypes.sol";
+import {IRegistrarGov} from "../contracts/interfaces/IRegistrarGov.sol";
 
-contract RegistrarGov is Ownable {
+// Idea Registrar could take different fees from different modules. Business related ones would be charged but not social ones
+contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
     mapping(address => mapping(address => uint256)) internal _moduleRevenue; // Could collapse this into a single mapping
     mapping(address => uint256) internal _registrarRevenue;

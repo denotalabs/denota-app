@@ -38,10 +38,8 @@ contract SimpleTimelock is ModuleBase {
         ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
         releaseDate[cheqId] = _releaseDate;
 
-        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-        revenue[dappOperator][currency] += moduleFee;
         emit Timelock(cheqId, _releaseDate);
-        return moduleFee;
+        return takeReturnFee(currency, escrowed, dappOperator);
     }
 
     function processTransfer(
@@ -86,9 +84,7 @@ contract SimpleTimelock is ModuleBase {
         require(amount == cheq.escrowed, "Must fully cash");
         require(releaseDate[cheqId] < block.timestamp, "TIMELOCK");
         address dappOperator = abi.decode(initData, (address));
-        uint256 moduleFee = (amount * fees.transferBPS) / BPS_MAX;
-        revenue[dappOperator][cheq.currency] += moduleFee;
-        return moduleFee;
+        return takeReturnFee(cheq.currency, amount, dappOperator);
     }
 
     function processApproval(

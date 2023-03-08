@@ -6,10 +6,10 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {CheqRegistrar} from "src/contracts/CheqRegistrar.sol";
 import {DataTypes} from "src/contracts/libraries/DataTypes.sol";
-import {DirectPay} from "src/contracts/modules/DirectPay.sol";
+import {Milestones} from "src/contracts/modules/Milestones.sol";
 
 // TODO add fail tests
-contract DirectPayTest is Test {
+contract MilestonesTest is Test {
     CheqRegistrar public REGISTRAR;
     TestERC20 public dai;
     TestERC20 public usdc;
@@ -68,48 +68,48 @@ contract DirectPayTest is Test {
         );
 
         // Whitelist rules
-        // DirectPayRules directPayRules = new DirectPayRules();
-        // address directPayRulesAddress = address(directPayRules);
+        // MilestonesRules milestonesRules = new MilestonesRules();
+        // address milestonesRulesAddress = address(milestonesRules);
         // assertFalse(
-        //     REGISTRAR.ruleWhitelisted(directPayRulesAddress),
+        //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
         //     "Unauthorized whitelist"
         // );
-        // REGISTRAR.whitelistRule(directPayRulesAddress, true); // whitelist bytecode, not address
+        // REGISTRAR.whitelistRule(milestonesRulesAddress, true); // whitelist bytecode, not address
         // assertTrue(
-        //     REGISTRAR.ruleWhitelisted(directPayRulesAddress),
+        //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
         //     "Whitelisting failed"
         // );
-        // REGISTRAR.whitelistRule(directPayRulesAddress, false);
+        // REGISTRAR.whitelistRule(milestonesRulesAddress, false);
         // assertFalse(
-        //     REGISTRAR.ruleWhitelisted(directPayRulesAddress),
+        //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
         //     "Un-whitelisting failed"
         // );
-        // REGISTRAR.whitelistRule(directPayRulesAddress, true); // whitelist bytecode, not address
+        // REGISTRAR.whitelistRule(milestonesRulesAddress, true); // whitelist bytecode, not address
 
         // Whitelist module
-        DirectPay directPay = new DirectPay(
+        Milestones milestones = new Milestones(
             address(REGISTRAR),
             DataTypes.WTFCFees(0, 0, 0, 0),
             "ipfs://yourmemos.com/"
         );
-        address directPayAddress = address(directPay);
+        address milestonesAddress = address(milestones);
         (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR
-            .moduleWhitelisted(directPayAddress);
+            .moduleWhitelisted(milestonesAddress);
         assertFalse(
             addressWhitelisted || bytecodeWhitelisted,
             "Unauthorized whitelist"
         );
-        REGISTRAR.whitelistModule(directPayAddress, true, false); // whitelist bytecode, not address
+        REGISTRAR.whitelistModule(milestonesAddress, true, false); // whitelist bytecode, not address
         (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
-            directPayAddress
+            milestonesAddress
         );
         assertTrue(
             addressWhitelisted || bytecodeWhitelisted,
             "Whitelisting failed"
         );
-        REGISTRAR.whitelistModule(directPayAddress, false, false);
+        REGISTRAR.whitelistModule(milestonesAddress, false, false);
         (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
-            directPayAddress
+            milestonesAddress
         );
         assertFalse(
             addressWhitelisted || bytecodeWhitelisted,
@@ -125,16 +125,16 @@ contract DirectPayTest is Test {
     //     assertFalse(REGISTRAR.moduleWhitelisted(address(this), market), "Unauthorized whitelist");
     // }
 
-    function setUpDirectPay() public returns (DirectPay) {
+    function setUpMilestones() public returns (Milestones) {
         // Deploy and whitelist module
-        DirectPay directPay = new DirectPay(
+        Milestones milestones = new Milestones(
             address(REGISTRAR),
             DataTypes.WTFCFees(0, 0, 0, 0),
             "ipfs://yourmemos.com/"
         );
-        REGISTRAR.whitelistModule(address(directPay), true, false);
-        vm.label(address(directPay), "DirectPay");
-        return directPay;
+        REGISTRAR.whitelistModule(address(milestones), true, false);
+        vm.label(address(milestones), "Milestones");
+        return milestones;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -240,11 +240,11 @@ contract DirectPayTest is Test {
         );
         vm.assume(debtor != creditor);
 
-        DirectPay directPay = setUpDirectPay();
+        Milestones milestones = setUpMilestones();
         uint256 totalWithFees;
         {
             (uint256 writeFeeBPS, , , ) = REGISTRAR.getFees();
-            (uint256 moduleWriteFeeBPS, , , ) = directPay.getFees();
+            (uint256 moduleWriteFeeBPS, , , ) = milestones.getFees();
             uint256 registrarFee = calcFee(writeFeeBPS, directAmount);
             console.log("RegistrarFee: ", registrarFee);
             uint256 moduleFee = calcFee(moduleWriteFeeBPS, directAmount);
@@ -260,7 +260,13 @@ contract DirectPayTest is Test {
         vm.assume(dai.balanceOf(debtor) >= totalWithFees);
 
         registrarWriteBefore(debtor, creditor);
-
+        /**
+        (
+            address dappOperator,
+            bytes32 docHash,
+            uint256[] memory milestonePrices
+        ) = abi.decode(initData, (address, bytes32, uint256[]));
+         */
         bytes memory initData = abi.encode(
             creditor, // ToNotify
             directAmount,
@@ -275,7 +281,7 @@ contract DirectPayTest is Test {
             0,
             directAmount,
             creditor, // Owner
-            address(directPay),
+            address(milestones),
             initData
         );
         registrarWriteAfter(
@@ -285,7 +291,7 @@ contract DirectPayTest is Test {
             creditor, // Owner
             debtor, // Drawer
             creditor, // Recipient
-            address(directPay)
+            address(milestones)
         );
 
         // ICheqModule wrote correctly to it's storage
@@ -308,11 +314,11 @@ contract DirectPayTest is Test {
         );
         vm.assume(debtor != creditor);
 
-        DirectPay directPay = setUpDirectPay();
+        Milestones milestones = setUpMilestones();
         uint256 totalWithFees;
         {
             (uint256 writeFeeBPS, , , ) = REGISTRAR.getFees();
-            (uint256 moduleWriteFeeBPS, , , ) = directPay.getFees();
+            (uint256 moduleWriteFeeBPS, , , ) = milestones.getFees();
             uint256 registrarFee = calcFee(writeFeeBPS, 0);
             console.log("RegistrarFee: ", registrarFee);
             uint256 moduleFee = calcFee(moduleWriteFeeBPS, 0);
@@ -342,7 +348,7 @@ contract DirectPayTest is Test {
             0,
             0,
             creditor,
-            address(directPay),
+            address(milestones),
             initData
         ); // Sets caller as owner
         registrarWriteAfter(
@@ -352,7 +358,7 @@ contract DirectPayTest is Test {
             creditor, // Owner
             creditor, // Drawer
             debtor, // Recipient
-            address(directPay)
+            address(milestones)
         );
 
         // ICheqModule wrote correctly to it's storage
@@ -363,12 +369,12 @@ contract DirectPayTest is Test {
 
     function calcTotalFees(
         CheqRegistrar registrar,
-        DirectPay directPay,
+        Milestones milestones,
         uint256 escrowed,
         uint256 directAmount
     ) public view returns (uint256) {
         (uint256 writeFeeBPS, , , ) = registrar.getFees();
-        (uint256 moduleWriteFeeBPS, , , ) = directPay.getFees();
+        (uint256 moduleWriteFeeBPS, , , ) = milestones.getFees();
         uint256 registrarFee = calcFee(writeFeeBPS, directAmount + escrowed);
         console.log("RegistrarFee: ", registrarFee);
         uint256 moduleFee = calcFee(moduleWriteFeeBPS, directAmount + escrowed);
@@ -389,12 +395,12 @@ contract DirectPayTest is Test {
         address drawer,
         address recipient,
         address owner
-    ) public returns (uint256, DirectPay) {
-        DirectPay directPay = setUpDirectPay();
+    ) public returns (uint256, Milestones) {
+        Milestones milestones = setUpMilestones();
 
         uint256 totalWithFees = calcTotalFees(
             REGISTRAR,
-            directPay,
+            milestones,
             escrowed,
             directAmount
         );
@@ -421,7 +427,7 @@ contract DirectPayTest is Test {
             escrowed,
             directAmount,
             owner,
-            address(directPay),
+            address(milestones),
             initData
         ); // Sets caller as owner
         registrarWriteAfter(
@@ -431,9 +437,9 @@ contract DirectPayTest is Test {
             owner,
             drawer,
             recipient,
-            address(directPay)
+            address(milestones)
         );
-        return (cheqId, directPay);
+        return (cheqId, milestones);
     }
 
     function testFundInvoice(
@@ -450,7 +456,7 @@ contract DirectPayTest is Test {
                 !isContract(caller)
         );
 
-        (uint256 cheqId, DirectPay directPay) = writeHelper(
+        (uint256 cheqId, Milestones milestones) = writeHelper(
             caller, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -463,7 +469,7 @@ contract DirectPayTest is Test {
         /// Fund cheq
         uint256 totalWithFees = calcTotalFees(
             REGISTRAR,
-            directPay,
+            milestones,
             0, // escrowed amount
             faceValue // instant amount
         );
@@ -497,13 +503,13 @@ contract DirectPayTest is Test {
     //     REGISTRAR.cash(cheqId, escrowed, owner, cashData);
     // }
 
-    // function fundHelper(uint256 cheqId, address funder, uint256 amount, DirectPay directPay) public {
+    // function fundHelper(uint256 cheqId, address funder, uint256 amount, Milestones milestones) public {
     //     bytes memory fundData =  abi.encode(bytes32(""));
 
     //     uint256 totalWithFees;
     //     {
     //         ( , , uint256 fundFeeBPS, ) = REGISTRAR.getFees();
-    //         ( , , uint256 moduleFeeBPS, ) = directPay.getFees();
+    //         ( , , uint256 moduleFeeBPS, ) = milestones.getFees();
     //         uint256 registrarFee = calcFee(fundFeeBPS, amount);
     //         console.log("RegistrarFee: ", registrarFee);
     //         uint256 moduleFee = calcFee(moduleFeeBPS, amount);
@@ -526,9 +532,9 @@ contract DirectPayTest is Test {
     //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
     //     vm.assume(drawer != recipient);
 
-    //     (uint256 cheqId, DirectPay directPay) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+    //     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
 
-    //     fundHelper(cheqId, recipient, amount, directPay);
+    //     fundHelper(cheqId, recipient, amount, milestones);
 
     //     bytes memory cashData =  abi.encode(bytes32(""));
     //     vm.prank(owner);
@@ -542,7 +548,7 @@ contract DirectPayTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, DirectPay directPay) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
+//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
 //     vm.expectRevert(bytes("Rule: Disallowed"));
 //     REGISTRAR.transferFrom(owner, drawer, cheqId);
 // }
@@ -553,7 +559,7 @@ contract DirectPayTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, DirectPay directPay) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
+//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
 //     vm.expectRevert(bytes("Rule: Disallowed"));
 //     REGISTRAR.transferFrom(owner, drawer, cheqId);
 // }
@@ -564,7 +570,7 @@ contract DirectPayTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, DirectPay directPay) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
 //     bytes memory fundData =  abi.encode(bytes32(""));
 
 //     vm.expectRevert(bytes("Rule: Only recipient"));

@@ -9,9 +9,9 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 
 /**
  * @notice Contract: stores invoice structs, allows freelancer/client to set work status'
- * 1) Milestone payment is created
-    a) if the caller is the owner, it is an invoice.
-    b) if the caller isn't the owner, it is a payment.
+ * 1) Milestone invoice is created
+    a) if the caller is the owner, caller is the worker.
+    b) if the caller isn't the owner, caller is the client.
         i) ensure that the first milestone amount is escrowed or instant sent (increment if instant as the upfront)
  * 2) Work is done
  * 3) Cashing is executed
@@ -37,6 +37,21 @@ contract Milestones is ModuleBase {
     }
     mapping(uint256 => Invoice) public invoices;
     mapping(uint256 => Milestone[]) public milestones;
+    error InvoiceWithPay();
+    error InsufficientPayment();
+    error AddressZero();
+    error Disallowed();
+    error OnlyOwner();
+    error OnlyOwnerOrApproved();
+    error InsufficientMilestones();
+    error OnlyOwnerOrClient();
+    error OnlyWorkerOrClient();
+    event Invoiced(
+        uint256 cheqId,
+        address toNotify,
+        bytes32 docHash,
+        uint256[] milestoneAmounts
+    );
 
     constructor(
         address registrar,
@@ -56,40 +71,47 @@ contract Milestones is ModuleBase {
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         (
+            address toNotify,
             address dappOperator,
             bytes32 docHash,
-            uint256[] memory milestonePrices
-        ) = abi.decode(initData, (address, bytes32, uint256[]));
-        uint256 totalMilestones = milestonePrices.length;
-        require(totalMilestones > 1, "Module: Insufficient milestones"); // First milestone is upfront payment
+            uint256[] memory milestoneAmounts
+        ) = abi.decode(initData, (address, address, bytes32, uint256[]));
+
+        // Invoice
+        if (caller == owner) {
+            if (instant != 0) revert InvoiceWithPay();
+            invoices[cheqId].worker = caller;
+            invoices[cheqId].client = toNotify;
+        }
+        // Payment
+        else if (owner == toNotify) {
+            if (owner == address(0)) revert AddressZero();
+            invoices[cheqId].worker = toNotify;
+            invoices[cheqId].client = caller;
+            invoices[cheqId].startTime = block.timestamp;
+            // If first milestone is not escrowed, make sure it is paid (first milestone is encoded as upfront)
+            if (escrowed != milestoneAmounts[0]) {
+                if (instant != milestoneAmounts[0])
+                    revert InsufficientPayment();
+                invoices[cheqId].currentMilestone += 1;
+            }
+        } else {
+            revert Disallowed();
+        }
+
+        uint256 totalMilestones = milestoneAmounts.length;
+        if (totalMilestones < 2) revert InsufficientMilestones();
 
         invoices[cheqId].totalMilestones = totalMilestones;
         invoices[cheqId].documentHash = docHash;
 
-        if (caller == owner) {
-            // Invoice
-            invoices[cheqId].worker = caller;
-            invoices[cheqId].client = owner;
-        } else {
-            // Payment
-            invoices[cheqId].worker = owner;
-            invoices[cheqId].client = caller;
-            invoices[cheqId].startTime = block.timestamp;
-            // If first milestone is not escrowed, make sure it is paid
-            if (escrowed != milestonePrices[0]) {
-                require(
-                    instant == milestonePrices[0],
-                    "Pay/escrow 1st milestone amount"
-                );
-                invoices[cheqId].currentMilestone += 1;
-            }
-        }
-
+        // TODO can optimize
         for (uint256 i = 0; i < totalMilestones; i++) {
             milestones[cheqId].push(
-                Milestone({amount: milestonePrices[i], isCashed: false})
+                Milestone({amount: milestoneAmounts[i], isCashed: false})
             );
         }
+        emit Invoiced(cheqId, toNotify, docHash, milestoneAmounts); // TODO need to emit more parameters
         uint256 moduleFee = ((escrowed + instant) * fees.fundBPS) / BPS_MAX;
         revenue[dappOperator][currency] += moduleFee;
         return moduleFee;
@@ -107,8 +129,8 @@ contract Milestones is ModuleBase {
         uint256, /*createdAt*/
         bytes memory /*data*/
     ) external view override onlyRegistrar returns (uint256) {
-        require(false, "Non-transferable");
-        return 0;
+        // if (caller != owner && caller != approved) revert OnlyOwnerOrApproved(); // Question: enable for invoice factoring?
+        revert Disallowed();
     }
 
     function processFund(
@@ -121,21 +143,24 @@ contract Milestones is ModuleBase {
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        // require(caller != owner, "Not owner");  // Prob not necessary
-        invoices[cheqId].currentMilestone += 1;
-        require(
-            amount ==
-                milestones[cheqId][invoices[cheqId].currentMilestone].amount,
-            "Must fully fund milestone"
-        );
-        if (invoices[cheqId].startTime == 0)
+        // if (caller == owner) revert NotOwner();  // Prob not necessary
+        if (
+            amount !=
+            milestones[cheqId][invoices[cheqId].currentMilestone].amount
+        ) revert InsufficientPayment();
+
+        // If this is an invoice, the client must instant pay the first milestone and escrow the second
+        if (invoices[cheqId].startTime == 0) {
             invoices[cheqId].startTime = block.timestamp; // If first milestone
-        ICheqRegistrar(REGISTRAR).cash( // Where the worker should be paid Question: does this work?
-            cheqId,
-            amount,
-            invoices[cheqId].worker,
-            bytes("")
-        );
+        }
+        // ICheqRegistrar(REGISTRAR).cash( // Where the worker should be paid BUG: this doesn't work since escrow happens after fund()
+        //     cheqId,
+        //     amount,
+        //     invoices[cheqId].worker,
+        //     bytes("")
+        // );
+
+        invoices[cheqId].currentMilestone += 1;
 
         uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
         revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
@@ -152,16 +177,14 @@ contract Milestones is ModuleBase {
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        require(
-            to == owner || to == invoices[cheqId].client,
-            "Only worker/client"
-        );
-        require(
-            amount ==
-                milestones[cheqId][invoices[cheqId].currentMilestone].amount,
-            "Not milestone amount"
-        );
+        if (to != owner && to != invoices[cheqId].client)
+            revert OnlyOwnerOrClient();
+        if (
+            amount !=
+            milestones[cheqId][invoices[cheqId].currentMilestone].amount
+        ) revert InsufficientPayment();
         invoices[cheqId].currentMilestone += 1;
+
         uint256 moduleFee = ((amount) * fees.fundBPS) / BPS_MAX;
         revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
         return moduleFee;
@@ -175,10 +198,9 @@ contract Milestones is ModuleBase {
         DataTypes.Cheq calldata, /*cheq*/
         bytes memory /*initDat*/
     ) external view override onlyRegistrar {
-        require(false, "");
+        // if (caller != owner) revert OnlyOwner(); // Question: enable for invoice factoring?
+        revert Disallowed();
     }
-
-    // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool) {}
 
     function processTokenURI(uint256 tokenId)
         public
@@ -194,9 +216,6 @@ contract Milestones is ModuleBase {
                 : "";
     }
 
-    /*//////////////////////////////////////////////////////////////
-                            Module Functions
-    //////////////////////////////////////////////////////////////*/
     function _baseURI() internal view returns (string memory) {
         return _URI;
     }
@@ -211,6 +230,15 @@ contract Milestones is ModuleBase {
         returns (Milestone[] memory)
     {
         return milestones[cheqId];
+    }
+
+    function addMilestone(uint256 cheqId, uint256 amount) public {
+        if (
+            msg.sender != invoices[cheqId].worker &&
+            msg.sender != invoices[cheqId].client
+        ) revert OnlyWorkerOrClient();
+        milestones[cheqId].push(Milestone({amount: amount, isCashed: false}));
+        invoices[cheqId].totalMilestones += 1;
     }
 }
 

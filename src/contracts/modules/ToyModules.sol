@@ -4,7 +4,6 @@ pragma solidity >=0.8.14;
 // import "openzeppelin/access/Ownable.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 /// @notice allows whoever finds the correct hash to claim the written cheq
 abstract contract PseudoChain is ModuleBase {
@@ -142,7 +141,12 @@ abstract contract SimpleLottery is ModuleBase {
 
 }
 
-/// @notice allows the owner to update the URI and memo hash
+/// @notice allows the owner to update the URI and memo hash (if they escrow more money?)
 abstract contract URIUpdater is ModuleBase {
+
+}
+
+/// @notice write a cheq (to the zero address?) and the winner of a game (or other bet) gets to transfer to themselves and cash
+abstract contract BoolRelease is ModuleBase {
 
 }

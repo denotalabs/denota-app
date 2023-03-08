@@ -16,7 +16,9 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
  * @author Alejandro Almaraz
  * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.
  */
-contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
+// IDEA: NFTs as Payment Agreements
+// Question: the CheqBase64 library isn't working when being delegated, only when used inside registrar
+contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
     using SafeERC20 for IERC20;
     /*//////////////////////////////////////////////////////////////
                                 STORAGE
@@ -51,6 +53,49 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         return _validModule(module) && _tokenWhitelist[token]; // Valid module and whitelisted currency
     }
 
+    function _escrow(
+        uint256 escrowed,
+        uint256 instant,
+        address currency,
+        address owner,
+        uint256 cheqBPS,
+        uint256 moduleFee,
+        address module
+    ) private returns (uint256 cheqFee) {
+        uint256 totalAmount = escrowed + instant;
+        if (totalAmount != 0) {
+            cheqFee = (totalAmount * cheqBPS) / BPS_MAX;
+            uint256 toEscrow = escrowed + cheqFee + moduleFee;
+
+            if (toEscrow > 0) {
+                if (currency == address(0)) {
+                    require(msg.value == toEscrow, "INSUF_VAL");
+                } else {
+                    IERC20(currency).safeTransferFrom(
+                        _msgSender(),
+                        address(this),
+                        toEscrow
+                    );
+                }
+            }
+            if (instant > 0) {
+                if (currency != address(0)) {
+                    IERC20(currency).safeTransferFrom(
+                        _msgSender(),
+                        owner,
+                        instant
+                    );
+                } else {
+                    require(msg.value == instant, "INSUF_VAL"); // TODO needs to incorporate _writeFlatFee if it's turned on
+                    (bool sent, ) = owner.call{value: msg.value}("");
+                    require(sent, "TRANSF_FAILED");
+                }
+            }
+            _registrarRevenue[currency] += cheqFee;
+            _moduleRevenue[module][currency] += moduleFee;
+        }
+    }
+
     function write(
         address currency,
         uint256 escrowed,
@@ -59,10 +104,10 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         address module,
         bytes calldata moduleWriteData
     ) public payable returns (uint256) {
-        // require(msg.value >= _writeFlatFee, "INSUF_FEE"); // Question should flat fee be implemented?
+        // require(msg.value >= _writeFlatFee, "INSUF_FEE"); // IDEA: discourages spamming of 0 value cheqs
         require(validWrite(module, currency), "NOT_WHITELISTED"); // Module+token whitelist check
 
-        // Module hook
+        // Module hook (updates its storage, gets the fee)
         uint256 moduleFee = ICheqModule(module).processWrite(
             _msgSender(),
             owner,
@@ -73,34 +118,15 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             moduleWriteData
         );
 
-        uint256 cheqFee;
-        {
-            // Fee taking and escrowing
-            uint256 totalAmount = escrowed + instant; // TODO could optimize when 0
-            cheqFee = (totalAmount * fees.writeBPS) / BPS_MAX; // uint256 totalBPS = fees.writeBPS + moduleBPS; but need to emit and add to reserves
-            uint256 toEscrow = escrowed + cheqFee + moduleFee;
-            if (toEscrow > 0) {
-                if (currency == address(0)) {
-                    require(msg.value == toEscrow, "");
-                } else {
-                    IERC20(currency).safeTransferFrom(
-                        _msgSender(),
-                        address(this),
-                        toEscrow
-                    );
-                }
-                _registrarRevenue[currency] += cheqFee;
-                _moduleRevenue[module][currency] += moduleFee;
-            }
-            if (instant > 0)
-                if (currency != address(0)) {
-                    IERC20(currency).safeTransferFrom(
-                        _msgSender(),
-                        owner,
-                        instant
-                    );
-                }
-        }
+        uint256 cheqFee = _escrow(
+            escrowed,
+            instant,
+            currency,
+            owner,
+            fees.writeBPS,
+            moduleFee,
+            module
+        );
 
         _safeMint(owner, _totalSupply);
         _cheqInfo[_totalSupply].currency = currency;
@@ -191,7 +217,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         address owner = ownerOf(cheqId); // Is used twice
 
         // Module hook
-        uint256 moduleBPS = ICheqModule(cheq.module).processFund(
+        uint256 moduleFee = ICheqModule(cheq.module).processFund(
             _msgSender(),
             owner,
             amount,
@@ -202,25 +228,15 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         );
 
         // Fee taking and escrow
-        uint256 totalAmount = amount + instant;
-        uint256 cheqFee = (totalAmount * fees.writeBPS) / BPS_MAX; // uint256 totalBPS = fees.writeBPS + moduleBPS; but need to emit and add to reserves
-        uint256 moduleFee = (totalAmount * moduleBPS) / BPS_MAX;
-        uint256 toEscrow = amount + cheqFee + moduleFee;
-        if (toEscrow > 0) {
-            IERC20(cheq.currency).safeTransferFrom(
-                _msgSender(),
-                address(this),
-                toEscrow
-            );
-            _registrarRevenue[cheq.currency] += cheqFee;
-            _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
-        }
-        if (instant > 0)
-            IERC20(cheq.currency).safeTransferFrom(
-                _msgSender(),
-                owner,
-                instant
-            );
+        uint256 cheqFee = _escrow(
+            cheq.escrowed,
+            instant,
+            cheq.currency,
+            owner,
+            fees.fundBPS,
+            moduleFee,
+            cheq.module
+        );
 
         emit Events.Funded(
             _msgSender(),
@@ -244,7 +260,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
 
         // Module Hook
-        uint256 moduleBPS = ICheqModule(cheq.module).processCash(
+        uint256 moduleFee = ICheqModule(cheq.module).processCash(
             _msgSender(),
             ownerOf(cheqId),
             to,
@@ -256,7 +272,6 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
 
         // Fee taking
         uint256 cheqFee = (amount * fees.cashBPS) / BPS_MAX;
-        uint256 moduleFee = (amount * moduleBPS) / BPS_MAX;
         uint256 totalAmount = amount + cheqFee + moduleFee;
 
         // Un-escrowing
@@ -265,7 +280,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             cheq.escrowed -= totalAmount;
         } // Could this just underflow and revert anyway (save gas)?
         if (cheq.currency == address(0)) {
-            (bool sent, ) = to.call{value: msg.value}("");
+            (bool sent, ) = to.call{value: amount}("");
             require(sent, "TRANSF_FAILED");
         } else {
             IERC20(cheq.currency).safeTransfer(to, amount);
@@ -468,7 +483,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar {
             .processTokenURI(_tokenId);
 
         return
-            CheqBase64Encoding.buildMetadata(
+            buildMetadata(
                 _tokenId,
                 _cheqInfo[_tokenId].currency,
                 _cheqInfo[_tokenId].escrowed,

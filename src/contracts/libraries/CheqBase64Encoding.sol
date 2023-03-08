@@ -32,7 +32,7 @@ youtube_url
 A URL to a YouTube video.
  */
 
-library CheqBase64Encoding {
+contract CheqBase64Encoding {
     function buildMetadata(
         uint256 _tokenId,
         address currency,
@@ -40,7 +40,7 @@ library CheqBase64Encoding {
         uint256 createdAt,
         address module,
         string memory _tokenURI
-    ) external pure returns (string memory) {
+    ) internal pure returns (string memory) {
         return
             string(
                 abi.encodePacked(

@@ -1021,12 +1021,17 @@ contract ZKPVerifier is IZKPVerifier, Ownable {
 }
 
 contract ClaimWithID is ModuleBase, ZKPVerifier {
-    mapping(uint256 => uint64) public requiredProofs;
+    struct Lock {
+        uint256 claimPeriod; // After expiry the sender can cash
+        address sender;
+        uint64 requiredProof;
+    }
+    mapping(uint256 => Lock) public locks;
 
-    event Proof(uint256 cheqId, uint64 proof);
+    event Locked(uint256 cheqId, uint256 claimPeriod, uint64 requiredProof);
 
     function _requireProof(address prover, uint256 cheqId) internal view {
-        require(proofs[prover][requiredProofs[cheqId]], "Proof failed");
+        require(proofs[prover][locks[cheqId].requiredProof], "Proof failed");
     }
 
     constructor(
@@ -1038,25 +1043,23 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
     }
 
     function processWrite(
-        address, /*caller*/
+        address caller,
         address, /*owner*/
         uint256 cheqId,
         address currency,
         uint256 escrowed,
-        uint256 instant,
+        uint256, /*instant*/
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        // require(instant == 0, "Instant not supported");  // Let them get part?
-        (uint64 requiredProof, address dappOperator) = abi.decode(
-            initData,
-            (uint64, address)
-        );
-        requiredProofs[cheqId] = requiredProof;
+        (uint64 requiredProof, uint256 claimPeriod, address dappOperator) = abi
+            .decode(initData, (uint64, uint256, address));
 
-        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-        revenue[dappOperator][currency] += moduleFee;
-        emit Proof(cheqId, requiredProof);
-        return moduleFee;
+        locks[cheqId].requiredProof = requiredProof;
+        locks[cheqId].claimPeriod = claimPeriod;
+        locks[cheqId].sender = caller;
+
+        emit Locked(cheqId, claimPeriod, requiredProof);
+        return takeReturnFee(currency, escrowed, dappOperator);
     }
 
     function processTransfer(
@@ -1098,15 +1101,25 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        require(caller == owner, "Only owner can cash");
         require(amount == cheq.escrowed, "Must fully cash");
 
-        _requireProof(owner, cheqId);
+        if (caller == owner) {
+            _requireProof(owner, cheqId);
+        } else if (caller == locks[cheqId].sender) {
+            require(
+                cheq.createdAt + locks[cheqId].claimPeriod >= block.timestamp,
+                "Not expired yet"
+            );
+        } else {
+            require(false, "Failed"); // Question: Cleanest way?
+        }
 
-        address dappOperator = abi.decode(initData, (address));
-        uint256 moduleFee = (amount * fees.transferBPS) / BPS_MAX;
-        revenue[dappOperator][cheq.currency] += moduleFee;
-        return moduleFee;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount,
+                abi.decode(initData, (address))
+            );
     }
 
     function processApproval(
@@ -1120,6 +1133,7 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         require(caller == owner, "Only owner can approve");
     }
 
+    // TODO inject into the Cheqbase64 format
     function processTokenURI(uint256 tokenId)
         external
         view

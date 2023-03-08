@@ -8,8 +8,16 @@ pragma solidity ^0.8.16;
 // import {RegistrarGov} from "../contracts/RegistrarGov.sol";
 // import {DataTypes} from "../contracts/libraries/DataTypes.sol";
 // import {ICheqModule} from "../contracts/interfaces/ICheqModule.sol";
-// import {ICheqRegistrar} from "../contracts/interfaces/ICheqRegistrar.sol";
+// import {ICheqRegistrar} from "../contracts/interfaces/ICheqRegistrarS.sol";
 // import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol";
+
+// /**
+//      Ownable  IRegistrarGov
+//           \      /
+//         RegistrarGov ICheqRegistrar ERC721
+//                     \      |       /
+//                       CheqRegistrar
+//  */
 
 // /**
 //  * @title  The Cheq Payment Registrar
@@ -17,15 +25,22 @@ pragma solidity ^0.8.16;
 //  * @author Alejandro Almaraz
 //  * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.
 //  */
-// contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, RegistrarGov {
+// contract CheqRegistrar is ERC721, RegistrarGov, ICheqRegistrar {
 //     using SafeERC20 for IERC20;
 //     mapping(uint256 => DataTypes.Cheq) private _cheqInfo;
 //     uint256 private _totalSupply;
 
 //     constructor(DataTypes.WTFCFees memory _fees)
-//         ERC721("denotaProtocol", "NOTA")
+//         ERC721("denota protocol", "NOTA")
 //         RegistrarGov(_fees)
 //     {}
+
+//     error InvalidWrite(address, address);
+//     error InsufficientValue(uint256);
+//     error InsufficientEscrow(uint256, uint256);
+//     error SendFailed();
+//     error SelfApproval();
+//     error Disallowed();
 
 //     function write(
 //         address currency,
@@ -35,9 +50,8 @@ pragma solidity ^0.8.16;
 //         address module,
 //         bytes calldata moduleWriteData
 //     ) public payable returns (uint256) {
-//         // require(msg.value >= _writeFlatFee, "INSUF_FEE"); // Question should flat fee be implemented?
-//         require(validWrite(module, currency), "NOT_WHITELISTED"); // Module+token whitelist check
-
+//         if (!validWrite(module, currency))
+//             revert InvalidWrite(module, currency);
 //         // Module hook
 //         uint256 moduleFee = ICheqModule(module).processWrite(
 //             _msgSender(),
@@ -48,7 +62,7 @@ pragma solidity ^0.8.16;
 //             instant,
 //             moduleWriteData
 //         );
-
+//         // Escrow with fees
 //         uint256 cheqFee;
 //         {
 //             // Fee taking and escrowing
@@ -57,7 +71,8 @@ pragma solidity ^0.8.16;
 //             uint256 toEscrow = escrowed + cheqFee + moduleFee;
 //             if (toEscrow > 0) {
 //                 if (currency == address(0)) {
-//                     require(msg.value == toEscrow, "");
+//                     if (msg.value < toEscrow)
+//                         revert InsufficientValue(msg.value);
 //                 } else {
 //                     IERC20(currency).safeTransferFrom(
 //                         _msgSender(),
@@ -77,13 +92,13 @@ pragma solidity ^0.8.16;
 //                     );
 //                 }
 //         }
-
+//         // Mint cheq
 //         _safeMint(owner, _totalSupply);
 //         _cheqInfo[_totalSupply].currency = currency;
 //         _cheqInfo[_totalSupply].escrowed = escrowed;
 //         _cheqInfo[_totalSupply].createdAt = block.timestamp;
 //         _cheqInfo[_totalSupply].module = module;
-
+//         // Emit and return ID
 //         emit Events.Written(
 //             _msgSender(),
 //             _totalSupply,
@@ -99,7 +114,7 @@ pragma solidity ^0.8.16;
 //         );
 //         unchecked {
 //             return _totalSupply++;
-//         } // NOTE: Will this ever overflow?
+//         }
 //     }
 
 //     function safeTransferFrom(
@@ -226,14 +241,15 @@ pragma solidity ^0.8.16;
 //         uint256 moduleFee = (amount * moduleBPS) / BPS_MAX;
 //         uint256 totalAmount = amount + cheqFee + moduleFee;
 
-//         // Un-escrowing
-//         require(cheq.escrowed >= totalAmount, "CANT_CASH_AMOUNT"); // TODO may cause funds to be stuck if fees are added
+//         // De-escrowing
+//         if (totalAmount > cheq.escrowed)
+//             revert InsufficientEscrow(totalAmount, cheq.escrowed);
 //         unchecked {
 //             cheq.escrowed -= totalAmount;
-//         } // Could this just underflow and revert anyway (save gas)?
+//         } // Allow underflow and revert anyway? (saves gas not checking but doesn't refund on error)
 //         if (cheq.currency == address(0)) {
 //             (bool sent, ) = to.call{value: msg.value}("");
-//             require(sent, "TRANSF_FAILED");
+//             if (!sent) revert SendFailed();
 //         } else {
 //             IERC20(cheq.currency).safeTransfer(to, amount);
 //         }
@@ -256,8 +272,7 @@ pragma solidity ^0.8.16;
 //         public
 //         override(ERC721, ICheqRegistrar)
 //     {
-//         require(to != _msgSender(), "SELF_APPROVAL");
-
+//         if (to == _msgSender()) revert SelfApproval();
 //         // Module hook
 //         DataTypes.Cheq memory cheq = _cheqInfo[tokenId];
 //         ICheqModule(cheq.module).processApproval(
@@ -332,8 +347,26 @@ pragma solidity ^0.8.16;
 //         address, /*operator*/
 //         bool /*approved*/
 //     ) public pure override {
+//         revert Disallowed();
 //         // Question: Does OS require operators?
-//         require(false, "OPERATORS_NOT_SUPPORTED");
 //         // _setApprovalForAll(_msgSender(), operator, approved);
+//     }
+
+//     function getTotalFees(uint256 cheqId, uint8 _WTFC)
+//         public
+//         view
+//         returns (uint256, uint256)
+//     {
+//         (uint256 wf, uint256 tf, uint256 ff, uint256 cf) = getFees(); // TODO there has to be a better way
+//         uint256[4] memory registrarFees;
+//         registrarFees = [wf, tf, ff, cf];
+
+//         (uint256 mwf, uint256 mtf, uint256 mff, uint256 mcf) = ICheqModule(
+//             _cheqInfo[cheqId].module
+//         ).getFees();
+//         uint256[4] memory moduleFees;
+//         moduleFees = [mwf, mtf, mff, mcf];
+
+//         return (registrarFees[_WTFC], moduleFees[_WTFC]);
 //     }
 // }

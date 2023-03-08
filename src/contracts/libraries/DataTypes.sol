@@ -5,7 +5,7 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 // Might be able to just incorporate this into the CheqRegistrar
 library DataTypes {
     struct Cheq {
-        address currency;
+        address currency; // Set by caller and immutable
         uint256 escrowed;
         uint256 createdAt; // Set by caller and immutable
         address module;

@@ -13,11 +13,11 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 // Question allow module owners to change the Rules on the fly?
 abstract contract ModuleBase is ICheqModule {
     address public immutable REGISTRAR; // Question: Make this a hardcoded address?
-
-    string public _URI;
     mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
     uint256 internal constant BPS_MAX = 10_000; // Lens uses uint16
     DataTypes.WTFCFees public fees;
+
+    string public _URI; // Should this be in the ModuleBase?
 
     modifier onlyRegistrar() {
         if (msg.sender != REGISTRAR) revert Errors.NotRegistrar();
@@ -35,6 +35,15 @@ abstract contract ModuleBase is ICheqModule {
         fees = _fees;
 
         emit Events.ModuleBaseConstructed(registrar, block.timestamp);
+    }
+
+    function takeReturnFee(
+        address currency,
+        uint256 amount,
+        address dappOperator
+    ) internal returns (uint256 moduleFee) {
+        moduleFee = (amount * fees.transferBPS) / BPS_MAX;
+        revenue[dappOperator][currency] += moduleFee;
     }
 
     // function processWrite(

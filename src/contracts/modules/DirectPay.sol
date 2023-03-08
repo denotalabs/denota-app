@@ -13,10 +13,10 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
  */
 contract DirectPay is ModuleBase {
     struct Payment {
-        address payee;
-        address payer;
+        address creditor;
+        address debtor; // QUESTION change to creditor and debtor?
         uint256 amount; // Face value of the payment
-        uint256 timestamp; // Relevant timestamp
+        uint256 timestamp; // Record keeping timestamp
         bytes32 memoHash;
         bool wasPaid; // TODO is this needed if using instant pay?
     }
@@ -29,6 +29,14 @@ contract DirectPay is ModuleBase {
         uint256 timestamp,
         address referer
     );
+    error EscrowUnsupported();
+    error AmountZero();
+    error InvoiceWithPay();
+    error InsufficientPayment();
+    error AddressZero();
+    error Disallowed();
+    error OnlyOwner();
+    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
@@ -47,38 +55,35 @@ contract DirectPay is ModuleBase {
         uint256 instant,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
-        require(escrowed == 0, "Escrowing not supported");
         (
             address toNotify,
-            uint256 amount,
+            uint256 amount, // Face value (for invoices)
             uint256 timestamp,
             address dappOperator,
             bytes32 memoHash
         ) = abi.decode(initData, (address, uint256, uint256, address, bytes32));
-        // caller, owner, recipient
-        require(amount != 0, "Amount == 0");
-        require(
-            instant == amount || instant == 0, // instant=0 is for invoicing
-            "Must send full"
-        );
-        if (caller == owner) {
-            payInfo[cheqId].payee = caller;
-            payInfo[cheqId].payer = toNotify;
-        } else {
-            require(instant == amount, "No payment");
-            payInfo[cheqId].payee = toNotify;
-            payInfo[cheqId].payer = caller;
+        if (escrowed != 0) revert EscrowUnsupported();
+        if (amount == 0) revert AmountZero(); // Removing this would allow user to send memos
+
+        if (caller == owner) // Invoice
+        {
+            if (instant != 0) revert InvoiceWithPay();
+            payInfo[cheqId].creditor = caller;
+            payInfo[cheqId].debtor = toNotify;
+        } else if (owner == toNotify) // Payment
+        {
+            if (instant != amount) revert InsufficientPayment();
+            if (owner == address(0)) revert AddressZero();
+            payInfo[cheqId].creditor = toNotify;
+            payInfo[cheqId].debtor = caller;
             payInfo[cheqId].wasPaid = true;
+        } else {
+            revert Disallowed();
         }
+
         payInfo[cheqId].amount = amount;
         payInfo[cheqId].timestamp = timestamp;
         payInfo[cheqId].memoHash = memoHash;
-        // require(drawer != recipient, "Rule: Drawer == recipient");
-        require(
-            owner == caller || owner == toNotify,
-            "Drawer/recipient != owner"
-        );
-        require(toNotify != address(0) && owner != address(0), "Zero address"); // TODO can be simplified
 
         uint256 moduleFee;
         {
@@ -103,19 +108,14 @@ contract DirectPay is ModuleBase {
         uint256, /*createdAt*/
         bytes memory data
     ) public override onlyRegistrar returns (uint256) {
-        require(
-            caller == owner || caller == approved,
-            "Only owner or approved"
-        );
-
-        // require(payInfo[cheqId].wasPaid, "Module: Only after cashing");
+        if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
         uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
         revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
         return moduleFee;
     }
 
     function processFund(
-        address caller,
+        address, /*caller*/
         address, /*owner*/
         uint256 amount,
         uint256 instant,
@@ -123,12 +123,12 @@ contract DirectPay is ModuleBase {
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
-        require(amount == 0, "Only direct pay");
-        // require(caller != owner, "Owner doesn't fund");
-        require(caller == payInfo[cheqId].payer, "Only drawer/recipient");
-        require(!payInfo[cheqId].wasPaid, "Module: Already cashed");
-        require(instant == payInfo[cheqId].amount, "Only full direct amount");
+        if (amount != 0) revert EscrowUnsupported();
+        if (instant != payInfo[cheqId].amount) revert InsufficientPayment();
+        if (payInfo[cheqId].wasPaid) revert Disallowed();
+        // require(caller == payInfo[cheqId].debtor, "Only debtor"); // Should anyone be allowed to pay?
         payInfo[cheqId].wasPaid = true;
+
         uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
         revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
         return moduleFee;
@@ -143,23 +143,18 @@ contract DirectPay is ModuleBase {
         DataTypes.Cheq calldata, /*cheq*/
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
-        require(false, "Rule: Disallowed");
-        // address referer = abi.decode(initData, (address));
-        // payInfo[cheqId].wasPaid = true;
-        // uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-        // revenue[referer][cheq.currency] += moduleFee;
-        return 0;
+        revert Disallowed();
     }
 
     function processApproval(
-        address, /*caller*/
-        address, /*owner*/
+        address caller,
+        address owner,
         address, /*to*/
         uint256, /*cheqId*/
         DataTypes.Cheq calldata, /*cheq*/
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
-        require(false, "Rule: Disallowed");
+        if (caller != owner) revert OnlyOwner();
         // require(wasPaid[cheqId], "Module: Must be cashed first");
     }
 
