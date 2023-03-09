@@ -1,4 +1,4 @@
-import { File, NFTStorage } from "nft.storage";
+import { File } from "nft.storage";
 
 import mime from "mime";
 
@@ -15,6 +15,8 @@ import AWS from "aws-sdk";
 import crypto from "crypto";
 
 import multer from "multer";
+
+import lighthouse from "@lighthouse-web3/sdk";
 
 const upload = multer();
 
@@ -66,48 +68,52 @@ async function storeS3(name, description) {
   }
 }
 
-async function storeNFT(name, description) {
-  try {
-    const image = await fileFromPath("favicon.jpg");
-
-    const nftstorage = new NFTStorage({
-      token: process.env.NFT_STORAGE_KEY ?? "",
-    });
-
-    const res = await nftstorage.store({
-      image,
-      name,
-      description,
-    });
-    return { url: res.url, key: res.ipnft };
-  } catch (err) {
-    console.log(err);
-    return undefined;
-  }
-}
-
 async function fileFromPath(filePath) {
   const content = await fs.promises.readFile(filePath);
   const type = mime.getType(filePath) ?? undefined;
   return new File([content], path.basename(filePath), { type });
 }
 
-// TODO: decentralize/break dependence on S3 (use Lighthouse)
-
-// app.post("/", jsonParser, async function (req, res) {
-//   if (req.body.mode === "IPFS") {
-//     const resp = await storeNFT(req.body.name, req.body.description);
-//     res.send(resp);
-//   } else {
-//     const resp = await storeS3(req.body.name, req.body.description);
-//     res.send(resp);
-//   }
-// });
-
 const cpUpload = upload.fields([
   { name: "file", maxCount: 1 },
   { name: "document", maxCount: 8 },
 ]);
+
+app.post("/test", cpUpload, async function (req, res) {
+  const obj = {
+    name: "Denota NFT",
+  };
+
+  const apiKey = process.env.LIGHTHOUSE_API_KEY;
+
+  try {
+    if (req.files.file) {
+      const fileContent = req.files.file[0].buffer;
+      const response = await lighthouse.uploadBuffer(fileContent, apiKey);
+
+      obj.filename = req.files.file[0].originalname;
+      obj.file = response.data.Hash;
+    }
+
+    if (req.files.document) {
+      const noteContent = JSON.parse(req.files.document[0].buffer.toString());
+      obj.description = noteContent.desc;
+    }
+
+    var buf = Buffer.from(JSON.stringify(obj));
+
+    const response = await lighthouse.uploadBuffer(buf, apiKey);
+
+    // Display response
+    console.log(response);
+
+    res.send({
+      key: response.data.Hash,
+    });
+  } catch (err) {
+    console.error(err);
+  }
+});
 
 app.post("/", cpUpload, async (req, res) => {
   var obj = {
