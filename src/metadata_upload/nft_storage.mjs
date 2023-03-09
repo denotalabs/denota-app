@@ -104,11 +104,11 @@ app.post("/test", cpUpload, async function (req, res) {
 
     const response = await lighthouse.uploadBuffer(buf, apiKey);
 
-    // Display response
     console.log(response);
 
     res.send({
       key: response.data.Hash,
+      url: "https://gateway.lighthouse.storage/ipfs/" + response.data.Hash,
     });
   } catch (err) {
     console.error(err);
