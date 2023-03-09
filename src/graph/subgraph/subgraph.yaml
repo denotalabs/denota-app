@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Events
-    network: alfajores
+    network: 
     source:
-      address: "0xE95E2cC4cF1852810E014F2746819342cB28Fe86"
+      address: "0xF85D83258CD1D8beb5998439C73C11a6b820d6B9"
       abi: Registrar
-      startBlock: 16518370
+      startBlock: 32910168
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -31,7 +31,7 @@ dataSources:
         # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
         # - event: RuleWhitelisted(address,indexed address,indexed bool,uint256)
         # - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
-        - event: Written(indexed uint256,indexed address,uint256,uint256,address,uint256,address,address,address,uint256)
+        - event: Written(indexed address,uint256,indexed address,uint256,address,uint256,uint256,uint256,uint256,indexed address,bytes)
           handler: handleWrite
         - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
           handler: handleFund
@@ -44,11 +44,11 @@ dataSources:
       file: mapping.ts
   - kind: ethereum/contract
     name: DirectPay
-    network: alfajores
+    network: 
     source:
-      address: "0x53b3c85ecCBAE718Aca4A84f63e2dBDfC279BECC"
+      address: "0x3c3a9c866B790B54BEF2d7Db0d1394123fa40EFe"
       abi: DirectPay
-      startBlock: 16518370
+      startBlock: 32910168
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -67,7 +67,7 @@ dataSources:
         - name: DirectPay
           file: ../../out/DirectPay.sol/DirectPay.json
       eventHandlers:
-        - event: MemoWritten(indexed uint256,bytes32)
+        - event: PaymentCreated(uint256,bytes32,uint256,uint256,address,address,address)
           handler: handleMemoWritten
         # - event: Transferred(uint256 indexed,address indexed,address indexed,uint256,uint256,uint256)
         #   handler: handleTransfer

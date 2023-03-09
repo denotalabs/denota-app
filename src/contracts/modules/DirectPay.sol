@@ -27,7 +27,9 @@ contract DirectPay is ModuleBase {
         bytes32 memoHash,
         uint256 amount,
         uint256 timestamp,
-        address referer
+        address referer,
+        address creditor,
+        address debtor
     );
     error EscrowUnsupported();
     error AmountZero();
@@ -92,8 +94,27 @@ contract DirectPay is ModuleBase {
         }
         revenue[dappOperator][currency] += moduleFee;
 
-        emit PaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
+        _logPaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
+
         return moduleFee;
+    }
+
+    function _logPaymentCreated(
+        uint256 cheqId,
+        bytes32 memoHash,
+        uint256 amount,
+        uint256 timestamp,
+        address referer
+    ) private {
+        emit PaymentCreated(
+            cheqId,
+            memoHash,
+            amount,
+            timestamp,
+            referer,
+            payInfo[cheqId].creditor,
+            payInfo[cheqId].debtor
+        );
     }
 
     function processTransfer(
