@@ -105,12 +105,12 @@ if __name__ == "__main__":
   print("Rule address: ", rules)
 
   # Whitelist the rules
-  eth_call(f'cast send {registrar} "whitelistRule(address,bool)" {rules} "true" {rpc_key_flags}', "Whitelist failed")
+  # eth_call(f'cast send {registrar} "whitelistRule(address,bool)" {rules} "true" {rpc_key_flags}', "Whitelist failed")
 
   # Deploy the DirectPay module
   if not existing_addresses[chain]["directPay"]:
     DirectPay_path = "src/contracts/modules/DirectPay.sol:DirectPay"
-    result = eth_call(f'forge create {DirectPay_path} --constructor-args {registrar} {rules} {rules} {rules} {rules} {rules} {con_args} "ipfs://" {rpc_key_flags}', "Module deployment failed")
+    result = eth_call(f'forge create {DirectPay_path} --constructor-args {registrar} {con_args} "ipfs://" {rpc_key_flags}', "Module deployment failed")
     direct_pay = extract_address(result.stdout)
     existing_addresses[chain]["directPay"] = direct_pay
     print(f'DirectPay address: {direct_pay}')
