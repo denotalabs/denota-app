@@ -11,8 +11,8 @@ import { useColorMode } from "@chakra-ui/react";
 import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
 
-import CheqRegistrar from "../out/CheqRegistrar.sol/CheqRegistrar.json";
-import erc20 from "../out/ERC20.sol/TestERC20.json";
+import CheqRegistrar from "../frontend-abi/CheqRegistrar.sol/CheqRegistrar.json";
+import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {
   ChainInfo,
   chainInfoForChainId,
