@@ -79,7 +79,7 @@ const cpUpload = upload.fields([
   { name: "document", maxCount: 8 },
 ]);
 
-app.post("/test", cpUpload, async function (req, res) {
+app.post("/lighthouse", cpUpload, async function (req, res) {
   const obj = {
     name: "Denota NFT",
   };
@@ -173,4 +173,4 @@ app.post("/", cpUpload, async (req, res) => {
   }
 });
 
-app.listen(6000);
+app.listen(3001);
