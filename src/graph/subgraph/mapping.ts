@@ -59,20 +59,17 @@ export function handleWrite(event: WrittenEvent): void {
 
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
   const cheqId = event.params.cheqId.toString(); // let [currency, amount, escrowed, drawer, recipient, module, mintTimestamp] = event.params.cheq;
-  const newCheq = new Cheq(cheqId);
-
-  const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  const cheqCreatedAt = event.block.timestamp; //BigInt.fromI32(event.block.timestamp);
-  newCheq.createdAt = cheqCreatedAt;
-  newCheq.erc20 = ERC20Token.id;
-  newCheq.module = event.params.module.toString();
-  newCheq.uri = ""; // TODO Add URI here
+  const cheq = Cheq.load(cheqId);
   const cheqEscrowed = event.params.escrowed;
-  newCheq.escrowed = cheqEscrowed.divDecimal(BigInt.fromI32(18).toBigDecimal());
-  newCheq.escrowedExact = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
-  newCheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
-  newCheq.save();
+
+  if (cheq) {
+    cheq.erc20 = ERC20Token.id;
+    cheq.module = event.params.module.toHexString();
+    cheq.escrowed = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
+    cheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
+    cheq.save();
+  }
+
   const escrow = new Escrow(transactionHexHash + "/" + cheqId); // How OZ does IDs entities that implements Event?
   escrow.emitter = event.transaction.from.toHexString();
   escrow.transaction = transactionHexHash; // TODO How OZ does it, how does it work?
@@ -97,7 +94,6 @@ export function handleDirectPayment(event: PaymentCreatedEvent): void {
   const sender = event.transaction.from.toHexString();
   const creditor = event.params.creditor.toHexString();
   const debtor = event.params.debtor.toHexString();
-  const receiver = sender === creditor ? debtor : creditor;
 
   let creditorAccount = Account.load(creditor);
   let debtorAccount = Account.load(creditor);
@@ -111,16 +107,22 @@ export function handleDirectPayment(event: PaymentCreatedEvent): void {
   const directPay = new DirectPayData(cheqId + "/direct");
   directPay.creditor = creditorAccount.id;
   directPay.debtor = debtorAccount.id;
+  directPay.amount = event.params.amount;
   directPay.save();
 
-  const cheq = Cheq.load(cheqId);
-  if (cheq != null) {
-    cheq.uri = event.params.memoHash.toString();
-    cheq.receiver = receiver;
-    cheq.sender = sender;
-    cheq.moduleData = directPay.id;
-    cheq.save();
+  const newCheq = new Cheq(cheqId);
+  const cheqTimestamp = event.block.timestamp;
+  newCheq.timestamp = cheqTimestamp;
+  newCheq.createdAt = cheqTimestamp;
+  newCheq.uri = event.params.memoHash.toString();
+  if (sender == creditor) {
+    newCheq.receiver = debtor;
+  } else {
+    newCheq.receiver = creditor;
   }
+  newCheq.sender = sender;
+  newCheq.moduleData = directPay.id;
+  newCheq.save();
 }
 
 // TODO: Transfer event being fired before write event is causing problems

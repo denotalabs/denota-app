@@ -82,22 +82,20 @@ type Cheq @entity {
   id: ID!
   timestamp: BigInt!
   createdAt: BigInt!
-  erc20: ERC20!
+  erc20: ERC20
 
-  module: Module!
+  module: Module
   
   uri: String
-  escrowed: BigDecimal!
-  escrowedExact: BigInt!
+  escrowed: BigInt
 
-  owner: Account!
+  owner: Account
   transfers: [Transfer!]! @derivedFrom(field: "cheq")
   escrows: [Escrow!]! @derivedFrom(field: "cheq")
-  approval: Account!
   approvals: [Approval!]! @derivedFrom(field: "cheq")
   sender: Account
   receiver: Account
-  moduleData: ModuleData # optional
+  moduleData: ModuleData 
   # Should the creation hash be stored here?
 }
 
@@ -120,7 +118,7 @@ interface ModuleData {
 
 type DirectPayData implements ModuleData @entity {
   id: ID!
-  amount: BigDecimal!
+  amount: BigInt!
   creditor: Account!
   debtor: Account!
   memo: Bytes!

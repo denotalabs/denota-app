@@ -4,7 +4,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Events
-    network: 
+    network: mumbai
     source:
       address: "0xF85D83258CD1D8beb5998439C73C11a6b820d6B9"
       abi: Registrar
@@ -44,7 +44,7 @@ dataSources:
       file: mapping.ts
   - kind: ethereum/contract
     name: DirectPay
-    network: 
+    network: mumbai
     source:
       address: "0x6E9883fdd694fcC8d7998628D57513AF7Ca6f818"
       abi: DirectPay

@@ -78,7 +78,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "directAmount",
+        "name": "instant",
         "type": "uint256"
       },
       {
@@ -177,37 +177,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "rule",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "bool",
-        "name": "accepted",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "RuleWhitelisted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "token",
         "type": "address"
       },
@@ -275,6 +244,12 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "cheqId",
         "type": "uint256"
@@ -288,13 +263,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "directAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
+        "name": "instant",
         "type": "uint256"
       },
       {
@@ -306,32 +275,38 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "escrowed",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "drawer",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "createdAt",
+        "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "cheqFee",
+        "type": "uint256"
       },
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "moduleFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "module",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "escrowed",
-        "type": "uint256"
+        "internalType": "bytes",
+        "name": "moduleData",
+        "type": "bytes"
       }
     ],
     "name": "Written",
