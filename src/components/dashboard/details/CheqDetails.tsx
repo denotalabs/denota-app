@@ -1,6 +1,5 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { Cheq } from "../../../hooks/useCheqs";
@@ -23,13 +22,13 @@ function CheqDetails({ cheq }: Props) {
     async function fetchData() {
       try {
         if (cheq.uri) {
-          const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
-          const resp = await axios.get(NOTE_URL);
-          setNote(resp.data.description);
-          if (resp.data.file) {
-            setFile(resp.data.file);
-            setFilename(resp.data.filename);
-          }
+          // const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
+          // const resp = await axios.get(NOTE_URL);
+          // setNote(resp.data.description);
+          // if (resp.data.file) {
+          //   setFile(resp.data.file);
+          //   setFilename(resp.data.filename);
+          // }
           setIsLoading(false);
         } else {
           setNote("");

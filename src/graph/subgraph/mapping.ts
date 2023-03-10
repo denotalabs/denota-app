@@ -75,12 +75,11 @@ export function handleWrite(event: WrittenEvent): void {
   escrow.transaction = transactionHexHash; // TODO How OZ does it, how does it work?
   escrow.timestamp = event.block.timestamp;
   escrow.cheq = event.params.cheqId.toString();
-  escrow.from = event.transaction.from.toHexString(); // TODO Shouldnt this depend on module?
+  escrow.from = event.transaction.from.toHexString();
   escrow.amount = cheqEscrowed;
-  // const directCheqAmount = event.params.directAmount;
-  // escrow.directAmount = directCheqAmount; //.divDecimal(BigInt.fromI32(18).toBigDecimal());
-  // // escrow.directAmountExact = directAmount;
+  escrow.instantAmount = event.params.instant;
   escrow.save();
+
   // const transaction =
   saveTransaction(
     transactionHexHash,
@@ -202,7 +201,7 @@ export function handleFund(event: FundedEvent): void {
   escrow.cheq = cheqId;
   escrow.from = fromAccount.id;
   escrow.amount = amount;
-  // escrow.directAmount = directAmount;
+  escrow.instantAmount = event.params.instant;
   escrow.save();
 }
 

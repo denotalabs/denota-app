@@ -63,11 +63,10 @@ type Escrow implements Event @entity(immutable: true) {  # Instances of escrowin
   timestamp: BigInt!
   cheq: Cheq!
   from: Account!
-  # TODO need to do amounts and exact amounts?
   amount: BigInt!
-  # directAmount: BigInt!
-  # directAmountExact: BigInt! # TODO
+  instantAmount: BigInt!
 }
+
 type Approval implements Event @entity {
   id: ID!
   transaction: Transaction!

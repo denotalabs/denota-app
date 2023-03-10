@@ -3,7 +3,7 @@ import { useCallback } from "react";
 
 const CHEQ_NOTE_SERVICE_URL_LOCAL = "http://127.0.0.1:3001/lighthouse";
 
-const CHEQ_NOTE_SERVICE = "https://klymr.me/nft";
+const CHEQ_NOTE_SERVICE = "https://klymr.me/nft-lighthouse";
 
 export const useUploadNote = () => {
   const uploadFile = useCallback(async (file: any, note: string) => {

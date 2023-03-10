@@ -28,7 +28,7 @@ export interface Cheq {
   amount: number;
   amountRaw: BigNumber;
   sender: string;
-  recipient: string;
+  receiver: string;
   owner: string;
   token: CheqCurrency;
   formattedPayer: string;
@@ -88,11 +88,11 @@ export const useCheqs = ({ cheqField }: Props) => {
       const createdTx =
         allEscrows.length > 0 ? allEscrows[0].transaction.id : null;
 
-      const isInvoice = gqlCheq.drawer.id === gqlCheq.owner.id;
+      const isInvoice = gqlCheq.sender.id === gqlCheq.owner.id;
 
       const escrowedCheqs = gqlCheq.escrows.filter(
         (gqlCheq: any) =>
-          BigInt(gqlCheq.amount) > 0 || BigInt(gqlCheq.directAmount) > 0
+          BigInt(gqlCheq.amount) > 0 || BigInt(gqlCheq.instantAmount) > 0
       );
       const { hasEscrow, fundedDate, fundedTimestamp, fundedTx } =
         escrowedCheqs.length > 0
@@ -110,22 +110,22 @@ export const useCheqs = ({ cheqField }: Props) => {
             };
 
       const payer = isInvoice
-        ? (gqlCheq.recipient.id as string)
-        : (gqlCheq.drawer.id as string);
+        ? (gqlCheq.receiver.id as string)
+        : (gqlCheq.sender.id as string);
 
       const payee = isInvoice
-        ? (gqlCheq.drawer.id as string)
-        : (gqlCheq.recipient.id as string);
+        ? (gqlCheq.sender.id as string)
+        : (gqlCheq.receiver.id as string);
 
       const isPayer = payer === blockchainState.account.toLowerCase();
 
       return {
         id: gqlCheq.id as string,
-        amount: convertExponent(gqlCheq.amountExact as number),
-        amountRaw: BigNumber.from(gqlCheq.amountExact),
+        amount: convertExponent(gqlCheq.moduleData.amount as number),
+        amountRaw: BigNumber.from(gqlCheq.moduleData.amount),
         token: currencyForTokenId(gqlCheq.erc20.id),
-        recipient: gqlCheq.recipient.id as string,
-        sender: gqlCheq.drawer.id as string,
+        receiver: gqlCheq.receiver.id as string,
+        sender: gqlCheq.sender.id as string,
         owner: gqlCheq.owner.id as string,
         formattedPayer: formatAddress(payer, blockchainState.account),
         formattedPayee: formatAddress(payee, blockchainState.account),
@@ -156,14 +156,13 @@ export const useCheqs = ({ cheqField }: Props) => {
       setIsLoading(true);
       const tokenFields = `      
       id
-      amountExact
-      escrowedExact
+      escrowed
       timestamp
       uri
-      drawer {
+      sender {
         id
       }
-      recipient {
+      receiver {
         id
       }
       owner {
@@ -172,10 +171,21 @@ export const useCheqs = ({ cheqField }: Props) => {
       erc20 {
         id
       }
+      moduleData {
+        ... on DirectPayData {
+          amount
+          creditor {
+            id
+          }
+          debtor {
+            id
+          }
+        }
+      }
       escrows {
         id
         amount
-        directAmount
+        instantAmount
         emitter {
           id
         }
@@ -200,7 +210,6 @@ export const useCheqs = ({ cheqField }: Props) => {
       }
       `;
 
-      // SWITCH BACK TO PROD URL BEFORE MERGE
       const client = new ApolloClient({
         uri: blockchainState.graphUrl,
         cache: new InMemoryCache(),
