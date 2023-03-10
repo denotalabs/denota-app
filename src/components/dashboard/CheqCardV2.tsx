@@ -55,8 +55,8 @@ function CheqCardV2({ cheq }: Props) {
   ];
 
   const generateCheqGradient = (cheq: Cheq): string => {
-    const { id, amount, sender, recipient } = cheq;
-    const hash = hashCode(`${id}${amount}${sender}${recipient}`);
+    const { id, amount, sender, receiver } = cheq;
+    const hash = hashCode(`${id}${amount}${sender}${receiver}`);
     const colorIndex = Math.abs(hash) % GRADIENT_COLORS.length;
     const [startColor, endColor] = GRADIENT_COLORS[colorIndex];
     return `linear-gradient(180deg, ${startColor}, ${endColor})`;
