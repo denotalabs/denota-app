@@ -1088,38 +1088,38 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/SimpleAdmin.sol",
-    "id": 31989,
+    "id": 29581,
     "exportedSymbols": {
       "Context": [
-        27671
+        24259
       ],
       "DataTypes": [
-        30690
+        27038
       ],
       "ICheqModule": [
-        30319
+        26533
       ],
       "ICheqRegistrar": [
-        30462
+        26676
       ],
       "ModuleBase": [
-        30196
+        26110
       ],
       "Pausable": [
-        25270
+        21783
       ],
       "SetAdmin": [
-        31988
+        29580
       ],
       "SimpleAdmin": [
-        31984
+        29576
       ]
     },
     "nodeType": "SourceUnit",
     "src": "37:560:45",
     "nodes": [
       {
-        "id": 31969,
+        "id": 29561,
         "nodeType": "PragmaDirective",
         "src": "37:24:45",
         "nodes": [],
@@ -1131,36 +1131,36 @@
         ]
       },
       {
-        "id": 31970,
+        "id": 29562,
         "nodeType": "ImportDirective",
         "src": "63:44:45",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/security/Pausable.sol",
         "file": "openzeppelin/security/Pausable.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31989,
-        "sourceUnit": 25271,
+        "scope": 29581,
+        "sourceUnit": 21784,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 31972,
+        "id": 29564,
         "nodeType": "ImportDirective",
         "src": "108:45:45",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31989,
-        "sourceUnit": 30197,
+        "scope": 29581,
+        "sourceUnit": 26111,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31971,
+              "id": 29563,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30196,
+              "referencedDeclaration": 26110,
               "src": "116:10:45",
               "typeDescriptions": {}
             },
@@ -1170,23 +1170,23 @@
         "unitAlias": ""
       },
       {
-        "id": 31974,
+        "id": 29566,
         "nodeType": "ImportDirective",
         "src": "154:53:45",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31989,
-        "sourceUnit": 30691,
+        "scope": 29581,
+        "sourceUnit": 27039,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31973,
+              "id": 29565,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30690,
+              "referencedDeclaration": 27038,
               "src": "162:9:45",
               "typeDescriptions": {}
             },
@@ -1196,23 +1196,23 @@
         "unitAlias": ""
       },
       {
-        "id": 31976,
+        "id": 29568,
         "nodeType": "ImportDirective",
         "src": "208:58:45",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31989,
-        "sourceUnit": 30320,
+        "scope": 29581,
+        "sourceUnit": 26534,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31975,
+              "id": 29567,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30319,
+              "referencedDeclaration": 26533,
               "src": "216:11:45",
               "typeDescriptions": {}
             },
@@ -1222,23 +1222,23 @@
         "unitAlias": ""
       },
       {
-        "id": 31978,
+        "id": 29570,
         "nodeType": "ImportDirective",
         "src": "267:64:45",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 31989,
-        "sourceUnit": 30463,
+        "scope": 29581,
+        "sourceUnit": 26677,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31977,
+              "id": 29569,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30462,
+              "referencedDeclaration": 26676,
               "src": "275:14:45",
               "typeDescriptions": {}
             },
@@ -1248,7 +1248,7 @@
         "unitAlias": ""
       },
       {
-        "id": 31984,
+        "id": 29576,
         "nodeType": "ContractDefinition",
         "src": "394:58:45",
         "nodes": [],
@@ -1256,31 +1256,31 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 31980,
+              "id": 29572,
               "name": "Pausable",
               "nameLocations": [
                 "427:8:45"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 25270,
+              "referencedDeclaration": 21783,
               "src": "427:8:45"
             },
-            "id": 31981,
+            "id": 29573,
             "nodeType": "InheritanceSpecifier",
             "src": "427:8:45"
           },
           {
             "baseName": {
-              "id": 31982,
+              "id": 29574,
               "name": "ModuleBase",
               "nameLocations": [
                 "437:10:45"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30196,
+              "referencedDeclaration": 26110,
               "src": "437:10:45"
             },
-            "id": 31983,
+            "id": 29575,
             "nodeType": "InheritanceSpecifier",
             "src": "437:10:45"
           }
@@ -1289,28 +1289,28 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 31979,
+          "id": 29571,
           "nodeType": "StructuredDocumentation",
           "src": "333:61:45",
           "text": "@notice allows the module owner to pause functionalities"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          31984,
-          30196,
-          30319,
-          25270,
-          27671
+          29576,
+          26110,
+          26533,
+          21783,
+          24259
         ],
         "name": "SimpleAdmin",
         "nameLocation": "412:11:45",
-        "scope": 31989,
+        "scope": 29581,
         "usedErrors": [
-          30704
+          27052
         ]
       },
       {
-        "id": 31988,
+        "id": 29580,
         "nodeType": "ContractDefinition",
         "src": "551:45:45",
         "nodes": [],
@@ -1318,16 +1318,16 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 31986,
+              "id": 29578,
               "name": "ModuleBase",
               "nameLocations": [
                 "581:10:45"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30196,
+              "referencedDeclaration": 26110,
               "src": "581:10:45"
             },
-            "id": 31987,
+            "id": 29579,
             "nodeType": "InheritanceSpecifier",
             "src": "581:10:45"
           }
@@ -1336,22 +1336,22 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 31985,
+          "id": 29577,
           "nodeType": "StructuredDocumentation",
           "src": "454:97:45",
           "text": "@notice allows the cheq creator to set an admin that can pause WTFC for that particular cheq"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          31988,
-          30196,
-          30319
+          29580,
+          26110,
+          26533
         ],
         "name": "SetAdmin",
         "nameLocation": "569:8:45",
-        "scope": 31989,
+        "scope": 29581,
         "usedErrors": [
-          30704
+          27052
         ]
       }
     ],

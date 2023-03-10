@@ -9,13 +9,14 @@ import {
 import {
   Account,
   Cheq,
+  DirectPayData,
   ERC20,
   Escrow,
   Transaction,
   Transfer,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
 
-import { MemoWritten as MemoWrittenEvent } from "../subgraph/generated/DirectPay/DirectPay";
+import { PaymentCreated as PaymentCreatedEvent } from "../subgraph/generated/DirectPay/DirectPay";
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
   newAccount.save();
@@ -45,58 +46,40 @@ function saveTransaction(
 
 export function handleWrite(event: WrittenEvent): void {
   const currency = event.params.currency.toHexString();
-  const drawer = event.params.drawer.toHexString();
-  const recipient = event.params.recipient.toHexString();
   const owner = event.params.owner.toHexString();
   const transactionHexHash = event.transaction.hash.toHex();
   // Load entities if they exist, else create them
-  let drawingAccount = Account.load(drawer);
-  let receivingAccount = Account.load(recipient);
+
   let owningAccount = Account.load(owner);
   let ERC20Token = ERC20.load(currency);
   if (ERC20Token == null) {
     ERC20Token = new ERC20(currency); // Query it's symbol and decimals here?
     ERC20Token.save();
   }
-  drawingAccount =
-    drawingAccount == null ? saveNewAccount(drawer) : drawingAccount;
-  receivingAccount =
-    receivingAccount == null ? saveNewAccount(recipient) : receivingAccount;
+
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
   const cheqId = event.params.cheqId.toString(); // let [currency, amount, escrowed, drawer, recipient, module, mintTimestamp] = event.params.cheq;
-  const newCheq = new Cheq(cheqId);
-  const cheqTimestamp = event.params.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  const cheqCreatedAt = event.block.timestamp; //BigInt.fromI32(event.block.timestamp);
-  newCheq.createdAt = cheqCreatedAt;
-  newCheq.erc20 = ERC20Token.id;
-  const cheqAmount = event.params.amount;
-  newCheq.amount = cheqAmount.divDecimal(BigInt.fromI32(18).toBigDecimal());
-  newCheq.amountExact = cheqAmount; // .divDecimal(BigInt.fromI32(18).toBigDecimal())
-  newCheq.drawer = drawingAccount.id;
-  newCheq.recipient = receivingAccount.id;
-  newCheq.module = event.params.module.toString();
-  newCheq.uri = ""; // TODO Add URI here
+  const cheq = Cheq.load(cheqId);
   const cheqEscrowed = event.params.escrowed;
-  newCheq.escrowed = cheqEscrowed.divDecimal(BigInt.fromI32(18).toBigDecimal());
-  newCheq.escrowedExact = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
-  newCheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
-  newCheq.save();
+
+  if (cheq) {
+    cheq.erc20 = ERC20Token.id;
+    cheq.module = event.params.module.toHexString();
+    cheq.escrowed = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
+    cheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
+    cheq.save();
+  }
+
   const escrow = new Escrow(transactionHexHash + "/" + cheqId); // How OZ does IDs entities that implements Event?
-  escrow.emitter = drawingAccount.id;
+  escrow.emitter = event.transaction.from.toHexString();
   escrow.transaction = transactionHexHash; // TODO How OZ does it, how does it work?
   escrow.timestamp = event.block.timestamp;
   escrow.cheq = event.params.cheqId.toString();
-  escrow.from = drawingAccount.id; // TODO Shouldnt this depend on module?
+  escrow.from = event.transaction.from.toHexString();
   escrow.amount = cheqEscrowed;
-  // console.log(event.params.directAmount);
-  // console.log(event.params.directAmount);
-  // console.log(event.params.directAmount);
-  // console.log(event.params.directAmount);
-  const directCheqAmount = event.params.directAmount;
-  escrow.directAmount = directCheqAmount; //.divDecimal(BigInt.fromI32(18).toBigDecimal());
-  // escrow.directAmountExact = directAmount;
+  escrow.instantAmount = event.params.instant;
   escrow.save();
+
   // const transaction =
   saveTransaction(
     transactionHexHash,
@@ -104,19 +87,41 @@ export function handleWrite(event: WrittenEvent): void {
     event.block.timestamp,
     event.block.number
   );
-  // transaction.events.concat(event)  // TODO How does OZ do this? Need to add TransferEvent & FundedEvent
-  // export function handleModule(event: MemoWritten): void {
-  // TODO Let modules emit their own events and update them from there
-  // let module = fetchModule(module)
-  // Module.numCheqsManaged = Module.numCheqsManaged.plus(BigInt.fromI32(1))
-  // Module.save()
-  // // Increment each Account's token counts
-  // drawingAccount.numCheqsSent = drawingAccount.numCheqsSent.plus(BigInt.fromI32(1))
-  // drawingAccount.save()
-  // // Increment each Account's token counts
-  // receivingAccount.numCheqsReceived = receivingAccount.numCheqsReceived.plus(BigInt.fromI32(1))
-  // receivingAccount.save()
-  // }
+}
+
+export function handleDirectPayment(event: PaymentCreatedEvent): void {
+  const sender = event.transaction.from.toHexString();
+  const creditor = event.params.creditor.toHexString();
+  const debtor = event.params.debtor.toHexString();
+
+  let creditorAccount = Account.load(creditor);
+  let debtorAccount = Account.load(debtor);
+  creditorAccount =
+    creditorAccount == null ? saveNewAccount(creditor) : creditorAccount;
+  debtorAccount =
+    debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
+
+  const cheqId = event.params.cheqId.toString();
+
+  const directPay = new DirectPayData(cheqId + "/direct");
+  directPay.creditor = creditorAccount.id;
+  directPay.debtor = debtorAccount.id;
+  directPay.amount = event.params.amount;
+  directPay.save();
+
+  const newCheq = new Cheq(cheqId);
+  const cheqTimestamp = event.block.timestamp;
+  newCheq.timestamp = cheqTimestamp;
+  newCheq.createdAt = cheqTimestamp;
+  newCheq.uri = event.params.memoHash.toString();
+  if (sender == creditor) {
+    newCheq.receiver = debtorAccount.id;
+  } else {
+    newCheq.receiver = creditorAccount.id;
+  }
+  newCheq.sender = sender;
+  newCheq.moduleData = directPay.id;
+  newCheq.save();
 }
 
 // TODO: Transfer event being fired before write event is causing problems
@@ -171,7 +176,7 @@ export function handleFund(event: FundedEvent): void {
       ? saveNewAccount(event.params.funder.toHexString())
       : fromAccount;
   const amount = event.params.amount;
-  const directAmount = event.params.directAmount;
+  // const directAmount = event.params.directAmount;
   const transactionHexHash = event.transaction.hash.toHex();
   const cheqId = event.params.cheqId.toString();
 
@@ -196,7 +201,7 @@ export function handleFund(event: FundedEvent): void {
   escrow.cheq = cheqId;
   escrow.from = fromAccount.id;
   escrow.amount = amount;
-  escrow.directAmount = directAmount;
+  escrow.instantAmount = event.params.instant;
   escrow.save();
 }
 
@@ -242,12 +247,3 @@ export function handleCash(event: CashedEvent): void {
 //   const isAccepted = event.params.isAccepted;
 //   // const moduleName = event.params.moduleName;
 // }
-
-export function handleMemoWritten(event: MemoWrittenEvent): void {
-  const cheqId = event.params.cheqId.toString();
-  const cheq = Cheq.load(cheqId);
-  if (cheq != null) {
-    cheq.uri = event.params.memoHash.toString();
-    cheq.save();
-  }
-}

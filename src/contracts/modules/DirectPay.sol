@@ -17,17 +17,19 @@ contract DirectPay is ModuleBase {
         address debtor; // QUESTION change to creditor and debtor?
         uint256 amount; // Face value of the payment
         uint256 timestamp; // Record keeping timestamp
-        bytes32 memoHash;
+        string memoHash;
         bool wasPaid; // TODO is this needed if using instant pay?
     }
     mapping(uint256 => Payment) public payInfo;
 
     event PaymentCreated(
         uint256 cheqId,
-        bytes32 memoHash,
+        string memoHash,
         uint256 amount,
         uint256 timestamp,
-        address referer
+        address referer,
+        address creditor,
+        address debtor
     );
     error EscrowUnsupported();
     error AmountZero();
@@ -60,8 +62,8 @@ contract DirectPay is ModuleBase {
             uint256 amount, // Face value (for invoices)
             uint256 timestamp,
             address dappOperator,
-            bytes32 memoHash
-        ) = abi.decode(initData, (address, uint256, uint256, address, bytes32));
+            string memory memoHash
+        ) = abi.decode(initData, (address, uint256, uint256, address, string));
         if (escrowed != 0) revert EscrowUnsupported();
         if (amount == 0) revert AmountZero(); // Removing this would allow user to send memos
 
@@ -92,8 +94,27 @@ contract DirectPay is ModuleBase {
         }
         revenue[dappOperator][currency] += moduleFee;
 
-        emit PaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
+        _logPaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
+
         return moduleFee;
+    }
+
+    function _logPaymentCreated(
+        uint256 cheqId,
+        string memory memoHash,
+        uint256 amount,
+        uint256 timestamp,
+        address referer
+    ) private {
+        emit PaymentCreated(
+            cheqId,
+            memoHash,
+            amount,
+            timestamp,
+            referer,
+            payInfo[cheqId].creditor,
+            payInfo[cheqId].debtor
+        );
     }
 
     function processTransfer(

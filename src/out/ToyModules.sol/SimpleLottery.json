@@ -1080,37 +1080,37 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/ToyModules.sol",
-    "id": 32015,
+    "id": 30225,
     "exportedSymbols": {
       "BoolRelease": [
-        32014
+        30224
       ],
       "DataTypes": [
-        30690
+        27038
       ],
       "ModuleBase": [
-        30196
+        26110
       ],
       "PayItForward": [
-        32002
+        30212
       ],
       "PseudoChain": [
-        31998
+        30208
       ],
       "SimpleLottery": [
-        32006
+        30216
       ],
       "URIUpdater": [
-        32010
+        30220
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:5496:46",
+    "src": "37:5496:53",
     "nodes": [
       {
-        "id": 31990,
+        "id": 30200,
         "nodeType": "PragmaDirective",
-        "src": "37:25:46",
+        "src": "37:25:53",
         "nodes": [],
         "literals": [
           "solidity",
@@ -1120,24 +1120,24 @@
         ]
       },
       {
-        "id": 31992,
+        "id": 30202,
         "nodeType": "ImportDirective",
-        "src": "109:45:46",
+        "src": "109:45:53",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 32015,
-        "sourceUnit": 30197,
+        "scope": 30225,
+        "sourceUnit": 26111,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31991,
+              "id": 30201,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30196,
-              "src": "117:10:46",
+              "referencedDeclaration": 26110,
+              "src": "117:10:53",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1146,24 +1146,24 @@
         "unitAlias": ""
       },
       {
-        "id": 31994,
+        "id": 30204,
         "nodeType": "ImportDirective",
-        "src": "155:53:46",
+        "src": "155:53:53",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 32015,
-        "sourceUnit": 30691,
+        "scope": 30225,
+        "sourceUnit": 27039,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 31993,
+              "id": 30203,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30690,
-              "src": "163:9:46",
+              "referencedDeclaration": 27038,
+              "src": "163:9:53",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1172,232 +1172,232 @@
         "unitAlias": ""
       },
       {
-        "id": 31998,
+        "id": 30208,
         "nodeType": "ContractDefinition",
-        "src": "286:4033:46",
+        "src": "286:4033:53",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 31996,
+              "id": 30206,
               "name": "ModuleBase",
               "nameLocations": [
-                "319:10:46"
+                "319:10:53"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30196,
-              "src": "319:10:46"
+              "referencedDeclaration": 26110,
+              "src": "319:10:53"
             },
-            "id": 31997,
+            "id": 30207,
             "nodeType": "InheritanceSpecifier",
-            "src": "319:10:46"
+            "src": "319:10:53"
           }
         ],
         "canonicalName": "PseudoChain",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 31995,
+          "id": 30205,
           "nodeType": "StructuredDocumentation",
-          "src": "210:76:46",
+          "src": "210:76:53",
           "text": "@notice allows whoever finds the correct hash to claim the written cheq"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          31998,
-          30196,
-          30319
+          30208,
+          26110,
+          26533
         ],
         "name": "PseudoChain",
-        "nameLocation": "304:11:46",
-        "scope": 32015,
+        "nameLocation": "304:11:53",
+        "scope": 30225,
         "usedErrors": [
-          30704
+          27052
         ]
       },
       {
-        "id": 32002,
+        "id": 30212,
         "nodeType": "ContractDefinition",
-        "src": "4406:700:46",
+        "src": "4406:700:53",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 32000,
+              "id": 30210,
               "name": "ModuleBase",
               "nameLocations": [
-                "4440:10:46"
+                "4440:10:53"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30196,
-              "src": "4440:10:46"
+              "referencedDeclaration": 26110,
+              "src": "4440:10:53"
             },
-            "id": 32001,
+            "id": 30211,
             "nodeType": "InheritanceSpecifier",
-            "src": "4440:10:46"
+            "src": "4440:10:53"
           }
         ],
         "canonicalName": "PayItForward",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 31999,
+          "id": 30209,
           "nodeType": "StructuredDocumentation",
-          "src": "4321:85:46",
+          "src": "4321:85:53",
           "text": "@notice allows the owner to fund and transfer or wait until the timelock is over"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          32002,
-          30196,
-          30319
+          30212,
+          26110,
+          26533
         ],
         "name": "PayItForward",
-        "nameLocation": "4424:12:46",
-        "scope": 32015,
+        "nameLocation": "4424:12:53",
+        "scope": 30225,
         "usedErrors": [
-          30704
+          27052
         ]
       },
       {
-        "id": 32006,
+        "id": 30216,
         "nodeType": "ContractDefinition",
-        "src": "5165:50:46",
+        "src": "5165:50:53",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 32004,
+              "id": 30214,
               "name": "ModuleBase",
               "nameLocations": [
-                "5200:10:46"
+                "5200:10:53"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30196,
-              "src": "5200:10:46"
+              "referencedDeclaration": 26110,
+              "src": "5200:10:53"
             },
-            "id": 32005,
+            "id": 30215,
             "nodeType": "InheritanceSpecifier",
-            "src": "5200:10:46"
+            "src": "5200:10:53"
           }
         ],
         "canonicalName": "SimpleLottery",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 32003,
+          "id": 30213,
           "nodeType": "StructuredDocumentation",
-          "src": "5108:57:46",
+          "src": "5108:57:53",
           "text": "@notice allows certain addresses the ability to cash"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          32006,
-          30196,
-          30319
+          30216,
+          26110,
+          26533
         ],
         "name": "SimpleLottery",
-        "nameLocation": "5183:13:46",
-        "scope": 32015,
+        "nameLocation": "5183:13:53",
+        "scope": 30225,
         "usedErrors": [
-          30704
+          27052
         ]
       },
       {
-        "id": 32010,
+        "id": 30220,
         "nodeType": "ContractDefinition",
-        "src": "5307:47:46",
+        "src": "5307:47:53",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 32008,
+              "id": 30218,
               "name": "ModuleBase",
               "nameLocations": [
-                "5339:10:46"
+                "5339:10:53"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30196,
-              "src": "5339:10:46"
+              "referencedDeclaration": 26110,
+              "src": "5339:10:53"
             },
-            "id": 32009,
+            "id": 30219,
             "nodeType": "InheritanceSpecifier",
-            "src": "5339:10:46"
+            "src": "5339:10:53"
           }
         ],
         "canonicalName": "URIUpdater",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 32007,
+          "id": 30217,
           "nodeType": "StructuredDocumentation",
-          "src": "5217:90:46",
+          "src": "5217:90:53",
           "text": "@notice allows the owner to update the URI and memo hash (if they escrow more money?)"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          32010,
-          30196,
-          30319
+          30220,
+          26110,
+          26533
         ],
         "name": "URIUpdater",
-        "nameLocation": "5325:10:46",
-        "scope": 32015,
+        "nameLocation": "5325:10:53",
+        "scope": 30225,
         "usedErrors": [
-          30704
+          27052
         ]
       },
       {
-        "id": 32014,
+        "id": 30224,
         "nodeType": "ContractDefinition",
-        "src": "5484:48:46",
+        "src": "5484:48:53",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 32012,
+              "id": 30222,
               "name": "ModuleBase",
               "nameLocations": [
-                "5517:10:46"
+                "5517:10:53"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30196,
-              "src": "5517:10:46"
+              "referencedDeclaration": 26110,
+              "src": "5517:10:53"
             },
-            "id": 32013,
+            "id": 30223,
             "nodeType": "InheritanceSpecifier",
-            "src": "5517:10:46"
+            "src": "5517:10:53"
           }
         ],
         "canonicalName": "BoolRelease",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 32011,
+          "id": 30221,
           "nodeType": "StructuredDocumentation",
-          "src": "5356:128:46",
+          "src": "5356:128:53",
           "text": "@notice write a cheq (to the zero address?) and the winner of a game (or other bet) gets to transfer to themselves and cash"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          32014,
-          30196,
-          30319
+          30224,
+          26110,
+          26533
         ],
         "name": "BoolRelease",
-        "nameLocation": "5502:11:46",
-        "scope": 32015,
+        "nameLocation": "5502:11:53",
+        "scope": 30225,
         "usedErrors": [
-          30704
+          27052
         ]
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 46
+  "id": 53
 }

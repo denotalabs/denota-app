@@ -23,11 +23,13 @@ function CheqDetails({ cheq }: Props) {
     async function fetchData() {
       try {
         if (cheq.uri) {
-          const NOTE_URL = `https://cheq-nft.s3-us-west-2.amazonaws.com/${cheq.uri}`;
+          const NOTE_URL = `https://gateway.lighthouse.storage/ipfs/${cheq.uri}`;
           const resp = await axios.get(NOTE_URL);
           setNote(resp.data.description);
           if (resp.data.file) {
-            setFile(resp.data.file);
+            setFile(
+              `https://gateway.lighthouse.storage/ipfs/${resp.data.file}`
+            );
             setFilename(resp.data.filename);
           }
           setIsLoading(false);
@@ -101,7 +103,7 @@ function CheqDetails({ cheq }: Props) {
                   File
                 </Text>
                 <RoundedBox p={4} mb={4}>
-                  <a href={file} download>
+                  <a href={file} target="_blank" download>
                     {fileName}
                     <DownloadIcon ml={2} />
                   </a>
