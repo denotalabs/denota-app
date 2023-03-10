@@ -95,7 +95,7 @@ export function handleDirectPayment(event: PaymentCreatedEvent): void {
   const debtor = event.params.debtor.toHexString();
 
   let creditorAccount = Account.load(creditor);
-  let debtorAccount = Account.load(creditor);
+  let debtorAccount = Account.load(debtor);
   creditorAccount =
     creditorAccount == null ? saveNewAccount(creditor) : creditorAccount;
   debtorAccount =
@@ -115,9 +115,9 @@ export function handleDirectPayment(event: PaymentCreatedEvent): void {
   newCheq.createdAt = cheqTimestamp;
   newCheq.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtor;
+    newCheq.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditor;
+    newCheq.receiver = creditorAccount.id;
   }
   newCheq.sender = sender;
   newCheq.moduleData = directPay.id;

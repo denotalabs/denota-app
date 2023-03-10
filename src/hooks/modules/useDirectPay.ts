@@ -25,14 +25,8 @@ export const useDirectPay = ({
 
   const writeCheq = useCallback(async () => {
     const payload = ethers.utils.defaultAbiCoder.encode(
-      ["address", "uint256", "uint256", "address", "bytes32"],
-      [
-        address,
-        amountWei,
-        0,
-        blockchainState.account,
-        ethers.utils.formatBytes32String(noteKey),
-      ]
+      ["address", "uint256", "uint256", "address", "string"],
+      [address, amountWei, 0, blockchainState.account, noteKey]
     );
     const tx = await blockchainState.cheq?.write(
       tokenAddress,

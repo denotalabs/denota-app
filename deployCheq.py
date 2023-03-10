@@ -125,6 +125,8 @@ if __name__ == "__main__":
     f.write("export const ContractAddressMapping = " + json.dumps(existing_addresses))
 
   with open("src/graph/subgraph/config/" + chain + ".json", 'w') as f:
+    existing_addresses[chain]["network"] = chain 
+    existing_addresses[chain]["startBlock"] = "START"
     f.write(json.dumps(existing_addresses[chain]))
 
   # Whitelist the DirectPay module

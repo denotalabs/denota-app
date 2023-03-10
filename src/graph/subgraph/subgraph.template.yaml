@@ -67,7 +67,7 @@ dataSources:
         - name: DirectPay
           file: ../../out/DirectPay.sol/DirectPay.json
       eventHandlers:
-        - event: PaymentCreated(uint256,bytes32,uint256,uint256,address,address,address)
+        - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address)
           handler: handleDirectPayment
         # - event: Transferred(uint256 indexed,address indexed,address indexed,uint256,uint256,uint256)
         #   handler: handleTransfer

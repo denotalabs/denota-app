@@ -37,7 +37,7 @@ dataSources:
     name: DirectPay
     network: alfajores
     source:
-      address: "0x6d2C6326018a4E4Bbf0728985bf96c0eB6E07A49"
+      address: "0x6Cf359a427Fd90BcDD53FcB4A0518C3fb72529b0"
       abi: DirectPay
       startBlock: 16608965
     mapping:
@@ -57,6 +57,6 @@ dataSources:
         - name: DirectPay
           file: ../out/DirectPay.sol/DirectPay.json
       eventHandlers:
-        - event: PaymentCreated(uint256,bytes32,uint256,uint256,address,address,address)
+        - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address)
           handler: handleDirectPayment
       file: Events/Events.wasm
