@@ -29,7 +29,6 @@ function CheqDetails({ cheq }: Props) {
           const resp = await axios.get(NOTE_URL);
           setNote(resp.data.description);
           setTags(resp.data.tags);
-          console.log({ tags: resp.data.tags });
           if (resp.data.file) {
             setFile(
               `https://gateway.lighthouse.storage/ipfs/${resp.data.file}`
