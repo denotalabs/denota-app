@@ -35,17 +35,20 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
           mode: initialMode,
           email: formData.email ?? "",
           file: file,
+          tags: formData.tags ?? "",
         }}
         onSubmit={async (values, actions) => {
           let noteKey = "";
-          if (values.note || values.file) {
+          if (values.note || values.file || values.tags) {
             if (
               formData.note === values.note &&
-              values.file?.name === file?.name
+              values.file?.name === file?.name &&
+              formData.tags === values.tags
             ) {
               noteKey = formData.noteKey;
             } else {
-              noteKey = (await uploadFile(values.file, values.note)) ?? "";
+              noteKey =
+                (await uploadFile(values.file, values.note, values.tags)) ?? "";
             }
           }
           if (noteKey === undefined) {
@@ -64,6 +67,7 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
               note: values.note,
               email: values.email,
               noteKey,
+              tags: values.tags,
             });
             if (values.file) {
               setFile?.(values.file);

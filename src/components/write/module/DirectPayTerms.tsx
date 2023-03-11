@@ -14,7 +14,7 @@ interface Props {
   isInvoice: boolean;
 }
 
-export function DirectPay({ isInvoice }: Props) {
+export function DirectPayTerms({ isInvoice }: Props) {
   return (
     <Flex flexWrap={"wrap"} direction={"column"}>
       <Text fontSize="lg" mb={5} fontWeight={600}>

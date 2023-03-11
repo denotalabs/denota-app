@@ -1,5 +1,5 @@
 import { DownloadIcon } from "@chakra-ui/icons";
-import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
+import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
@@ -16,6 +16,8 @@ function CheqDetails({ cheq }: Props) {
 
   const [note, setNote] = useState<string | undefined>(undefined);
   const [file, setFile] = useState<string | undefined>(undefined);
+  const [tags, setTags] = useState<string[] | undefined>(undefined);
+
   const [fileName, setFilename] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,6 +28,7 @@ function CheqDetails({ cheq }: Props) {
           const NOTE_URL = `https://gateway.lighthouse.storage/ipfs/${cheq.uri}`;
           const resp = await axios.get(NOTE_URL);
           setNote(resp.data.description);
+          setTags(resp.data.tags);
           if (resp.data.file) {
             setFile(
               `https://gateway.lighthouse.storage/ipfs/${resp.data.file}`
@@ -59,7 +62,7 @@ function CheqDetails({ cheq }: Props) {
             value={cheq.formattedPayee}
             copyValue={!cheq.isPayer ? undefined : cheq.payee}
           />
-          {cheq.dueDate && (
+          {cheq.dueDate && cheq.isInvoice && (
             <DetailsRow title="Due Date" value={cheq.dueDate.toDateString()} />
           )}
           <DetailsRow
@@ -97,6 +100,20 @@ function CheqDetails({ cheq }: Props) {
                   <Text fontWeight={300} textAlign={"left"}>
                     {note}
                   </Text>
+                </RoundedBox>
+              </VStack>
+            )}
+            {tags && (
+              <VStack gap={0} w="100%">
+                <Text pl={6} fontWeight={600} w="100%" textAlign={"left"}>
+                  Tags
+                </Text>
+                <RoundedBox p={4} mb={4}>
+                  <HStack spacing={4}>
+                    {tags.map((tag) => (
+                      <Tag key={tag}>{tag}</Tag>
+                    ))}
+                  </HStack>
                 </RoundedBox>
               </VStack>
             )}

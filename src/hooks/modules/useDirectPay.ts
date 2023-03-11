@@ -25,8 +25,18 @@ export const useDirectPay = ({
 
   const writeCheq = useCallback(async () => {
     const utcOffset = new Date().getTimezoneOffset();
-    const dueTimestamp =
-      Date.parse(`${dueDate}T00:00:00Z`) / 1000 + utcOffset * 60;
+
+    let dueTimestamp;
+
+    if (dueDate) {
+      dueTimestamp = Date.parse(`${dueDate}T00:00:00Z`) / 1000 + utcOffset * 60;
+    } else {
+      const d = new Date();
+      const today = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 10);
+      dueTimestamp = Date.parse(`${today}T00:00:00Z`) / 1000 + utcOffset * 60;
+    }
 
     const payload = ethers.utils.defaultAbiCoder.encode(
       ["address", "uint256", "uint256", "address", "string", "uint256"],
@@ -48,6 +58,7 @@ export const useDirectPay = ({
     blockchainState.account,
     blockchainState.cheq,
     blockchainState.directPayAddress,
+    dueDate,
     escrowedWei,
     isInvoice,
     noteKey,

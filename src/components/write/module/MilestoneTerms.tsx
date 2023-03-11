@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 
-export function MilestoneModule() {
+export function MilestoneTerms() {
   return (
     <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
       <FormControl>

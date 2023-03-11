@@ -16,7 +16,7 @@ import {
 import { useState } from "react";
 import Inspection from "./Inspection";
 
-export function Escrow() {
+export function EscrowTerms() {
   const [sliderValue, setSliderValue] = useState(100);
   const [showTooltip, setShowTooltip] = useState(false);
 
