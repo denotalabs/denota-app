@@ -24,9 +24,13 @@ export const useDirectPay = ({
   const { blockchainState } = useBlockchainData();
 
   const writeCheq = useCallback(async () => {
+    const utcOffset = new Date().getTimezoneOffset();
+    const dueTimestamp =
+      Date.parse(`${dueDate}T00:00:00Z`) / 1000 + utcOffset * 60;
+
     const payload = ethers.utils.defaultAbiCoder.encode(
-      ["address", "uint256", "uint256", "address", "string"],
-      [address, amountWei, 0, blockchainState.account, noteKey]
+      ["address", "uint256", "uint256", "address", "string", "uint256"],
+      [address, amountWei, 0, blockchainState.account, noteKey, dueTimestamp]
     );
     const tx = await blockchainState.cheq?.write(
       tokenAddress,

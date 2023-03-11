@@ -1080,31 +1080,31 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/DisputeVolley.sol",
-    "id": 28230,
+    "id": 30405,
     "exportedSymbols": {
       "DataTypes": [
-        27038
+        29169
       ],
       "DisputeVolley": [
-        28229
+        30404
       ],
       "ICheqModule": [
-        26533
+        28624
       ],
       "ICheqRegistrar": [
-        26676
+        28767
       ],
       "ModuleBase": [
-        26110
+        28201
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:440:38",
+    "src": "37:440:47",
     "nodes": [
       {
-        "id": 28217,
+        "id": 30392,
         "nodeType": "PragmaDirective",
-        "src": "37:24:38",
+        "src": "37:24:47",
         "nodes": [],
         "literals": [
           "solidity",
@@ -1114,24 +1114,24 @@
         ]
       },
       {
-        "id": 28219,
+        "id": 30394,
         "nodeType": "ImportDirective",
-        "src": "63:45:38",
+        "src": "63:45:47",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28230,
-        "sourceUnit": 26111,
+        "scope": 30405,
+        "sourceUnit": 28202,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 28218,
+              "id": 30393,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26110,
-              "src": "71:10:38",
+              "referencedDeclaration": 28201,
+              "src": "71:10:47",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1140,24 +1140,24 @@
         "unitAlias": ""
       },
       {
-        "id": 28221,
+        "id": 30396,
         "nodeType": "ImportDirective",
-        "src": "109:53:38",
+        "src": "109:53:47",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28230,
-        "sourceUnit": 27039,
+        "scope": 30405,
+        "sourceUnit": 29170,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 28220,
+              "id": 30395,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27038,
-              "src": "117:9:38",
+              "referencedDeclaration": 29169,
+              "src": "117:9:47",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1166,24 +1166,24 @@
         "unitAlias": ""
       },
       {
-        "id": 28223,
+        "id": 30398,
         "nodeType": "ImportDirective",
-        "src": "163:58:38",
+        "src": "163:58:47",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28230,
-        "sourceUnit": 26534,
+        "scope": 30405,
+        "sourceUnit": 28625,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 28222,
+              "id": 30397,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26533,
-              "src": "171:11:38",
+              "referencedDeclaration": 28624,
+              "src": "171:11:47",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1192,24 +1192,24 @@
         "unitAlias": ""
       },
       {
-        "id": 28225,
+        "id": 30400,
         "nodeType": "ImportDirective",
-        "src": "222:64:38",
+        "src": "222:64:47",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28230,
-        "sourceUnit": 26677,
+        "scope": 30405,
+        "sourceUnit": 28768,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 28224,
+              "id": 30399,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26676,
-              "src": "230:14:38",
+              "referencedDeclaration": 28767,
+              "src": "230:14:47",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1218,52 +1218,52 @@
         "unitAlias": ""
       },
       {
-        "id": 28229,
+        "id": 30404,
         "nodeType": "ContractDefinition",
-        "src": "426:50:38",
+        "src": "426:50:47",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 28227,
+              "id": 30402,
               "name": "ModuleBase",
               "nameLocations": [
-                "461:10:38"
+                "461:10:47"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 26110,
-              "src": "461:10:38"
+              "referencedDeclaration": 28201,
+              "src": "461:10:47"
             },
-            "id": 28228,
+            "id": 30403,
             "nodeType": "InheritanceSpecifier",
-            "src": "461:10:38"
+            "src": "461:10:47"
           }
         ],
         "canonicalName": "DisputeVolley",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 28226,
+          "id": 30401,
           "nodeType": "StructuredDocumentation",
-          "src": "288:138:38",
+          "src": "288:138:47",
           "text": "@notice disputation mechanism is a settlement time w/ an extension if disputed. This can be counter disputed until one party gives up"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          28229,
-          26110,
-          26533
+          30404,
+          28201,
+          28624
         ],
         "name": "DisputeVolley",
-        "nameLocation": "444:13:38",
-        "scope": 28230,
+        "nameLocation": "444:13:47",
+        "scope": 30405,
         "usedErrors": [
-          27052
+          29183
         ]
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 38
+  "id": 47
 }

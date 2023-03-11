@@ -1,7 +1,7 @@
 import Stepper from "../designSystem/stepper/Stepper";
 import ConfirmStep from "./confirm/ConfirmStep";
 import DetailsStep from "./details/DetailsStep";
-import PaymentTermsStep from "./module/ModuleStep";
+import PaymentTermsStep from "./module/PaymentTermsStep";
 import ModuleSelectStep from "./moduleSelect/ModuleSelectStep";
 
 interface Props {

@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Events
-    network: alfajores
+    network: mumbai
     source:
-      address: "0x41a3D11eC4dE4eaa3A6b0fD584693F86fB85E0EB"
+      address: "0xF85D83258CD1D8beb5998439C73C11a6b820d6B9"
       abi: Registrar
-      startBlock: 16608965
+      startBlock: 32985337
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -25,7 +25,7 @@ dataSources:
         # - DirectPayData
       abis:
         - name: Registrar
-          file: ../../out/Events.sol/Events.json
+          file: ../../frontend-abi/Events.sol/Events.json
       eventHandlers:
         # - event: ModuleBaseConstructed(indexed address,uint256)
         # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
@@ -44,11 +44,11 @@ dataSources:
       file: mapping.ts
   - kind: ethereum/contract
     name: DirectPay
-    network: alfajores
+    network: mumbai
     source:
-      address: "0x6Cf359a427Fd90BcDD53FcB4A0518C3fb72529b0"
+      address: "0xc6573949538a07D722893c1A1b904b65b5BC41e3"
       abi: DirectPay
-      startBlock: 16608965
+      startBlock: 32985337
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -65,9 +65,9 @@ dataSources:
         # - DirectPayData
       abis:
         - name: DirectPay
-          file: ../../out/DirectPay.sol/DirectPay.json
+          file: ../../frontend-abi/DirectPay.sol/DirectPay.json
       eventHandlers:
-        - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address)
+        - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
         # - event: Transferred(uint256 indexed,address indexed,address indexed,uint256,uint256,uint256)
         #   handler: handleTransfer

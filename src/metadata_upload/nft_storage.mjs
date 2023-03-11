@@ -54,6 +54,7 @@ app.post("/lighthouse", cpUpload, async function (req, res) {
     if (req.files.document) {
       const noteContent = JSON.parse(req.files.document[0].buffer.toString());
       obj.description = noteContent.desc;
+      obj.tags = noteContent.tags.split(",");
     }
 
     var buf = Buffer.from(JSON.stringify(obj));
