@@ -45,11 +45,7 @@ export const useUploadNote = () => {
           formData.append("document", blob);
         }
 
-        const resp = await axios.post(
-          CHEQ_NOTE_SERVICE_URL_LOCAL,
-          formData,
-          config
-        );
+        const resp = await axios.post(CHEQ_NOTE_SERVICE, formData, config);
         console.log(resp.data.url);
         return resp.data.key as string;
       } catch (error) {
