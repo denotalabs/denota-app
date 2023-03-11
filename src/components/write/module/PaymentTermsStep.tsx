@@ -3,7 +3,7 @@ import { Form, Formik } from "formik";
 import { useMemo } from "react";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
-import ModuleInfo from "./ModuleInfo";
+import ModuleTerms from "./ModuleTerms";
 
 interface Props extends ScreenProps {
   isInvoice: boolean;
@@ -40,7 +40,7 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
       >
         {(props) => (
           <Form>
-            <ModuleInfo module={props.values.module} isInvoice={isInvoice} />
+            <ModuleTerms module={props.values.module} isInvoice={isInvoice} />
             <RoundedButton type="submit">{"Next"}</RoundedButton>
           </Form>
         )}

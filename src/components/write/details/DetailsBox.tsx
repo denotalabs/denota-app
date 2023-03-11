@@ -5,6 +5,7 @@ import AccountField from "../../fields/input/AccountField";
 import AmountField from "../../fields/input/AmountField";
 import EmailField from "../../fields/input/EmailField";
 import NoteField from "../../fields/input/NoteField";
+import TagsField from "../../fields/input/TagsField";
 import FileControl from "./FileUpload";
 
 interface Props {
@@ -30,6 +31,7 @@ function DetailsBox({ isInvoice, token, mode }: Props) {
           <AccountField fieldName="address" placeholder="0x" />
         </Flex>
         <EmailField fieldName="email" placeholder="" />
+        <TagsField fieldName="tags" placeholder="" />
         <Flex
           alignItems="center"
           justifyContent="space-between"
