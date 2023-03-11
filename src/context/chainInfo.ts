@@ -54,7 +54,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     },
     blockExplorerUrls: ["https://mumbai.polygonscan.com/tx/"],
     rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
-    graphUrl: "https://klymr.me/graph/mumbai",
+    graphUrl: "https://denota.klymr.me/graph/mumbai",
     graphTestUrl:
       "http://ec2-3-236-30-211.compute-1.amazonaws.com:8000/subgraphs/name/CheqRegistrar/mumbai",
   },
@@ -70,7 +70,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     },
     blockExplorerUrls: ["https://alfajores-blockscout.celo-testnet.org/tx/"],
     rpcUrls: ["https://alfajores-forno.celo-testnet.org"],
-    graphUrl: "https://klymr.me/graph/alfajores",
+    graphUrl: "https://denota.klymr.me/graph/alfajores",
     graphTestUrl:
       "http://ec2-3-236-30-211.compute-1.amazonaws.com:8000/subgraphs/name/CheqRegistrar/alfajores",
   },
@@ -82,7 +82,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     logoSrc: "/logos/ethereum-logo.svg",
     blockExplorerUrls: ["https://etherscan.io/"],
     rpcUrls: ["https://eth.llamarpc.com"],
-    graphUrl: "https://klymr.me/graph/ethereum",
-    graphTestUrl: "https://klymr.me/graph/ethereum",
+    graphUrl: "https://denota.klymr.me/graph/ethereum",
+    graphTestUrl: "https://denota.klymr.me/graph/ethereum",
   },
 };
