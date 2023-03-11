@@ -62,7 +62,7 @@ function CheqDetails({ cheq }: Props) {
             value={cheq.formattedPayee}
             copyValue={!cheq.isPayer ? undefined : cheq.payee}
           />
-          {cheq.dueDate && (
+          {cheq.dueDate && cheq.isInvoice && (
             <DetailsRow title="Due Date" value={cheq.dueDate.toDateString()} />
           )}
           <DetailsRow
