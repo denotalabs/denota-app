@@ -29,7 +29,8 @@ contract DirectPay is ModuleBase {
         uint256 timestamp,
         address referer,
         address creditor,
-        address debtor
+        address debtor,
+        uint256 dueDate
     );
     error EscrowUnsupported();
     error AmountZero();
@@ -62,8 +63,9 @@ contract DirectPay is ModuleBase {
             uint256 amount, // Face value (for invoices)
             uint256 timestamp,
             address dappOperator,
-            string memory memoHash
-        ) = abi.decode(initData, (address, uint256, uint256, address, string));
+            string memory memoHash,
+            uint256 dueDate
+        ) = abi.decode(initData, (address, uint256, uint256, address, string, uint256));
         if (escrowed != 0) revert EscrowUnsupported();
         if (amount == 0) revert AmountZero(); // Removing this would allow user to send memos
 
@@ -94,26 +96,25 @@ contract DirectPay is ModuleBase {
         }
         revenue[dappOperator][currency] += moduleFee;
 
-        _logPaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
+        _logPaymentCreated(cheqId, dappOperator, dueDate);
 
         return moduleFee;
     }
 
     function _logPaymentCreated(
         uint256 cheqId,
-        string memory memoHash,
-        uint256 amount,
-        uint256 timestamp,
-        address referer
+        address referer,
+        uint256 dueDate
     ) private {
         emit PaymentCreated(
             cheqId,
-            memoHash,
-            amount,
-            timestamp,
+            payInfo[cheqId].memoHash,
+            payInfo[cheqId].amount,
+            payInfo[cheqId].timestamp,
             referer,
             payInfo[cheqId].creditor,
-            payInfo[cheqId].debtor
+            payInfo[cheqId].debtor,
+            dueDate
         );
     }
 

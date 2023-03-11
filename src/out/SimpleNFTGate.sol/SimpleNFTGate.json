@@ -1080,31 +1080,31 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/SimpleNFTGate.sol",
-    "id": 29604,
+    "id": 31779,
     "exportedSymbols": {
       "DataTypes": [
-        27038
+        29169
       ],
       "ICheqModule": [
-        26533
+        28624
       ],
       "ICheqRegistrar": [
-        26676
+        28767
       ],
       "ModuleBase": [
-        26110
+        28201
       ],
       "SimpleNFTGate": [
-        29603
+        31778
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:300:47",
+    "src": "37:300:56",
     "nodes": [
       {
-        "id": 29592,
+        "id": 31767,
         "nodeType": "PragmaDirective",
-        "src": "37:24:47",
+        "src": "37:24:56",
         "nodes": [],
         "literals": [
           "solidity",
@@ -1114,24 +1114,24 @@
         ]
       },
       {
-        "id": 29594,
+        "id": 31769,
         "nodeType": "ImportDirective",
-        "src": "63:45:47",
+        "src": "63:45:56",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 29604,
-        "sourceUnit": 26111,
+        "scope": 31779,
+        "sourceUnit": 28202,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 29593,
+              "id": 31768,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26110,
-              "src": "71:10:47",
+              "referencedDeclaration": 28201,
+              "src": "71:10:56",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1140,24 +1140,24 @@
         "unitAlias": ""
       },
       {
-        "id": 29596,
+        "id": 31771,
         "nodeType": "ImportDirective",
-        "src": "109:53:47",
+        "src": "109:53:56",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 29604,
-        "sourceUnit": 27039,
+        "scope": 31779,
+        "sourceUnit": 29170,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 29595,
+              "id": 31770,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27038,
-              "src": "117:9:47",
+              "referencedDeclaration": 29169,
+              "src": "117:9:56",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1166,24 +1166,24 @@
         "unitAlias": ""
       },
       {
-        "id": 29598,
+        "id": 31773,
         "nodeType": "ImportDirective",
-        "src": "163:58:47",
+        "src": "163:58:56",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 29604,
-        "sourceUnit": 26534,
+        "scope": 31779,
+        "sourceUnit": 28625,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 29597,
+              "id": 31772,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26533,
-              "src": "171:11:47",
+              "referencedDeclaration": 28624,
+              "src": "171:11:56",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1192,24 +1192,24 @@
         "unitAlias": ""
       },
       {
-        "id": 29600,
+        "id": 31775,
         "nodeType": "ImportDirective",
-        "src": "222:64:47",
+        "src": "222:64:56",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 29604,
-        "sourceUnit": 26677,
+        "scope": 31779,
+        "sourceUnit": 28768,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 29599,
+              "id": 31774,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26676,
-              "src": "230:14:47",
+              "referencedDeclaration": 28767,
+              "src": "230:14:56",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1218,26 +1218,26 @@
         "unitAlias": ""
       },
       {
-        "id": 29603,
+        "id": 31778,
         "nodeType": "ContractDefinition",
-        "src": "288:48:47",
+        "src": "288:48:56",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 29601,
+              "id": 31776,
               "name": "ModuleBase",
               "nameLocations": [
-                "323:10:47"
+                "323:10:56"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 26110,
-              "src": "323:10:47"
+              "referencedDeclaration": 28201,
+              "src": "323:10:56"
             },
-            "id": 29602,
+            "id": 31777,
             "nodeType": "InheritanceSpecifier",
-            "src": "323:10:47"
+            "src": "323:10:56"
           }
         ],
         "canonicalName": "SimpleNFTGate",
@@ -1245,19 +1245,19 @@
         "contractKind": "contract",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          29603,
-          26110,
-          26533
+          31778,
+          28201,
+          28624
         ],
         "name": "SimpleNFTGate",
-        "nameLocation": "306:13:47",
-        "scope": 29604,
+        "nameLocation": "306:13:56",
+        "scope": 31779,
         "usedErrors": [
-          27052
+          29183
         ]
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 47
+  "id": 56
 }
