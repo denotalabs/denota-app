@@ -1,14 +1,4 @@
-import { File } from "nft.storage";
-
-import mime from "mime";
-
-import fs from "fs";
-
-import path from "path";
-
 import express from "express";
-
-import bodyParser from "body-parser";
 
 import AWS from "aws-sdk";
 
@@ -17,8 +7,6 @@ import crypto from "crypto";
 import multer from "multer";
 
 import lighthouse from "@lighthouse-web3/sdk";
-
-const upload = multer();
 
 var s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -36,43 +24,11 @@ app.use(function (req, res, next) {
   next();
 });
 
-var jsonParser = bodyParser.json();
-
-async function storeS3(name, description) {
-  var obj = {
-    name,
-    description,
-  };
-
-  var buf = Buffer.from(JSON.stringify(obj));
-
-  const id = crypto.randomBytes(6).toString("hex");
-
-  const key = id + ".json";
-
-  var data = {
-    Bucket: "cheq-nft",
-    Key: key,
-    Body: buf,
-    ContentEncoding: "base64",
-    ContentType: "application/json",
-    ACL: "public-read",
-  };
-
-  try {
-    const stored = await s3.upload(data).promise();
-    return { url: "https://cheq-nft.s3-us-west-2.amazonaws.com/" + key, key };
-  } catch (err) {
-    console.log(err);
-    return undefined;
-  }
-}
-
-async function fileFromPath(filePath) {
-  const content = await fs.promises.readFile(filePath);
-  const type = mime.getType(filePath) ?? undefined;
-  return new File([content], path.basename(filePath), { type });
-}
+const upload = multer({
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB in bytes
+  },
+});
 
 const cpUpload = upload.fields([
   { name: "file", maxCount: 1 },

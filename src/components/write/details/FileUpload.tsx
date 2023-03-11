@@ -42,7 +42,7 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
     };
 
     const handleChange = (value: ChangeEvent<HTMLInputElement>) => {
-      if (value.target.files?.[0] && value.target.files?.[0].size < 1000000) {
+      if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
         setFileName(value.target.files?.[0].name);
         value.target.files && setValue(value.target.files?.[0]);
       } else {
