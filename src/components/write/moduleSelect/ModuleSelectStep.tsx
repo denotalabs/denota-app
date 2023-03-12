@@ -43,11 +43,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
                 appendFormData({
                   module: "direct",
                 });
-                if (isInvoice) {
-                  next?.();
-                } else {
-                  goToStep?.("confirm");
-                }
+                next?.();
               }}
             >
               Select

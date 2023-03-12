@@ -1,11 +1,12 @@
 import { Box } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
+import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useConfirmNota } from "../../../hooks/useConfirmNota";
 
 import RoundedButton from "../../designSystem/RoundedButton";
-import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
+import { ScreenProps } from "../../designSystem/stepper/Stepper";
 import ConfirmDetails from "./ConfirmDetails";
 import ConfirmNotice from "./ConfirmNotice";
 
@@ -15,10 +16,13 @@ interface Props extends ScreenProps {
 
 const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
   const { formData } = useNotaForm();
-  const { onClose } = useStep();
   const { needsApproval, approveAmount, writeNota } = useConfirmNota({
-    onSuccess: onClose,
+    onSuccess: () => {
+      router.push("/", undefined, { shallow: true });
+    },
   });
+
+  const router = useRouter();
 
   const buttonText = useMemo(() => {
     if (needsApproval) {

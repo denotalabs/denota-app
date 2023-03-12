@@ -84,59 +84,63 @@ export function ConfirmSidePane() {
       justifyContent="space-between"
       display={{ base: "none", md: "flex" }}
     >
-      <Box
-        w="285px"
-        h="180px"
-        bg="linear-gradient(180deg, #6E7C9A, #202C4F)"
-        borderRadius={20}
-        px={6}
-        pt={4}
-        pb={3}
-      >
-        <Flex
-          alignItems="flex-start"
-          flexDirection="column"
-          maxW="100%"
-          w="100%"
-          gap={2.5}
+      <VStack>
+        <Box
+          w="285px"
+          h="180px"
+          bg="linear-gradient(180deg, #6E7C9A, #202C4F)"
+          borderRadius={20}
+          px={6}
+          pt={4}
+          pb={3}
         >
-          <Text textOverflow="clip" noOfLines={1} fontSize="lg">
-            {createdLocaleDate}
-          </Text>
-
-          <HStack maxW="100%">
-            <Text
-              fontWeight={600}
-              fontSize={"xl"}
-              textOverflow="clip"
-              noOfLines={1}
-            >
-              {payer ?? "Payer"}
-            </Text>
-            <ArrowForwardIcon mx={2} />
-            <Text
-              fontWeight={600}
-              fontSize={"xl"}
-              textOverflow="clip"
-              noOfLines={1}
-            >
-              {payee ?? "Recipient"}
-            </Text>
-          </HStack>
-
-          <HStack>
-            <Text fontWeight={400} fontSize={"xl"} my={0}>
-              {formData.amount} DAI
+          <Flex
+            alignItems="flex-start"
+            flexDirection="column"
+            maxW="100%"
+            w="100%"
+            gap={2.5}
+          >
+            <Text textOverflow="clip" noOfLines={1} fontSize="lg">
+              {createdLocaleDate}
             </Text>
 
-            <CurrencyIcon
-              currency={(formData.token ?? "DAI") as CheqCurrency}
-            />
-          </HStack>
-        </Flex>
-      </Box>
+            <HStack maxW="100%">
+              <Text
+                fontWeight={600}
+                fontSize={"xl"}
+                textOverflow="clip"
+                noOfLines={1}
+              >
+                {payer ?? "Payer"}
+              </Text>
+              <ArrowForwardIcon mx={2} />
+              <Text
+                fontWeight={600}
+                fontSize={"xl"}
+                textOverflow="clip"
+                noOfLines={1}
+              >
+                {payee ?? "Recipient"}
+              </Text>
+            </HStack>
+
+            <HStack>
+              <Text fontWeight={400} fontSize={"xl"} my={0}>
+                {formData.amount} DAI
+              </Text>
+
+              <CurrencyIcon
+                currency={(formData.token ?? "DAI") as CheqCurrency}
+              />
+            </HStack>
+          </Flex>
+        </Box>
+        {isReady && <Text fontSize={"lg"}>Your nota is ready to send!</Text>}
+      </VStack>
+
       <RoundedButton
-        onSubmit={handleSubmit}
+        onClick={handleSubmit}
         isLoading={isLoading}
         isDisabled={!isReady}
         alignSelf="flex-end"
