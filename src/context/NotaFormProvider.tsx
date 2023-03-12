@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 export type StringMap = { [key: string]: string };
 
@@ -23,12 +23,12 @@ export const NotaFormProvider = ({
   const [formData, setFormData] = useState<StringMap>({});
   const [file, setFile] = useState<File | undefined>(undefined);
 
-  const appendFormData = (data: StringMap) => {
-    setFormData({
+  const appendFormData = useCallback((data: StringMap) => {
+    setFormData((formData) => ({
       ...formData,
       ...data,
-    });
-  };
+    }));
+  }, []);
 
   return (
     <NotaFormContext.Provider

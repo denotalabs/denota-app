@@ -13,6 +13,7 @@ function ConfirmDetails({ isInvoice }: Props) {
   const inspectionDays = useMemo(() => {
     return Number(formData.inspection) / 86400;
   }, [formData.inspection]);
+
   return (
     <RoundedBox p={6}>
       <VStack>

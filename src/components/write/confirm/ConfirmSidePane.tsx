@@ -1,15 +1,41 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import CurrencyIcon from "../../designSystem/CurrencyIcon";
+import { useFormatAddress } from "../../../hooks/useFormatAddress";
+import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedButton from "../../designSystem/RoundedButton";
 
 export function ConfirmSidePane() {
   const { formData } = useNotaForm();
+  const { formatAddress } = useFormatAddress();
+  const { blockchainState } = useBlockchainData();
+
   const createdLocaleDate = useMemo(() => {
     return new Date().toLocaleDateString();
   }, []);
+
+  const payer = useMemo(() => {
+    if (!formData.address) {
+      return undefined;
+    }
+    if (formData.mode === "invoice") {
+      return formatAddress(formData.address);
+    }
+    return formatAddress(blockchainState.account);
+  }, [blockchainState.account, formData.address, formData.mode, formatAddress]);
+
+  const payee = useMemo(() => {
+    if (!formData.address) {
+      return undefined;
+    }
+    if (formData.mode === "invoice") {
+      return formatAddress(blockchainState.account);
+    }
+    return formatAddress(formData.address);
+  }, [blockchainState.account, formData.address, formData.mode, formatAddress]);
+
   return (
     <VStack
       w="365px"
@@ -49,7 +75,7 @@ export function ConfirmSidePane() {
               textOverflow="clip"
               noOfLines={1}
             >
-              Payer
+              {payer ?? "Payer"}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -58,20 +84,24 @@ export function ConfirmSidePane() {
               textOverflow="clip"
               noOfLines={1}
             >
-              Payee
+              {payee ?? "Payee"}
             </Text>
           </HStack>
 
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
-              10000 DAI
+              {formData.amount} DAI
             </Text>
 
-            <CurrencyIcon currency="DAI" />
+            <CurrencyIcon
+              currency={(formData.token ?? "DAI") as CheqCurrency}
+            />
           </HStack>
         </Flex>
       </Box>
-      <RoundedButton alignSelf="flex-end">Submit</RoundedButton>
+      <RoundedButton isDisabled={true} alignSelf="flex-end">
+        Submit
+      </RoundedButton>
     </VStack>
   );
 }

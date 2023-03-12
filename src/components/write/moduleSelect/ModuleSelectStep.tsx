@@ -9,6 +9,7 @@ import {
   SimpleGrid,
   Text,
 } from "@chakra-ui/react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 
 interface Props extends ScreenProps {
@@ -16,7 +17,8 @@ interface Props extends ScreenProps {
 }
 
 const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
-  const { next, appendFormData, goToStep } = useStep();
+  const { next, goToStep } = useStep();
+  const { appendFormData } = useNotaForm();
 
   return (
     <Box w="100%" p={4}>

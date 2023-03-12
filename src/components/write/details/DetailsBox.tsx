@@ -1,4 +1,7 @@
 import { Flex, FormControl, FormLabel } from "@chakra-ui/react";
+import { useFormikContext } from "formik";
+import { useEffect } from "react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 
 import RoundedBox from "../../designSystem/RoundedBox";
 import AccountField from "../../fields/input/AccountField";
@@ -6,6 +9,7 @@ import AmountField from "../../fields/input/AmountField";
 import EmailField from "../../fields/input/EmailField";
 import NoteField from "../../fields/input/NoteField";
 import TagsField from "../../fields/input/TagsField";
+import { DetailsStepFormValues } from "./DetailsStep";
 import FileControl from "./FileUpload";
 import ModeSelect from "./ModeSelect";
 
@@ -16,6 +20,14 @@ interface Props {
 }
 
 function DetailsBox({ isInvoice, token, mode }: Props) {
+  const { values } = useFormikContext<DetailsStepFormValues>();
+  const { appendFormData } = useNotaForm();
+
+  useEffect(() => {
+    const { token, amount, address, mode } = values;
+    appendFormData({ token, amount: amount?.toString() ?? "", address, mode });
+  }, [appendFormData, values]);
+
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
