@@ -21,6 +21,7 @@ import { ReactNode, useEffect, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
   MdInfoOutline,
+  MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
   MdSwapHoriz,
@@ -43,7 +44,7 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/",
     isExternal: false,
   },
-  // { name: "Send", icon: MdOutlineSend, href: "/send", isExternal: false },
+  { name: "New Nota", icon: MdOutlineAdd, href: "/send", isExternal: false },
   {
     name: "Documentation",
     icon: MdOutlineDescription,
@@ -53,13 +54,6 @@ const LinkItems: Array<LinkItemProps> = [
   { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
-
-interface SocialItemsProps {
-  icon: IconType;
-  href: string;
-}
-
-const socialItems: Array<SocialItemsProps> = [];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
