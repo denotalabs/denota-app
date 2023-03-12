@@ -21,11 +21,11 @@ export default function TagsField({ fieldName, placeholder }: Props) {
     >
       {({ field, form: { errors, touched } }: any) => (
         <FormControl isInvalid={errors.name && touched.name}>
-          <FormLabel mb={0} noOfLines={1} flexShrink={0}>
+          <FormLabel noOfLines={1} flexShrink={0}>
             Tags
           </FormLabel>
           <FormHelperText mt={0} mb={2}>
-            <Text as="i">Add tags separated by commas (optional)</Text>
+            <Text as="i">Add tags separated by commas</Text>
           </FormHelperText>{" "}
           <Input {...field} />
           <FormErrorMessage>{errors.name}</FormErrorMessage>

@@ -6,11 +6,7 @@ import { useNotaForm } from "../../../context/NotaFormProvider";
 import RoundedBox from "../../designSystem/RoundedBox";
 import AccountField from "../../fields/input/AccountField";
 import AmountField from "../../fields/input/AmountField";
-import EmailField from "../../fields/input/EmailField";
-import NoteField from "../../fields/input/NoteField";
-import TagsField from "../../fields/input/TagsField";
 import { DetailsStepFormValues } from "./DetailsStep";
-import FileControl from "./FileUpload";
 import ModeSelect from "./ModeSelect";
 
 interface Props {
@@ -25,11 +21,16 @@ function DetailsBox({ isInvoice, token, mode }: Props) {
 
   useEffect(() => {
     const { token, amount, address, mode } = values;
-    appendFormData({ token, amount: amount?.toString() ?? "", address, mode });
+    appendFormData({
+      token,
+      amount: amount ? String(Number(amount)) : "",
+      address,
+      mode,
+    });
   }, [appendFormData, values]);
 
   return (
-    <RoundedBox padding={4}>
+    <RoundedBox p={4} pb={6}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
         <FormControl
           alignItems={"center"}
@@ -51,26 +52,6 @@ function DetailsBox({ isInvoice, token, mode }: Props) {
             <AmountField token={token} mode={mode} />
           </FormControl>
           <AccountField fieldName="address" placeholder="0x" />
-        </Flex>
-        <EmailField fieldName="email" placeholder="" />
-        <TagsField fieldName="tags" placeholder="" />
-        <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          flexShrink={0}
-          flexGrow={1}
-          maxW="100%"
-        >
-          <NoteField fieldName="note" />
-        </Flex>
-        <Flex
-          alignItems="center"
-          justifyContent="space-between"
-          flexShrink={0}
-          flexGrow={1}
-          maxW="100%"
-        >
-          <FileControl name="file" />
         </Flex>
       </Flex>
     </RoundedBox>

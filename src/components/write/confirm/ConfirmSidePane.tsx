@@ -1,8 +1,10 @@
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import { useConfirmNota } from "../../../hooks/useConfirmNota";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
 import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedButton from "../../designSystem/RoundedButton";
@@ -11,6 +13,40 @@ export function ConfirmSidePane() {
   const { formData } = useNotaForm();
   const { formatAddress } = useFormatAddress();
   const { blockchainState } = useBlockchainData();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const { needsApproval, approveAmount, writeNota } = useConfirmNota({
+    onSuccess: () => {
+      router.push("/", undefined, { shallow: true });
+    },
+  });
+
+  const isReady = useMemo(() => {
+    return (
+      formData.address && formData.amount && formData.token && formData.dueDate
+    );
+  }, [formData.address, formData.amount, formData.dueDate, formData.token]);
+
+  const buttonText = useMemo(() => {
+    if (needsApproval) {
+      return "Approve " + formData.token;
+    }
+    return formData.mode === "invoice" ? "Create Invoice" : "Confirm Payment";
+  }, [formData.mode, formData.token, needsApproval]);
+
+  const handleSubmit = useCallback(async () => {
+    setIsLoading(true);
+
+    if (needsApproval) {
+      await approveAmount();
+      setIsLoading(false);
+    } else {
+      await writeNota();
+      setIsLoading(false);
+    }
+  }, [approveAmount, needsApproval, writeNota]);
 
   const createdLocaleDate = useMemo(() => {
     return new Date().toLocaleDateString();
@@ -84,7 +120,7 @@ export function ConfirmSidePane() {
               textOverflow="clip"
               noOfLines={1}
             >
-              {payee ?? "Payee"}
+              {payee ?? "Recipient"}
             </Text>
           </HStack>
 
@@ -99,8 +135,13 @@ export function ConfirmSidePane() {
           </HStack>
         </Flex>
       </Box>
-      <RoundedButton isDisabled={true} alignSelf="flex-end">
-        Submit
+      <RoundedButton
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+        isDisabled={!isReady}
+        alignSelf="flex-end"
+      >
+        {buttonText}
       </RoundedButton>
     </VStack>
   );

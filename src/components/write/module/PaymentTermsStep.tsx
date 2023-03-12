@@ -10,6 +10,12 @@ interface Props extends ScreenProps {
   isInvoice: boolean;
 }
 
+export type PaymentTermsFormValues = {
+  inspection: number;
+  module: string;
+  dueDate: string;
+};
+
 const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
   const { next } = useStep();
   const { appendFormData, formData } = useNotaForm();
@@ -43,7 +49,12 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
         {(props) => (
           <Form>
             <ModuleTerms module={props.values.module} isInvoice={isInvoice} />
-            <RoundedButton type="submit">{"Next"}</RoundedButton>
+            <RoundedButton
+              display={{ base: "block", md: "none" }}
+              type="submit"
+            >
+              {"Next"}
+            </RoundedButton>
           </Form>
         )}
       </Formik>
