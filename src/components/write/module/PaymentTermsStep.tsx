@@ -1,6 +1,7 @@
 import { Box } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useMemo } from "react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ModuleTerms from "./ModuleTerms";
@@ -10,7 +11,8 @@ interface Props extends ScreenProps {
 }
 
 const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
-  const { next, appendFormData, formData } = useStep();
+  const { next } = useStep();
+  const { appendFormData, formData } = useNotaForm();
 
   const currentDate = useMemo(() => {
     const d = new Date();

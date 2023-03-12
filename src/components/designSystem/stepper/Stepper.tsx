@@ -5,12 +5,8 @@ import {
   useContext,
   useMemo,
   useReducer,
-  useState,
 } from "react";
-import StepperContext, {
-  StepperReducerInterface,
-  StringMap,
-} from "./StepperContext";
+import StepperContext, { StepperReducerInterface } from "./StepperContext";
 import StepperHeader from "./StepperHeader";
 
 interface StepperProps {
@@ -73,8 +69,6 @@ function Stepper({ children, onClose }: StepperProps) {
     currentScreen,
     allScreens,
   });
-  const [formData, setFormData] = useState<StringMap>({});
-  const [file, setFile] = useState<File | undefined>(undefined);
 
   const next = () => {
     dispatch({ type: StepperActionKind.NEXT });
@@ -84,12 +78,6 @@ function Stepper({ children, onClose }: StepperProps) {
   };
   const goToStep = (screenKey: string) => {
     dispatch({ type: StepperActionKind.SET_SCREEN, screenKey });
-  };
-  const appendFormData = (data: StringMap) => {
-    setFormData({
-      ...formData,
-      ...data,
-    });
   };
 
   const screenTitle = useMemo(() => {
@@ -103,10 +91,6 @@ function Stepper({ children, onClose }: StepperProps) {
         back,
         goToStep,
         onClose,
-        formData,
-        appendFormData,
-        file,
-        setFile,
       }}
     >
       <StepperHeader

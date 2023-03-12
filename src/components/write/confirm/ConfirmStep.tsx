@@ -4,6 +4,7 @@ import { Form, Formik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useCheqContext } from "../../../context/CheqsContext";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useDirectPay } from "../../../hooks/modules/useDirectPay";
 import { useEmail } from "../../../hooks/useEmail";
 
@@ -19,7 +20,8 @@ interface Props extends ScreenProps {
 const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
   const toast = useToast();
 
-  const { onClose, formData } = useStep();
+  const { onClose } = useStep();
+  const { formData } = useNotaForm();
   const { blockchainState } = useBlockchainData();
 
   const [needsApproval, setNeedsApproval] = useState(formData.mode === "pay");

@@ -1,6 +1,7 @@
 import { Box, Checkbox, Link, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useState } from "react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useUploadNote } from "../../../hooks/useUploadNote";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
@@ -13,7 +14,8 @@ interface Props extends ScreenProps {
 }
 
 const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
-  const { next, appendFormData, formData, file, setFile } = useStep();
+  const { next } = useStep();
+  const { appendFormData, formData, file, setFile } = useNotaForm();
   const { uploadFile } = useUploadNote();
   const [hasConsented, setHasConsented] = useState(true);
   const toast = useToast();
