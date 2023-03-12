@@ -13,6 +13,17 @@ interface Props extends ScreenProps {
   isInvoice: boolean;
 }
 
+export type DetailsStepFormValues = {
+  token: string;
+  amount: number | undefined;
+  address: string;
+  note: string;
+  mode: string;
+  email: string;
+  file: File | undefined;
+  tags: string;
+};
+
 const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
   const { next } = useStep();
   const { appendFormData, formData, file, setFile } = useNotaForm();
