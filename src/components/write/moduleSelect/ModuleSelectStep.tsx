@@ -58,7 +58,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
             <Text>Funds are held in escrow until released by the payer </Text>
           </CardBody>
           <CardFooter>
-            <Button>Select</Button>
+            <Button isDisabled>Coming Soon</Button>
           </CardFooter>
         </Card>
         <Card>
