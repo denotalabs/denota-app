@@ -48,6 +48,7 @@ app.post("/", jsonParser, async (req, res) => {
     }
 
     if (provider) {
+      const tx = await provider.getTransaction(txHash);
       if (tx.to === registrar) {
         const sender = tx.from.slice(0, 5) + "..." + tx.from.slice(-4);
 
@@ -80,14 +81,11 @@ app.post("/", jsonParser, async (req, res) => {
     } else {
       res.status(500).send("Error: can't connect to provider");
     }
-
-    const tx = await provider.getTransaction(txHash);
   } catch (error) {
     res.status(500).send("Error: " + error);
   }
 });
 
 app.listen(port, function () {
-  console.log(chainInfo.mumbai.registrar);
   console.log("Server listening on port " + port);
 });
