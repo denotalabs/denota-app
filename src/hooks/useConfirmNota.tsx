@@ -21,8 +21,16 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { sendEmail } = useEmail();
   const [needsApproval, setNeedsApproval] = useState(formData.mode === "pay");
 
-  const token =
-    formData.token == "DAI" ? blockchainState.dai : blockchainState.weth;
+  const token = useMemo(() => {
+    switch (formData.token) {
+      case "DAI":
+        return blockchainState.dai;
+      case "WETH":
+        return blockchainState.weth;
+      default:
+        return null;
+    }
+  }, [blockchainState.dai, blockchainState.weth, formData.token]);
 
   const amountWei = useMemo(() => {
     if (!formData.amount) {
@@ -55,6 +63,9 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
   useEffect(() => {
     const fetchAllowance = async () => {
+      if (token === null) {
+        setNeedsApproval(false);
+      }
       const tokenAllowance = await token?.functions.allowance(
         blockchainState.account,
         blockchainState.cheqAddress
@@ -73,6 +84,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     blockchainState.account,
     blockchainState.cheqAddress,
     formData.mode,
+    token,
     token?.functions,
   ]);
 
