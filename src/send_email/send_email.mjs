@@ -37,7 +37,7 @@ app.post("/", jsonParser, async (req, res) => {
         "https://rpc-mumbai.maticvigil.com"
       );
     }
-    if (network === "0x13881") {
+    if (network === "0xaef3") {
       provider = new ethers.providers.JsonRpcProvider(
         "https://alfajores-forno.celo-testnet.org"
       );
@@ -66,7 +66,7 @@ app.post("/", jsonParser, async (req, res) => {
             console.log(error);
             res.status(500).send("Error: " + error);
           } else {
-            console.log("Email sent: " + info.response);
+            // console.log("Email sent: " + info.response);
             res.send("Email sent!");
           }
         });
