@@ -126,7 +126,7 @@ export function ConfirmSidePane() {
 
             <HStack>
               <Text fontWeight={400} fontSize={"xl"} my={0}>
-                {formData.amount} DAI
+                {formData.amount} {formData.token}
               </Text>
 
               <CurrencyIcon
