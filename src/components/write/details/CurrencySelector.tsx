@@ -4,13 +4,14 @@ import {
   FormErrorMessage,
   FormLabel,
   HStack,
+  Text,
   useRadio,
   useRadioGroup,
   UseRadioProps,
-  Text,
 } from "@chakra-ui/react";
 import { Field } from "formik";
 import { ReactNode } from "react";
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedBox from "../../designSystem/RoundedBox";
 
@@ -43,7 +44,9 @@ function CurrencySelectorInner({
   setFieldValue,
   value,
 }: CurrencySelectorInnerProps) {
-  const options: CheqCurrency[] = ["DAI", "WETH"];
+  const options: CheqCurrency[] = ["NATIVE", "DAI", "WETH"];
+
+  const { blockchainState } = useBlockchainData();
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "framework",
@@ -63,7 +66,9 @@ function CurrencySelectorInner({
             <HStack>
               <CurrencyIcon currency={value} />
               <Text fontSize="sm" textAlign="center">
-                {value}
+                {value === "NATIVE"
+                  ? blockchainState.nativeCurrenySymbol
+                  : value}
               </Text>
             </HStack>
           </RadioCard>

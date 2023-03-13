@@ -42,6 +42,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         return blockchainState.dai?.address ?? "";
       case "WETH":
         return blockchainState.weth?.address ?? "";
+      case "NATIVE":
+        return "0x0000000000000000000000000000000000000000";
       default:
         return "";
     }

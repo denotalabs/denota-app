@@ -32,10 +32,12 @@ interface BlockchainDataInterface {
   userWethBalance: string;
   cheq: null | ethers.Contract;
   directPayAddress: string;
+  escrowAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
   chainId: string;
   graphUrl: string;
+  nativeCurrenySymbol: string;
 }
 
 interface BlockchainDataContextInterface {
@@ -60,6 +62,8 @@ const defaultBlockchainState = {
   directPayAddress: "",
   chainId: "",
   graphUrl: "",
+  escrowAddress: "",
+  nativeCurrenySymbol: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -165,6 +169,8 @@ export const BlockchainDataProvider = memo(
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl,
+            escrowAddress: contractMapping.escrow,
+            nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
           });
           setIsInitializing(false);
         }

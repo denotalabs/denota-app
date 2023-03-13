@@ -5,11 +5,6 @@ import {
   FormLabel,
   Radio,
   RadioGroup,
-  Slider,
-  SliderFilledTrack,
-  SliderMark,
-  SliderThumb,
-  SliderTrack,
   Stack,
   Tooltip,
 } from "@chakra-ui/react";
@@ -23,51 +18,6 @@ export function EscrowTerms() {
   const [value, setValue] = useState("1");
   return (
     <Flex flexWrap={"wrap"} direction={"column"} gap={"18px"}>
-      <FormLabel noOfLines={1} flexShrink={0}>
-        Down payment amount
-        <Tooltip
-          label="The minimum payment required to start work"
-          aria-label="module tooltip"
-          placement="right"
-        >
-          <QuestionOutlineIcon ml={2} mb={1} />
-        </Tooltip>
-      </FormLabel>
-      <Slider
-        id="slider"
-        defaultValue={100}
-        min={0}
-        max={100}
-        onChange={(v) => setSliderValue(v)}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        color="brand.200"
-        ringColor="brand.200"
-        w="95%"
-      >
-        <SliderMark value={0} mt="1" fontSize="sm">
-          0%
-        </SliderMark>
-        <SliderMark value={50} mt="1" ml="-2.5" fontSize="sm">
-          50%
-        </SliderMark>
-        <SliderMark value={100} mt="1" ml="-2.5" fontSize="sm">
-          100%
-        </SliderMark>
-        <SliderTrack bg="brand.300">
-          <SliderFilledTrack bg="brand.200" />
-        </SliderTrack>
-        <Tooltip
-          hasArrow
-          bg="brand.200"
-          color="white"
-          placement="top"
-          isOpen={showTooltip}
-          label={`${sliderValue}%`}
-        >
-          <SliderThumb />
-        </Tooltip>
-      </Slider>
       <FormControl mt={5}>
         <FormLabel noOfLines={1} flexShrink={0}>
           Inspection Period

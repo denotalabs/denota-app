@@ -58,7 +58,16 @@ const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
             <Text>Funds are held in escrow until released by the payer </Text>
           </CardBody>
           <CardFooter>
-            <Button isDisabled>Coming Soon</Button>
+            <Button
+              onClick={() => {
+                appendFormData({
+                  module: "escrow",
+                });
+                next?.();
+              }}
+            >
+              Select
+            </Button>
           </CardFooter>
         </Card>
         <Card>
