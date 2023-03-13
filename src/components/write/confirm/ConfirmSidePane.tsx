@@ -24,10 +24,28 @@ export function ConfirmSidePane() {
   });
 
   const isReady = useMemo(() => {
-    return (
-      formData.address && formData.amount && formData.token && formData.dueDate
-    );
-  }, [formData.address, formData.amount, formData.dueDate, formData.token]);
+    if (!formData.module) {
+      return false;
+    }
+
+    switch (formData.module) {
+      case "direct":
+        return (
+          formData.address &&
+          formData.amount &&
+          formData.token &&
+          formData.dueDate
+        );
+      case "escrow":
+        return false;
+    }
+  }, [
+    formData.address,
+    formData.amount,
+    formData.dueDate,
+    formData.module,
+    formData.token,
+  ]);
 
   const buttonText = useMemo(() => {
     if (needsApproval) {

@@ -5,6 +5,7 @@ import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useCheqContext } from "../context/CheqsContext";
 import { useNotaForm } from "../context/NotaFormProvider";
 import { useDirectPay } from "./modules/useDirectPay";
+import { useEscrow } from "./modules/useEscrow";
 import { useEmail } from "./useEmail";
 
 interface Props {
@@ -75,6 +76,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
   const { writeCheq: writeDirectPayCheq } = useDirectPay();
 
+  const { writeCheq: writeEscrowCheq } = useEscrow();
+
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete
     // To enable:
@@ -117,6 +120,17 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               isInvoice: formData.mode === "invoice",
             });
             break;
+          case "escrow":
+            txHash = await writeEscrowCheq({
+              tokenAddress,
+              amountWei,
+              address: formData.address,
+              escrowedWei,
+              noteKey: formData.noteKey,
+              isInvoice: formData.mode === "invoice",
+            });
+            break;
+
           default:
             break;
         }
@@ -176,6 +190,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     token?.functions,
     tokenAddress,
     writeDirectPayCheq,
+    writeEscrowCheq,
   ]);
 
   return { needsApproval, approveAmount, writeNota };
