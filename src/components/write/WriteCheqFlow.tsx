@@ -1,4 +1,4 @@
-import { HStack, useBreakpointValue, VStack } from "@chakra-ui/react";
+import { HStack, VStack } from "@chakra-ui/react";
 import { NotaFormProvider } from "../../context/NotaFormProvider";
 import Stepper from "../designSystem/stepper/Stepper";
 import { ConfirmSidePane } from "./confirm/ConfirmSidePane";
@@ -14,16 +14,6 @@ interface Props {
 }
 
 export function WriteCheqFlow({ onClose, isInvoice }: Props) {
-  const isMobile = useBreakpointValue({ base: true, md: false });
-
-  // if (isMobile) {
-  //   return (
-  //     <VStack mt={5} bg="brand.100" py={2} px={4} borderRadius="30px">
-  //       <WriteCheqStepper onClose={onClose} isInvoice={isInvoice} />
-  //     </VStack>
-  //   );
-  // }
-
   return (
     <NotaFormProvider>
       <VStack
