@@ -45,13 +45,13 @@ const LinkItems: Array<LinkItemProps> = [
     isExternal: false,
   },
   { name: "New Nota", icon: MdOutlineAdd, href: "/send", isExternal: false },
+  { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
     name: "Documentation",
     icon: MdOutlineDescription,
     href: "https://cheq-finance.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80",
     isExternal: true,
   },
-  { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
 
