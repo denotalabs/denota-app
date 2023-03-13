@@ -6,7 +6,7 @@ import nodemailer from "nodemailer";
 import chainInfo from "../../contractAddresses.json" assert { type: "json" };
 
 const app = express();
-const port = 3001;
+const port = 6001;
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
