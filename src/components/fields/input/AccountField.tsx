@@ -20,7 +20,9 @@ function AccountField({ fieldName, placeholder }: Props) {
   const [hasStarted, setHasStarted] = useState(false);
 
   function validateAddress(value: string) {
-    setHasStarted(true);
+    if (value !== "") {
+      setHasStarted(true);
+    }
 
     let error;
     if (blockchainState.account === value) {
@@ -36,7 +38,9 @@ function AccountField({ fieldName, placeholder }: Props) {
     <Field name={fieldName} validate={validateAddress}>
       {({ field, form: { errors, touched } }: any) => {
         return (
-          <FormControl isInvalid={errors.address && hasStarted}>
+          <FormControl
+            isInvalid={errors.address && (touched.address || hasStarted)}
+          >
             <FormLabel noOfLines={1} flexShrink={0}>
               Client Address
             </FormLabel>

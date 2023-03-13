@@ -21,6 +21,7 @@ import { ReactNode, useEffect, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
   MdInfoOutline,
+  MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
   MdSwapHoriz,
@@ -43,6 +44,7 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/",
     isExternal: false,
   },
+  { name: "New Nota", icon: MdOutlineAdd, href: "/send", isExternal: false },
   {
     name: "Documentation",
     icon: MdOutlineDescription,
@@ -55,6 +57,7 @@ const LinkItems: Array<LinkItemProps> = [
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box minH="100vh">
       <SidebarContent
@@ -121,7 +124,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
           </Flex>
           <VStack gap={3} alignItems="flex-start">
             {LinkItems.map((link) => (
-              <NavItem key={link.name} {...link}>
+              <NavItem key={link.name} onClose={onClose} {...link}>
                 <Text fontSize="lg">{link.name}</Text>
               </NavItem>
             ))}
@@ -170,12 +173,14 @@ interface NavItemProps extends FlexProps {
   href: string;
   isExternal: boolean;
   children?: ReactNode;
+  onClose: () => void;
 }
 const NavItem = ({
   icon,
   children,
   href,
   isExternal,
+  onClose,
   ...rest
 }: NavItemProps) => {
   const router = useRouter();
@@ -195,6 +200,7 @@ const NavItem = ({
           ? undefined
           : () => {
               router.push(href, undefined, { shallow: true });
+              onClose();
             }
       }
       href={isExternal ? href : undefined}

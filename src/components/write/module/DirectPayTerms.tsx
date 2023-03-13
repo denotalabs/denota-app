@@ -8,13 +8,23 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import { Field } from "formik";
+import { Field, useFormikContext } from "formik";
+import { useEffect } from "react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
+import { PaymentTermsFormValues } from "./PaymentTermsStep";
 
 interface Props {
   isInvoice: boolean;
 }
 
 export function DirectPayTerms({ isInvoice }: Props) {
+  const { values } = useFormikContext<PaymentTermsFormValues>();
+  const { appendFormData } = useNotaForm();
+
+  useEffect(() => {
+    appendFormData({ dueDate: values.dueDate });
+  }, [appendFormData, values.dueDate]);
+
   return (
     <Flex flexWrap={"wrap"} direction={"column"}>
       <Text fontSize="lg" mb={5} fontWeight={600}>

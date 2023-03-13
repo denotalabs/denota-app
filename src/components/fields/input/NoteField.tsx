@@ -5,7 +5,6 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { Field } from "formik";
-import OptionalFieldHelperText from "./OptionFieldHelperText";
 
 interface Props {
   fieldName: string;
@@ -19,8 +18,7 @@ function NoteField({ fieldName }: Props) {
     >
       {({ field, form: { errors, touched } }: any) => (
         <FormControl isInvalid={errors.name && touched.name}>
-          <FormLabel mb={0}>Notes</FormLabel>
-          <OptionalFieldHelperText />
+          <FormLabel>Notes</FormLabel>
           <Textarea {...field} />
           <FormHelperText>
             Notes are uploaded to IPFS. Please don't include sensitive data
