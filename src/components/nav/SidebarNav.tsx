@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
   MdInfoOutline,
@@ -184,10 +184,6 @@ const NavItem = ({
   ...rest
 }: NavItemProps) => {
   const router = useRouter();
-
-  useEffect(() => {
-    router.prefetch("/send");
-  }, [router]);
 
   const isSelected = useMemo(() => {
     return router.pathname === href;

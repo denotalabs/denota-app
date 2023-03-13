@@ -16,16 +16,26 @@ interface Props {
 export function WriteCheqFlow({ onClose, isInvoice }: Props) {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  if (isMobile) {
-    return (
-      <VStack mt={5} bg="brand.100" py={2} px={4} borderRadius="30px">
-        <WriteCheqStepper onClose={onClose} isInvoice={isInvoice} />
-      </VStack>
-    );
-  }
+  // if (isMobile) {
+  //   return (
+  //     <VStack mt={5} bg="brand.100" py={2} px={4} borderRadius="30px">
+  //       <WriteCheqStepper onClose={onClose} isInvoice={isInvoice} />
+  //     </VStack>
+  //   );
+  // }
 
   return (
     <NotaFormProvider>
+      <VStack
+        mt={5}
+        bg="brand.100"
+        py={2}
+        px={4}
+        borderRadius="30px"
+        display={{ base: "flex", md: "none" }}
+      >
+        <WriteCheqStepper onClose={onClose} isInvoice={isInvoice} />
+      </VStack>
       <HStack
         justifyContent="center"
         alignItems="start"
@@ -33,6 +43,7 @@ export function WriteCheqFlow({ onClose, isInvoice }: Props) {
         px={10}
         h="100%"
         gap={10}
+        display={{ base: "none", md: "flex" }}
       >
         <VStack w="650px" bg="brand.100" py={2} px={4} borderRadius="30px">
           <WriteCheqStepper onClose={onClose} isInvoice={isInvoice} />

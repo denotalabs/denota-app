@@ -82,7 +82,6 @@ export function ConfirmSidePane() {
       h="90vh"
       pt={10}
       justifyContent="space-between"
-      display={{ base: "none", md: "flex" }}
     >
       <VStack>
         <Box
