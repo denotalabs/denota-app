@@ -6,21 +6,7 @@ import NoteField from "../../fields/input/NoteField";
 import TagsField from "../../fields/input/TagsField";
 import FileControl from "./FileUpload";
 
-interface Props {
-  isInvoice: boolean;
-  token: string;
-  mode: string;
-}
-
-function DetailsBox() {
-  // const { values } = useFormikContext<MetadataStepFormValues>();
-  // const { appendFormData } = useNotaForm();
-
-  // // useEffect(() => {
-  // //   const { token, amount, address, mode } = values;
-  // //   appendFormData({ token, amount: amount?.toString() ?? "", address, mode });
-  // // }, [appendFormData, values]);
-
+function MetadataBox() {
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
@@ -49,4 +35,4 @@ function DetailsBox() {
   );
 }
 
-export default DetailsBox;
+export default MetadataBox;
