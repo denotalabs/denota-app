@@ -29,44 +29,55 @@ app.post("/", jsonParser, async (req, res) => {
       },
     });
 
-    const { email, txHash, token, amount, isInvoice } = req.body;
+    const { email, txHash, token, amount, isInvoice, network } = req.body;
 
-    // TODO: handle other chains
-    const provider = new ethers.providers.JsonRpcProvider(
-      "https://rpc-mumbai.maticvigil.com"
-    );
+    let provider;
+    if (network === "0x13881") {
+      provider = new ethers.providers.JsonRpcProvider(
+        "https://rpc-mumbai.maticvigil.com"
+      );
+    }
+    if (network === "0x13881") {
+      provider = new ethers.providers.JsonRpcProvider(
+        "https://alfajores-forno.celo-testnet.org"
+      );
+    }
+
+    if (provider) {
+      if (tx.to === registrar) {
+        const sender = tx.from.slice(0, 5) + "..." + tx.from.slice(-4);
+
+        const notaType = req.body.isInvoice ? "an invoice" : "a payment";
+
+        const notaDescription = isInvoice
+          ? `${sender} requests ${amount} ${token}.`
+          : `${sender} paid you ${amount} ${token}.`;
+
+        // TODO: add Denota logo/branding
+        const mailOptions = {
+          from: "denotatest@gmail.com",
+          to: email,
+          subject: `You received ${notaType}`,
+          html: `<h3>Hola from Denota!</h3><p>${notaDescription} Visit app.denota.xyz for more details</p>`,
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+            res.status(500).send("Error: " + error);
+          } else {
+            console.log("Email sent: " + info.response);
+            res.send("Email sent!");
+          }
+        });
+      } else {
+        res.status(400).send("Wrong contract address");
+      }
+    } else {
+      res.status(500).send("Error: can't connect to provider");
+    }
 
     const tx = await provider.getTransaction(txHash);
-
-    if (tx.to === registrar) {
-      const sender = tx.from.slice(0, 5) + "..." + tx.from.slice(-4);
-
-      const notaType = req.body.isInvoice ? "an invoice" : "a payment";
-
-      const notaDescription = isInvoice
-        ? `${sender} requests ${amount} ${token}.`
-        : `${sender} paid you ${amount} ${token}.`;
-
-      // TODO: add Denota logo/branding
-      const mailOptions = {
-        from: "denotatest@gmail.com",
-        to: email,
-        subject: `You received ${notaType}`,
-        html: `<h3>Hola from Denota!</h3><p>${notaDescription} Visit app.denota.xyz for more details</p>`,
-      };
-
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          console.log(error);
-          res.status(500).send("Error: " + error);
-        } else {
-          console.log("Email sent: " + info.response);
-          res.send("Email sent!");
-        }
-      });
-    } else {
-      res.status(400).send("Wrong contract address");
-    }
   } catch (error) {
     res.status(500).send("Error: " + error);
   }

@@ -122,15 +122,15 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         }
 
         if (txHash && formData.email) {
-          await sendEmail(
-            formData.email,
+          await sendEmail({
+            email: formData.email,
             txHash,
-            blockchainState.chainId,
-            formData.token,
-            formData.amount,
-            "direct",
-            formData.mode === "invoice"
-          );
+            network: blockchainState.chainId,
+            token: formData.token,
+            amount: formData.amount,
+            module: "direct",
+            isInvoice: formData.mode === "invoice",
+          });
         }
 
         const message =
