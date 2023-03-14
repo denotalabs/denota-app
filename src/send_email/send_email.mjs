@@ -68,20 +68,23 @@ app.post("/", jsonParser, async (req, res) => {
 
         transporter.sendMail(mailOptions, function (error, info) {
           if (error) {
-            console.log(error);
+            console.log("Error: ", error);
             res.status(500).send("Error: " + error);
           } else {
-            // console.log("Email sent: " + info.response);
+            console.log("Email sent: " + info.response);
             res.send("Email sent!");
           }
         });
       } else {
+	console.log("Wrong contract address");      
         res.status(400).send("Wrong contract address");
       }
     } else {
+      console.log("Can't connect to provider");
       res.status(500).send("Error: can't connect to provider");
     }
   } catch (error) {
+    console.log("Error: ", error);
     res.status(500).send("Error: " + error);
   }
 });
