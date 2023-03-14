@@ -102,7 +102,7 @@ contract SimpleTimelock is ModuleBase {
         uint256 tokenId
     ) external view override returns (string memory) {
         return
-            bytes(__URI).length > 0
+            bytes(_URI).length > 0
                 ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
                 : "";
     }

@@ -483,7 +483,7 @@
     "revenue(address,address)": "9a0ea37a",
     "withdrawFees(address)": "164e68de"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"InitParamsInvalid\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"REGISTRAR\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_URI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processApproval\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processCash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processFund\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"processTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"processTransfer\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processWrite\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"revenue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"withdrawFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"allows the owner to update the URI and memo hash (if they escrow more money?)\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/ToyModules.sol\":\"URIUpdater\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x3b182d2c288f2c753e0ea97b1f97e521c2ea9e919d0a6272927b7c78a7090009\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d632633a15647e9156dccd68a7a9f45d4e52a9636ccb2cdc950ec636ca7c8521\",\"dweb:/ipfs/QmUH6ueQfKgZV1bDichzSnEETs5oprw6x6m5H4gax6RnJY\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0xe3036d449455216c52bfe063a3b22829b65acc1e85039fa6984da064ca33ce8b\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c869e38b1c5f31c0821e7f009c641fef0320817a9e98c5d7803a05f3e4810372\",\"dweb:/ipfs/QmRFAYBcf3tCSMQDbkCe5JdAhWcmHS787SRJH9BmEDGJxN\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0x4ca73c6874eb9eed1335a86f40e81fd486027be6387d98ebb36d2b5790259908\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://fd1b2dd500d373ad7157c8d3ec7c9376ced483b3c030af24ef724506d22a4b6a\",\"dweb:/ipfs/QmSEkocmfxpb4b9xxWAyhHhNKRgYzCJkZtELnVtuhnkQXF\"]},\"src/contracts/modules/ToyModules.sol\":{\"keccak256\":\"0x252b2838d5886baf97c78a092d40b35c69f604cf79422b3cb7a140dd0cf64649\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://472cc038373cf2218895688abc4355f1965ef839d9d60d7609dc38de76ece46f\",\"dweb:/ipfs/QmdHDJZ6bGmNkwXPZxvp1k4dW8kuDTiUYZaN3kbVFxBXh1\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"InitParamsInvalid\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"REGISTRAR\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_URI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processApproval\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processCash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processFund\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"processTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"processTransfer\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processWrite\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"revenue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"withdrawFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"allows the owner to update the URI and memo hash (if they escrow more money?)\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/ToyModules.sol\":\"URIUpdater\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x2231e181efdc7688c23f5bb401bd90352d9d3d6017d1d95fd99e617ca03dd439\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://cd8f52568a07a8ccac2355ab338ef8368a6e6a41482da48e1829177181423b41\",\"dweb:/ipfs/QmRymMBZji5HZSNYQqSNxft31HvjF3P2x1ZYp8m9qLRa5S\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0xe3036d449455216c52bfe063a3b22829b65acc1e85039fa6984da064ca33ce8b\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c869e38b1c5f31c0821e7f009c641fef0320817a9e98c5d7803a05f3e4810372\",\"dweb:/ipfs/QmRFAYBcf3tCSMQDbkCe5JdAhWcmHS787SRJH9BmEDGJxN\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0x4ca73c6874eb9eed1335a86f40e81fd486027be6387d98ebb36d2b5790259908\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://fd1b2dd500d373ad7157c8d3ec7c9376ced483b3c030af24ef724506d22a4b6a\",\"dweb:/ipfs/QmSEkocmfxpb4b9xxWAyhHhNKRgYzCJkZtELnVtuhnkQXF\"]},\"src/contracts/modules/ToyModules.sol\":{\"keccak256\":\"0x252b2838d5886baf97c78a092d40b35c69f604cf79422b3cb7a140dd0cf64649\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://472cc038373cf2218895688abc4355f1965ef839d9d60d7609dc38de76ece46f\",\"dweb:/ipfs/QmdHDJZ6bGmNkwXPZxvp1k4dW8kuDTiUYZaN3kbVFxBXh1\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -1012,10 +1012,10 @@
         "license": "MIT"
       },
       "src/contracts/ModuleBase.sol": {
-        "keccak256": "0x3b182d2c288f2c753e0ea97b1f97e521c2ea9e919d0a6272927b7c78a7090009",
+        "keccak256": "0x2231e181efdc7688c23f5bb401bd90352d9d3d6017d1d95fd99e617ca03dd439",
         "urls": [
-          "bzz-raw://d632633a15647e9156dccd68a7a9f45d4e52a9636ccb2cdc950ec636ca7c8521",
-          "dweb:/ipfs/QmUH6ueQfKgZV1bDichzSnEETs5oprw6x6m5H4gax6RnJY"
+          "bzz-raw://cd8f52568a07a8ccac2355ab338ef8368a6e6a41482da48e1829177181423b41",
+          "dweb:/ipfs/QmRymMBZji5HZSNYQqSNxft31HvjF3P2x1ZYp8m9qLRa5S"
         ],
         "license": "BUSL-1.1"
       },
@@ -1080,37 +1080,37 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/ToyModules.sol",
-    "id": 33873,
+    "id": 34831,
     "exportedSymbols": {
       "BoolRelease": [
-        33872
+        34830
       ],
       "DataTypes": [
-        30646
+        31703
       ],
       "ModuleBase": [
-        30184
+        30183
       ],
       "PayItForward": [
-        33860
+        34818
       ],
       "PseudoChain": [
-        33856
+        34814
       ],
       "SimpleLottery": [
-        33864
+        34822
       ],
       "URIUpdater": [
-        33868
+        34826
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:5496:58",
+    "src": "37:5496:60",
     "nodes": [
       {
-        "id": 33848,
+        "id": 34806,
         "nodeType": "PragmaDirective",
-        "src": "37:25:58",
+        "src": "37:25:60",
         "nodes": [],
         "literals": [
           "solidity",
@@ -1120,24 +1120,24 @@
         ]
       },
       {
-        "id": 33850,
+        "id": 34808,
         "nodeType": "ImportDirective",
-        "src": "109:45:58",
+        "src": "109:45:60",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33873,
-        "sourceUnit": 30185,
+        "scope": 34831,
+        "sourceUnit": 30184,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33849,
+              "id": 34807,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30184,
-              "src": "117:10:58",
+              "referencedDeclaration": 30183,
+              "src": "117:10:60",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1146,24 +1146,24 @@
         "unitAlias": ""
       },
       {
-        "id": 33852,
+        "id": 34810,
         "nodeType": "ImportDirective",
-        "src": "155:53:58",
+        "src": "155:53:60",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 33873,
-        "sourceUnit": 30647,
+        "scope": 34831,
+        "sourceUnit": 31704,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 33851,
+              "id": 34809,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30646,
-              "src": "163:9:58",
+              "referencedDeclaration": 31703,
+              "src": "163:9:60",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1172,232 +1172,232 @@
         "unitAlias": ""
       },
       {
-        "id": 33856,
+        "id": 34814,
         "nodeType": "ContractDefinition",
-        "src": "286:4033:58",
+        "src": "286:4033:60",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 33854,
+              "id": 34812,
               "name": "ModuleBase",
               "nameLocations": [
-                "319:10:58"
+                "319:10:60"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30184,
-              "src": "319:10:58"
+              "referencedDeclaration": 30183,
+              "src": "319:10:60"
             },
-            "id": 33855,
+            "id": 34813,
             "nodeType": "InheritanceSpecifier",
-            "src": "319:10:58"
+            "src": "319:10:60"
           }
         ],
         "canonicalName": "PseudoChain",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 33853,
+          "id": 34811,
           "nodeType": "StructuredDocumentation",
-          "src": "210:76:58",
+          "src": "210:76:60",
           "text": "@notice allows whoever finds the correct hash to claim the written cheq"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          33856,
-          30184,
-          30307
+          34814,
+          30183,
+          30606
         ],
         "name": "PseudoChain",
-        "nameLocation": "304:11:58",
-        "scope": 33873,
+        "nameLocation": "304:11:60",
+        "scope": 34831,
         "usedErrors": [
-          30660
+          31717
         ]
       },
       {
-        "id": 33860,
+        "id": 34818,
         "nodeType": "ContractDefinition",
-        "src": "4406:700:58",
+        "src": "4406:700:60",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 33858,
+              "id": 34816,
               "name": "ModuleBase",
               "nameLocations": [
-                "4440:10:58"
+                "4440:10:60"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30184,
-              "src": "4440:10:58"
+              "referencedDeclaration": 30183,
+              "src": "4440:10:60"
             },
-            "id": 33859,
+            "id": 34817,
             "nodeType": "InheritanceSpecifier",
-            "src": "4440:10:58"
+            "src": "4440:10:60"
           }
         ],
         "canonicalName": "PayItForward",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 33857,
+          "id": 34815,
           "nodeType": "StructuredDocumentation",
-          "src": "4321:85:58",
+          "src": "4321:85:60",
           "text": "@notice allows the owner to fund and transfer or wait until the timelock is over"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          33860,
-          30184,
-          30307
+          34818,
+          30183,
+          30606
         ],
         "name": "PayItForward",
-        "nameLocation": "4424:12:58",
-        "scope": 33873,
+        "nameLocation": "4424:12:60",
+        "scope": 34831,
         "usedErrors": [
-          30660
+          31717
         ]
       },
       {
-        "id": 33864,
+        "id": 34822,
         "nodeType": "ContractDefinition",
-        "src": "5165:50:58",
+        "src": "5165:50:60",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 33862,
+              "id": 34820,
               "name": "ModuleBase",
               "nameLocations": [
-                "5200:10:58"
+                "5200:10:60"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30184,
-              "src": "5200:10:58"
+              "referencedDeclaration": 30183,
+              "src": "5200:10:60"
             },
-            "id": 33863,
+            "id": 34821,
             "nodeType": "InheritanceSpecifier",
-            "src": "5200:10:58"
+            "src": "5200:10:60"
           }
         ],
         "canonicalName": "SimpleLottery",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 33861,
+          "id": 34819,
           "nodeType": "StructuredDocumentation",
-          "src": "5108:57:58",
+          "src": "5108:57:60",
           "text": "@notice allows certain addresses the ability to cash"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          33864,
-          30184,
-          30307
+          34822,
+          30183,
+          30606
         ],
         "name": "SimpleLottery",
-        "nameLocation": "5183:13:58",
-        "scope": 33873,
+        "nameLocation": "5183:13:60",
+        "scope": 34831,
         "usedErrors": [
-          30660
+          31717
         ]
       },
       {
-        "id": 33868,
+        "id": 34826,
         "nodeType": "ContractDefinition",
-        "src": "5307:47:58",
+        "src": "5307:47:60",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 33866,
+              "id": 34824,
               "name": "ModuleBase",
               "nameLocations": [
-                "5339:10:58"
+                "5339:10:60"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30184,
-              "src": "5339:10:58"
+              "referencedDeclaration": 30183,
+              "src": "5339:10:60"
             },
-            "id": 33867,
+            "id": 34825,
             "nodeType": "InheritanceSpecifier",
-            "src": "5339:10:58"
+            "src": "5339:10:60"
           }
         ],
         "canonicalName": "URIUpdater",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 33865,
+          "id": 34823,
           "nodeType": "StructuredDocumentation",
-          "src": "5217:90:58",
+          "src": "5217:90:60",
           "text": "@notice allows the owner to update the URI and memo hash (if they escrow more money?)"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          33868,
-          30184,
-          30307
+          34826,
+          30183,
+          30606
         ],
         "name": "URIUpdater",
-        "nameLocation": "5325:10:58",
-        "scope": 33873,
+        "nameLocation": "5325:10:60",
+        "scope": 34831,
         "usedErrors": [
-          30660
+          31717
         ]
       },
       {
-        "id": 33872,
+        "id": 34830,
         "nodeType": "ContractDefinition",
-        "src": "5484:48:58",
+        "src": "5484:48:60",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 33870,
+              "id": 34828,
               "name": "ModuleBase",
               "nameLocations": [
-                "5517:10:58"
+                "5517:10:60"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30184,
-              "src": "5517:10:58"
+              "referencedDeclaration": 30183,
+              "src": "5517:10:60"
             },
-            "id": 33871,
+            "id": 34829,
             "nodeType": "InheritanceSpecifier",
-            "src": "5517:10:58"
+            "src": "5517:10:60"
           }
         ],
         "canonicalName": "BoolRelease",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 33869,
+          "id": 34827,
           "nodeType": "StructuredDocumentation",
-          "src": "5356:128:58",
+          "src": "5356:128:60",
           "text": "@notice write a cheq (to the zero address?) and the winner of a game (or other bet) gets to transfer to themselves and cash"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          33872,
-          30184,
-          30307
+          34830,
+          30183,
+          30606
         ],
         "name": "BoolRelease",
-        "nameLocation": "5502:11:58",
-        "scope": 33873,
+        "nameLocation": "5502:11:60",
+        "scope": 34831,
         "usedErrors": [
-          30660
+          31717
         ]
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 58
+  "id": 60
 }

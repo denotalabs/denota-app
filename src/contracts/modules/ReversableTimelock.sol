@@ -71,13 +71,13 @@ contract ReversableTimelock is ModuleBase {
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
-        bytes memory /*data*/
+        bytes memory data
     ) external override onlyRegistrar returns (uint256) {
         require(
             caller == owner || caller == approved,
             "Only owner or approved"
         );
-        return return takeReturnFee(currency, 0, dappOperator);
+        return takeReturnFee(currency, 0, abi.decode(data, (address)));
     }
 
     function processFund(
@@ -106,7 +106,12 @@ contract ReversableTimelock is ModuleBase {
             caller == payments[cheqId].inspector,
             "Inspector cash for owner"
         );
-        return takeReturnFee(cheq.currency, amount, abi.decode(initData, (address)));
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount,
+                abi.decode(initData, (address))
+            );
     }
 
     function processApproval(
@@ -122,7 +127,7 @@ contract ReversableTimelock is ModuleBase {
         uint256 tokenId
     ) external view override returns (string memory) {
         return
-            bytes(__URI).length > 0
+            bytes(_URI).length > 0
                 ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
                 : "";
 

@@ -160,7 +160,12 @@ contract Milestones is ModuleBase {
 
         invoices[cheqId].currentMilestone += 1;
 
-        return takeReturnFee(cheq.currency, amount + instant, dappOperator);
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount + instant,
+                abi.decode(initData, (address))
+            );
     }
 
     // Allow the funder or owner to cash the current milestone
@@ -204,7 +209,7 @@ contract Milestones is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) public view override onlyRegistrar returns (string memory) {
-        string memory __baseURI = _baseURI();
+        // string memory _URI = _baseURI();
         // Question: should milestones include an image?
         return
             bytes(_URI).length > 0

@@ -129,12 +129,7 @@ contract DirectPay is ModuleBase {
         bytes memory data
     ) public override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
-        return
-            takeReturnFee(
-                cheq.currency,
-                amount + instant,
-                abi.decode(initData, (address))
-            );
+        return takeReturnFee(currency, escrowed, abi.decode(data, (address)));
     }
 
     function processFund(
