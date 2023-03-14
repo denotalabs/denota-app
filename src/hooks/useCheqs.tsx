@@ -73,7 +73,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         case blockchainState.weth?.address.toLowerCase():
           return "WETH";
         default:
-          return "USDC";
+          return "NATIVE";
       }
     },
     [blockchainState.dai?.address, blockchainState.weth?.address]

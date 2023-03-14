@@ -31,7 +31,7 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice }) => {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          token: formData.token ?? "DAI",
+          token: formData.token ?? "NATIVE",
           amount: formData.amount ?? undefined,
           address: formData.address ?? "",
           mode: initialMode,

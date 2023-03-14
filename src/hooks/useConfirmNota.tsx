@@ -5,6 +5,7 @@ import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useCheqContext } from "../context/CheqsContext";
 import { useNotaForm } from "../context/NotaFormProvider";
 import { useDirectPay } from "./modules/useDirectPay";
+import { useEscrow } from "./modules/useEscrow";
 import { useEmail } from "./useEmail";
 
 interface Props {
@@ -20,11 +21,19 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { sendEmail } = useEmail();
   const [needsApproval, setNeedsApproval] = useState(formData.mode === "pay");
 
-  const token =
-    formData.token == "DAI" ? blockchainState.dai : blockchainState.weth;
+  const token = useMemo(() => {
+    switch (formData.token) {
+      case "DAI":
+        return blockchainState.dai;
+      case "WETH":
+        return blockchainState.weth;
+      default:
+        return null;
+    }
+  }, [blockchainState.dai, blockchainState.weth, formData.token]);
 
   const amountWei = useMemo(() => {
-    if (!formData.amount) {
+    if (!formData.amount || isNaN(parseFloat(formData.amount))) {
       return BigNumber.from(0);
     }
     return ethers.utils.parseEther(formData.amount);
@@ -41,6 +50,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         return blockchainState.dai?.address ?? "";
       case "WETH":
         return blockchainState.weth?.address ?? "";
+      case "NATIVE":
+        return "0x0000000000000000000000000000000000000000";
       default:
         return "";
     }
@@ -52,14 +63,18 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
   useEffect(() => {
     const fetchAllowance = async () => {
-      const tokenAllowance = await token?.functions.allowance(
-        blockchainState.account,
-        blockchainState.cheqAddress
-      );
-      if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
-        setNeedsApproval(true);
-      } else {
+      if (token === null) {
         setNeedsApproval(false);
+      } else {
+        const tokenAllowance = await token?.functions.allowance(
+          blockchainState.account,
+          blockchainState.cheqAddress
+        );
+        if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
+          setNeedsApproval(true);
+        } else {
+          setNeedsApproval(false);
+        }
       }
     };
     if (formData.mode === "pay") {
@@ -70,10 +85,13 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     blockchainState.account,
     blockchainState.cheqAddress,
     formData.mode,
+    token,
     token?.functions,
   ]);
 
   const { writeCheq: writeDirectPayCheq } = useDirectPay();
+
+  const { writeCheq: writeEscrowCheq } = useEscrow();
 
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete
@@ -117,6 +135,17 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               isInvoice: formData.mode === "invoice",
             });
             break;
+          case "escrow":
+            txHash = await writeEscrowCheq({
+              tokenAddress,
+              amountWei,
+              address: formData.address,
+              escrowedWei,
+              noteKey: formData.noteKey,
+              isInvoice: formData.mode === "invoice",
+            });
+            break;
+
           default:
             break;
         }
@@ -176,6 +205,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     token?.functions,
     tokenAddress,
     writeDirectPayCheq,
+    writeEscrowCheq,
   ]);
 
   return { needsApproval, approveAmount, writeNota };

@@ -24,20 +24,44 @@ function ApproveAndPay({ cheq, onClose }: Props) {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // TODO: Handle all tokens correctly
-  const token =
-    cheq.token == "DAI" ? blockchainState.dai : blockchainState.weth;
+  const token = useMemo(() => {
+    switch (cheq.token) {
+      case "DAI":
+        return blockchainState.dai;
+      case "WETH":
+        return blockchainState.weth;
+      default:
+        return null;
+    }
+  }, [blockchainState.dai, blockchainState.weth, cheq.token]);
+
+  const tokenAddress = useMemo(() => {
+    switch (cheq.token) {
+      case "DAI":
+        return blockchainState.dai?.address ?? "";
+      case "WETH":
+        return blockchainState.weth?.address ?? "";
+      case "NATIVE":
+        return "0x0000000000000000000000000000000000000000";
+      default:
+        return "";
+    }
+  }, [blockchainState.dai?.address, blockchainState.weth?.address, cheq.token]);
 
   useEffect(() => {
     const fetchAllowance = async () => {
-      const tokenAllowance = await token?.functions.allowance(
-        blockchainState.account,
-        blockchainState.cheqAddress
-      );
-      if (cheq.amountRaw.sub(tokenAllowance[0]) > BigNumber.from(0)) {
-        setNeedsApproval(true);
-      } else {
+      if (token === null) {
         setNeedsApproval(false);
+      } else {
+        const tokenAllowance = await token?.functions.allowance(
+          blockchainState.account,
+          blockchainState.cheqAddress
+        );
+        if (cheq.amountRaw.sub(tokenAllowance[0]) > BigNumber.from(0)) {
+          setNeedsApproval(true);
+        } else {
+          setNeedsApproval(false);
+        }
       }
     };
     fetchAllowance();
@@ -45,6 +69,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     blockchainState.account,
     blockchainState.cheqAddress,
     cheq.amountRaw,
+    token,
     token?.functions,
   ]);
 
@@ -73,11 +98,21 @@ function ApproveAndPay({ cheq, onClose }: Props) {
       } else {
         const cheqId = Number(cheq.id);
         const amount = BigNumber.from(cheq.amountRaw);
+        const msgValue =
+          tokenAddress === "0x0000000000000000000000000000000000000000"
+            ? amount
+            : BigNumber.from(0);
         const payload = ethers.utils.defaultAbiCoder.encode(
           ["address"],
           [blockchainState.account]
         );
-        const tx = await blockchainState.cheq?.fund(cheqId, 0, amount, payload);
+        const tx = await blockchainState.cheq?.fund(
+          cheqId,
+          0,
+          amount,
+          payload,
+          { value: msgValue }
+        );
         await tx.wait();
         toast({
           title: "Transaction succeeded",
@@ -103,6 +138,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     refreshWithDelay,
     toast,
     token?.functions,
+    tokenAddress,
   ]);
 
   return (

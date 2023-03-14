@@ -24,10 +24,28 @@ export function ConfirmSidePane() {
   });
 
   const isReady = useMemo(() => {
-    return (
-      formData.address && formData.amount && formData.token && formData.dueDate
-    );
-  }, [formData.address, formData.amount, formData.dueDate, formData.token]);
+    if (!formData.module) {
+      return false;
+    }
+
+    switch (formData.module) {
+      case "direct":
+        return (
+          formData.address &&
+          formData.amount &&
+          formData.token &&
+          formData.dueDate
+        );
+      case "escrow":
+        return false;
+    }
+  }, [
+    formData.address,
+    formData.amount,
+    formData.dueDate,
+    formData.module,
+    formData.token,
+  ]);
 
   const buttonText = useMemo(() => {
     if (needsApproval) {
@@ -71,6 +89,13 @@ export function ConfirmSidePane() {
     }
     return formatAddress(formData.address);
   }, [blockchainState.account, formData.address, formData.mode, formatAddress]);
+
+  const token = useMemo(() => {
+    if (formData.token === "NATIVE") {
+      return blockchainState.nativeCurrenySymbol;
+    }
+    return formData.token;
+  }, [blockchainState.nativeCurrenySymbol, formData.token]);
 
   return (
     <VStack
@@ -126,7 +151,7 @@ export function ConfirmSidePane() {
 
             <HStack>
               <Text fontWeight={400} fontSize={"xl"} my={0}>
-                {formData.amount} {formData.token}
+                {formData.amount} {token}
               </Text>
 
               <CurrencyIcon
