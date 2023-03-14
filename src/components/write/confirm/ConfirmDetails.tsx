@@ -1,7 +1,9 @@
 import { VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
+import { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
@@ -17,6 +19,8 @@ function ConfirmDetails({ isInvoice }: Props) {
     return Number(formData.inspection) / 86400;
   }, [formData.inspection]);
 
+  const { displayNameForCurrency } = useCurrencyDisplayName();
+
   return (
     <RoundedBox p={6}>
       <VStack>
@@ -26,7 +30,11 @@ function ConfirmDetails({ isInvoice }: Props) {
         />
         <DetailsRow
           title="Payment Amount"
-          value={formData.amount + " " + formData.token}
+          value={
+            formData.amount +
+            " " +
+            displayNameForCurrency(formData.token as CheqCurrency)
+          }
         />
         {formData.module === "direct" && isInvoice && (
           <DetailsRow title="Due Date" value={formData.dueDate} />
