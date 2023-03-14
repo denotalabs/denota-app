@@ -33,7 +33,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   }, [blockchainState.dai, blockchainState.weth, formData.token]);
 
   const amountWei = useMemo(() => {
-    if (!formData.amount) {
+    if (!formData.amount || isNaN(parseFloat(formData.amount))) {
       return BigNumber.from(0);
     }
     return ethers.utils.parseEther(formData.amount);
@@ -65,15 +65,16 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     const fetchAllowance = async () => {
       if (token === null) {
         setNeedsApproval(false);
-      }
-      const tokenAllowance = await token?.functions.allowance(
-        blockchainState.account,
-        blockchainState.cheqAddress
-      );
-      if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
-        setNeedsApproval(true);
       } else {
-        setNeedsApproval(false);
+        const tokenAllowance = await token?.functions.allowance(
+          blockchainState.account,
+          blockchainState.cheqAddress
+        );
+        if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
+          setNeedsApproval(true);
+        } else {
+          setNeedsApproval(false);
+        }
       }
     };
     if (formData.mode === "pay") {

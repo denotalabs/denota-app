@@ -18,6 +18,7 @@ import {
   MdOutlineHourglassEmpty,
 } from "react-icons/md";
 import { Cheq } from "../../hooks/useCheqs";
+import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
@@ -114,6 +115,8 @@ function CheqCardV2({ cheq }: Props) {
     }
   }, [status]);
   const gradient = generateCheqGradient(cheq);
+
+  const { displayNameForCurrency } = useCurrencyDisplayName();
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
       <VStack
@@ -173,7 +176,7 @@ function CheqCardV2({ cheq }: Props) {
 
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
-              {cheq.amount} {cheq.token}
+              {cheq.amount} {displayNameForCurrency(cheq.token)}
             </Text>
 
             <CurrencyIcon currency={cheq.token} />

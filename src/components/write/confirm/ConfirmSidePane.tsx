@@ -90,6 +90,13 @@ export function ConfirmSidePane() {
     return formatAddress(formData.address);
   }, [blockchainState.account, formData.address, formData.mode, formatAddress]);
 
+  const token = useMemo(() => {
+    if (formData.token === "NATIVE") {
+      return blockchainState.nativeCurrenySymbol;
+    }
+    return formData.token;
+  }, [blockchainState.nativeCurrenySymbol, formData.token]);
+
   return (
     <VStack
       w="365px"
@@ -144,7 +151,7 @@ export function ConfirmSidePane() {
 
             <HStack>
               <Text fontWeight={400} fontSize={"xl"} my={0}>
-                {formData.amount} {formData.token}
+                {formData.amount} {token}
               </Text>
 
               <CurrencyIcon

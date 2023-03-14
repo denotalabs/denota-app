@@ -12,6 +12,7 @@ import {
 import { Field } from "formik";
 import { ReactNode } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
+import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
 import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedBox from "../../designSystem/RoundedBox";
 
@@ -56,6 +57,8 @@ function CurrencySelectorInner({
     },
   });
 
+  const { displayNameForCurrency } = useCurrencyDisplayName();
+
   const group = getRootProps();
   return (
     <HStack {...group}>
@@ -66,9 +69,7 @@ function CurrencySelectorInner({
             <HStack>
               <CurrencyIcon currency={value} />
               <Text fontSize="sm" textAlign="center">
-                {value === "NATIVE"
-                  ? blockchainState.nativeCurrenySymbol
-                  : value}
+                {displayNameForCurrency(value)}
               </Text>
             </HStack>
           </RadioCard>

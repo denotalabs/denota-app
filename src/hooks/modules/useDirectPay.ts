@@ -44,13 +44,21 @@ export const useDirectPay = () => {
         ["address", "uint256", "uint256", "address", "string", "uint256"],
         [address, amountWei, 0, blockchainState.account, noteKey, dueTimestamp]
       );
+
+      const msgValue =
+        tokenAddress === "0x0000000000000000000000000000000000000000" &&
+        !isInvoice
+          ? escrowedWei
+          : BigNumber.from(0);
+
       const tx = await blockchainState.cheq?.write(
         tokenAddress,
         0,
         escrowedWei,
         isInvoice ? blockchainState.account : address,
         blockchainState.directPayAddress,
-        payload
+        payload,
+        { value: msgValue }
       );
       const receipt = await tx.wait();
       return receipt.transactionHash;
