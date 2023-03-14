@@ -32,14 +32,190 @@ youtube_url
 A URL to a YouTube video.
  */
 
+/**
+{
+    "name": STRING_NAME,
+    "image": URL_STRING: ipfs, https (recommended 350 x 350px),
+    "image_data": SVG_DATA (Only use this if you're not including the image parameter),
+    "external_url": (to allow users to leave OpenSea and view the item on your site),
+    "description": human readable description of the item (markdown supported),
+    attributes: [
+    ],
+    "background_color": must be a six-character hexadecimal without a pre-pended #
+    "animation_url": A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported.
+    "youtube_url": A URL to a YT video
+}
+ */
+
 contract CheqBase64Encoding {
+    /// https://stackoverflow.com/questions/47129173/how-to-convert-uint-to-string-in-solidity
+    // function uint2str(
+    //     uint _i
+    // ) internal pure returns (string memory _uintAsString) {
+    //     if (_i == 0) {
+    //         return "0";
+    //     }
+    //     uint j = _i;
+    //     uint len;
+    //     while (j != 0) {
+    //         len++;
+    //         j /= 10;
+    //     }
+    //     bytes memory bstr = new bytes(len);
+    //     uint k = len;
+    //     while (_i != 0) {
+    //         k = k - 1;
+    //         uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
+    //         bytes1 b1 = bytes1(temp);
+    //         bstr[k] = b1;
+    //         _i /= 10;
+    //     }
+    //     return string(bstr);
+    // }
+    function itoa32(uint x) private pure returns (uint y) {
+        unchecked {
+            require(x < 1e32);
+            y = 0x3030303030303030303030303030303030303030303030303030303030303030;
+            y += x % 10;
+            x /= 10;
+            y += x % 10 << 8;
+            x /= 10;
+            y += x % 10 << 16;
+            x /= 10;
+            y += x % 10 << 24;
+            x /= 10;
+            y += x % 10 << 32;
+            x /= 10;
+            y += x % 10 << 40;
+            x /= 10;
+            y += x % 10 << 48;
+            x /= 10;
+            y += x % 10 << 56;
+            x /= 10;
+            y += x % 10 << 64;
+            x /= 10;
+            y += x % 10 << 72;
+            x /= 10;
+            y += x % 10 << 80;
+            x /= 10;
+            y += x % 10 << 88;
+            x /= 10;
+            y += x % 10 << 96;
+            x /= 10;
+            y += x % 10 << 104;
+            x /= 10;
+            y += x % 10 << 112;
+            x /= 10;
+            y += x % 10 << 120;
+            x /= 10;
+            y += x % 10 << 128;
+            x /= 10;
+            y += x % 10 << 136;
+            x /= 10;
+            y += x % 10 << 144;
+            x /= 10;
+            y += x % 10 << 152;
+            x /= 10;
+            y += x % 10 << 160;
+            x /= 10;
+            y += x % 10 << 168;
+            x /= 10;
+            y += x % 10 << 176;
+            x /= 10;
+            y += x % 10 << 184;
+            x /= 10;
+            y += x % 10 << 192;
+            x /= 10;
+            y += x % 10 << 200;
+            x /= 10;
+            y += x % 10 << 208;
+            x /= 10;
+            y += x % 10 << 216;
+            x /= 10;
+            y += x % 10 << 224;
+            x /= 10;
+            y += x % 10 << 232;
+            x /= 10;
+            y += x % 10 << 240;
+            x /= 10;
+            y += x % 10 << 248;
+        }
+    }
+
+    function itoa(uint x) internal pure returns (string memory s) {
+        unchecked {
+            if (x == 0) return "0";
+            else {
+                uint c1 = itoa32(x % 1e32);
+                x /= 1e32;
+                if (x == 0) s = string(abi.encode(c1));
+                else {
+                    uint c2 = itoa32(x % 1e32);
+                    x /= 1e32;
+                    if (x == 0) {
+                        s = string(abi.encode(c2, c1));
+                        c1 = c2;
+                    } else {
+                        uint c3 = itoa32(x);
+                        s = string(abi.encode(c3, c2, c1));
+                        c1 = c3;
+                    }
+                }
+                uint z = 0;
+                if (c1 >> 128 == 0x30303030303030303030303030303030) {
+                    c1 <<= 128;
+                    z += 16;
+                }
+                if (c1 >> 192 == 0x3030303030303030) {
+                    c1 <<= 64;
+                    z += 8;
+                }
+                if (c1 >> 224 == 0x30303030) {
+                    c1 <<= 32;
+                    z += 4;
+                }
+                if (c1 >> 240 == 0x3030) {
+                    c1 <<= 16;
+                    z += 2;
+                }
+                if (c1 >> 248 == 0x30) {
+                    z += 1;
+                }
+                assembly {
+                    let l := mload(s)
+                    s := add(s, z)
+                    mstore(s, sub(l, z))
+                }
+            }
+        }
+    }
+
+    function toString(address account) public pure returns (string memory) {
+        return toString(abi.encodePacked(account));
+    }
+
+    function toString(bytes32 value) public pure returns (string memory) {
+        return toString(abi.encodePacked(value));
+    }
+
+    function toString(bytes memory data) public pure returns (string memory) {
+        bytes memory alphabet = "0123456789abcdef";
+
+        bytes memory str = new bytes(2 + data.length * 2);
+        str[0] = "0";
+        str[1] = "x";
+        for (uint i = 0; i < data.length; i++) {
+            str[2 + i * 2] = alphabet[uint(uint8(data[i] >> 4))];
+            str[3 + i * 2] = alphabet[uint(uint8(data[i] & 0x0f))];
+        }
+        return string(str);
+    }
+
     function buildMetadata(
-        uint256 _tokenId,
-        address currency,
-        uint256 escrowed,
-        uint256 createdAt,
-        address module,
-        string memory _tokenURI
+        string memory currency,
+        string memory escrowed,
+        string memory module,
+        string memory _tokenData
     ) internal pure returns (string memory) {
         return
             string(
@@ -48,39 +224,23 @@ contract CheqBase64Encoding {
                     encode(
                         bytes(
                             abi.encodePacked(
-                                '{"name":',
-                                "Cheq serial number #",
-                                _tokenId,
-                                // '", "description":"',
-                                // cheq.description,
-                                '", "external_url":"',
-                                _tokenURI,
-                                // '", "image": "',
-                                // "data:image/svg+xml;base64,",
-                                // buildImage(_tokenId),
-                                ', "attributes": ',
+                                '{"attributes":',
                                 "[",
-                                '{"trait_type": "Token",',
+                                '{"trait_type": "Currency",',
                                 '"value":',
                                 currency,
                                 "}",
-                                // '{"trait_type": "Amount",',
-                                // "}",
-                                '{"trait_type": "Escrowed",',
+                                ',{"trait_type": "Escrowed",',
+                                '"display_type": "number",',
                                 '"value":',
                                 escrowed,
                                 "}",
-                                '{"trait_type": "Drawer",',
-                                "}",
-                                '{"trait_type": "Created At",',
-                                '"value":',
-                                createdAt,
-                                "}",
-                                '{"trait_type": "Module",',
+                                ',{"trait_type": "Module",',
                                 '"value":',
                                 module,
                                 "}",
                                 "]",
+                                _tokenData,
                                 "}"
                             )
                         )
@@ -89,6 +249,21 @@ contract CheqBase64Encoding {
             );
     }
 
+    // '{"name":',
+    // '"Cheq serial number #',
+    // _tokenId,
+
+    // '", "description":"',
+    // cheq.description,
+    // '", "image": "',
+
+    // "data:image/svg+xml;base64,",
+    // buildImage(_tokenId),
+
+    // '{"trait_type": "Created At",',
+    // '"value":',
+    // createdAt,
+    // "}",
     /**
      * @dev Base64 Encoding/Decoding Table
      */

@@ -17,6 +17,16 @@ contract ReversableTimelock is ModuleBase {
         bytes32 memoHash;
     }
     mapping(uint256 => Payment) public payments;
+    event PaymentCreated();
+
+    error EscrowUnsupported();
+    error AmountZero();
+    error InvoiceWithPay();
+    error InsufficientPayment();
+    error AddressZero();
+    error Disallowed();
+    error OnlyOwner();
+    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
@@ -24,17 +34,6 @@ contract ReversableTimelock is ModuleBase {
         string memory __baseURI
     ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
-    }
-
-    function _collectFee(
-        uint256 escrowed,
-        uint256 instant,
-        address currency,
-        address dappOperator
-    ) internal returns (uint256 moduleFee) {
-        uint256 totalAmount = escrowed + instant;
-        moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        revenue[dappOperator][currency] += moduleFee;
     }
 
     function processWrite(
@@ -59,26 +58,26 @@ contract ReversableTimelock is ModuleBase {
         payments[cheqId].drawer = caller;
         payments[cheqId].memoHash = memoHash;
 
-        return _collectFee(escrowed, instant, currency, dappOperator);
+        return takeReturnFee(currency, escrowed + instant, dappOperator);
     }
 
     function processTransfer(
         address caller,
         address approved,
         address owner,
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
         address currency,
         uint256 escrowed,
-        uint256, /*createdAt*/
-        bytes memory /*data*/
+        uint256 /*createdAt*/,
+        bytes memory data
     ) external override onlyRegistrar returns (uint256) {
         require(
             caller == owner || caller == approved,
             "Only owner or approved"
         );
-        return _collectFee(escrowed, 0, currency, REGISTRAR);
+        return takeReturnFee(currency, 0, abi.decode(data, (address)));
     }
 
     function processFund(
@@ -96,8 +95,8 @@ contract ReversableTimelock is ModuleBase {
 
     function processCash(
         address caller,
-        address, /*owner*/
-        address, /*to*/
+        address /*owner*/,
+        address /*to*/,
         uint256 amount,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
@@ -108,10 +107,9 @@ contract ReversableTimelock is ModuleBase {
             "Inspector cash for owner"
         );
         return
-            _collectFee(
-                0,
-                amount,
+            takeReturnFee(
                 cheq.currency,
+                amount,
                 abi.decode(initData, (address))
             );
     }
@@ -125,16 +123,14 @@ contract ReversableTimelock is ModuleBase {
         bytes memory initData
     ) external override onlyRegistrar {}
 
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        override
-        returns (string memory)
-    {
+    function processTokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
         return
             bytes(_URI).length > 0
-                ? string(abi.encodePacked(_URI, tokenId))
+                ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
                 : "";
+
         // return string(abi.encode(_URI, payments[tokenId].memoHash));
     }
 }

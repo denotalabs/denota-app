@@ -42,12 +42,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     function getFees()
         public
         view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
+        returns (uint256, uint256, uint256, uint256)
     {
         return (fees.writeBPS, fees.transferBPS, fees.fundBPS, fees.cashBPS);
     }
@@ -55,11 +50,10 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     /*//////////////////////////////////////////////////////////////
                         WHITELIST FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    function validWrite(address module, address token)
-        public
-        view
-        returns (bool)
-    {
+    function validWrite(
+        address module,
+        address token
+    ) public view returns (bool) {
         return _validModule(module) && _tokenWhitelist[token]; // Valid module and whitelisted currency
     }
 
@@ -110,11 +104,9 @@ contract RegistrarGov is Ownable, IRegistrarGov {
             _bytecodeWhitelist[_returnCodeHash(module)];
     }
 
-    function moduleWhitelisted(address module)
-        public
-        view
-        returns (bool, bool)
-    {
+    function moduleWhitelisted(
+        address module
+    ) public view returns (bool, bool) {
         return (
             _addressWhitelist[module],
             _bytecodeWhitelist[_returnCodeHash(module)]

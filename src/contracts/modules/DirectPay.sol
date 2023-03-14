@@ -14,11 +14,12 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 contract DirectPay is ModuleBase {
     struct Payment {
         address creditor;
-        address debtor; // QUESTION change to creditor and debtor?
+        address debtor;
         uint256 amount; // Face value of the payment
-        uint256 timestamp; // Record keeping timestamp
-        string memoHash;
+        // uint256 timestamp; // Record keeping timestamp BUG stack too deep in write, removed timestamp
         bool wasPaid; // TODO is this needed if using instant pay?
+        string imageURI;
+        string memoHash; // assumes ipfs://HASH
     }
     mapping(uint256 => Payment) public payInfo;
 
@@ -61,11 +62,15 @@ contract DirectPay is ModuleBase {
         (
             address toNotify,
             uint256 amount, // Face value (for invoices)
-            uint256 timestamp,
+            // uint256 timestamp,
+            uint256 dueDate,
             address dappOperator,
-            string memory memoHash,
-            uint256 dueDate
-        ) = abi.decode(initData, (address, uint256, uint256, address, string, uint256));
+            string memory imageURI,
+            string memory memoHash
+        ) = abi.decode(
+                initData,
+                (address, uint256, uint256, address, string, string)
+            );
         if (escrowed != 0) revert EscrowUnsupported();
         if (amount == 0) revert AmountZero(); // Removing this would allow user to send memos
 
@@ -86,19 +91,13 @@ contract DirectPay is ModuleBase {
         }
 
         payInfo[cheqId].amount = amount;
-        payInfo[cheqId].timestamp = timestamp;
+        // payInfo[cheqId].timestamp = timestamp;
         payInfo[cheqId].memoHash = memoHash;
-
-        uint256 moduleFee;
-        {
-            uint256 totalAmount = escrowed + instant;
-            moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        }
-        revenue[dappOperator][currency] += moduleFee;
+        payInfo[cheqId].imageURI = imageURI;
 
         _logPaymentCreated(cheqId, dappOperator, dueDate);
 
-        return moduleFee;
+        return takeReturnFee(currency, escrowed + amount, dappOperator);
     }
 
     function _logPaymentCreated(
@@ -110,7 +109,7 @@ contract DirectPay is ModuleBase {
             cheqId,
             payInfo[cheqId].memoHash,
             payInfo[cheqId].amount,
-            payInfo[cheqId].timestamp,
+            block.timestamp,
             referer,
             payInfo[cheqId].creditor,
             payInfo[cheqId].debtor,
@@ -122,47 +121,48 @@ contract DirectPay is ModuleBase {
         address caller,
         address approved,
         address owner,
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
         address currency,
         uint256 escrowed,
-        uint256, /*createdAt*/
+        uint256 /*createdAt*/,
         bytes memory data
     ) public override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
-        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-        revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
-        return moduleFee;
+        return takeReturnFee(currency, escrowed, abi.decode(data, (address)));
     }
 
     function processFund(
-        address, /*caller*/
-        address, /*owner*/
+        address /*caller*/,
+        address owner,
         uint256 amount,
         uint256 instant,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
+        if (owner == address(0)) revert AddressZero();
         if (amount != 0) revert EscrowUnsupported();
         if (instant != payInfo[cheqId].amount) revert InsufficientPayment();
         if (payInfo[cheqId].wasPaid) revert Disallowed();
         // require(caller == payInfo[cheqId].debtor, "Only debtor"); // Should anyone be allowed to pay?
         payInfo[cheqId].wasPaid = true;
-
-        uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
-        revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
-        return moduleFee;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount + instant,
+                abi.decode(initData, (address))
+            );
     }
 
     function processCash(
-        address, /*caller*/
-        address, /*owner*/
-        address, /*to*/
-        uint256, /*amount*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
+        uint256 /*amount*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         revert Disallowed();
@@ -171,21 +171,26 @@ contract DirectPay is ModuleBase {
     function processApproval(
         address caller,
         address owner,
-        address, /*to*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*to*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();
         // require(wasPaid[cheqId], "Module: Must be cashed first");
     }
 
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        override
-        returns (string memory)
-    {
-        return string(abi.encodePacked(_URI, payInfo[tokenId].memoHash));
+    function processTokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+                    ',"external_url":',
+                    abi.encodePacked(_URI, payInfo[tokenId].memoHash),
+                    ',"image":',
+                    payInfo[tokenId].imageURI
+                )
+            );
     }
 }

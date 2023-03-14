@@ -17,6 +17,7 @@ import {CheqBase64Encoding} from "../contracts/libraries/CheqBase64Encoding.sol"
  * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.
  */
 // IDEA: NFTs as Payment Agreements
+// Question: will we be making many, custom made models, or try to make them as general as possible?
 // Question: the CheqBase64 library isn't working when being delegated, only when used inside registrar
 contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
     using SafeERC20 for IERC20;
@@ -32,28 +33,28 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
     mapping(bytes32 => bool) private _bytecodeWhitelist; // Question Can these be done without two mappings? Having both redeployable and static modules?
     mapping(address => bool) private _addressWhitelist;
     mapping(address => bool) private _tokenWhitelist;
+    // mapping(address => string) private _tokenNames;
     uint256 internal constant BPS_MAX = 10_000; // TODO Lens uses uint16
     DataTypes.WTFCFees public fees;
     uint256 public _writeFlatFee; // Question: is this needed?
 
-    constructor(DataTypes.WTFCFees memory _fees)
-        ERC721("denotaProtocol", "NOTA")
-    {
+    constructor(
+        DataTypes.WTFCFees memory _fees
+    ) ERC721("denotaProtocol", "NOTA") {
         fees = _fees;
     }
 
     /*//////////////////////////////////////////////////////////////
                               
     //////////////////////////////////////////////////////////////*/
-    function validWrite(address module, address token)
-        public
-        view
-        returns (bool)
-    {
+    function validWrite(
+        address module,
+        address token
+    ) public view returns (bool) {
         return _validModule(module) && _tokenWhitelist[token]; // Valid module and whitelisted currency
     }
 
-    function _escrow(
+    function _transferTokens(
         uint256 escrowed,
         uint256 instant,
         address currency,
@@ -79,16 +80,16 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
                 }
             }
             if (instant > 0) {
-                if (currency != address(0)) {
+                if (currency == address(0)) {
+                    require(msg.value == instant, "INSUF_VAL"); // TODO needs to incorporate _writeFlatFee if it's turned on
+                    (bool sent, ) = owner.call{value: msg.value}("");
+                    require(sent, "TRANSF_FAILED");
+                } else {
                     IERC20(currency).safeTransferFrom(
                         _msgSender(),
                         owner,
                         instant
                     );
-                } else {
-                    require(msg.value == instant, "INSUF_VAL"); // TODO needs to incorporate _writeFlatFee if it's turned on
-                    (bool sent, ) = owner.call{value: msg.value}("");
-                    require(sent, "TRANSF_FAILED");
                 }
             }
             _registrarRevenue[currency] += cheqFee;
@@ -118,7 +119,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
             moduleWriteData
         );
 
-        uint256 cheqFee = _escrow(
+        uint256 cheqFee = _transferTokens(
             escrowed,
             instant,
             currency,
@@ -167,7 +168,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
         uint256 tokenId,
         bytes memory moduleTransferData
     ) public override(ERC721, ICheqRegistrar) {
-        address owner = ownerOf(tokenId);
+        address owner = ownerOf(tokenId); // require(from == owner,  "") ?
         DataTypes.Cheq storage cheq = _cheqInfo[tokenId]; // Better to assign than to index?
 
         // Module hook
@@ -213,7 +214,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
         uint256 instant,
         bytes calldata fundData
     ) external payable {
-        DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
+        DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // TODO check that token exists
         address owner = ownerOf(cheqId); // Is used twice
 
         // Module hook
@@ -228,7 +229,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
         );
 
         // Fee taking and escrow
-        uint256 cheqFee = _escrow(
+        uint256 cheqFee = _transferTokens(
             cheq.escrowed,
             instant,
             cheq.currency,
@@ -300,10 +301,10 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
         );
     }
 
-    function approve(address to, uint256 tokenId)
-        public
-        override(ERC721, ICheqRegistrar)
-    {
+    function approve(
+        address to,
+        uint256 tokenId
+    ) public override(ERC721, ICheqRegistrar) {
         require(to != _msgSender(), "SELF_APPROVAL");
 
         // Module hook
@@ -322,7 +323,7 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
     }
 
     function setApprovalForAll(
-        address, /*operator*/
+        address /*operator*/,
         bool /*approved*/
     ) public pure override {
         // Question: Does OS require operators?
@@ -352,21 +353,15 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
     function getFees()
         public
         view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
+        returns (uint256, uint256, uint256, uint256)
     {
         return (fees.writeBPS, fees.transferBPS, fees.fundBPS, fees.cashBPS);
     }
 
-    function getTotalFees(uint256 cheqId, uint8 _WTFC)
-        public
-        view
-        returns (uint256, uint256)
-    {
+    function getTotalFees(
+        uint256 cheqId,
+        uint8 _WTFC
+    ) public view returns (uint256, uint256) {
         (uint256 wf, uint256 tf, uint256 ff, uint256 cf) = getFees(); // TODO there has to be a better way
         uint256[4] memory registrarFees;
         registrarFees = [wf, tf, ff, cf];
@@ -405,9 +400,12 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
         );
     }
 
+    // string calldata tokenName
     function whitelistToken(address _token, bool accepted) external onlyOwner {
-        // Whitelist for safety, modules can be more restrictive
+        // Whitelist for safety, modules can be more restrictive. Set it's name here?
         _tokenWhitelist[_token] = accepted;
+        // _tokenNames[_token] = tokenName; //IERC20(_token).symbol();
+
         emit Events.TokenWhitelisted(
             _msgSender(),
             _token,
@@ -433,11 +431,10 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
     /*//////////////////////////////////////////////////////////////
                                 VIEW
     //////////////////////////////////////////////////////////////*/
-    function cheqInfo(uint256 cheqId)
-        public
-        view
-        returns (DataTypes.Cheq memory)
-    {
+    function cheqInfo(
+        uint256 cheqId
+    ) public view returns (DataTypes.Cheq memory) {
+        _requireMinted(cheqId);
         return _cheqInfo[cheqId];
     }
 
@@ -457,11 +454,9 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
         return _totalSupply;
     }
 
-    function moduleWhitelisted(address module)
-        public
-        view
-        returns (bool, bool)
-    {
+    function moduleWhitelisted(
+        address module
+    ) public view returns (bool, bool) {
         return (
             _addressWhitelist[module],
             _bytecodeWhitelist[_returnCodeHash(module)]
@@ -472,24 +467,20 @@ contract CheqRegistrar is ERC721, Ownable, ICheqRegistrar, CheqBase64Encoding {
         return _tokenWhitelist[token];
     }
 
-    function tokenURI(uint256 _tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 _tokenId
+    ) public view override returns (string memory) {
         _requireMinted(_tokenId);
-        string memory _tokenURI = ICheqModule(_cheqInfo[_tokenId].module)
+
+        string memory _tokenData = ICheqModule(_cheqInfo[_tokenId].module)
             .processTokenURI(_tokenId);
 
         return
             buildMetadata(
-                _tokenId,
-                _cheqInfo[_tokenId].currency,
-                _cheqInfo[_tokenId].escrowed,
-                _cheqInfo[_tokenId].createdAt,
-                _cheqInfo[_tokenId].module,
-                _tokenURI
+                toString(_cheqInfo[_tokenId].currency),
+                itoa(_cheqInfo[_tokenId].escrowed),
+                toString(_cheqInfo[_tokenId].module),
+                _tokenData
             );
     }
     // function ownerOf(uint256 tokenId) public view override returns (address) {
