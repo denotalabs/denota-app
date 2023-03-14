@@ -169,7 +169,7 @@ export const BlockchainDataProvider = memo(
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl,
-            escrowAddress: contractMapping.escrow,
+            escrowAddress: contractMapping.directPay, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
           });
           setIsInitializing(false);
