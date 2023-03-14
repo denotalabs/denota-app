@@ -1,21 +1,9 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import {
-  Flex,
-  FormControl,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  Tooltip,
-} from "@chakra-ui/react";
-import { useState } from "react";
+import { Flex, FormControl, FormLabel, Tooltip } from "@chakra-ui/react";
+import AccountField from "../../fields/input/AccountField";
 import Inspection from "./Inspection";
 
 export function EscrowTerms() {
-  const [sliderValue, setSliderValue] = useState(100);
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  const [value, setValue] = useState("1");
   return (
     <Flex flexWrap={"wrap"} direction={"column"} gap={"18px"}>
       <FormControl mt={5}>
@@ -41,33 +29,8 @@ export function EscrowTerms() {
           >
             <QuestionOutlineIcon ml={2} mb={1} />
           </Tooltip>
-          <RadioGroup onChange={setValue} value={value} ml="2" mt="2">
-            <Stack direction="column">
-              {/*TODO: figure out correct way to set radio colors*/}
-              <Radio
-                colorScheme="brand.200"
-                bgColor={value == "1" ? "brand.200" : "clear"}
-                value="1"
-              >
-                Self-serve
-              </Radio>
-              <Radio
-                colorScheme="brand.200"
-                bgColor={value == "2" ? "brand.200" : "clear"}
-                value="2"
-              >
-                Third-party auditor
-              </Radio>
-              <Radio
-                colorScheme="brand.200"
-                bgColor={value == "3" ? "brand.200" : "clear"}
-                value="3"
-              >
-                Kleros
-              </Radio>
-            </Stack>
-          </RadioGroup>
         </FormLabel>
+        <AccountField fieldName="auditor" placeholder="0x" />
       </FormControl>
     </Flex>
   );
