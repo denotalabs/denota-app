@@ -11,21 +11,11 @@ import {IRegistrarGov} from "../contracts/interfaces/IRegistrarGov.sol";
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
     mapping(address => mapping(address => uint256)) internal _moduleRevenue; // Could collapse this into a single mapping
-    mapping(address => uint256) internal _registrarRevenue;
     mapping(bytes32 => bool) internal _bytecodeWhitelist; // Question Can these be done without two mappings? Having both redeployable and static modules?
     mapping(address => bool) internal _addressWhitelist;
     mapping(address => bool) internal _tokenWhitelist;
-    uint256 internal constant BPS_MAX = 10_000; // TODO Lens uses uint16
-    DataTypes.WTFCFees public fees;
-    uint256 public _writeFlatFee; // Question: is this needed?
 
-    constructor(DataTypes.WTFCFees memory _fees) {
-        fees = _fees;
-    }
-
-    function updateFees(DataTypes.WTFCFees calldata _fees) external onlyOwner {
-        fees = _fees;
-    }
+    // uint256 public _writeFlatFee; // Question: is this needed?
 
     function moduleWithdraw(
         address token,
@@ -39,17 +29,6 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         IERC20(token).safeTransferFrom(address(this), to, amount);
     }
 
-    function getFees()
-        public
-        view
-        returns (uint256, uint256, uint256, uint256)
-    {
-        return (fees.writeBPS, fees.transferBPS, fees.fundBPS, fees.cashBPS);
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                        WHITELIST FUNCTIONS
-    //////////////////////////////////////////////////////////////*/
     function validWrite(
         address module,
         address token

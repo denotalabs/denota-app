@@ -25,7 +25,7 @@ contract MilestonesTest is Test {
 
     function setUp() public {
         // sets up the registrar and ERC20s
-        REGISTRAR = new CheqRegistrar(DataTypes.WTFCFees(0, 0, 0, 0)); // ContractTest is the owner
+        REGISTRAR = new CheqRegistrar(); // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
@@ -140,11 +140,10 @@ contract MilestonesTest is Test {
     /*//////////////////////////////////////////////////////////////
                             MODULE TESTS
     //////////////////////////////////////////////////////////////*/
-    function calcFee(uint256 fee, uint256 amount)
-        public
-        pure
-        returns (uint256)
-    {
+    function calcFee(
+        uint256 fee,
+        uint256 amount
+    ) public pure returns (uint256) {
         return (amount * fee) / 10_000;
     }
 

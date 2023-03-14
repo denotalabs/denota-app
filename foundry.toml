@@ -7,4 +7,6 @@ libraries = ['src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding:
              'src/contracts/libraries/Errors.sol:Errors:0x0e49a5311cDccD7EC733710686Da89B6C7b48F3C', 
              'src/contracts/libraries/Events.sol:Events:0x9628ab62198EE35ad7fBAD47cdF463eD8a1464a3']
 gas_reports = ["src/contracts/Cheq.sol"]
+optimizer = true
+optimizer-runs = 10_000_000
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

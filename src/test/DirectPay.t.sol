@@ -9,6 +9,32 @@ import {DataTypes} from "src/contracts/libraries/DataTypes.sol";
 import {DirectPay} from "src/contracts/modules/DirectPay.sol";
 
 // TODO add fail tests
+/**
+[357688] CheqRegistrarContract::write(TestDai: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], 0, 0, 0xf2301Aa26da7660019Dd94A336224b0a7F723941, DirectPay: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 0x0000000000000000000000009d408513222580cf45916cd32320f983dfaf2cc300000000000000000000000000000000000000000b0dc019d2fc681ec2b1f41a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f2301aa26da7660019dd94a336224b0a7f72394100000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000) 
+    └─[212916] DirectPay::processWrite(0xf2301Aa26da7660019Dd94A336224b0a7F723941, 0xf2301Aa26da7660019Dd94A336224b0a7F723941, 0, TestDai: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], 0, 0, 0x0000000000000000000000009d408513222580cf45916cd32320f983dfaf2cc300000000000000000000000000000000000000000b0dc019d2fc681ec2b1f41a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f2301aa26da7660019dd94a336224b0a7f72394100000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000) 
+
+Gas units: 357,688
+Ethereum:
+    Gas price (gwei): ~40
+    Total gwei: 14,307,520
+    Ether price: 1,732.50
+    Write price: 24.78
+Optimism:
+    Gas price (gwei): ~1.6?
+    Total gwei: 572,300.8
+    Ether price: 1,732.50
+    Write price: 0.99
+Polygon:
+    Gas price (gwei): ~400 (200)
+    Total gwei: 143,075,200
+    Matic price: 1.19
+    Write Price: 0.17 (0.08)
+Celo:
+    Gas price (gwei): ~25
+    Total gwei: 8,942,200
+    Celo price: 0.63
+    Write Price: 0.0056
+*/
 contract DirectPayTest is Test {
     CheqRegistrar public REGISTRAR;
     TestERC20 public dai;
@@ -25,7 +51,7 @@ contract DirectPayTest is Test {
 
     function setUp() public {
         // sets up the registrar and ERC20s
-        REGISTRAR = new CheqRegistrar(DataTypes.WTFCFees(0, 0, 0, 0)); // ContractTest is the owner
+        REGISTRAR = new CheqRegistrar(); // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
@@ -242,13 +268,10 @@ contract DirectPayTest is Test {
         DirectPay directPay = setUpDirectPay();
         uint256 totalWithFees;
         {
-            (uint256 writeFeeBPS, , , ) = REGISTRAR.getFees();
-            (uint256 moduleWriteFeeBPS, , , ) = directPay.getFees();
-            uint256 registrarFee = calcFee(writeFeeBPS, directAmount);
-            console.log("RegistrarFee: ", registrarFee);
-            uint256 moduleFee = calcFee(moduleWriteFeeBPS, directAmount);
+            DataTypes.WTFCFees memory fees = directPay.getFees(address(0));
+            uint256 moduleFee = calcFee(fees.writeBPS, directAmount);
             console.log("ModuleFee: ", moduleFee);
-            totalWithFees = directAmount + registrarFee + moduleFee;
+            totalWithFees = directAmount + moduleFee;
             console.log(directAmount, "-->", totalWithFees);
         }
 
@@ -262,7 +285,8 @@ contract DirectPayTest is Test {
         bytes memory initData = abi.encode(
             creditor, // ToNotify
             directAmount,
-            block.timestamp,
+            // block.timestamp,
+            100,
             address(this), // dappOperator
             "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
             "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
@@ -294,10 +318,10 @@ contract DirectPayTest is Test {
 
     function testWriteInvoice(
         address debtor,
-        uint256 amount,
+        uint256 faceValue,
         address creditor
     ) public {
-        vm.assume(amount != 0 && amount <= tokensCreated);
+        vm.assume(faceValue != 0 && faceValue <= tokensCreated);
         address owner = creditor;
         vm.assume(
             debtor != address(0) &&
@@ -306,52 +330,14 @@ contract DirectPayTest is Test {
         );
         vm.assume(debtor != creditor);
 
-        DirectPay directPay = setUpDirectPay();
-        uint256 totalWithFees;
-        {
-            (uint256 writeFeeBPS, , , ) = REGISTRAR.getFees();
-            (uint256 moduleWriteFeeBPS, , , ) = directPay.getFees();
-            uint256 registrarFee = calcFee(writeFeeBPS, 0);
-            console.log("RegistrarFee: ", registrarFee);
-            uint256 moduleFee = calcFee(moduleWriteFeeBPS, 0);
-            console.log("ModuleFee: ", moduleFee);
-            totalWithFees = 0 + registrarFee + moduleFee;
-            console.log(0, "-->", totalWithFees);
-        }
-
-        REGISTRAR.whitelistToken(address(dai), true);
-        vm.prank(debtor);
-        dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
-        dai.transfer(debtor, totalWithFees);
-        vm.assume(dai.balanceOf(debtor) >= totalWithFees);
-
-        registrarWriteBefore(debtor, creditor);
-        bytes memory initData = abi.encode(
-            debtor,
-            amount,
-            block.timestamp,
-            creditor,
-            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
-            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
-        );
-
-        vm.prank(creditor);
-        uint256 cheqId = REGISTRAR.write(
-            address(dai),
-            0,
-            0,
-            creditor,
-            address(directPay),
-            initData
-        ); // Sets caller as owner
-        registrarWriteAfter(
-            cheqId,
-            amount,
-            0,
-            creditor, // Owner
-            creditor, // Drawer
-            debtor, // Recipient
-            address(directPay)
+        (uint256 cheqId, DirectPay directPay) = writeHelper(
+            creditor, // Who the caller should be
+            faceValue, // Face value of invoice
+            0, // escrowed amount
+            0, // instant amount
+            creditor, // The drawer
+            debtor, // toNotify
+            creditor // The owner
         );
 
         // ICheqModule wrote correctly to it's storage
@@ -366,16 +352,10 @@ contract DirectPayTest is Test {
         uint256 escrowed,
         uint256 directAmount
     ) public view returns (uint256) {
-        (uint256 writeFeeBPS, , , ) = registrar.getFees();
-        (uint256 moduleWriteFeeBPS, , , ) = directPay.getFees();
-        uint256 registrarFee = calcFee(writeFeeBPS, directAmount + escrowed);
-        console.log("RegistrarFee: ", registrarFee);
-        uint256 moduleFee = calcFee(moduleWriteFeeBPS, directAmount + escrowed);
+        DataTypes.WTFCFees memory fees = directPay.getFees(address(0));
+        uint256 moduleFee = calcFee(fees.writeBPS, directAmount + escrowed);
         console.log("ModuleFee: ", moduleFee);
-        uint256 totalWithFees = escrowed +
-            directAmount +
-            registrarFee +
-            moduleFee;
+        uint256 totalWithFees = escrowed + directAmount + moduleFee;
         console.log(directAmount, "-->", totalWithFees);
         return totalWithFees;
     }
@@ -405,10 +385,21 @@ contract DirectPayTest is Test {
 
         registrarWriteBefore(caller, recipient);
 
+        /**
+        address toNotify,
+        uint256 amount, // Face value (for invoices)
+        // uint256 timestamp,
+        uint256 dueDate,
+        address dappOperator,
+        string memory imageURI,
+        string memory memoHash
+         */
+
         bytes memory initData = abi.encode(
             recipient,
             amount,
-            block.timestamp,
+            // block.timestamp,
+            100, // due data
             caller,
             "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
             "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
@@ -460,7 +451,7 @@ contract DirectPayTest is Test {
             caller // The owner
         );
 
-        /// Fund cheq
+        // Fund cheq
         uint256 totalWithFees = calcTotalFees(
             REGISTRAR,
             directPay,
@@ -472,6 +463,7 @@ contract DirectPayTest is Test {
         dai.transfer(recipient, totalWithFees);
         vm.assume(dai.balanceOf(recipient) >= totalWithFees);
 
+        uint256 balanceBefore = dai.balanceOf(caller);
         vm.prank(recipient);
         REGISTRAR.fund(
             cheqId,
@@ -479,94 +471,62 @@ contract DirectPayTest is Test {
             faceValue, // Instant amount
             abi.encode(bytes32("")) // Fund data
         );
+
+        assertTrue(
+            dai.balanceOf(caller) - faceValue == balanceBefore,
+            "Didnt increment balance"
+        );
     }
-    // uint256 cheqId,
-    // uint256 amount,
-    // uint256 directAmount,
-    // bytes calldata fundData
-    // function testCashPay(address caller, uint256 amount, address drawer, address recipient) public {
-    //     vm.assume(amount != 0 && amount <= tokensCreated);
-    //     (address drawer, uint256 escrowed, address owner) = (caller, amount, caller);
-    //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
-    //     vm.assume(drawer != recipient);
 
-    //     (uint256 cheqId, ) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
-    //     bytes memory cashData =  abi.encode(bytes32(""));
+    function testFundTransferInvoice(
+        address caller,
+        uint256 faceValue,
+        address recipient
+    ) public {
+        vm.assume(faceValue != 0 && faceValue <= tokensCreated);
+        vm.assume(caller != recipient);
+        vm.assume(caller != address(0));
+        vm.assume(
+            caller != address(0) &&
+                recipient != address(0) &&
+                !isContract(caller)
+        );
+        (uint256 cheqId, DirectPay directPay) = writeHelper(
+            caller, // Who the caller should be
+            faceValue, // Face value of invoice
+            0, // escrowed amount
+            0, // instant amount
+            caller, // The drawer
+            recipient,
+            caller // The owner
+        );
+        // Fund cheq
+        uint256 totalWithFees = calcTotalFees(
+            REGISTRAR,
+            directPay,
+            0, // escrowed amount
+            faceValue // instant amount
+        );
+        vm.prank(recipient);
+        dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
+        dai.transfer(recipient, totalWithFees);
+        vm.assume(dai.balanceOf(recipient) >= totalWithFees);
+        uint256 balanceBefore = dai.balanceOf(caller);
+        vm.prank(recipient);
+        REGISTRAR.fund(
+            cheqId,
+            0, // Escrow amount
+            faceValue, // Instant amount
+            abi.encode(bytes32("")) // Fund data
+        );
+        assertTrue(dai.balanceOf(caller) - faceValue == balanceBefore);
 
-    //     vm.prank(owner);
-    //     REGISTRAR.cash(cheqId, escrowed, owner, cashData);
-    // }
-
-    // function fundHelper(uint256 cheqId, address funder, uint256 amount, DirectPay directPay) public {
-    //     bytes memory fundData =  abi.encode(bytes32(""));
-
-    //     uint256 totalWithFees;
-    //     {
-    //         ( , , uint256 fundFeeBPS, ) = REGISTRAR.getFees();
-    //         ( , , uint256 moduleFeeBPS, ) = directPay.getFees();
-    //         uint256 registrarFee = calcFee(fundFeeBPS, amount);
-    //         console.log("RegistrarFee: ", registrarFee);
-    //         uint256 moduleFee = calcFee(moduleFeeBPS, amount);
-    //         console.log("ModuleFee: ", moduleFee);
-    //         totalWithFees = amount + registrarFee + moduleFee;
-    //         console.log(amount, "-->", totalWithFees);
-    //     }
-
-    //     vm.prank(funder);
-    //     dai.approve(address(REGISTRAR), totalWithFees);  // Need to get the fee amounts beforehand
-    //     dai.transfer(funder, totalWithFees);
-
-    //     vm.prank(funder);
-    //     REGISTRAR.fund(cheqId, 0, amount, fundData);  // Send direct amount
-    // }
-
-    // function testCashInvoice(address caller, uint256 amount, address drawer, address recipient) public {
-    //     vm.assume(amount != 0 && amount <= tokensCreated);
-    //     (address drawer, uint256 escrowed, address owner) = (caller, 0, caller);
-    //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
-    //     vm.assume(drawer != recipient);
-
-    //     (uint256 cheqId, DirectPay directPay) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
-
-    //     fundHelper(cheqId, recipient, amount, directPay);
-
-    //     bytes memory cashData =  abi.encode(bytes32(""));
-    //     vm.prank(owner);
-    //     REGISTRAR.cash(cheqId, amount, owner, cashData);
-    // }
+        vm.prank(caller);
+        REGISTRAR.safeTransferFrom(
+            caller,
+            address(1),
+            cheqId,
+            abi.encode(bytes32("")) // transfer data
+        );
+    }
 }
-
-// function testTransferPay(address caller, uint256 amount, address recipient) public {
-//     vm.assume(amount != 0 && amount <= tokensCreated);
-//     (address drawer, uint256 directAmount, address owner) = (caller, amount, recipient);
-//     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
-//     vm.assume(drawer != recipient);
-
-//     (uint256 cheqId, DirectPay directPay) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
-//     vm.expectRevert(bytes("Rule: Disallowed"));
-//     REGISTRAR.transferFrom(owner, drawer, cheqId);
-// }
-
-// function testTransferInvoice(address caller, uint256 amount, address recipient) public {
-//     vm.assume(amount != 0 && amount <= tokensCreated);
-//     (address drawer, uint256 directAmount, address owner) = (caller, amount, caller);
-//     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
-//     vm.assume(drawer != recipient);
-
-//     (uint256 cheqId, DirectPay directPay) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
-//     vm.expectRevert(bytes("Rule: Disallowed"));
-//     REGISTRAR.transferFrom(owner, drawer, cheqId);
-// }
-
-// function testFundPay(address caller, uint256 amount, address drawer, address recipient) public {
-//     vm.assume(amount != 0 && amount <= tokensCreated);
-//     (address drawer, uint256 escrowed, address owner) = (caller, amount, caller);
-//     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
-//     vm.assume(drawer != recipient);
-
-//     (uint256 cheqId, DirectPay directPay) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
-//     bytes memory fundData =  abi.encode(bytes32(""));
-
-//     vm.expectRevert(bytes("Rule: Only recipient"));
-//     REGISTRAR.fund(cheqId, 0, amount, fundData);
-// }

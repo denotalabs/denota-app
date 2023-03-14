@@ -39,7 +39,7 @@ contract SimpleTimelock is ModuleBase {
         releaseDate[cheqId] = _releaseDate;
 
         emit Timelock(cheqId, _releaseDate);
-        return takeReturnFee(currency, escrowed, dappOperator);
+        return takeReturnFee(currency, escrowed, dappOperator, 0);
     }
 
     function processTransfer(
@@ -84,7 +84,7 @@ contract SimpleTimelock is ModuleBase {
         require(amount == cheq.escrowed, "Must fully cash");
         require(releaseDate[cheqId] < block.timestamp, "TIMELOCK");
         address dappOperator = abi.decode(initData, (address));
-        return takeReturnFee(cheq.currency, amount, dappOperator);
+        return takeReturnFee(cheq.currency, amount, dappOperator, 3);
     }
 
     function processApproval(

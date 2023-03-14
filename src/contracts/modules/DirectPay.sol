@@ -97,7 +97,7 @@ contract DirectPay is ModuleBase {
 
         _logPaymentCreated(cheqId, dappOperator, dueDate);
 
-        return takeReturnFee(currency, escrowed + amount, dappOperator);
+        return takeReturnFee(currency, escrowed + amount, dappOperator, 0);
     }
 
     function _logPaymentCreated(
@@ -130,7 +130,8 @@ contract DirectPay is ModuleBase {
         bytes memory data
     ) public override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
-        return takeReturnFee(currency, escrowed, abi.decode(data, (address)));
+        return
+            takeReturnFee(currency, escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -152,7 +153,8 @@ contract DirectPay is ModuleBase {
             takeReturnFee(
                 cheq.currency,
                 amount + instant,
-                abi.decode(initData, (address))
+                abi.decode(initData, (address)),
+                2
             );
     }
 

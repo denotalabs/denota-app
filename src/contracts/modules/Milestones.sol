@@ -112,7 +112,7 @@ contract Milestones is ModuleBase {
             );
         }
         emit Invoiced(cheqId, toNotify, docHash, milestoneAmounts); // TODO need to emit more parameters
-        return takeReturnFee(currency, escrowed + instant, dappOperator);
+        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
@@ -164,7 +164,8 @@ contract Milestones is ModuleBase {
             takeReturnFee(
                 cheq.currency,
                 amount + instant,
-                abi.decode(initData, (address))
+                abi.decode(initData, (address)),
+                2
             );
     }
 
@@ -190,7 +191,8 @@ contract Milestones is ModuleBase {
             takeReturnFee(
                 cheq.currency,
                 amount,
-                abi.decode(initData, (address))
+                abi.decode(initData, (address)),
+                3
             );
     }
 

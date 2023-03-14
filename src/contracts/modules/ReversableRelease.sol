@@ -42,34 +42,27 @@ contract ReversableRelease is ModuleBase {
         payInfo[cheqId].drawer = caller;
         payInfo[cheqId].memoHash = memoHash;
 
-        uint256 moduleFee;
-        {
-            uint256 totalAmount = escrowed + instant;
-            moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        }
-        revenue[dappOperator][currency] += moduleFee;
-        return moduleFee;
+        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
         address caller,
         address approved,
         address owner,
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
-        address, /*currency*/
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
+        address currency,
         uint256 escrowed,
-        uint256, /*createdAt*/
-        bytes memory /*data*/
-    ) external view override onlyRegistrar returns (uint256) {
+        uint256 /*createdAt*/,
+        bytes memory data
+    ) external override onlyRegistrar returns (uint256) {
         require(
             caller == owner || caller == approved,
             "Only owner or approved"
         );
-        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-        // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
-        return moduleFee;
+        return
+            takeReturnFee(currency, escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -87,19 +80,24 @@ contract ReversableRelease is ModuleBase {
 
     function processCash(
         address caller,
-        address, /*owner*/
-        address, /*to*/
+        address /*owner*/,
+        address /*to*/,
         uint256 amount,
         uint256 cheqId,
-        DataTypes.Cheq calldata, /*cheq*/
-        bytes calldata /*initData*/
-    ) external view override onlyRegistrar returns (uint256) {
+        DataTypes.Cheq calldata cheq,
+        bytes calldata initData
+    ) external override onlyRegistrar returns (uint256) {
         require(
             caller == payInfo[cheqId].inspector,
             "Inspector cash for owner"
         );
-        uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-        return moduleFee;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount,
+                abi.decode(initData, (address)),
+                3
+            );
     }
 
     function processApproval(

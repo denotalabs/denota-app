@@ -10,7 +10,7 @@
   },
   "ast": {
     "absolutePath": "src/contracts/rules/NFTGateRules.sol",
-    "id": 39089,
+    "id": 38606,
     "exportedSymbols": {
       "Address": [
         27649
@@ -19,7 +19,7 @@
         27671
       ],
       "DataTypes": [
-        33931
+        33468
       ],
       "ERC165": [
         27870
@@ -28,10 +28,10 @@
         27158
       ],
       "IApproveRule": [
-        33114
+        32651
       ],
       "ICashRule": [
-        33097
+        32634
       ],
       "IERC165": [
         27882
@@ -46,13 +46,13 @@
         27292
       ],
       "IFundRule": [
-        33078
+        32615
       ],
       "ITransferRule": [
-        33059
+        32596
       ],
       "IWriteRule": [
-        33038
+        32575
       ],
       "Math": [
         28747
@@ -62,12 +62,12 @@
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:2961:79",
+    "src": "37:2961:78",
     "nodes": [
       {
-        "id": 39078,
+        "id": 38595,
         "nodeType": "PragmaDirective",
-        "src": "37:24:79",
+        "src": "37:24:78",
         "nodes": [],
         "literals": [
           "solidity",
@@ -77,50 +77,50 @@
         ]
       },
       {
-        "id": 39079,
+        "id": 38596,
         "nodeType": "ImportDirective",
-        "src": "62:46:79",
+        "src": "62:46:78",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
         "file": "openzeppelin/token/ERC721/ERC721.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39089,
+        "scope": 38606,
         "sourceUnit": 27159,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 39080,
+        "id": 38597,
         "nodeType": "ImportDirective",
-        "src": "109:54:79",
+        "src": "109:54:78",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "file": "openzeppelin/utils/introspection/IERC165.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39089,
+        "scope": 38606,
         "sourceUnit": 27883,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 39082,
+        "id": 38599,
         "nodeType": "ImportDirective",
-        "src": "164:53:79",
+        "src": "164:53:78",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39089,
-        "sourceUnit": 33932,
+        "scope": 38606,
+        "sourceUnit": 33469,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 39081,
+              "id": 38598,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33931,
-              "src": "172:9:79",
+              "referencedDeclaration": 33468,
+              "src": "172:9:78",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -129,72 +129,72 @@
         "unitAlias": ""
       },
       {
-        "id": 39088,
+        "id": 38605,
         "nodeType": "ImportDirective",
-        "src": "218:107:79",
+        "src": "218:107:78",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
         "file": "../interfaces/IWTFCRules.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 39089,
-        "sourceUnit": 33115,
+        "scope": 38606,
+        "sourceUnit": 32652,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 39083,
+              "id": 38600,
               "name": "IWriteRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33038,
-              "src": "226:10:79",
+              "referencedDeclaration": 32575,
+              "src": "226:10:78",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 39084,
+              "id": 38601,
               "name": "ITransferRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33059,
-              "src": "238:13:79",
+              "referencedDeclaration": 32596,
+              "src": "238:13:78",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 39085,
+              "id": 38602,
               "name": "IFundRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33078,
-              "src": "253:9:79",
+              "referencedDeclaration": 32615,
+              "src": "253:9:78",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 39086,
+              "id": 38603,
               "name": "ICashRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33097,
-              "src": "264:9:79",
+              "referencedDeclaration": 32634,
+              "src": "264:9:78",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 39087,
+              "id": 38604,
               "name": "IApproveRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 33114,
-              "src": "275:12:79",
+              "referencedDeclaration": 32651,
+              "src": "275:12:78",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -205,5 +205,5 @@
     ],
     "license": "BUSL-1.1"
   },
-  "id": 79
+  "id": 78
 }
