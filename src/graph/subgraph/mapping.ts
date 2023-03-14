@@ -62,6 +62,13 @@ export function handleWrite(event: WrittenEvent): void {
   const cheq = Cheq.load(cheqId);
   const cheqEscrowed = event.params.escrowed;
 
+  const transaction = saveTransaction(
+    transactionHexHash,
+    cheqId,
+    event.block.timestamp,
+    event.block.number
+  );
+
   if (cheq) {
     cheq.erc20 = ERC20Token.id;
     cheq.module = event.params.module.toHexString();
@@ -72,21 +79,13 @@ export function handleWrite(event: WrittenEvent): void {
 
   const escrow = new Escrow(transactionHexHash + "/" + cheqId); // How OZ does IDs entities that implements Event?
   escrow.emitter = event.transaction.from.toHexString();
-  escrow.transaction = transactionHexHash; // TODO How OZ does it, how does it work?
+  escrow.transaction = transaction.id; // TODO How OZ does it, how does it work?
   escrow.timestamp = event.block.timestamp;
   escrow.cheq = event.params.cheqId.toString();
   escrow.from = event.transaction.from.toHexString();
   escrow.amount = cheqEscrowed;
   escrow.instantAmount = event.params.instant;
   escrow.save();
-
-  // const transaction =
-  saveTransaction(
-    transactionHexHash,
-    cheqId,
-    event.block.timestamp,
-    event.block.number
-  );
 }
 
 export function handleDirectPayment(event: PaymentCreatedEvent): void {
@@ -107,6 +106,7 @@ export function handleDirectPayment(event: PaymentCreatedEvent): void {
   directPay.creditor = creditorAccount.id;
   directPay.debtor = debtorAccount.id;
   directPay.amount = event.params.amount;
+  directPay.dueDate = event.params.dueDate;
   directPay.save();
 
   const newCheq = new Cheq(cheqId);

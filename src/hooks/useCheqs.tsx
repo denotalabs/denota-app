@@ -41,6 +41,7 @@ export interface Cheq {
   uri: string;
   payer: string;
   payee: string;
+  dueDate?: Date;
 }
 
 const convertExponent = (amountExact: number) => {
@@ -72,7 +73,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         case blockchainState.weth?.address.toLowerCase():
           return "WETH";
         default:
-          return "USDC";
+          return "NATIVE";
       }
     },
     [blockchainState.dai?.address, blockchainState.weth?.address]
@@ -119,6 +120,12 @@ export const useCheqs = ({ cheqField }: Props) => {
 
       const isPayer = payer === blockchainState.account.toLowerCase();
 
+      let dueDate: Date | undefined = undefined;
+
+      if (gqlCheq.moduleData.dueDate) {
+        dueDate = new Date(Number(gqlCheq.moduleData.dueDate) * 1000);
+      }
+
       return {
         id: gqlCheq.id as string,
         amount: convertExponent(gqlCheq.moduleData.amount as number),
@@ -146,6 +153,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         isPayer,
         payer,
         payee,
+        dueDate,
       };
     },
     [blockchainState.account, currencyForTokenId]
@@ -180,6 +188,7 @@ export const useCheqs = ({ cheqField }: Props) => {
           debtor {
             id
           }
+          dueDate
         }
       }
       escrows {

@@ -17,10 +17,11 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
   MdInfoOutline,
+  MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
   MdSwapHoriz,
@@ -43,18 +44,20 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/",
     isExternal: false,
   },
+  { name: "New Nota", icon: MdOutlineAdd, href: "/send", isExternal: false },
+  { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
     name: "Documentation",
     icon: MdOutlineDescription,
     href: "https://cheq-finance.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80",
     isExternal: true,
   },
-  { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box minH="100vh">
       <SidebarContent
@@ -121,7 +124,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
           </Flex>
           <VStack gap={3} alignItems="flex-start">
             {LinkItems.map((link) => (
-              <NavItem key={link.name} {...link}>
+              <NavItem key={link.name} onClose={onClose} {...link}>
                 <Text fontSize="lg">{link.name}</Text>
               </NavItem>
             ))}
@@ -170,19 +173,17 @@ interface NavItemProps extends FlexProps {
   href: string;
   isExternal: boolean;
   children?: ReactNode;
+  onClose: () => void;
 }
 const NavItem = ({
   icon,
   children,
   href,
   isExternal,
+  onClose,
   ...rest
 }: NavItemProps) => {
   const router = useRouter();
-
-  useEffect(() => {
-    router.prefetch("/send");
-  }, [router]);
 
   const isSelected = useMemo(() => {
     return router.pathname === href;
@@ -195,6 +196,7 @@ const NavItem = ({
           ? undefined
           : () => {
               router.push(href, undefined, { shallow: true });
+              onClose();
             }
       }
       href={isExternal ? href : undefined}

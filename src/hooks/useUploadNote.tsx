@@ -3,44 +3,58 @@ import { useCallback } from "react";
 
 const CHEQ_NOTE_SERVICE_URL_LOCAL = "http://127.0.0.1:3001/lighthouse";
 
-const CHEQ_NOTE_SERVICE = "https://klymr.me/nft-lighthouse";
+const CHEQ_NOTE_SERVICE = "https://denota.klymr.me/nft-lighthouse";
+
+interface NotaMetadata {
+  desc?: string;
+  tags?: string;
+}
 
 export const useUploadNote = () => {
-  const uploadFile = useCallback(async (file: any, note: string) => {
-    if (!file && !note) {
-      return;
-    }
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-
-      const formData = new FormData();
-      if (file) {
-        formData.append("file", file);
+  const uploadFile = useCallback(
+    async (file: any, note: string, tags: string) => {
+      if (!file && !note && !tags) {
+        return;
       }
-      if (note) {
-        const rqData = {
-          desc: note,
+      try {
+        const config = {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         };
 
-        const json = JSON.stringify(rqData);
-        const blob = new Blob([json], {
-          type: "application/json",
-        });
-        formData.append("document", blob);
-      }
+        const formData = new FormData();
+        if (file) {
+          formData.append("file", file);
+        }
+        if (note || tags) {
+          const rqData: NotaMetadata = {};
 
-      const resp = await axios.post(CHEQ_NOTE_SERVICE, formData, config);
-      console.log(resp.data.url);
-      return resp.data.key as string;
-    } catch (error) {
-      console.log(error);
-      return undefined;
-    }
-  }, []);
+          if (note) {
+            rqData.desc = note;
+          }
+
+          if (tags) {
+            rqData.tags = tags;
+          }
+
+          const json = JSON.stringify(rqData);
+          const blob = new Blob([json], {
+            type: "application/json",
+          });
+          formData.append("document", blob);
+        }
+
+        const resp = await axios.post(CHEQ_NOTE_SERVICE, formData, config);
+        console.log(resp.data.url);
+        return resp.data.key as string;
+      } catch (error) {
+        console.log(error);
+        return undefined;
+      }
+    },
+    []
+  );
 
   return { uploadFile };
 };

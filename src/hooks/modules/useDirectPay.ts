@@ -12,43 +12,63 @@ interface Props {
   isInvoice: boolean;
 }
 
-export const useDirectPay = ({
-  dueDate,
-  tokenAddress,
-  amountWei,
-  address,
-  escrowedWei,
-  noteKey,
-  isInvoice,
-}: Props) => {
+export const useDirectPay = () => {
   const { blockchainState } = useBlockchainData();
 
-  const writeCheq = useCallback(async () => {
-    const payload = ethers.utils.defaultAbiCoder.encode(
-      ["address", "uint256", "uint256", "address", "string"],
-      [address, amountWei, 0, blockchainState.account, noteKey]
-    );
-    const tx = await blockchainState.cheq?.write(
+  const writeCheq = useCallback(
+    async ({
+      dueDate,
       tokenAddress,
-      0,
+      amountWei,
+      address,
       escrowedWei,
-      isInvoice ? blockchainState.account : address,
+      noteKey,
+      isInvoice,
+    }: Props) => {
+      const utcOffset = new Date().getTimezoneOffset();
+
+      let dueTimestamp;
+
+      if (dueDate) {
+        dueTimestamp =
+          Date.parse(`${dueDate}T00:00:00Z`) / 1000 + utcOffset * 60;
+      } else {
+        const d = new Date();
+        const today = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 10);
+        dueTimestamp = Date.parse(`${today}T00:00:00Z`) / 1000 + utcOffset * 60;
+      }
+
+      const payload = ethers.utils.defaultAbiCoder.encode(
+        ["address", "uint256", "uint256", "address", "string", "uint256"],
+        [address, amountWei, 0, blockchainState.account, noteKey, dueTimestamp]
+      );
+
+      const msgValue =
+        tokenAddress === "0x0000000000000000000000000000000000000000" &&
+        !isInvoice
+          ? escrowedWei
+          : BigNumber.from(0);
+
+      const tx = await blockchainState.cheq?.write(
+        tokenAddress,
+        0,
+        escrowedWei,
+        isInvoice ? blockchainState.account : address,
+        blockchainState.directPayAddress,
+        payload,
+        { value: msgValue }
+      );
+      const receipt = await tx.wait();
+      return receipt.transactionHash;
+    },
+    [
+      blockchainState.account,
+      blockchainState.cheq,
       blockchainState.directPayAddress,
-      payload
-    );
-    const receipt = await tx.wait();
-    return receipt.transactionHash;
-  }, [
-    address,
-    amountWei,
-    blockchainState.account,
-    blockchainState.cheq,
-    blockchainState.directPayAddress,
-    escrowedWei,
-    isInvoice,
-    noteKey,
-    tokenAddress,
-  ]);
+    ]
+  );
 
   return { writeCheq };
 };

@@ -8,7 +8,6 @@ import { MUMBAI_ADDRESS } from "../../context/chainInfo";
 import { switchNetwork } from "../../context/SwitchNetwork";
 import NewUserModal from "../nux/NewUserModal";
 import MyCheqsView from "./MyCheqsView";
-import NewInvoice from "./NewInvoice";
 import NewUserScreen from "./NewUserScreen";
 
 function HomeScreen() {
@@ -74,7 +73,6 @@ function HomeScreenContent() {
   ) : (
     <Center flexDirection={"column"} width="100%" p={{ base: "4", lg: "0" }}>
       <NewUserModal isOpen={isNuxOpen} onClose={onCloseNux} />
-      <NewInvoice />
       <br />
       <MyCheqsView />
     </Center>

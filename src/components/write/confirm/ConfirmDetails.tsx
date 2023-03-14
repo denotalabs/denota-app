@@ -1,22 +1,29 @@
 import { VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
+import { useFormatAddress } from "../../../hooks/useFormatAddress";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
-import { useStep } from "../../designSystem/stepper/Stepper";
 
 interface Props {
   isInvoice: boolean;
 }
 
 function ConfirmDetails({ isInvoice }: Props) {
-  const { formData } = useStep();
+  const { formData } = useNotaForm();
+  const { formatAddress } = useFormatAddress();
+
   const inspectionDays = useMemo(() => {
     return Number(formData.inspection) / 86400;
   }, [formData.inspection]);
+
   return (
     <RoundedBox p={6}>
       <VStack>
-        <DetailsRow title="Client address" value={formData.address} />
+        <DetailsRow
+          title="Client address"
+          value={formatAddress(formData.address)}
+        />
         <DetailsRow
           title="Payment Amount"
           value={formData.amount + " " + formData.token}

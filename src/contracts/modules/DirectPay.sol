@@ -16,7 +16,7 @@ contract DirectPay is ModuleBase {
         address creditor;
         address debtor;
         uint256 amount; // Face value of the payment
-        uint256 timestamp; // Record keeping timestamp
+        // uint256 timestamp; // Record keeping timestamp BUG stack too deep in write, removed timestamp
         bool wasPaid; // TODO is this needed if using instant pay?
         string imageURI;
         string memoHash; // assumes ipfs://HASH
@@ -30,7 +30,8 @@ contract DirectPay is ModuleBase {
         uint256 timestamp,
         address referer,
         address creditor,
-        address debtor
+        address debtor,
+        uint256 dueDate
     );
     error EscrowUnsupported();
     error AmountZero();
@@ -61,7 +62,8 @@ contract DirectPay is ModuleBase {
         (
             address toNotify,
             uint256 amount, // Face value (for invoices)
-            uint256 timestamp,
+            // uint256 timestamp,
+            uint256 dueDate,
             address dappOperator,
             string memory imageURI,
             string memory memoHash
@@ -89,30 +91,29 @@ contract DirectPay is ModuleBase {
         }
 
         payInfo[cheqId].amount = amount;
-        payInfo[cheqId].timestamp = timestamp;
+        // payInfo[cheqId].timestamp = timestamp;
         payInfo[cheqId].memoHash = memoHash;
         payInfo[cheqId].imageURI = imageURI;
 
-        _logPaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
+        _logPaymentCreated(cheqId, dappOperator, dueDate);
 
         return takeReturnFee(currency, escrowed + amount, dappOperator);
     }
 
     function _logPaymentCreated(
         uint256 cheqId,
-        string memory memoHash,
-        uint256 amount,
-        uint256 timestamp,
-        address referer
+        address referer,
+        uint256 dueDate
     ) private {
         emit PaymentCreated(
             cheqId,
-            memoHash,
-            amount,
-            timestamp,
+            payInfo[cheqId].memoHash,
+            payInfo[cheqId].amount,
+            block.timestamp,
             referer,
             payInfo[cheqId].creditor,
-            payInfo[cheqId].debtor
+            payInfo[cheqId].debtor,
+            dueDate
         );
     }
 

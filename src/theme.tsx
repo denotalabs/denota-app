@@ -12,6 +12,7 @@ const cheqTheme = extendTheme({
     heading: `DM Sans, sans-serif`,
     mono: "DM Sans, monospace",
   },
+  shadows: { outline: "0 !important" },
   colors: {
     brand: {
       100: "#0E111B",

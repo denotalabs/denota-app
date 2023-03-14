@@ -1080,28 +1080,28 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/SpiteLockup.sol",
-    "id": 34778,
+    "id": 37005,
     "exportedSymbols": {
       "DataTypes": [
-        31703
+        33931
       ],
       "ICheqRegistrar": [
-        30749
+        32842
       ],
       "ModuleBase": [
-        30183
+        32276
       ],
       "SpiteLockup": [
-        34777
+        37004
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:348:58",
+    "src": "37:348:71",
     "nodes": [
       {
-        "id": 34767,
+        "id": 36994,
         "nodeType": "PragmaDirective",
-        "src": "37:24:58",
+        "src": "37:24:71",
         "nodes": [],
         "literals": [
           "solidity",
@@ -1111,24 +1111,24 @@
         ]
       },
       {
-        "id": 34769,
+        "id": 36996,
         "nodeType": "ImportDirective",
-        "src": "63:45:58",
+        "src": "63:45:71",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34778,
-        "sourceUnit": 30184,
+        "scope": 37005,
+        "sourceUnit": 32277,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34768,
+              "id": 36995,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30183,
-              "src": "71:10:58",
+              "referencedDeclaration": 32276,
+              "src": "71:10:71",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1137,24 +1137,24 @@
         "unitAlias": ""
       },
       {
-        "id": 34771,
+        "id": 36998,
         "nodeType": "ImportDirective",
-        "src": "109:53:58",
+        "src": "109:53:71",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34778,
-        "sourceUnit": 31704,
+        "scope": 37005,
+        "sourceUnit": 33932,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34770,
+              "id": 36997,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31703,
-              "src": "117:9:58",
+              "referencedDeclaration": 33931,
+              "src": "117:9:71",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1163,24 +1163,24 @@
         "unitAlias": ""
       },
       {
-        "id": 34773,
+        "id": 37000,
         "nodeType": "ImportDirective",
-        "src": "163:64:58",
+        "src": "163:64:71",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34778,
-        "sourceUnit": 30750,
+        "scope": 37005,
+        "sourceUnit": 32843,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34772,
+              "id": 36999,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 30749,
-              "src": "171:14:58",
+              "referencedDeclaration": 32842,
+              "src": "171:14:71",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1189,52 +1189,52 @@
         "unitAlias": ""
       },
       {
-        "id": 34777,
+        "id": 37004,
         "nodeType": "ContractDefinition",
-        "src": "336:48:58",
+        "src": "336:48:71",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 34775,
+              "id": 37002,
               "name": "ModuleBase",
               "nameLocations": [
-                "369:10:58"
+                "369:10:71"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 30183,
-              "src": "369:10:58"
+              "referencedDeclaration": 32276,
+              "src": "369:10:71"
             },
-            "id": 34776,
+            "id": 37003,
             "nodeType": "InheritanceSpecifier",
-            "src": "369:10:58"
+            "src": "369:10:71"
           }
         ],
         "canonicalName": "SpiteLockup",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 34774,
+          "id": 37001,
           "nodeType": "StructuredDocumentation",
-          "src": "229:107:58",
+          "src": "229:107:71",
           "text": "@notice Sender pays reciever and can spite where the sender gets back the money after X amount of time"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          34777,
-          30183,
-          30606
+          37004,
+          32276,
+          32699
         ],
         "name": "SpiteLockup",
-        "nameLocation": "354:11:58",
-        "scope": 34778,
+        "nameLocation": "354:11:71",
+        "scope": 37005,
         "usedErrors": [
-          31717
+          33945
         ]
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 58
+  "id": 71
 }

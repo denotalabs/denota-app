@@ -95,7 +95,7 @@ type Cheq @entity {
   sender: Account
   receiver: Account
   moduleData: ModuleData 
-  # Should the creation hash be stored here?
+  transaction: Transaction!
 }
 
 # TODO: figure out why unions aren't working
@@ -121,6 +121,7 @@ type DirectPayData implements ModuleData @entity {
   creditor: Account!
   debtor: Account!
   memo: Bytes!
+  dueDate: BigInt!
 }
 
 interface Module {  # Allows new modules to inherit from Module interface

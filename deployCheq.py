@@ -123,3 +123,5 @@ if __name__ == "__main__":
   # Whitelist tokens
   for token in tokens:
     eth_call(f'cast send {registrar} "whitelistToken(address,bool)" {token} "true" {rpc_key_flags}', "Whitelist token failed")
+  
+  eth_call(f'cast send {registrar} "whitelistToken(address,bool)" "0x0000000000000000000000000000000000000000" "true" {rpc_key_flags}', "Whitelist token failed")

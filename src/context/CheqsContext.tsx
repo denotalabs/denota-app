@@ -44,7 +44,7 @@ export const CheqsProvider = ({ children }: { children: React.ReactNode }) => {
     setTimeout(() => {
       refresh();
       setIsLoadingInternal(false);
-    }, 4000);
+    }, 2000);
   }, [refresh]);
 
   const isLoading = useMemo(() => {

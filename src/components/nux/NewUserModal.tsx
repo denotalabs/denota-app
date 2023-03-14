@@ -32,7 +32,7 @@ function NewUserModalContent({ onClose }: ContentProps) {
       <VStack>
         <WaveIcon />
         <Text fontWeight={600} fontSize={"2xl"} textAlign="center">
-          Hey! Welcome to Cheq!
+          Hola! Welcome to Denota!
         </Text>
         <Text fontWeight={600} fontSize={"lg"} textAlign="center"></Text>
         <Link

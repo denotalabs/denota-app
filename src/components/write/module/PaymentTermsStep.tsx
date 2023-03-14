@@ -1,16 +1,24 @@
 import { Box } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useMemo } from "react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
-import ModuleInfo from "./ModuleInfo";
+import ModuleTerms from "./ModuleTerms";
 
 interface Props extends ScreenProps {
   isInvoice: boolean;
 }
 
+export type PaymentTermsFormValues = {
+  inspection: number;
+  module: string;
+  dueDate: string;
+};
+
 const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
-  const { next, appendFormData, formData } = useStep();
+  const { next } = useStep();
+  const { appendFormData, formData } = useNotaForm();
 
   const currentDate = useMemo(() => {
     const d = new Date();
@@ -40,8 +48,13 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
       >
         {(props) => (
           <Form>
-            <ModuleInfo module={props.values.module} isInvoice={isInvoice} />
-            <RoundedButton type="submit">{"Next"}</RoundedButton>
+            <ModuleTerms module={props.values.module} isInvoice={isInvoice} />
+            <RoundedButton
+              display={{ base: "block", md: "none" }}
+              type="submit"
+            >
+              {"Next"}
+            </RoundedButton>
           </Form>
         )}
       </Formik>

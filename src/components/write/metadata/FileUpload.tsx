@@ -10,8 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import React, { ChangeEvent, ForwardedRef, useRef, useState } from "react";
-import { useStep } from "../../designSystem/stepper/Stepper";
-import OptionalFieldHelperText from "../../fields/input/OptionFieldHelperText";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 
 type FileUploadProps = {
   accept?: string;
@@ -35,14 +34,14 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
     const [{ onChange, ...field }, , { setValue }] = useField(name);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const toast = useToast();
-    const { file } = useStep();
+    const { file } = useNotaForm();
 
     const handleClick = () => {
       inputRef.current?.click();
     };
 
     const handleChange = (value: ChangeEvent<HTMLInputElement>) => {
-      if (value.target.files?.[0] && value.target.files?.[0].size < 1000000) {
+      if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
         setFileName(value.target.files?.[0].name);
         value.target.files && setValue(value.target.files?.[0]);
       } else {
@@ -59,10 +58,9 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
 
     return (
       <FormControl name={name} label={label} {...rest} {...ref}>
-        <FormLabel noOfLines={1} flexShrink={0} mb={0}>
+        <FormLabel noOfLines={1} flexShrink={0}>
           Attach File
         </FormLabel>
-        <OptionalFieldHelperText />
         <InputGroup onClick={handleClick}>
           <input
             onChange={handleChange}
