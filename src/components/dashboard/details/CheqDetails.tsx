@@ -4,6 +4,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { Cheq } from "../../../hooks/useCheqs";
+import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
+import { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
@@ -48,6 +50,8 @@ function CheqDetails({ cheq }: Props) {
     fetchData();
   }, [cheq.uri]);
 
+  const { displayNameForCurrency } = useCurrencyDisplayName();
+
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
@@ -79,7 +83,11 @@ function CheqDetails({ cheq }: Props) {
           )}
           <DetailsRow
             title="Payment Amount"
-            value={String(cheq.amount) + " " + cheq.token}
+            value={
+              String(cheq.amount) +
+              " " +
+              displayNameForCurrency(cheq.token as CheqCurrency)
+            }
           />
           <DetailsRow
             title="Module"
