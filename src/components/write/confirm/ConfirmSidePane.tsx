@@ -7,6 +7,7 @@ import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useConfirmNota } from "../../../hooks/useConfirmNota";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
 import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
+import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedButton from "../../designSystem/RoundedButton";
 
 export function ConfirmSidePane() {
@@ -161,6 +162,9 @@ export function ConfirmSidePane() {
           </Flex>
         </Box>
         {isReady && <Text fontSize={"lg"}>Your nota is ready to send!</Text>}
+        {formData.dueDate && (
+          <DetailsRow title="Due Date" value={formData.dueDate} />
+        )}
       </VStack>
 
       <RoundedButton
