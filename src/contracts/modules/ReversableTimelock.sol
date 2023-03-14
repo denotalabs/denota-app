@@ -17,6 +17,16 @@ contract ReversableTimelock is ModuleBase {
         bytes32 memoHash;
     }
     mapping(uint256 => Payment) public payments;
+    event PaymentCreated();
+
+    error EscrowUnsupported();
+    error AmountZero();
+    error InvoiceWithPay();
+    error InsufficientPayment();
+    error AddressZero();
+    error Disallowed();
+    error OnlyOwner();
+    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
@@ -24,17 +34,6 @@ contract ReversableTimelock is ModuleBase {
         string memory __baseURI
     ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
-    }
-
-    function _collectFee(
-        uint256 escrowed,
-        uint256 instant,
-        address currency,
-        address dappOperator
-    ) internal returns (uint256 moduleFee) {
-        uint256 totalAmount = escrowed + instant;
-        moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        revenue[dappOperator][currency] += moduleFee;
     }
 
     function processWrite(
@@ -59,7 +58,7 @@ contract ReversableTimelock is ModuleBase {
         payments[cheqId].drawer = caller;
         payments[cheqId].memoHash = memoHash;
 
-        return _collectFee(escrowed, instant, currency, dappOperator);
+        return takeReturnFee(currency, escrowed + instant, dappOperator);
     }
 
     function processTransfer(
@@ -78,7 +77,7 @@ contract ReversableTimelock is ModuleBase {
             caller == owner || caller == approved,
             "Only owner or approved"
         );
-        return _collectFee(escrowed, 0, currency, REGISTRAR);
+        return return takeReturnFee(currency, 0, dappOperator);
     }
 
     function processFund(
@@ -107,13 +106,7 @@ contract ReversableTimelock is ModuleBase {
             caller == payments[cheqId].inspector,
             "Inspector cash for owner"
         );
-        return
-            _collectFee(
-                0,
-                amount,
-                cheq.currency,
-                abi.decode(initData, (address))
-            );
+        return takeReturnFee(cheq.currency, amount, abi.decode(initData, (address)));
     }
 
     function processApproval(
@@ -129,9 +122,10 @@ contract ReversableTimelock is ModuleBase {
         uint256 tokenId
     ) external view override returns (string memory) {
         return
-            bytes(_URI).length > 0
-                ? string(abi.encodePacked(_URI, tokenId))
+            bytes(__URI).length > 0
+                ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
                 : "";
+
         // return string(abi.encode(_URI, payments[tokenId].memoHash));
     }
 }

@@ -112,21 +112,19 @@ contract Milestones is ModuleBase {
             );
         }
         emit Invoiced(cheqId, toNotify, docHash, milestoneAmounts); // TODO need to emit more parameters
-        uint256 moduleFee = ((escrowed + instant) * fees.fundBPS) / BPS_MAX;
-        revenue[dappOperator][currency] += moduleFee;
-        return moduleFee;
+        return takeReturnFee(currency, escrowed + instant, dappOperator);
     }
 
     function processTransfer(
-        address, /*caller*/
-        address, /*approved*/
-        address, /*owner*/
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
-        address, /*currency*/
-        uint256, /*escrowed*/
-        uint256, /*createdAt*/
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
+        address /*currency*/,
+        uint256 /*escrowed*/,
+        uint256 /*createdAt*/,
         bytes memory /*data*/
     ) external view override onlyRegistrar returns (uint256) {
         // if (caller != owner && caller != approved) revert OnlyOwnerOrApproved(); // Question: enable for invoice factoring?
@@ -135,8 +133,8 @@ contract Milestones is ModuleBase {
 
     function processFund(
         /// Should instant be allowed here instead of escrow?
-        address, /*caller*/
-        address, /*owner*/
+        address /*caller*/,
+        address /*owner*/,
         uint256 amount,
         uint256 instant,
         uint256 cheqId,
@@ -162,14 +160,12 @@ contract Milestones is ModuleBase {
 
         invoices[cheqId].currentMilestone += 1;
 
-        uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
-        revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
-        return moduleFee;
+        return takeReturnFee(cheq.currency, amount + instant, dappOperator);
     }
 
     // Allow the funder or owner to cash the current milestone
     function processCash(
-        address, /*caller*/
+        address /*caller*/,
         address owner,
         address to,
         uint256 amount,
@@ -185,50 +181,40 @@ contract Milestones is ModuleBase {
         ) revert InsufficientPayment();
         invoices[cheqId].currentMilestone += 1;
 
-        uint256 moduleFee = ((amount) * fees.fundBPS) / BPS_MAX;
-        revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
-        return moduleFee;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount,
+                abi.decode(initData, (address))
+            );
     }
 
     function processApproval(
-        address, /*caller*/
-        address, /*owner*/
-        address, /*to*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes memory /*initDat*/
     ) external view override onlyRegistrar {
         // if (caller != owner) revert OnlyOwner(); // Question: enable for invoice factoring?
         revert Disallowed();
     }
 
-    function processTokenURI(uint256 tokenId)
-        public
-        view
-        override
-        onlyRegistrar
-        returns (string memory)
-    {
+    function processTokenURI(
+        uint256 tokenId
+    ) public view override onlyRegistrar returns (string memory) {
         string memory __baseURI = _baseURI();
+        // Question: should milestones include an image?
         return
-            bytes(__baseURI).length > 0
-                ? string(abi.encodePacked(_URI, tokenId))
+            bytes(_URI).length > 0
+                ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
                 : "";
     }
 
-    function _baseURI() internal view returns (string memory) {
-        return _URI;
-    }
-
-    // function setBaseURI(string calldata __baseURI) external onlyOwner {
-    //     _URI = __baseURI;
-    // }
-
-    function getMilestones(uint256 cheqId)
-        public
-        view
-        returns (Milestone[] memory)
-    {
+    function getMilestones(
+        uint256 cheqId
+    ) public view returns (Milestone[] memory) {
         return milestones[cheqId];
     }
 

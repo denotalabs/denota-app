@@ -17,7 +17,7 @@ abstract contract ModuleBase is ICheqModule {
     address public immutable REGISTRAR; // Question: Make this a hardcoded address?
     mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
     uint256 internal constant BPS_MAX = 10_000; // Lens uses uint16
-    DataTypes.WTFCFees public fees;
+    DataTypes.WTFCFees public fees; // TODO turn this into a mapping for dappOperators
 
     string public _URI; // Should this be in the ModuleBase?
 
@@ -114,11 +114,11 @@ abstract contract ModuleBase is ICheqModule {
     //     // Add module logic here
     // }
 
-    function processTokenURI(
-        uint256 tokenId
-    ) external view virtual override returns (string memory) {
-        return string(abi.encodePacked(_URI, tokenId));
-    }
+    // function processTokenURI(
+    //     uint256 tokenId
+    // ) external view virtual override returns (string memory) {
+    //     return string(abi.encodePacked(_URI, tokenId));
+    // }
 
     function getFees()
         external

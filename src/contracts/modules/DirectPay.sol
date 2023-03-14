@@ -93,16 +93,9 @@ contract DirectPay is ModuleBase {
         payInfo[cheqId].memoHash = memoHash;
         payInfo[cheqId].imageURI = imageURI;
 
-        uint256 moduleFee;
-        {
-            uint256 totalAmount = escrowed + instant;
-            moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        }
-        revenue[dappOperator][currency] += moduleFee;
-
         _logPaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
 
-        return moduleFee;
+        return takeReturnFee(currency, escrowed + amount, dappOperator);
     }
 
     function _logPaymentCreated(
@@ -136,9 +129,12 @@ contract DirectPay is ModuleBase {
         bytes memory data
     ) public override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
-        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-        revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
-        return moduleFee;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount + instant,
+                abi.decode(initData, (address))
+            );
     }
 
     function processFund(
@@ -156,10 +152,12 @@ contract DirectPay is ModuleBase {
         if (payInfo[cheqId].wasPaid) revert Disallowed();
         // require(caller == payInfo[cheqId].debtor, "Only debtor"); // Should anyone be allowed to pay?
         payInfo[cheqId].wasPaid = true;
-
-        uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
-        revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
-        return moduleFee;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount + instant,
+                abi.decode(initData, (address))
+            );
     }
 
     function processCash(
@@ -189,10 +187,6 @@ contract DirectPay is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) external view override returns (string memory) {
-        /**
-            ',"external_url":', memoHash,
-            ',"image":', imageHash
-         */
         return
             string(
                 abi.encodePacked(
