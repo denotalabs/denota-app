@@ -58,7 +58,7 @@ contract ReversableTimelock is ModuleBase {
         payments[cheqId].drawer = caller;
         payments[cheqId].memoHash = memoHash;
 
-        return takeReturnFee(currency, escrowed + instant, dappOperator);
+        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
@@ -77,7 +77,7 @@ contract ReversableTimelock is ModuleBase {
             caller == owner || caller == approved,
             "Only owner or approved"
         );
-        return takeReturnFee(currency, 0, abi.decode(data, (address)));
+        return takeReturnFee(currency, 0, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -110,7 +110,8 @@ contract ReversableTimelock is ModuleBase {
             takeReturnFee(
                 cheq.currency,
                 amount,
-                abi.decode(initData, (address))
+                abi.decode(initData, (address)),
+                3
             );
     }
 

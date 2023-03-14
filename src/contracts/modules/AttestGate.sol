@@ -115,25 +115,19 @@ contract AttestSendLock is ModuleBase {
         attestGates[cheqId].index = index;
         attestGates[cheqId].expectedVal = expectedVal;
 
-        uint256 moduleFee;
-        {
-            uint256 totalAmount = escrowed + instant;
-            moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-        }
-        revenue[dappOperator][currency] += moduleFee;
-        return moduleFee;
+        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
-        address, /*caller*/
-        address, /*approved*/
-        address, /*owner*/
-        address, /*from*/
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
+        address /*from*/,
         address to,
         uint256 cheqId,
-        address, /*currency*/
+        address /*currency*/,
         uint256 escrowed,
-        uint256, /*createdAt*/
+        uint256 /*createdAt*/,
         bytes memory /*data*/
     )
         external
@@ -143,8 +137,7 @@ contract AttestSendLock is ModuleBase {
         onlyAttested(to, cheqId)
         returns (uint256)
     {
-        // uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-        // revenue[referer][cheq.currency] += moduleFee;
+        // return takeReturnFee(currency, escrowed, dappOperator);
         return 0;
     }
 
@@ -158,41 +151,45 @@ contract AttestSendLock is ModuleBase {
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(caller == owner, "Not owner");
-        address referer = abi.decode(initData, (address));
-        uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
-        revenue[referer][cheq.currency] += moduleFee;
-        return moduleFee;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount + instant,
+                abi.decode(initData, (address)),
+                2
+            );
     }
 
     function processCash(
-        address, /*caller*/
-        address, /*owner*/
-        address, /*to*/
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
         uint256 amount,
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
-        bytes calldata /*initData*/
-    ) external view override onlyRegistrar returns (uint256) {
-        uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-        return moduleFee;
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata cheq,
+        bytes calldata initData
+    ) external override onlyRegistrar returns (uint256) {
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount,
+                abi.decode(initData, (address)),
+                3
+            );
     }
 
     function processApproval(
-        address, /*caller*/
-        address, /*owner*/
-        address, /*to*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {}
 
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        virtual
-        override
-        returns (string memory)
-    {
+    function processTokenURI(
+        uint256 tokenId
+    ) external view virtual override returns (string memory) {
         if (tokenURIs[tokenId].length == 0) {
             return string(abi.encodePacked(_URI, tokenId));
         } else {

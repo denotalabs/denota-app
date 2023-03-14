@@ -39,12 +39,11 @@ library Events {
     event Written(
         address indexed caller,
         uint256 cheqId,
-        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner from add(0) to owner?
+        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner `from` address(0) `to` owner?
         uint256 instant,
         address currency,
         uint256 escrowed,
         uint256 createdAt,
-        uint256 cheqFee,
         uint256 moduleFee,
         address indexed module,
         bytes moduleData
@@ -54,7 +53,6 @@ library Events {
         uint256 indexed tokenId,
         address indexed from,
         address indexed to,
-        uint256 cheqFee,
         uint256 moduleFee,
         uint256 timestamp
     );
@@ -64,7 +62,6 @@ library Events {
         uint256 amount,
         uint256 instant,
         bytes indexed fundData,
-        uint256 cheqFee,
         uint256 moduleFee,
         uint256 timestamp
     );
@@ -74,7 +71,6 @@ library Events {
         address to,
         uint256 amount,
         bytes indexed cashData,
-        uint256 cheqFee,
         uint256 moduleFee,
         uint256 timestamp
     );
