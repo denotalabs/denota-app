@@ -1,4 +1,5 @@
-import { Flex, FormControl, FormLabel } from "@chakra-ui/react";
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
+import { Flex, FormControl, FormLabel, Tooltip } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
 import { useEffect } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
@@ -38,7 +39,20 @@ function DetailsBox({ isInvoice, token, mode }: Props) {
           flexShrink={0}
           w="200px"
         >
-          <FormLabel>Type</FormLabel>
+          <FormLabel>
+            Type
+            <Tooltip
+              label={
+                values.mode === "invoice"
+                  ? "Invoice is a request for payment"
+                  : "Payment is a direct transfer of funds"
+              }
+              aria-label="module tooltip"
+              placement="right"
+            >
+              <QuestionOutlineIcon ml={2} mb={1} />
+            </Tooltip>
+          </FormLabel>
           <ModeSelect isInvoice={isInvoice} />
         </FormControl>
         <Flex
