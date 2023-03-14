@@ -18,8 +18,6 @@ export function ConfirmSidePane() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  console.log(formData.email);
-
   const { needsApproval, approveAmount, writeNota } = useConfirmNota({
     onSuccess: () => {
       router.push("/", undefined, { shallow: true });
