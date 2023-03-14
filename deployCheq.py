@@ -55,11 +55,10 @@ if __name__ == "__main__":
     existing_addresses = json.loads(f.read())
 
   # Deploy libraries
-  encoding = "src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding"
   datatypes = "src/contracts/libraries/DataTypes.sol:DataTypes"
   errors = "src/contracts/libraries/Errors.sol:Errors"
   events = "src/contracts/libraries/Events.sol:Events"
-  library_paths = [encoding, datatypes, errors, events]
+  library_paths = [datatypes, errors, events]
   lib_addresses = []
   for library_path in library_paths:
     name = library_path.split(":")[-1]
@@ -95,17 +94,6 @@ if __name__ == "__main__":
       token = existing_addresses[chain][name]
     print(f'{symbol} address: {token}')
     tokens.append(token)
-    
-  # Deploy the DirectPayRules
-  # if not existing_addresses[chain]["DirectPayRules"]:
-  # TODO for some reason module deployment doesnt work on old runs
-  rules_path = "src/contracts/rules/DirectPayRules.sol:DirectPayRules"
-  result = eth_call(f'forge create {rules_path} {rpc_key_flags}', "Direct Pay rules failed")
-  rules = extract_address(result.stdout)
-  print("Rule address: ", rules)
-
-  # Whitelist the rules
-  # eth_call(f'cast send {registrar} "whitelistRule(address,bool)" {rules} "true" {rpc_key_flags}', "Whitelist failed")
 
   # Deploy the DirectPay module
   if not existing_addresses[chain]["directPay"]:

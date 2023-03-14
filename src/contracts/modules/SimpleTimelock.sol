@@ -23,8 +23,8 @@ contract SimpleTimelock is ModuleBase {
     }
 
     function processWrite(
-        address, /*caller*/
-        address, /*owner*/
+        address /*caller*/,
+        address /*owner*/,
         uint256 cheqId,
         address currency,
         uint256 escrowed,
@@ -46,12 +46,12 @@ contract SimpleTimelock is ModuleBase {
         address caller,
         address approved,
         address owner,
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
-        address, /*currency*/
-        uint256, /*escrowed*/
-        uint256, /*createdAt*/
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
+        address /*currency*/,
+        uint256 /*escrowed*/,
+        uint256 /*createdAt*/,
         bytes memory /*data*/
     ) external view override onlyRegistrar returns (uint256) {
         require(caller == owner || caller == approved, "Not owner or approved");
@@ -59,12 +59,12 @@ contract SimpleTimelock is ModuleBase {
     }
 
     function processFund(
-        address, /*caller*/
-        address, /*owner*/
-        uint256, /*amount*/
-        uint256, /*instant*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*caller*/,
+        address /*owner*/,
+        uint256 /*amount*/,
+        uint256 /*instant*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
@@ -72,7 +72,7 @@ contract SimpleTimelock is ModuleBase {
     }
 
     function processCash(
-        address, /*caller*/
+        address /*caller*/,
         address owner,
         address to,
         uint256 amount,
@@ -90,20 +90,17 @@ contract SimpleTimelock is ModuleBase {
     function processApproval(
         address caller,
         address owner,
-        address, /*to*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*to*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");
     }
 
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        override
-        returns (string memory)
-    {
+    function processTokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
         return
             bytes(_URI).length > 0
                 ? string(abi.encodePacked(_URI, tokenId))

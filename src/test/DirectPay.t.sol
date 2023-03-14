@@ -90,7 +90,7 @@ contract DirectPayTest is Test {
         DirectPay directPay = new DirectPay(
             address(REGISTRAR),
             DataTypes.WTFCFees(0, 0, 0, 0),
-            "ipfs://yourmemos.com/"
+            "ipfs://"
         );
         address directPayAddress = address(directPay);
         (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR
@@ -130,7 +130,7 @@ contract DirectPayTest is Test {
         DirectPay directPay = new DirectPay(
             address(REGISTRAR),
             DataTypes.WTFCFees(0, 0, 0, 0),
-            "ipfs://yourmemos.com/"
+            "ipfs://"
         );
         REGISTRAR.whitelistModule(address(directPay), true, false);
         vm.label(address(directPay), "DirectPay");
@@ -140,11 +140,10 @@ contract DirectPayTest is Test {
     /*//////////////////////////////////////////////////////////////
                             MODULE TESTS
     //////////////////////////////////////////////////////////////*/
-    function calcFee(uint256 fee, uint256 amount)
-        public
-        pure
-        returns (uint256)
-    {
+    function calcFee(
+        uint256 fee,
+        uint256 amount
+    ) public pure returns (uint256) {
         return (amount * fee) / 10_000;
     }
 
@@ -260,15 +259,14 @@ contract DirectPayTest is Test {
         vm.assume(dai.balanceOf(debtor) >= totalWithFees);
 
         registrarWriteBefore(debtor, creditor);
-
         bytes memory initData = abi.encode(
             creditor, // ToNotify
             directAmount,
             block.timestamp,
             address(this), // dappOperator
-            bytes32(keccak256("this is a hash"))
+            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
+            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
         );
-
         vm.prank(debtor);
         uint256 cheqId = REGISTRAR.write(
             address(dai),
@@ -333,7 +331,8 @@ contract DirectPayTest is Test {
             amount,
             block.timestamp,
             creditor,
-            bytes32(keccak256("this is a hash"))
+            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
+            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
         );
 
         vm.prank(creditor);
@@ -411,7 +410,8 @@ contract DirectPayTest is Test {
             amount,
             block.timestamp,
             caller,
-            bytes32(keccak256("this is a hash"))
+            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
+            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
         );
 
         console.log(amount, directAmount, totalWithFees);

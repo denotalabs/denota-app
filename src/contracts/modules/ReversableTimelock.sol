@@ -66,12 +66,12 @@ contract ReversableTimelock is ModuleBase {
         address caller,
         address approved,
         address owner,
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
         address currency,
         uint256 escrowed,
-        uint256, /*createdAt*/
+        uint256 /*createdAt*/,
         bytes memory /*data*/
     ) external override onlyRegistrar returns (uint256) {
         require(
@@ -96,8 +96,8 @@ contract ReversableTimelock is ModuleBase {
 
     function processCash(
         address caller,
-        address, /*owner*/
-        address, /*to*/
+        address /*owner*/,
+        address /*to*/,
         uint256 amount,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
@@ -125,12 +125,9 @@ contract ReversableTimelock is ModuleBase {
         bytes memory initData
     ) external override onlyRegistrar {}
 
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        override
-        returns (string memory)
-    {
+    function processTokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
         return
             bytes(_URI).length > 0
                 ? string(abi.encodePacked(_URI, tokenId))

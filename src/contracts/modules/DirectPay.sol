@@ -14,11 +14,12 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 contract DirectPay is ModuleBase {
     struct Payment {
         address creditor;
-        address debtor; // QUESTION change to creditor and debtor?
+        address debtor;
         uint256 amount; // Face value of the payment
         uint256 timestamp; // Record keeping timestamp
-        string memoHash;
         bool wasPaid; // TODO is this needed if using instant pay?
+        string imageURI;
+        string memoHash; // assumes ipfs://HASH
     }
     mapping(uint256 => Payment) public payInfo;
 
@@ -62,8 +63,12 @@ contract DirectPay is ModuleBase {
             uint256 amount, // Face value (for invoices)
             uint256 timestamp,
             address dappOperator,
+            string memory imageURI,
             string memory memoHash
-        ) = abi.decode(initData, (address, uint256, uint256, address, string));
+        ) = abi.decode(
+                initData,
+                (address, uint256, uint256, address, string, string)
+            );
         if (escrowed != 0) revert EscrowUnsupported();
         if (amount == 0) revert AmountZero(); // Removing this would allow user to send memos
 
@@ -86,6 +91,7 @@ contract DirectPay is ModuleBase {
         payInfo[cheqId].amount = amount;
         payInfo[cheqId].timestamp = timestamp;
         payInfo[cheqId].memoHash = memoHash;
+        payInfo[cheqId].imageURI = imageURI;
 
         uint256 moduleFee;
         {
@@ -121,12 +127,12 @@ contract DirectPay is ModuleBase {
         address caller,
         address approved,
         address owner,
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
         address currency,
         uint256 escrowed,
-        uint256, /*createdAt*/
+        uint256 /*createdAt*/,
         bytes memory data
     ) public override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
@@ -136,14 +142,15 @@ contract DirectPay is ModuleBase {
     }
 
     function processFund(
-        address, /*caller*/
-        address, /*owner*/
+        address /*caller*/,
+        address owner,
         uint256 amount,
         uint256 instant,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
+        if (owner == address(0)) revert AddressZero();
         if (amount != 0) revert EscrowUnsupported();
         if (instant != payInfo[cheqId].amount) revert InsufficientPayment();
         if (payInfo[cheqId].wasPaid) revert Disallowed();
@@ -156,12 +163,12 @@ contract DirectPay is ModuleBase {
     }
 
     function processCash(
-        address, /*caller*/
-        address, /*owner*/
-        address, /*to*/
-        uint256, /*amount*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
+        uint256 /*amount*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         revert Disallowed();
@@ -170,21 +177,30 @@ contract DirectPay is ModuleBase {
     function processApproval(
         address caller,
         address owner,
-        address, /*to*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*to*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();
         // require(wasPaid[cheqId], "Module: Must be cashed first");
     }
 
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        override
-        returns (string memory)
-    {
-        return string(abi.encodePacked(_URI, payInfo[tokenId].memoHash));
+    function processTokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
+        /**
+            ',"external_url":', memoHash,
+            ',"image":', imageHash
+         */
+        return
+            string(
+                abi.encodePacked(
+                    ',"external_url":',
+                    abi.encodePacked(_URI, payInfo[tokenId].memoHash),
+                    ',"image":',
+                    payInfo[tokenId].imageURI
+                )
+            );
     }
 }

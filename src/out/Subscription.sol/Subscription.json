@@ -321,7 +321,7 @@
     "canTransfer(address,address,address,address,address,uint256,(address,uint256,uint256,address),bytes)": "54b6a7db",
     "canWrite(address,address,uint256,address,uint256,uint256,bytes)": "0055d86e"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canApprove\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canCash\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canFund\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canWrite\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/Subscription.sol\":\"Subscription\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0xc23b6f6d90f10d730e0d298642e4c0319775dd99c55fa69d261de91da847029e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://b09b7e6c352885c70657b9a0e7ca5644ac5810ecc79eea34beec78064b3736d0\",\"dweb:/ipfs/QmRKqVqeaJwCT1fhHWqAA7zkYyiVvasUFGAKj6rNpykkyC\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0xe3036d449455216c52bfe063a3b22829b65acc1e85039fa6984da064ca33ce8b\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c869e38b1c5f31c0821e7f009c641fef0320817a9e98c5d7803a05f3e4810372\",\"dweb:/ipfs/QmRFAYBcf3tCSMQDbkCe5JdAhWcmHS787SRJH9BmEDGJxN\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0x4ca73c6874eb9eed1335a86f40e81fd486027be6387d98ebb36d2b5790259908\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://fd1b2dd500d373ad7157c8d3ec7c9376ced483b3c030af24ef724506d22a4b6a\",\"dweb:/ipfs/QmSEkocmfxpb4b9xxWAyhHhNKRgYzCJkZtELnVtuhnkQXF\"]},\"src/contracts/modules/Subscription.sol\":{\"keccak256\":\"0xc4244e0dde848ff3efce8af9604c0de5494a702468e29e2ebd8c8b86b56521b3\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://91bbd35597d43a6c1c18e2e4621f9035e145f8a011728b1c176feba515f0b16e\",\"dweb:/ipfs/QmPiJ4nUNKfFXrWdDGyypsvMahc9QjGkeuKm71dB1Sr9on\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canApprove\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canCash\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canFund\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canTransfer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"canWrite\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/Subscription.sol\":\"Subscription\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x3b182d2c288f2c753e0ea97b1f97e521c2ea9e919d0a6272927b7c78a7090009\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d632633a15647e9156dccd68a7a9f45d4e52a9636ccb2cdc950ec636ca7c8521\",\"dweb:/ipfs/QmUH6ueQfKgZV1bDichzSnEETs5oprw6x6m5H4gax6RnJY\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0xe3036d449455216c52bfe063a3b22829b65acc1e85039fa6984da064ca33ce8b\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c869e38b1c5f31c0821e7f009c641fef0320817a9e98c5d7803a05f3e4810372\",\"dweb:/ipfs/QmRFAYBcf3tCSMQDbkCe5JdAhWcmHS787SRJH9BmEDGJxN\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x1990506f6fe595fb286f8307ebe133b63e0f7c32671730d83f73204d1d5d8b9e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://44cfb7f77663cad9e69d3f6fe12913a1deeedcfc06ba07bc4a9b3019b50238c6\",\"dweb:/ipfs/QmZqH3YPwSnYRzT2DTTRPsWdtrjSDA8YgW2L3prQXsVBvt\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0x4ca73c6874eb9eed1335a86f40e81fd486027be6387d98ebb36d2b5790259908\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://fd1b2dd500d373ad7157c8d3ec7c9376ced483b3c030af24ef724506d22a4b6a\",\"dweb:/ipfs/QmSEkocmfxpb4b9xxWAyhHhNKRgYzCJkZtELnVtuhnkQXF\"]},\"src/contracts/modules/Subscription.sol\":{\"keccak256\":\"0xc4244e0dde848ff3efce8af9604c0de5494a702468e29e2ebd8c8b86b56521b3\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://91bbd35597d43a6c1c18e2e4621f9035e145f8a011728b1c176feba515f0b16e\",\"dweb:/ipfs/QmPiJ4nUNKfFXrWdDGyypsvMahc9QjGkeuKm71dB1Sr9on\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -692,10 +692,10 @@
         "license": "MIT"
       },
       "src/contracts/ModuleBase.sol": {
-        "keccak256": "0xc23b6f6d90f10d730e0d298642e4c0319775dd99c55fa69d261de91da847029e",
+        "keccak256": "0x3b182d2c288f2c753e0ea97b1f97e521c2ea9e919d0a6272927b7c78a7090009",
         "urls": [
-          "bzz-raw://b09b7e6c352885c70657b9a0e7ca5644ac5810ecc79eea34beec78064b3736d0",
-          "dweb:/ipfs/QmRKqVqeaJwCT1fhHWqAA7zkYyiVvasUFGAKj6rNpykkyC"
+          "bzz-raw://d632633a15647e9156dccd68a7a9f45d4e52a9636ccb2cdc950ec636ca7c8521",
+          "dweb:/ipfs/QmUH6ueQfKgZV1bDichzSnEETs5oprw6x6m5H4gax6RnJY"
         ],
         "license": "BUSL-1.1"
       },
@@ -760,46 +760,46 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/Subscription.sol",
-    "id": 30199,
+    "id": 33847,
     "exportedSymbols": {
       "DataTypes": [
-        27038
+        30646
       ],
       "IApproveRule": [
-        26908
+        30548
       ],
       "ICashRule": [
-        26891
+        30531
       ],
       "ICheqModule": [
-        26533
+        30307
       ],
       "ICheqRegistrar": [
-        26676
+        30450
       ],
       "IFundRule": [
-        26872
+        30512
       ],
       "ITransferRule": [
-        26853
+        30493
       ],
       "IWriteRule": [
-        26832
+        30472
       ],
       "ModuleBase": [
-        26110
+        30184
       ],
       "Subscription": [
-        30198
+        33846
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:478:52",
+    "src": "37:478:57",
     "nodes": [
       {
-        "id": 30173,
+        "id": 33821,
         "nodeType": "PragmaDirective",
-        "src": "37:24:52",
+        "src": "37:24:57",
         "nodes": [],
         "literals": [
           "solidity",
@@ -809,24 +809,24 @@
         ]
       },
       {
-        "id": 30175,
+        "id": 33823,
         "nodeType": "ImportDirective",
-        "src": "63:45:52",
+        "src": "63:45:57",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 30199,
-        "sourceUnit": 26111,
+        "scope": 33847,
+        "sourceUnit": 30185,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 30174,
+              "id": 33822,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26110,
-              "src": "71:10:52",
+              "referencedDeclaration": 30184,
+              "src": "71:10:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -835,24 +835,24 @@
         "unitAlias": ""
       },
       {
-        "id": 30177,
+        "id": 33825,
         "nodeType": "ImportDirective",
-        "src": "109:53:52",
+        "src": "109:53:57",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 30199,
-        "sourceUnit": 27039,
+        "scope": 33847,
+        "sourceUnit": 30647,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 30176,
+              "id": 33824,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 27038,
-              "src": "117:9:52",
+              "referencedDeclaration": 30646,
+              "src": "117:9:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -861,24 +861,24 @@
         "unitAlias": ""
       },
       {
-        "id": 30179,
+        "id": 33827,
         "nodeType": "ImportDirective",
-        "src": "163:58:52",
+        "src": "163:58:57",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqModule.sol",
         "file": "../interfaces/ICheqModule.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 30199,
-        "sourceUnit": 26534,
+        "scope": 33847,
+        "sourceUnit": 30308,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 30178,
+              "id": 33826,
               "name": "ICheqModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26533,
-              "src": "171:11:52",
+              "referencedDeclaration": 30307,
+              "src": "171:11:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -887,24 +887,24 @@
         "unitAlias": ""
       },
       {
-        "id": 30181,
+        "id": 33829,
         "nodeType": "ImportDirective",
-        "src": "222:64:52",
+        "src": "222:64:57",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/ICheqRegistrar.sol",
         "file": "../interfaces/ICheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 30199,
-        "sourceUnit": 26677,
+        "scope": 33847,
+        "sourceUnit": 30451,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 30180,
+              "id": 33828,
               "name": "ICheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26676,
-              "src": "230:14:52",
+              "referencedDeclaration": 30450,
+              "src": "230:14:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -913,72 +913,72 @@
         "unitAlias": ""
       },
       {
-        "id": 30187,
+        "id": 33835,
         "nodeType": "ImportDirective",
-        "src": "287:107:52",
+        "src": "287:107:57",
         "nodes": [],
         "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
         "file": "../interfaces/IWTFCRules.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 30199,
-        "sourceUnit": 26909,
+        "scope": 33847,
+        "sourceUnit": 30549,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 30182,
+              "id": 33830,
               "name": "IWriteRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26832,
-              "src": "295:10:52",
+              "referencedDeclaration": 30472,
+              "src": "295:10:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 30183,
+              "id": 33831,
               "name": "ITransferRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26853,
-              "src": "307:13:52",
+              "referencedDeclaration": 30493,
+              "src": "307:13:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 30184,
+              "id": 33832,
               "name": "IFundRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26872,
-              "src": "322:9:52",
+              "referencedDeclaration": 30512,
+              "src": "322:9:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 30185,
+              "id": 33833,
               "name": "ICashRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26891,
-              "src": "333:9:52",
+              "referencedDeclaration": 30531,
+              "src": "333:9:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
           },
           {
             "foreign": {
-              "id": 30186,
+              "id": 33834,
               "name": "IApproveRule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 26908,
-              "src": "344:12:52",
+              "referencedDeclaration": 30548,
+              "src": "344:12:57",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -987,86 +987,86 @@
         "unitAlias": ""
       },
       {
-        "id": 30198,
+        "id": 33846,
         "nodeType": "ContractDefinition",
-        "src": "396:118:52",
+        "src": "396:118:57",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 30188,
+              "id": 33836,
               "name": "IWriteRule",
               "nameLocations": [
-                "434:10:52"
+                "434:10:57"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 26832,
-              "src": "434:10:52"
+              "referencedDeclaration": 30472,
+              "src": "434:10:57"
             },
-            "id": 30189,
+            "id": 33837,
             "nodeType": "InheritanceSpecifier",
-            "src": "434:10:52"
+            "src": "434:10:57"
           },
           {
             "baseName": {
-              "id": 30190,
+              "id": 33838,
               "name": "ITransferRule",
               "nameLocations": [
-                "450:13:52"
+                "450:13:57"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 26853,
-              "src": "450:13:52"
+              "referencedDeclaration": 30493,
+              "src": "450:13:57"
             },
-            "id": 30191,
+            "id": 33839,
             "nodeType": "InheritanceSpecifier",
-            "src": "450:13:52"
+            "src": "450:13:57"
           },
           {
             "baseName": {
-              "id": 30192,
+              "id": 33840,
               "name": "IFundRule",
               "nameLocations": [
-                "469:9:52"
+                "469:9:57"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 26872,
-              "src": "469:9:52"
+              "referencedDeclaration": 30512,
+              "src": "469:9:57"
             },
-            "id": 30193,
+            "id": 33841,
             "nodeType": "InheritanceSpecifier",
-            "src": "469:9:52"
+            "src": "469:9:57"
           },
           {
             "baseName": {
-              "id": 30194,
+              "id": 33842,
               "name": "ICashRule",
               "nameLocations": [
-                "484:9:52"
+                "484:9:57"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 26891,
-              "src": "484:9:52"
+              "referencedDeclaration": 30531,
+              "src": "484:9:57"
             },
-            "id": 30195,
+            "id": 33843,
             "nodeType": "InheritanceSpecifier",
-            "src": "484:9:52"
+            "src": "484:9:57"
           },
           {
             "baseName": {
-              "id": 30196,
+              "id": 33844,
               "name": "IApproveRule",
               "nameLocations": [
-                "499:12:52"
+                "499:12:57"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 26908,
-              "src": "499:12:52"
+              "referencedDeclaration": 30548,
+              "src": "499:12:57"
             },
-            "id": 30197,
+            "id": 33845,
             "nodeType": "InheritanceSpecifier",
-            "src": "499:12:52"
+            "src": "499:12:57"
           }
         ],
         "canonicalName": "Subscription",
@@ -1074,20 +1074,20 @@
         "contractKind": "contract",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          30198,
-          26908,
-          26891,
-          26872,
-          26853,
-          26832
+          33846,
+          30548,
+          30531,
+          30512,
+          30493,
+          30472
         ],
         "name": "Subscription",
-        "nameLocation": "414:12:52",
-        "scope": 30199,
+        "nameLocation": "414:12:57",
+        "scope": 33847,
         "usedErrors": []
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 52
+  "id": 57
 }

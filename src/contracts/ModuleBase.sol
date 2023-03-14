@@ -11,6 +11,8 @@ import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../
 // TODO separate fee and non-fee modules (perhaps URI distinction ones as well?)
 // TODO could store rules as their own struct for simplicity
 // Question allow module owners to change the Rules on the fly?
+// HACK: if the module doesn't check for address(0), users can cash and fund zero init cheqs
+// ERC-4906: EIP-721 Metadata Update Extension
 abstract contract ModuleBase is ICheqModule {
     address public immutable REGISTRAR; // Question: Make this a hardcoded address?
     mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
@@ -112,13 +114,9 @@ abstract contract ModuleBase is ICheqModule {
     //     // Add module logic here
     // }
 
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        virtual
-        override
-        returns (string memory)
-    {
+    function processTokenURI(
+        uint256 tokenId
+    ) external view virtual override returns (string memory) {
         return string(abi.encodePacked(_URI, tokenId));
     }
 
@@ -126,12 +124,7 @@ abstract contract ModuleBase is ICheqModule {
         external
         view
         virtual
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
+        returns (uint256, uint256, uint256, uint256)
     {
         return (fees.writeBPS, fees.transferBPS, fees.fundBPS, fees.cashBPS);
     }
