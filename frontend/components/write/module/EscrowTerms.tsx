@@ -21,9 +21,9 @@ export function EscrowTerms() {
       </FormControl>
       <FormControl>
         <FormLabel noOfLines={1} flexShrink={0}>
-          Disputation method
+          Auditor
           <Tooltip
-            label="Method for resolving payment disputes"
+            label="Party responsible arbitrating disputes. Leave empty for self sign"
             aria-label="module tooltip"
             placement="right"
           >

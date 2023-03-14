@@ -59,15 +59,14 @@ const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
           </CardBody>
           <CardFooter>
             <Button
-              isDisabled
-              // onClick={() => {
-              //   appendFormData({
-              //     module: "escrow",
-              //   });
-              //   next?.();
-              // }}
+              onClick={() => {
+                appendFormData({
+                  module: "escrow",
+                });
+                next?.();
+              }}
             >
-              Coming soon
+              Select
             </Button>
           </CardFooter>
         </Card>

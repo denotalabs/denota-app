@@ -105,6 +105,12 @@ if __name__ == "__main__":
   else:
     direct_pay = existing_addresses[chain]["directPay"]
 
+  if not existing_addresses[chain]["escrow"]:
+    Escrow_path = "src/contracts/modules/ReversableTimelock.sol:ReversableTimelock"
+    result = eth_call(f'forge create {Escrow_path} --constructor-args {registrar} {con_args} "ipfs://" {rpc_key_flags}', "Module deployment failed")
+    escrow = extract_address(result.stdout)
+    existing_addresses[chain]["escrow"] = escrow
+
   # Update the address JSON
   with open("contractAddresses.json", 'w') as f:
     f.write(json.dumps(existing_addresses))

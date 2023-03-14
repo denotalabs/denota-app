@@ -31,6 +31,8 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
     return formData.mode === "invoice" ? "Create Invoice" : "Confirm Payment";
   }, [formData.mode, formData.token, needsApproval]);
 
+  console.log(formData.email);
+
   return (
     <Box w="100%" p={4}>
       <Formik
