@@ -7,11 +7,10 @@ import {ICheqModule} from "../../interfaces/ICheqModule.sol";
 import {ICheqRegistrar} from "../../interfaces/ICheqRegistrar.sol";
 
 library BytesLib {
-    function concat(bytes memory _preBytes, bytes memory _postBytes)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function concat(
+        bytes memory _preBytes,
+        bytes memory _postBytes
+    ) internal pure returns (bytes memory) {
         bytes memory tempBytes;
 
         assembly {
@@ -85,9 +84,10 @@ library BytesLib {
         return tempBytes;
     }
 
-    function concatStorage(bytes storage _preBytes, bytes memory _postBytes)
-        internal
-    {
+    function concatStorage(
+        bytes storage _preBytes,
+        bytes memory _postBytes
+    ) internal {
         assembly {
             // Read the first 32 bytes of _preBytes storage, which is the length
             // of the array. (We don't need to use the offset into the slot
@@ -301,11 +301,10 @@ library BytesLib {
         return tempBytes;
     }
 
-    function toAddress(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (address)
-    {
+    function toAddress(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (address) {
         require(_bytes.length >= _start + 20, "toAddress_outOfBounds");
         address tempAddress;
 
@@ -319,11 +318,10 @@ library BytesLib {
         return tempAddress;
     }
 
-    function toUint8(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint8)
-    {
+    function toUint8(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint8) {
         require(_bytes.length >= _start + 1, "toUint8_outOfBounds");
         uint8 tempUint;
 
@@ -334,11 +332,10 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint16(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint16)
-    {
+    function toUint16(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint16) {
         require(_bytes.length >= _start + 2, "toUint16_outOfBounds");
         uint16 tempUint;
 
@@ -349,11 +346,10 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint32(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint32)
-    {
+    function toUint32(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint32) {
         require(_bytes.length >= _start + 4, "toUint32_outOfBounds");
         uint32 tempUint;
 
@@ -364,11 +360,10 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint64(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint64)
-    {
+    function toUint64(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint64) {
         require(_bytes.length >= _start + 8, "toUint64_outOfBounds");
         uint64 tempUint;
 
@@ -379,11 +374,10 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint96(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint96)
-    {
+    function toUint96(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint96) {
         require(_bytes.length >= _start + 12, "toUint96_outOfBounds");
         uint96 tempUint;
 
@@ -394,11 +388,10 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint128(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint128)
-    {
+    function toUint128(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint128) {
         require(_bytes.length >= _start + 16, "toUint128_outOfBounds");
         uint128 tempUint;
 
@@ -409,11 +402,10 @@ library BytesLib {
         return tempUint;
     }
 
-    function toUint256(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (uint256)
-    {
+    function toUint256(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (uint256) {
         require(_bytes.length >= _start + 32, "toUint256_outOfBounds");
         uint256 tempUint;
 
@@ -424,11 +416,10 @@ library BytesLib {
         return tempUint;
     }
 
-    function toBytes32(bytes memory _bytes, uint256 _start)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function toBytes32(
+        bytes memory _bytes,
+        uint256 _start
+    ) internal pure returns (bytes32) {
         require(_bytes.length >= _start + 32, "toBytes32_outOfBounds");
         bytes32 tempBytes32;
 
@@ -439,11 +430,10 @@ library BytesLib {
         return tempBytes32;
     }
 
-    function equal(bytes memory _preBytes, bytes memory _postBytes)
-        internal
-        pure
-        returns (bool)
-    {
+    function equal(
+        bytes memory _preBytes,
+        bytes memory _postBytes
+    ) internal pure returns (bool) {
         bool success = true;
 
         assembly {
@@ -486,11 +476,10 @@ library BytesLib {
         return success;
     }
 
-    function equalStorage(bytes storage _preBytes, bytes memory _postBytes)
-        internal
-        view
-        returns (bool)
-    {
+    function equalStorage(
+        bytes storage _preBytes,
+        bytes memory _postBytes
+    ) internal view returns (bool) {
         bool success = true;
 
         assembly {
@@ -632,11 +621,9 @@ library GenesisUtils {
     /**
      * @dev bytesToHexString
      */
-    function bytesToHexString(bytes memory buffer)
-        internal
-        pure
-        returns (string memory)
-    {
+    function bytesToHexString(
+        bytes memory buffer
+    ) internal pure returns (string memory) {
         // Fixed buffer size for hexadecimal convertion
         bytes memory converted = new bytes(buffer.length * 2);
 
@@ -653,11 +640,10 @@ library GenesisUtils {
     /**
      * @dev compareStrings
      */
-    function compareStrings(string memory a, string memory b)
-        internal
-        pure
-        returns (bool)
-    {
+    function compareStrings(
+        string memory a,
+        string memory b
+    ) internal pure returns (bool) {
         return (keccak256(abi.encodePacked((a))) ==
             keccak256(abi.encodePacked((b))));
     }
@@ -665,11 +651,10 @@ library GenesisUtils {
     /**
      * @dev isGenesisState
      */
-    function isGenesisState(uint256 id, uint256 idState)
-        internal
-        pure
-        returns (bool)
-    {
+    function isGenesisState(
+        uint256 id,
+        uint256 idState
+    ) internal pure returns (bool) {
         uint256 userSwappedState = reverse(idState);
 
         bytes memory userStateB1 = int256ToBytes(userSwappedState);
@@ -701,11 +686,9 @@ library GenesisUtils {
     /**
      * @dev toUint256
      */
-    function toUint256(bytes memory _bytes)
-        internal
-        pure
-        returns (uint256 value)
-    {
+    function toUint256(
+        bytes memory _bytes
+    ) internal pure returns (uint256 value) {
         assembly {
             value := mload(add(_bytes, 0x20))
         }
@@ -714,11 +697,9 @@ library GenesisUtils {
     /**
      * @dev bytesToAddress
      */
-    function bytesToAddress(bytes memory bys)
-        internal
-        pure
-        returns (address addr)
-    {
+    function bytesToAddress(
+        bytes memory bys
+    ) internal pure returns (address addr) {
         assembly {
             addr := mload(add(bys, 20))
         }
@@ -824,8 +805,10 @@ contract Poseidon {
     PoseidonUnit2 _poseidonUnit2;
     PoseidonUnit3 _poseidonUnit3;
 
-    constructor(address _poseidon2ContractAddr, address _poseidon3ContractAddr)
-    {
+    constructor(
+        address _poseidon2ContractAddr,
+        address _poseidon3ContractAddr
+    ) {
         _poseidonUnit2 = PoseidonUnit2(_poseidon2ContractAddr);
         _poseidonUnit3 = PoseidonUnit3(_poseidon3ContractAddr);
     }
@@ -891,9 +874,9 @@ interface IZKPVerifier {
         uint256 queryHash
     ) external returns (bool);
 
-    function getZKPRequest(uint64 requestId)
-        external
-        returns (ICircuitValidator.CircuitQuery memory);
+    function getZKPRequest(
+        uint64 requestId
+    ) external returns (ICircuitValidator.CircuitQuery memory);
 }
 
 contract ZKPVerifier is IZKPVerifier, Ownable {
@@ -940,12 +923,9 @@ contract ZKPVerifier is IZKPVerifier, Ownable {
         return true;
     }
 
-    function getZKPRequest(uint64 requestId)
-        public
-        view
-        override
-        returns (ICircuitValidator.CircuitQuery memory)
-    {
+    function getZKPRequest(
+        uint64 requestId
+    ) public view override returns (ICircuitValidator.CircuitQuery memory) {
         return requestQueries[requestId];
     }
 
@@ -1044,11 +1024,11 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
 
     function processWrite(
         address caller,
-        address, /*owner*/
+        address /*owner*/,
         uint256 cheqId,
         address currency,
         uint256 escrowed,
-        uint256, /*instant*/
+        uint256 /*instant*/,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         (uint64 requiredProof, uint256 claimPeriod, address dappOperator) = abi
@@ -1059,19 +1039,19 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         locks[cheqId].sender = caller;
 
         emit Locked(cheqId, claimPeriod, requiredProof);
-        return takeReturnFee(currency, escrowed, dappOperator);
+        return takeReturnFee(currency, escrowed, dappOperator, 0);
     }
 
     function processTransfer(
         address caller,
         address approved,
         address owner,
-        address, /*from*/
+        address /*from*/,
         address to,
         uint256 cheqId,
-        address, /*currency*/
-        uint256, /*escrowed*/
-        uint256, /*createdAt*/
+        address /*currency*/,
+        uint256 /*escrowed*/,
+        uint256 /*createdAt*/,
         bytes memory /*data*/
     ) external view override onlyRegistrar returns (uint256) {
         require(caller == owner || caller == approved, "Not owner or approved");
@@ -1080,12 +1060,12 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
     }
 
     function processFund(
-        address, /*caller*/
-        address, /*owner*/
-        uint256, /*amount*/
-        uint256, /*instant*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*caller*/,
+        address /*owner*/,
+        uint256 /*amount*/,
+        uint256 /*instant*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
@@ -1095,7 +1075,7 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
     function processCash(
         address caller,
         address owner,
-        address, /*to*/
+        address /*to*/,
         uint256 amount,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
@@ -1118,28 +1098,26 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
             takeReturnFee(
                 cheq.currency,
                 amount,
-                abi.decode(initData, (address))
+                abi.decode(initData, (address)),
+                3
             );
     }
 
     function processApproval(
         address caller,
         address owner,
-        address, /*to*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*to*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");
     }
 
     // TODO inject into the Cheqbase64 format
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        override
-        returns (string memory)
-    {
+    function processTokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
         return
             bytes(_URI).length > 0
                 ? string(abi.encodePacked(_URI, tokenId))

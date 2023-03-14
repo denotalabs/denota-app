@@ -24,79 +24,86 @@ contract SimpleTimelockFee is ModuleBase {
     }
 
     function processWrite(
-        address, /*caller*/
-        address, /*owner*/
+        address /*caller*/,
+        address /*owner*/,
         uint256 cheqId,
-        address, /*currency*/
-        uint256, /*escrowed*/
-        uint256, /*instant*/
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        uint256 _releaseDate = abi.decode(initData, (uint256)); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
+        (uint256 _releaseDate, address dappOperator) = abi.decode(
+            initData,
+            (uint256, address)
+        ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
         releaseDate[cheqId] = _releaseDate;
         emit Timelock(cheqId, _releaseDate);
-        return fees.writeBPS;
+        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
         address caller,
         address approved,
         address owner,
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
-        address, /*currency*/
-        uint256, /*escrowed*/
-        uint256, /*createdAt*/
-        bytes memory /*data*/
-    ) external view override onlyRegistrar returns (uint256) {
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
+        address currency,
+        uint256 escrowed,
+        uint256 /*createdAt*/,
+        bytes memory data
+    ) external override onlyRegistrar returns (uint256) {
         require(caller == owner || caller == approved, "Not owner or approved");
-        return fees.transferBPS;
+        return
+            takeReturnFee(currency, escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(
-        address, /*caller*/
-        address, /*owner*/
-        uint256, /*amount*/
-        uint256, /*instant*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*caller*/,
+        address /*owner*/,
+        uint256 /*amount*/,
+        uint256 /*instant*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
-        return fees.fundBPS;
+        return 0;
     }
 
     function processCash(
-        address, /*caller*/
-        address, /*owner*/
-        address, /*to*/
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
         uint256 amount,
-        uint256, /*cheqId*/
+        uint256 /*cheqId*/,
         DataTypes.Cheq calldata cheq,
-        bytes calldata /*initData*/
-    ) external view override onlyRegistrar returns (uint256) {
+        bytes calldata initData
+    ) external override onlyRegistrar returns (uint256) {
         require(amount == cheq.escrowed, "Must fully cash");
-        return fees.cashBPS;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount,
+                abi.decode(initData, (address)),
+                3
+            );
     }
 
     function processApproval(
         address caller,
         address owner,
-        address, /*to*/
-        uint256, /*cheqId*/
-        DataTypes.Cheq calldata, /*cheq*/
+        address /*to*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");
     }
 
-    function processTokenURI(uint256 tokenId)
-        external
-        view
-        override
-        returns (string memory)
-    {
+    function processTokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory) {
         return string(abi.encodePacked(_URI, tokenId));
     }
 }

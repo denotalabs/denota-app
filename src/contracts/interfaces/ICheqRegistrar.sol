@@ -47,10 +47,9 @@ interface ICheqRegistrar {
     // function burn(uint256 tokenId) external;
 
     // Cheq data
-    function cheqInfo(uint256 cheqId)
-        external
-        view
-        returns (DataTypes.Cheq memory); // Question: Should this be the only _cheqInfo view method?
+    function cheqInfo(
+        uint256 cheqId
+    ) external view returns (DataTypes.Cheq memory); // Question: Should this be the only _cheqInfo view method?
 
     function cheqCurrency(uint256 cheqId) external view returns (address);
 
@@ -62,33 +61,16 @@ interface ICheqRegistrar {
 
     // function totalSupply() public view returns (uint256);
 
-    /// Whitlistings
-    function moduleWhitelisted(address module)
-        external
-        view
-        returns (bool, bool); // addressWhitelisted, bytecodeWhitelisted
+    // /// Whitlistings
+    // function moduleWhitelisted(
+    //     address module
+    // ) external view returns (bool, bool); // addressWhitelisted, bytecodeWhitelisted
 
-    function tokenWhitelisted(address token) external view returns (bool);
+    // function tokenWhitelisted(address token) external view returns (bool);
 
-    // Fees
-    function getFees()
-        external
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        );
-
-    function getTotalFees(uint256 cheqId, uint8 _WTFC)
-        external
-        view
-        returns (uint256, uint256);
-
-    function moduleWithdraw(
-        address token,
-        uint256 amount,
-        address payoutAccount
-    ) external;
+    // function moduleWithdraw(
+    //     address token,
+    //     uint256 amount,
+    //     address payoutAccount
+    // ) external;
 }
