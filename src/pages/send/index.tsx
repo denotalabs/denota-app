@@ -1,10 +1,12 @@
 import { Center, Spinner } from "@chakra-ui/react";
+import NewUserScreen from "../../components/dashboard/NewUserScreen";
 import WriteCheqFlow from "../../components/write/WriteCheqFlow";
 import { WrongChain } from "../../components/WrongChain";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 function SendPage() {
-  const { isInitializing, isWrongChain } = useBlockchainData();
+  const { isInitializing, isWrongChain, blockchainState } = useBlockchainData();
+  const { account } = blockchainState;
 
   if (isInitializing) {
     return (
@@ -17,7 +19,10 @@ function SendPage() {
   if (isWrongChain) {
     return <WrongChain />;
   }
-  return (
+
+  return account === "" ? (
+    <NewUserScreen />
+  ) : (
     <Center w="100%" h="100%">
       <WriteCheqFlow isInvoice={true} />
     </Center>
