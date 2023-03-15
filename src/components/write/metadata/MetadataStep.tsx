@@ -5,7 +5,6 @@ import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useUploadNote } from "../../../hooks/useUploadNote";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
-import { notionOnboardingLink } from "../../nux/NewUserModal";
 import MetadataBox from "./MetadataBox";
 
 export type MetadataStepFormValues = {
@@ -82,7 +81,9 @@ const MetadataStep: React.FC<ScreenProps> = () => {
                   <Link
                     isExternal
                     textDecoration={"underline"}
-                    href={notionOnboardingLink}
+                    href={
+                      "https://www.notion.so/denota/Terms-of-Service-cd2c83ac43b842ddb6186da0c5417717"
+                    }
                   >
                     Terms of Service
                   </Link>{" "}
@@ -90,7 +91,9 @@ const MetadataStep: React.FC<ScreenProps> = () => {
                   <Link
                     isExternal
                     textDecoration={"underline"}
-                    href={notionOnboardingLink}
+                    href={
+                      "https://www.notion.so/denota/Denota-Privacy-Policy-3c0134d6529a4ff68167dbc94d4f72bf"
+                    }
                   >
                     Privacy Policy
                   </Link>

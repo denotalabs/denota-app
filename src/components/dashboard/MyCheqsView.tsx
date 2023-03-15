@@ -1,5 +1,6 @@
 import { RepeatIcon } from "@chakra-ui/icons";
 import {
+  Button,
   Center,
   Grid,
   HStack,
@@ -9,6 +10,8 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { MdOutlineAdd } from "react-icons/md";
 import { useCheqContext } from "../../context/CheqsContext";
 import { Cheq } from "../../hooks/useCheqs";
 import CheqCardV2 from "./CheqCardV2";
@@ -57,6 +60,8 @@ interface CheqGridProps {
 }
 
 function CheqGrid({ cheqs }: CheqGridProps) {
+  const router = useRouter();
+
   if (cheqs === undefined) {
     return (
       <Center flexDirection={"column"} w="100%" px={5}>
@@ -69,7 +74,19 @@ function CheqGrid({ cheqs }: CheqGridProps) {
     return (
       <Center>
         <Text fontWeight={600} fontSize={"xl"} textAlign="center" pb={6}>
-          {"No cheqs found"}
+          <Button
+            bg="cheqPurple.100"
+            w="min(40vw, 200px)"
+            onClick={() => {
+              router.push("/send", undefined, { shallow: true });
+            }}
+            fontSize="2xl"
+            size="lg"
+            borderRadius={5}
+            leftIcon={<MdOutlineAdd />}
+          >
+            New Nota
+          </Button>{" "}
         </Text>
       </Center>
     );
