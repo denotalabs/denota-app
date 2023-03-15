@@ -6,9 +6,9 @@ dataSources:
     name: Events
     network: mumbai
     source:
-      address: "0xF85D83258CD1D8beb5998439C73C11a6b820d6B9"
+      address: "0xFd77Eed331C200B3Ea360Ff172fA849BAE8cb66d"
       abi: Registrar
-      startBlock: 32985337
+      startBlock: 33146018
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -31,9 +31,9 @@ dataSources:
         # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
         # - event: RuleWhitelisted(address,indexed address,indexed bool,uint256)
         # - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
-        - event: Written(indexed address,uint256,indexed address,uint256,address,uint256,uint256,uint256,uint256,indexed address,bytes)
+        - event: Written(indexed address,uint256,indexed address,uint256,address,uint256,uint256,uint256,indexed address,bytes)
           handler: handleWrite
-        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
+        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256)
           handler: handleFund
         # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
         #   handler: handleTransfer
@@ -46,9 +46,9 @@ dataSources:
     name: DirectPay
     network: mumbai
     source:
-      address: "0xc6573949538a07D722893c1A1b904b65b5BC41e3"
+      address: "0x6AF9bb8e224327EE3213446EAe72Ec338Cc3A3E0"
       abi: DirectPay
-      startBlock: 32985337
+      startBlock: 33146018
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5

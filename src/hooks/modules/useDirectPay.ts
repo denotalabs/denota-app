@@ -41,8 +41,8 @@ export const useDirectPay = () => {
       }
 
       const payload = ethers.utils.defaultAbiCoder.encode(
-        ["address", "uint256", "uint256", "address", "string", "uint256"],
-        [address, amountWei, 0, blockchainState.account, noteKey, dueTimestamp]
+        ["address", "uint256", "uint256", "address", "string", "string"],
+        [address, amountWei, dueTimestamp, blockchainState.account, "", noteKey]
       );
 
       const msgValue =

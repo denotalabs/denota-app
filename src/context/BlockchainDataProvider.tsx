@@ -168,7 +168,7 @@ export const BlockchainDataProvider = memo(
             cheq,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
-            graphUrl: deployedChainInfo.graphUrl,
+            graphUrl: deployedChainInfo.graphTestUrl,
             escrowAddress: contractMapping.directPay, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
           });
