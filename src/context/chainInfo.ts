@@ -1,4 +1,4 @@
-import { ContractAddressMapping } from "./contractAddresses";
+import chainInfo from "../../contractAddresses.json" assert { type: "json" };
 
 export const MUMBAI_ADDRESS = "0x13881";
 export const METAMASK_ERROR_CODE = 4902;
@@ -6,11 +6,11 @@ export const METAMASK_ERROR_CODE = 4902;
 export const contractMappingForChainId = (chainId: number) => {
   switch (chainId) {
     case 80001:
-      return ContractAddressMapping.mumbai;
+      return chainInfo.mumbai;
     case 31337:
-      return ContractAddressMapping.local;
+      return chainInfo.local;
     case 44787:
-      return ContractAddressMapping.alfajores;
+      return chainInfo.alfajores;
     default:
       return undefined;
   }

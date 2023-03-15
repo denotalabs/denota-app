@@ -109,9 +109,6 @@ if __name__ == "__main__":
   with open("contractAddresses.json", 'w') as f:
     f.write(json.dumps(existing_addresses))
 
-  with open("src/context/contractAddresses.tsx", 'w') as f:
-    f.write("export const ContractAddressMapping = " + json.dumps(existing_addresses))
-
   with open("src/graph/subgraph/config/" + chain + ".json", 'w') as f:
     existing_addresses[chain]["network"] = chain 
     existing_addresses[chain]["startBlock"] = "START"
