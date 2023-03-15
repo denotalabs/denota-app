@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 
-import { Button, Center, Spinner, Text, useDisclosure } from "@chakra-ui/react";
+import { Center, Spinner, useDisclosure } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { MUMBAI_ADDRESS } from "../../context/chainInfo";
 import { switchNetwork } from "../../context/SwitchNetwork";
 import NewUserModal from "../nux/NewUserModal";
+import { WrongChain } from "../WrongChain";
 import MyCheqsView from "./MyCheqsView";
 import NewUserScreen from "./NewUserScreen";
 
@@ -48,24 +49,7 @@ function HomeScreenContent() {
   }
 
   if (isWrongChain) {
-    return (
-      <Center flexDirection={"column"} w="100%" px={5}>
-        <Text fontWeight={600} fontSize={"xl"} textAlign="center" pb={6}>
-          Wrong Chain
-        </Text>
-        <Text fontWeight={600} fontSize={"md"} textAlign="center" pb={6}>
-          Please switch to Polygon Mumbai Testnet
-        </Text>
-        <Button
-          colorScheme="blue"
-          onClick={() => {
-            switchToMumbai?.();
-          }}
-        >
-          Switch to Mumbai
-        </Button>
-      </Center>
-    );
+    return <WrongChain />;
   }
 
   return account === "" ? (
