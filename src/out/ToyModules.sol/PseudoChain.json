@@ -543,7 +543,7 @@
     "setFees((uint256,uint256,uint256,uint256))": "fd77c960",
     "withdrawFees(address)": "164e68de"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"FeeTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InitParamsInvalid\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"REGISTRAR\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_URI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"dappOperatorFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"dappOperator\",\"type\":\"address\"}],\"name\":\"getFees\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processApproval\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processCash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processFund\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"processTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"processTransfer\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processWrite\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"revenue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"}],\"name\":\"setFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"withdrawFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"allows whoever finds the correct hash to claim the written cheq\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/ToyModules.sol\":\"PseudoChain\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":10000000},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x58936b248e4f271870c2dac13e212f91f6801ef9b0b8526015a720feeda9d6d6\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://5391350e48342cd972e3397a010c8ea53ca8462522f32966c93fe9be69d0a093\",\"dweb:/ipfs/QmNquuwwPezrZjNypFVLv51d4iLPD9JFYkaGujEto2h2Sw\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x7153312d99268c6832d945bcbb32b0dd8d0047cd47774f5a8ac531fbe6b087be\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://95becb203332f64a23eb1824418da275fc4080a52e04ece051e9e9791fc24665\",\"dweb:/ipfs/QmTruCJ3s8CrWJTr2FRwThyqH47jAjRBg5MEX3S3Wcfv46\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x38fa5cc4535b9d93a8b95e490b7ecec3f9533b193e10ae4a97d1ff927e74d78a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f6bcf1577ac5b9a47b552013fd51def84b62c288cf9a4c6df43a50eeb88846e6\",\"dweb:/ipfs/QmNXXUB3kQPAWUU2RLB82XToS9wGc6Wwcda2GhCRshPYZ9\"]},\"src/contracts/interfaces/IRegistrarGov.sol\":{\"keccak256\":\"0x806f310fb3ac245906049d72317f75c8c87f9b3bfb2e66d36eb59b9e234a47d1\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://4fc858223ca36ca5f10bbb60c138807c64acd19d73f4dde35e7b55329f8df836\",\"dweb:/ipfs/QmXSvS4zYKCqZAG6DAZgS1GfwkvNTm7Lg79EfdgseBxREx\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0xb6a1cd2690be1a3e4a7005e4b9e05a9c36825c0a63901f94bd83a582d75c6ff4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f8822aedccc9ffe4d005a9e118895fec409ca7c8c0131635607749374e7e6f59\",\"dweb:/ipfs/QmXpjYS61nBnpSWD19mQja3WNmtoU7Ayk1vPGzdGcn2yFa\"]},\"src/contracts/modules/ToyModules.sol\":{\"keccak256\":\"0x252b2838d5886baf97c78a092d40b35c69f604cf79422b3cb7a140dd0cf64649\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://472cc038373cf2218895688abc4355f1965ef839d9d60d7609dc38de76ece46f\",\"dweb:/ipfs/QmdHDJZ6bGmNkwXPZxvp1k4dW8kuDTiUYZaN3kbVFxBXh1\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"FeeTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InitParamsInvalid\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"REGISTRAR\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_URI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"dappOperatorFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"dappOperator\",\"type\":\"address\"}],\"name\":\"getFees\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processApproval\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processCash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processFund\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"processTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"processTransfer\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processWrite\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"revenue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"}],\"name\":\"setFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"withdrawFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"allows whoever finds the correct hash to claim the written cheq\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/modules/ToyModules.sol\":\"PseudoChain\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":10000000},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/contracts/ModuleBase.sol\":{\"keccak256\":\"0x629571d3edab1d85548f6024ea98801d79726bf1749e01106fee7844db2a5b23\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://3944bde32bcb79c18694498f0e148691decfe3c8a16a76f66db0bd6f87481281\",\"dweb:/ipfs/Qmcn4hcokux5TJpVvqV9ZkuCWhF1Zrz7yU1Czk2EYCuhJg\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x7153312d99268c6832d945bcbb32b0dd8d0047cd47774f5a8ac531fbe6b087be\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://95becb203332f64a23eb1824418da275fc4080a52e04ece051e9e9791fc24665\",\"dweb:/ipfs/QmTruCJ3s8CrWJTr2FRwThyqH47jAjRBg5MEX3S3Wcfv46\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x38fa5cc4535b9d93a8b95e490b7ecec3f9533b193e10ae4a97d1ff927e74d78a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f6bcf1577ac5b9a47b552013fd51def84b62c288cf9a4c6df43a50eeb88846e6\",\"dweb:/ipfs/QmNXXUB3kQPAWUU2RLB82XToS9wGc6Wwcda2GhCRshPYZ9\"]},\"src/contracts/interfaces/IRegistrarGov.sol\":{\"keccak256\":\"0x806f310fb3ac245906049d72317f75c8c87f9b3bfb2e66d36eb59b9e234a47d1\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://4fc858223ca36ca5f10bbb60c138807c64acd19d73f4dde35e7b55329f8df836\",\"dweb:/ipfs/QmXSvS4zYKCqZAG6DAZgS1GfwkvNTm7Lg79EfdgseBxREx\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0xb6a1cd2690be1a3e4a7005e4b9e05a9c36825c0a63901f94bd83a582d75c6ff4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f8822aedccc9ffe4d005a9e118895fec409ca7c8c0131635607749374e7e6f59\",\"dweb:/ipfs/QmXpjYS61nBnpSWD19mQja3WNmtoU7Ayk1vPGzdGcn2yFa\"]},\"src/contracts/modules/ToyModules.sol\":{\"keccak256\":\"0x252b2838d5886baf97c78a092d40b35c69f604cf79422b3cb7a140dd0cf64649\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://472cc038373cf2218895688abc4355f1965ef839d9d60d7609dc38de76ece46f\",\"dweb:/ipfs/QmdHDJZ6bGmNkwXPZxvp1k4dW8kuDTiUYZaN3kbVFxBXh1\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -1130,10 +1130,10 @@
         "license": "MIT"
       },
       "src/contracts/ModuleBase.sol": {
-        "keccak256": "0x58936b248e4f271870c2dac13e212f91f6801ef9b0b8526015a720feeda9d6d6",
+        "keccak256": "0x629571d3edab1d85548f6024ea98801d79726bf1749e01106fee7844db2a5b23",
         "urls": [
-          "bzz-raw://5391350e48342cd972e3397a010c8ea53ca8462522f32966c93fe9be69d0a093",
-          "dweb:/ipfs/QmNquuwwPezrZjNypFVLv51d4iLPD9JFYkaGujEto2h2Sw"
+          "bzz-raw://3944bde32bcb79c18694498f0e148691decfe3c8a16a76f66db0bd6f87481281",
+          "dweb:/ipfs/Qmcn4hcokux5TJpVvqV9ZkuCWhF1Zrz7yU1Czk2EYCuhJg"
         ],
         "license": "BUSL-1.1"
       },
@@ -1198,37 +1198,37 @@
   },
   "ast": {
     "absolutePath": "src/contracts/modules/ToyModules.sol",
-    "id": 34359,
+    "id": 32501,
     "exportedSymbols": {
       "BoolRelease": [
-        34358
+        32500
       ],
       "DataTypes": [
-        31258
+        29396
       ],
       "ModuleBase": [
-        29866
+        27869
       ],
       "PayItForward": [
-        34346
+        32488
       ],
       "PseudoChain": [
-        34342
+        32484
       ],
       "SimpleLottery": [
-        34350
+        32492
       ],
       "URIUpdater": [
-        34354
+        32496
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:5496:60",
+    "src": "37:5496:61",
     "nodes": [
       {
-        "id": 34334,
+        "id": 32476,
         "nodeType": "PragmaDirective",
-        "src": "37:25:60",
+        "src": "37:25:61",
         "nodes": [],
         "literals": [
           "solidity",
@@ -1238,24 +1238,24 @@
         ]
       },
       {
-        "id": 34336,
+        "id": 32478,
         "nodeType": "ImportDirective",
-        "src": "109:45:60",
+        "src": "109:45:61",
         "nodes": [],
         "absolutePath": "src/contracts/ModuleBase.sol",
         "file": "../ModuleBase.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34359,
-        "sourceUnit": 29867,
+        "scope": 32501,
+        "sourceUnit": 27870,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34335,
+              "id": 32477,
               "name": "ModuleBase",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 29866,
-              "src": "117:10:60",
+              "referencedDeclaration": 27869,
+              "src": "117:10:61",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1264,24 +1264,24 @@
         "unitAlias": ""
       },
       {
-        "id": 34338,
+        "id": 32480,
         "nodeType": "ImportDirective",
-        "src": "155:53:60",
+        "src": "155:53:61",
         "nodes": [],
         "absolutePath": "src/contracts/libraries/DataTypes.sol",
         "file": "../libraries/DataTypes.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 34359,
-        "sourceUnit": 31259,
+        "scope": 32501,
+        "sourceUnit": 29397,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 34337,
+              "id": 32479,
               "name": "DataTypes",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 31258,
-              "src": "163:9:60",
+              "referencedDeclaration": 29396,
+              "src": "163:9:61",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -1290,237 +1290,237 @@
         "unitAlias": ""
       },
       {
-        "id": 34342,
+        "id": 32484,
         "nodeType": "ContractDefinition",
-        "src": "286:4033:60",
+        "src": "286:4033:61",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 34340,
+              "id": 32482,
               "name": "ModuleBase",
               "nameLocations": [
-                "319:10:60"
+                "319:10:61"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 29866,
-              "src": "319:10:60"
+              "referencedDeclaration": 27869,
+              "src": "319:10:61"
             },
-            "id": 34341,
+            "id": 32483,
             "nodeType": "InheritanceSpecifier",
-            "src": "319:10:60"
+            "src": "319:10:61"
           }
         ],
         "canonicalName": "PseudoChain",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 34339,
+          "id": 32481,
           "nodeType": "StructuredDocumentation",
-          "src": "210:76:60",
+          "src": "210:76:61",
           "text": "@notice allows whoever finds the correct hash to claim the written cheq"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          34342,
-          29866,
-          30220
+          32484,
+          27869,
+          28223
         ],
         "name": "PseudoChain",
-        "nameLocation": "304:11:60",
-        "scope": 34359,
+        "nameLocation": "304:11:61",
+        "scope": 32501,
         "usedErrors": [
-          29624,
-          31272
+          27627,
+          29410
         ]
       },
       {
-        "id": 34346,
+        "id": 32488,
         "nodeType": "ContractDefinition",
-        "src": "4406:700:60",
+        "src": "4406:700:61",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 34344,
+              "id": 32486,
               "name": "ModuleBase",
               "nameLocations": [
-                "4440:10:60"
+                "4440:10:61"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 29866,
-              "src": "4440:10:60"
+              "referencedDeclaration": 27869,
+              "src": "4440:10:61"
             },
-            "id": 34345,
+            "id": 32487,
             "nodeType": "InheritanceSpecifier",
-            "src": "4440:10:60"
+            "src": "4440:10:61"
           }
         ],
         "canonicalName": "PayItForward",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 34343,
+          "id": 32485,
           "nodeType": "StructuredDocumentation",
-          "src": "4321:85:60",
+          "src": "4321:85:61",
           "text": "@notice allows the owner to fund and transfer or wait until the timelock is over"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          34346,
-          29866,
-          30220
+          32488,
+          27869,
+          28223
         ],
         "name": "PayItForward",
-        "nameLocation": "4424:12:60",
-        "scope": 34359,
+        "nameLocation": "4424:12:61",
+        "scope": 32501,
         "usedErrors": [
-          29624,
-          31272
+          27627,
+          29410
         ]
       },
       {
-        "id": 34350,
+        "id": 32492,
         "nodeType": "ContractDefinition",
-        "src": "5165:50:60",
+        "src": "5165:50:61",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 34348,
+              "id": 32490,
               "name": "ModuleBase",
               "nameLocations": [
-                "5200:10:60"
+                "5200:10:61"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 29866,
-              "src": "5200:10:60"
+              "referencedDeclaration": 27869,
+              "src": "5200:10:61"
             },
-            "id": 34349,
+            "id": 32491,
             "nodeType": "InheritanceSpecifier",
-            "src": "5200:10:60"
+            "src": "5200:10:61"
           }
         ],
         "canonicalName": "SimpleLottery",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 34347,
+          "id": 32489,
           "nodeType": "StructuredDocumentation",
-          "src": "5108:57:60",
+          "src": "5108:57:61",
           "text": "@notice allows certain addresses the ability to cash"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          34350,
-          29866,
-          30220
+          32492,
+          27869,
+          28223
         ],
         "name": "SimpleLottery",
-        "nameLocation": "5183:13:60",
-        "scope": 34359,
+        "nameLocation": "5183:13:61",
+        "scope": 32501,
         "usedErrors": [
-          29624,
-          31272
+          27627,
+          29410
         ]
       },
       {
-        "id": 34354,
+        "id": 32496,
         "nodeType": "ContractDefinition",
-        "src": "5307:47:60",
+        "src": "5307:47:61",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 34352,
+              "id": 32494,
               "name": "ModuleBase",
               "nameLocations": [
-                "5339:10:60"
+                "5339:10:61"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 29866,
-              "src": "5339:10:60"
+              "referencedDeclaration": 27869,
+              "src": "5339:10:61"
             },
-            "id": 34353,
+            "id": 32495,
             "nodeType": "InheritanceSpecifier",
-            "src": "5339:10:60"
+            "src": "5339:10:61"
           }
         ],
         "canonicalName": "URIUpdater",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 34351,
+          "id": 32493,
           "nodeType": "StructuredDocumentation",
-          "src": "5217:90:60",
+          "src": "5217:90:61",
           "text": "@notice allows the owner to update the URI and memo hash (if they escrow more money?)"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          34354,
-          29866,
-          30220
+          32496,
+          27869,
+          28223
         ],
         "name": "URIUpdater",
-        "nameLocation": "5325:10:60",
-        "scope": 34359,
+        "nameLocation": "5325:10:61",
+        "scope": 32501,
         "usedErrors": [
-          29624,
-          31272
+          27627,
+          29410
         ]
       },
       {
-        "id": 34358,
+        "id": 32500,
         "nodeType": "ContractDefinition",
-        "src": "5484:48:60",
+        "src": "5484:48:61",
         "nodes": [],
         "abstract": true,
         "baseContracts": [
           {
             "baseName": {
-              "id": 34356,
+              "id": 32498,
               "name": "ModuleBase",
               "nameLocations": [
-                "5517:10:60"
+                "5517:10:61"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 29866,
-              "src": "5517:10:60"
+              "referencedDeclaration": 27869,
+              "src": "5517:10:61"
             },
-            "id": 34357,
+            "id": 32499,
             "nodeType": "InheritanceSpecifier",
-            "src": "5517:10:60"
+            "src": "5517:10:61"
           }
         ],
         "canonicalName": "BoolRelease",
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 34355,
+          "id": 32497,
           "nodeType": "StructuredDocumentation",
-          "src": "5356:128:60",
+          "src": "5356:128:61",
           "text": "@notice write a cheq (to the zero address?) and the winner of a game (or other bet) gets to transfer to themselves and cash"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          34358,
-          29866,
-          30220
+          32500,
+          27869,
+          28223
         ],
         "name": "BoolRelease",
-        "nameLocation": "5502:11:60",
-        "scope": 34359,
+        "nameLocation": "5502:11:61",
+        "scope": 32501,
         "usedErrors": [
-          29624,
-          31272
+          27627,
+          29410
         ]
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 60
+  "id": 61
 }

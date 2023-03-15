@@ -83,12 +83,12 @@
   ],
   "bytecode": {
     "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220c8268ba74411195abe6072d72b802c4003cfc73db93a1737076e5b3bc469607664736f6c63430008100033",
-    "sourceMap": "63:1018:53:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;63:1018:53;;;;;;;;;;;;;;;;;",
+    "sourceMap": "63:1018:42:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;63:1018:42;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
     "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea2646970667358221220c8268ba74411195abe6072d72b802c4003cfc73db93a1737076e5b3bc469607664736f6c63430008100033",
-    "sourceMap": "63:1018:53:-:0;;;;;;;;",
+    "sourceMap": "63:1018:42:-:0;;;;;;;;",
     "linkReferences": {}
   },
   "methodIdentifiers": {},
@@ -233,19 +233,19 @@
   },
   "ast": {
     "absolutePath": "src/contracts/libraries/Errors.sol",
-    "id": 33504,
+    "id": 29432,
     "exportedSymbols": {
       "Errors": [
-        33503
+        29431
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "37:1045:53",
+    "src": "37:1045:42",
     "nodes": [
       {
-        "id": 33470,
+        "id": 29398,
         "nodeType": "PragmaDirective",
-        "src": "37:24:53",
+        "src": "37:24:42",
         "nodes": [],
         "literals": [
           "solidity",
@@ -255,248 +255,248 @@
         ]
       },
       {
-        "id": 33503,
+        "id": 29431,
         "nodeType": "ContractDefinition",
-        "src": "63:1018:53",
+        "src": "63:1018:42",
         "nodes": [
           {
-            "id": 33472,
+            "id": 29400,
             "nodeType": "ErrorDefinition",
-            "src": "84:23:53",
+            "src": "84:23:42",
             "nodes": [],
             "errorSelector": "584a7938",
             "name": "NotWhitelisted",
-            "nameLocation": "90:14:53",
+            "nameLocation": "90:14:42",
             "parameters": {
-              "id": 33471,
+              "id": 29399,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "104:2:53"
+              "src": "104:2:42"
             }
           },
           {
-            "id": 33474,
+            "id": 29402,
             "nodeType": "ErrorDefinition",
-            "src": "112:28:53",
+            "src": "112:28:42",
             "nodes": [],
             "errorSelector": "f84835a0",
             "name": "TokenNotWhitelisted",
-            "nameLocation": "118:19:53",
+            "nameLocation": "118:19:42",
             "parameters": {
-              "id": 33473,
+              "id": 29401,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "137:2:53"
+              "src": "137:2:42"
             }
           },
           {
-            "id": 33476,
+            "id": 29404,
             "nodeType": "ErrorDefinition",
-            "src": "145:29:53",
+            "src": "145:29:42",
             "nodes": [],
             "errorSelector": "8fd1408d",
             "name": "ModuleNotWhitelisted",
-            "nameLocation": "151:20:53",
+            "nameLocation": "151:20:42",
             "parameters": {
-              "id": 33475,
+              "id": 29403,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "171:2:53"
+              "src": "171:2:42"
             }
           },
           {
-            "id": 33478,
+            "id": 29406,
             "nodeType": "ErrorDefinition",
-            "src": "179:21:53",
+            "src": "179:21:42",
             "nodes": [],
             "errorSelector": "2ad95351",
             "name": "NotRegistrar",
-            "nameLocation": "185:12:53",
+            "nameLocation": "185:12:42",
             "parameters": {
-              "id": 33477,
+              "id": 29405,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "197:2:53"
+              "src": "197:2:42"
             }
           },
           {
-            "id": 33480,
+            "id": 29408,
             "nodeType": "ErrorDefinition",
-            "src": "260:28:53",
+            "src": "260:28:42",
             "nodes": [],
             "errorSelector": "952aea10",
             "name": "ModuleParamsInvalid",
-            "nameLocation": "266:19:53",
+            "nameLocation": "266:19:42",
             "parameters": {
-              "id": 33479,
+              "id": 29407,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "285:2:53"
+              "src": "285:2:42"
             }
           },
           {
-            "id": 33482,
+            "id": 29410,
             "nodeType": "ErrorDefinition",
-            "src": "293:26:53",
+            "src": "293:26:42",
             "nodes": [],
             "errorSelector": "48be0eb3",
             "name": "InitParamsInvalid",
-            "nameLocation": "299:17:53",
+            "nameLocation": "299:17:42",
             "parameters": {
-              "id": 33481,
+              "id": 29409,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "316:2:53"
+              "src": "316:2:42"
             }
           },
           {
-            "id": 33484,
+            "id": 29412,
             "nodeType": "ErrorDefinition",
-            "src": "344:20:53",
+            "src": "344:20:42",
             "nodes": [],
             "errorSelector": "e405191c",
             "name": "CheqInvalid",
-            "nameLocation": "350:11:53",
+            "nameLocation": "350:11:42",
             "parameters": {
-              "id": 33483,
+              "id": 29411,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "361:2:53"
+              "src": "361:2:42"
             }
           },
           {
-            "id": 33486,
+            "id": 29414,
             "nodeType": "ErrorDefinition",
-            "src": "369:20:53",
+            "src": "369:20:42",
             "nodes": [],
             "errorSelector": "d92e233d",
             "name": "ZeroAddress",
-            "nameLocation": "375:11:53",
+            "nameLocation": "375:11:42",
             "parameters": {
-              "id": 33485,
+              "id": 29413,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "386:2:53"
+              "src": "386:2:42"
             }
           },
           {
-            "id": 33488,
+            "id": 29416,
             "nodeType": "ErrorDefinition",
-            "src": "394:19:53",
+            "src": "394:19:42",
             "nodes": [],
             "errorSelector": "e9d1aa85",
             "name": "ZeroEscrow",
-            "nameLocation": "400:10:53",
+            "nameLocation": "400:10:42",
             "parameters": {
-              "id": 33487,
+              "id": 29415,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "410:2:53"
+              "src": "410:2:42"
             }
           },
           {
-            "id": 33490,
+            "id": 29418,
             "nodeType": "ErrorDefinition",
-            "src": "444:15:53",
+            "src": "444:15:42",
             "nodes": [],
             "errorSelector": "9e87fac8",
             "name": "Paused",
-            "nameLocation": "450:6:53",
+            "nameLocation": "450:6:42",
             "parameters": {
-              "id": 33489,
+              "id": 29417,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "456:2:53"
+              "src": "456:2:42"
             }
           },
           {
-            "id": 33492,
+            "id": 29420,
             "nodeType": "ErrorDefinition",
-            "src": "464:22:53",
+            "src": "464:22:42",
             "nodes": [],
             "errorSelector": "80e4fae9",
             "name": "WritingPaused",
-            "nameLocation": "470:13:53",
+            "nameLocation": "470:13:42",
             "parameters": {
-              "id": 33491,
+              "id": 29419,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "483:2:53"
+              "src": "483:2:42"
             }
           },
           {
-            "id": 33494,
+            "id": 29422,
             "nodeType": "ErrorDefinition",
-            "src": "491:27:53",
+            "src": "491:27:42",
             "nodes": [],
             "errorSelector": "2b73e513",
             "name": "TransferringPaused",
-            "nameLocation": "497:18:53",
+            "nameLocation": "497:18:42",
             "parameters": {
-              "id": 33493,
+              "id": 29421,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "515:2:53"
+              "src": "515:2:42"
             }
           },
           {
-            "id": 33496,
+            "id": 29424,
             "nodeType": "ErrorDefinition",
-            "src": "523:22:53",
+            "src": "523:22:42",
             "nodes": [],
             "errorSelector": "ad4ee267",
             "name": "FundingPaused",
-            "nameLocation": "529:13:53",
+            "nameLocation": "529:13:42",
             "parameters": {
-              "id": 33495,
+              "id": 29423,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "542:2:53"
+              "src": "542:2:42"
             }
           },
           {
-            "id": 33498,
+            "id": 29426,
             "nodeType": "ErrorDefinition",
-            "src": "550:22:53",
+            "src": "550:22:42",
             "nodes": [],
             "errorSelector": "b5706bd7",
             "name": "CashingPaused",
-            "nameLocation": "556:13:53",
+            "nameLocation": "556:13:42",
             "parameters": {
-              "id": 33497,
+              "id": 29425,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "569:2:53"
+              "src": "569:2:42"
             }
           },
           {
-            "id": 33500,
+            "id": 29428,
             "nodeType": "ErrorDefinition",
-            "src": "577:24:53",
+            "src": "577:24:42",
             "nodes": [],
             "errorSelector": "51f40396",
             "name": "ApprovingPaused",
-            "nameLocation": "583:15:53",
+            "nameLocation": "583:15:42",
             "parameters": {
-              "id": 33499,
+              "id": 29427,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "598:2:53"
+              "src": "598:2:42"
             }
           },
           {
-            "id": 33502,
+            "id": 29430,
             "nodeType": "ErrorDefinition",
-            "src": "606:22:53",
+            "src": "606:22:42",
             "nodes": [],
             "errorSelector": "b0635985",
             "name": "BurningPaused",
-            "nameLocation": "612:13:53",
+            "nameLocation": "612:13:42",
             "parameters": {
-              "id": 33501,
+              "id": 29429,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "625:2:53"
+              "src": "625:2:42"
             }
           }
         ],
@@ -507,32 +507,32 @@
         "contractKind": "library",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          33503
+          29431
         ],
         "name": "Errors",
-        "nameLocation": "71:6:53",
-        "scope": 33504,
+        "nameLocation": "71:6:42",
+        "scope": 29432,
         "usedErrors": [
-          33472,
-          33474,
-          33476,
-          33478,
-          33480,
-          33482,
-          33484,
-          33486,
-          33488,
-          33490,
-          33492,
-          33494,
-          33496,
-          33498,
-          33500,
-          33502
+          29400,
+          29402,
+          29404,
+          29406,
+          29408,
+          29410,
+          29412,
+          29414,
+          29416,
+          29418,
+          29420,
+          29422,
+          29424,
+          29426,
+          29428,
+          29430
         ]
       }
     ],
     "license": "BUSL-1.1"
   },
-  "id": 53
+  "id": 42
 }

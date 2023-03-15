@@ -32,24 +32,38 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "vm",
+      "outputs": [
+        {
+          "internalType": "contract Vm",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
   "bytecode": {
-    "object": "0x6080604052600a805460ff1916600117905534801561001d57600080fd5b506101f78061002d6000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80630a9254e414610046578063c040622614610048578063f8ccbf471461007a575b600080fd5b005b610050610097565b60405173ffffffffffffffffffffffffffffffffffffffff90911681526020015b60405180910390f35b600a546100879060ff1681565b6040519015158152602001610071565b6040517fc1978d1f00000000000000000000000000000000000000000000000000000000815260206004820152604260248201527f307861633039373462656333396131376533366261346136623464323338666660448201527f393434626163623437386362656435656663616537383464376266346632666660648201527f383000000000000000000000000000000000000000000000000000000000000060848201526000908190737109709ecfa91a80626ff3989d68f67f5b1dd12d9063c1978d1f9060a401602060405180830381865afa15801561017e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101a291906101a8565b90505090565b6000602082840312156101ba57600080fd5b505191905056fea2646970667358221220d42fe334a3ba737024ebb148f04736a8ab453ce6c0f9c783e82e96632d53971a64736f6c63430008100033",
-    "sourceMap": "268:1243:33:-:0;;;467:28:3;;;-1:-1:-1;;467:28:3;491:4;467:28;;;268:1243:33;;;;;;;;;;;;;;;;",
+    "object": "0x60806040526000805460ff1916600117905534801561001d57600080fd5b5061021f8061002d6000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c80630a9254e4146100515780633a76846314610053578063c040622614610098578063f8ccbf47146100a0575b600080fd5b005b61006e737109709ecfa91a80626ff3989d68f67f5b1dd12d81565b60405173ffffffffffffffffffffffffffffffffffffffff90911681526020015b60405180910390f35b61006e6100bd565b6000546100ad9060ff1681565b604051901515815260200161008f565b6040517fc1978d1f00000000000000000000000000000000000000000000000000000000815260206004820152604260248201527f307861633039373462656333396131376533366261346136623464323338666660448201527f393434626163623437386362656435656663616537383464376266346632666660648201527f383000000000000000000000000000000000000000000000000000000000000060848201526000908190737109709ecfa91a80626ff3989d68f67f5b1dd12d9063c1978d1f9060a4016020604051808303816000875af11580156101a6573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101ca91906101d0565b90505090565b6000602082840312156101e257600080fd5b505191905056fea264697066735822122007eb0c81a98acaaa73409c9b91299b6e32c85f8dbf1902dfd6dfa1422972274664736f6c63430008100033",
+    "sourceMap": "268:1243:29:-:0;;;165:28:1;;;-1:-1:-1;;165:28:1;189:4;165:28;;;268:1243:29;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80630a9254e414610046578063c040622614610048578063f8ccbf471461007a575b600080fd5b005b610050610097565b60405173ffffffffffffffffffffffffffffffffffffffff90911681526020015b60405180910390f35b600a546100879060ff1681565b6040519015158152602001610071565b6040517fc1978d1f00000000000000000000000000000000000000000000000000000000815260206004820152604260248201527f307861633039373462656333396131376533366261346136623464323338666660448201527f393434626163623437386362656435656663616537383464376266346632666660648201527f383000000000000000000000000000000000000000000000000000000000000060848201526000908190737109709ecfa91a80626ff3989d68f67f5b1dd12d9063c1978d1f9060a401602060405180830381865afa15801561017e573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101a291906101a8565b90505090565b6000602082840312156101ba57600080fd5b505191905056fea2646970667358221220d42fe334a3ba737024ebb148f04736a8ab453ce6c0f9c783e82e96632d53971a64736f6c63430008100033",
-    "sourceMap": "268:1243:33:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;308:26;;340:1169;;;:::i;:::-;;;213:42:64;201:55;;;183:74;;171:2;156:18;340:1169:33;;;;;;;;467:28:3;;;;;;;;;;;;433:14:64;;426:22;408:41;;396:2;381:18;467:28:3;268:187:64;340:1169:33;425:102;;;;;662:2:64;425:102:33;;;644:21:64;701:2;681:18;;;674:30;740:34;720:18;;;713:62;811:34;791:18;;;784:62;883:4;862:19;;;855:33;371:13:33;;;;425:10;;;;905:19:64;;425:102:33;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;396:131;;386:1123;340:1169;:::o;935:184:64:-;1005:6;1058:2;1046:9;1037:7;1033:23;1029:32;1026:52;;;1074:1;1071;1064:12;1026:52;-1:-1:-1;1097:16:64;;935:184;-1:-1:-1;935:184:64:o",
+    "object": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c80630a9254e4146100515780633a76846314610053578063c040622614610098578063f8ccbf47146100a0575b600080fd5b005b61006e737109709ecfa91a80626ff3989d68f67f5b1dd12d81565b60405173ffffffffffffffffffffffffffffffffffffffff90911681526020015b60405180910390f35b61006e6100bd565b6000546100ad9060ff1681565b604051901515815260200161008f565b6040517fc1978d1f00000000000000000000000000000000000000000000000000000000815260206004820152604260248201527f307861633039373462656333396131376533366261346136623464323338666660448201527f393434626163623437386362656435656663616537383464376266346632666660648201527f383000000000000000000000000000000000000000000000000000000000000060848201526000908190737109709ecfa91a80626ff3989d68f67f5b1dd12d9063c1978d1f9060a4016020604051808303816000875af11580156101a6573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906101ca91906101d0565b90505090565b6000602082840312156101e257600080fd5b505191905056fea264697066735822122007eb0c81a98acaaa73409c9b91299b6e32c85f8dbf1902dfd6dfa1422972274664736f6c63430008100033",
+    "sourceMap": "268:1243:29:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;308:26;;316:38:1;;245:64;316:38;;;;;201:42:74;189:55;;;171:74;;159:2;144:18;316:38:1;;;;;;;;340:1169:29;;;:::i;165:28:1:-;;;;;;;;;;;;675:14:74;;668:22;650:41;;638:2;623:18;165:28:1;510:187:74;340:1169:29;425:102;;;;;904:2:74;425:102:29;;;886:21:74;943:2;923:18;;;916:30;982:34;962:18;;;955:62;1053:34;1033:18;;;1026:62;1125:4;1104:19;;;1097:33;371:13:29;;;;245:64:1;;425:10:29;;1147:19:74;;425:102:29;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;396:131;;386:1123;340:1169;:::o;1177:184:74:-;1247:6;1300:2;1288:9;1279:7;1275:23;1271:32;1268:52;;;1316:1;1313;1306:12;1268:52;-1:-1:-1;1339:16:74;;1177:184;-1:-1:-1;1177:184:74:o",
     "linkReferences": {}
   },
   "methodIdentifiers": {
     "IS_SCRIPT()": "f8ccbf47",
     "run()": "c0406226",
-    "setUp()": "0a9254e4"
+    "setUp()": "0a9254e4",
+    "vm()": "3a768463"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"IS_SCRIPT\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"run\",\"outputs\":[{\"internalType\":\"contract CheqRegistrar\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"setUp\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"script/Contract.s.sol\":\"ContractScript\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":10000000},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/forge-std/lib/ds-test/src/test.sol\":{\"keccak256\":\"0xb39cd1d5220cb474947b131e15a4538334b7e886af244b440ae5c9c6bba96a54\",\"license\":\"GPL-3.0-or-later\",\"urls\":[\"bzz-raw://3101520221449ac0070bda3881311a71d9aa87e5210765e875246922cb5cb5f5\",\"dweb:/ipfs/Qmbg6kAHNoG7ox9N9Xqd9Ere2H2XixMFWFqvyPwFCzB3Gr\"]},\"lib/forge-std/src/Common.sol\":{\"keccak256\":\"0x1c92c530e5f0fcd895d48829ae786d63b87b02eaa203767813ffb39651d0b9b4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://75e17c301cf9072de9031b82821bb655e0d718ae16dd4de42f5a1355390697fd\",\"dweb:/ipfs/Qma61YBx9XAmRoRyjLWzUz65rDmRv9ARt79c1QDrMVZeGN\"]},\"lib/forge-std/src/Components.sol\":{\"keccak256\":\"0xb2734f05b1a56bbdd8fd40c5c4b4f39e609501181583f4026fc4764416a0c350\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://70a495f75d69f2f07c483ef479e1f7491d099329d7c8124d48ef88d528b15079\",\"dweb:/ipfs/QmZiaWVGqE5PagnYiEPXzCxYiDbFcGYzZWtYkqEXf3j1ja\"]},\"lib/forge-std/src/Script.sol\":{\"keccak256\":\"0xeac959e0df1a828c33434c177f596fa616a95abc919cf6beac6d3e137e6f2177\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://160863313c265c243e634c167243d2d9f902748593aa6146b8e390cd4a135a75\",\"dweb:/ipfs/QmSSfWVUu8GMq2eBszXH7FxCec4e7qVrkWc4wbpKHMp2F1\"]},\"lib/forge-std/src/StdAssertions.sol\":{\"keccak256\":\"0xde2bdee8e0e530de3269da50ebba83f4f90dde817971488980b720281e3cde4d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://cb3f05bb06b654db43f4ce38e22aa7e2296ee00615df5329623c08c9ac030f8d\",\"dweb:/ipfs/QmdKwTpFsTiDFmc8zGwbPRu8mDs4oiKdZvzSj3WpiiGaez\"]},\"lib/forge-std/src/StdChains.sol\":{\"keccak256\":\"0x4b47eb30f37e79a5bb47ad36b8808b3cfee6c21c9a39d3bf9895d554fba5f969\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e5000580a2d5b0c7988356afcf5e9e0aadd6a34f12c92c84251195ffa10e3116\",\"dweb:/ipfs/QmXUCKju3KdnnkkYjPdwD2fsqRVrnh1Ag2NdTbpxxWudTK\"]},\"lib/forge-std/src/StdCheats.sol\":{\"keccak256\":\"0x0654e956830a422d35060a2e7b66d4f97951921a3dc119eb89bae7202e4fb078\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://eb22e4d811b49dd14f81fec6d4a1c37cbdd4e7c3ac9d2b5ccb966ab7a112eb9b\",\"dweb:/ipfs/QmXSxM6y6q5Gw6yR28skW3L22MFEazLu8enQG2DSzBoTNR\"]},\"lib/forge-std/src/StdError.sol\":{\"keccak256\":\"0xbf477b11a42d7611696956546bcfaa29317d1166bf65e402344599c05943fc77\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://bc2e117d1135e030862b96a6526a43feb38d396cc79857f1fb696d4eff0e5fd6\",\"dweb:/ipfs/QmdSuQ5RrQudTLsNmWXGEeVJX8gR5U9XPm6m4dwwuQnJrj\"]},\"lib/forge-std/src/StdJson.sol\":{\"keccak256\":\"0x2291ee8f379552b86f34d98acb248d50442c7d4ab94aed03f1c8ddb6aea6852d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1ca6ca6fe35692428b507008b24e4ec4ba0cabaf58110fd0b4456a42e0166bdc\",\"dweb:/ipfs/QmUcSeXfYMyusrWxEdPRMeWFYhf9qD6YJaZXCVo29F4eus\"]},\"lib/forge-std/src/StdMath.sol\":{\"keccak256\":\"0xd90ad4fd8aeaeb8929964e686e769fdedd5eded3fc3815df194a0ab9f91a3fb2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7919b70f636c7b805223992f28ad1ad0145d6c1385b5931a3589aface5fe6c92\",\"dweb:/ipfs/QmY7FRaULwoGgFteF8GawjQJRfasNgpWnU2aiMsFrYpuTC\"]},\"lib/forge-std/src/StdStorage.sol\":{\"keccak256\":\"0xb0da85ce6999940eba6190a26c15b9bc7aede57123891287e1b30f80333a9cf5\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d287fd41de40ef992588f7a9531e66d1e9f8e4f3f194b9e721ac576d4613964a\",\"dweb:/ipfs/QmbFYYjoc8WGLKVfDe4rscYPwdGq48incbwRQNoLtcMMjn\"]},\"lib/forge-std/src/StdUtils.sol\":{\"keccak256\":\"0x216818221765c43713791708d7dc83fcd5ada81766c9d4ce54551528c191a59f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://3f03d0ef065ce600e5922f3e9c92f0f54ff7c12895a250fa97d83e9ee38e7e2b\",\"dweb:/ipfs/QmX59m9mNRNEhjhEZnxbDirniesi26pnDaNzF5hPB4A3E8\"]},\"lib/forge-std/src/Vm.sol\":{\"keccak256\":\"0x4a4cf2f0b83bb2f2e513547d74abfdea52b37b803cc57ca090702f3aeed4859c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2f6652149a35eaa3b339e6caca02f37f3739a5e541688e44469ccfc90956fbee\",\"dweb:/ipfs/QmcqcpJuFJNr6Jgx8NeksRBa3zmkmjQW1fc9GD8ux2QjRx\"]},\"lib/forge-std/src/console.sol\":{\"keccak256\":\"0x91d5413c2434ca58fd278b6e1e79fd98d10c83931cc2596a6038eee4daeb34ba\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://91ccea707361e48b9b7a161fe81f496b9932bc471e9c4e4e1e9c283f2453cc70\",\"dweb:/ipfs/QmcB66sZhQ6Kz7MUHcLE78YXRUZxoZnnxZjN6yATsbB2ec\"]},\"lib/forge-std/src/console2.sol\":{\"keccak256\":\"0x225cc1ec33efd35c90e78aec0792ed9751cd6217e646271172421e96e2e2cc0f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6c6adbd216e40ca2387835b8618c82e7153cb826023d38943bbb0c2e992644aa\",\"dweb:/ipfs/QmZeejwEkm7iH9NHih7dPbuNqivuFn27EkgJesgByzS9wD\"]},\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol\":{\"keccak256\":\"0x4ffc0547c02ad22925310c585c0f166f8759e2648a09e9b489100c42f15dd98d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://15f52f51413a9de1ff191e2f6367c62178e1df7806d7880fe857a98b0b66253d\",\"dweb:/ipfs/QmaQG1fwfgUt5E9nu2cccFiV47B2V78MM1tCy1qB7n4MsH\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol\":{\"keccak256\":\"0x8de418a5503946cabe331f35fe242d3201a73f67f77aaeb7110acb1f30423aca\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a376d3dda2cb70536c0a45c208b29b34ac560c4cb4f513a42079f96ba47d2dd\",\"dweb:/ipfs/QmZQg6gn1sUpM8wHzwNvSnihumUCAhxD119MpXeKp8B9s8\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol\":{\"keccak256\":\"0xf41ca991f30855bf80ffd11e9347856a517b977f0a6c2d52e6421a99b7840329\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b2717fd2bdac99daa960a6de500754ea1b932093c946388c381da48658234b95\",\"dweb:/ipfs/QmP6QVMn6UeA3ByahyJbYQr5M6coHKBKsf3ySZSfbyA8R7\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol\":{\"keccak256\":\"0x9b72f93be69ca894d8492c244259615c4a742afc8d63720dbc8bb81087d9b238\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f5a7b96e511be78d5cdf635c784e6ab8cdd38625bb8cafb8a80914a1c89cf0f6\",\"dweb:/ipfs/QmVzTCwJxQAkjRQHboT5QrvsVJGWQHgfEjeTbvyxoKBrds\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x7ee54e306cc9f42ccc9b414237d260636b7858bfebb5e5f3ceeedda0bbdc1314\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6ae94478a983f8fe01aafce9181a893cf39a564c08e8814162ce9e96af25101c\",\"dweb:/ipfs/QmXMeKpSCEqkxbjgBDXRHd93hsNw9McZHH4P3nLvsVtT2f\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0xab28a56179c1db258c9bf5235b382698cb650debecb51b23d12be9e241374b68\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://daae589a9d6fa7e55f99f86c0a16796ca490f243fb3693632c3711c0646c1d56\",\"dweb:/ipfs/QmR3zpd7wNw3rcUdekwiv6FYHJqksuTCXLVioTxu6Fbxk3\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708\",\"dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol\":{\"keccak256\":\"0x75b829ff2f26c14355d1cba20e16fe7b29ca58eb5fef665ede48bc0f9c6c74b9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a0a107160525724f9e1bbbab031defc2f298296dd9e331f16a6f7130cec32146\",\"dweb:/ipfs/QmemujxSd7gX8A9M8UwmNbz4Ms3U9FG9QfudUgxwvTmPWf\"]},\"lib/openzeppelin-contracts/contracts/utils/Address.sol\":{\"keccak256\":\"0xf96f969e24029d43d0df89e59d365f277021dac62b48e1c1e3ebe0acdd7f1ca1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ec772b45a624be516f1c81970caa8a2e144301e9d0921cbc1a2789fef39a1269\",\"dweb:/ipfs/QmNyjwxCrGhQMyzLD93oUobJXVe9ceJvRvfXwbEtuxPiEj\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":{\"keccak256\":\"0xa4d1d62251f8574deb032a35fc948386a9b4de74b812d4f545a1ac120486b48a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8c969013129ba9e651a20735ef659fef6d8a1139ea3607bd4b26ddea2d645634\",\"dweb:/ipfs/QmVhVa6LGuzAcB8qgDtVHRkucn4ihj5UZr8xBLcJkP6ucb\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fb0048dee081f6fffa5f74afc3fb328483c2a30504e94a0ddd2a5114d731ec4d\",\"dweb:/ipfs/QmZptt1nmYoA5SgjwnSgWqgUSDgm4q52Yos3xhnMv3MV43\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"lib/openzeppelin-contracts/contracts/utils/math/Math.sol\":{\"keccak256\":\"0xa1e8e83cd0087785df04ac79fb395d9f3684caeaf973d9e2c71caef723a3a5d6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://33bbf48cc069be677705037ba7520c22b1b622c23b33e1a71495f2d36549d40b\",\"dweb:/ipfs/Qmct36zWXv3j7LZB83uwbg7TXwnZSN1fqHNDZ93GG98bGz\"]},\"script/Contract.s.sol\":{\"keccak256\":\"0xb46cc0a431249cc7cd3833925491038afa3c4e3444f3ee9b811bebaa2b4956d6\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://cef7c41351d63dca6b8e82c5615989c446921f36c742d50f216d4a21bb266592\",\"dweb:/ipfs/QmPAbc55F4QLa8mWiFCduKLvTBCQgnpM5Msk6o6GSTSrn5\"]},\"src/contracts/CheqRegistrar.sol\":{\"keccak256\":\"0x759098b2f1511bd2bf7d6adb3474fad87215563bb3bdd740adbfdf11103c8ffc\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://bf5e109b5f9b594aa825db1da4b6879df1b850a8e6898f7970d43c45c185fb2d\",\"dweb:/ipfs/QmeZYK1cVBKqg9scpkx6Ru1DpZ79krK3zCcNHZYLArPFxV\"]},\"src/contracts/RegistrarGov.sol\":{\"keccak256\":\"0x6aedf4cafda06394bc8be08cadbc1508b0452f2b988a974b0197c60bbee6b6b4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://cbee7350a79c1ddded92a75552dc86c005a52168120a0e9ac53d63af8aa44479\",\"dweb:/ipfs/QmTEeZsn6AiNysMQydV7V4NKBSNC2Gc1SRUdLevSnMowfe\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x7153312d99268c6832d945bcbb32b0dd8d0047cd47774f5a8ac531fbe6b087be\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://95becb203332f64a23eb1824418da275fc4080a52e04ece051e9e9791fc24665\",\"dweb:/ipfs/QmTruCJ3s8CrWJTr2FRwThyqH47jAjRBg5MEX3S3Wcfv46\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x38fa5cc4535b9d93a8b95e490b7ecec3f9533b193e10ae4a97d1ff927e74d78a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f6bcf1577ac5b9a47b552013fd51def84b62c288cf9a4c6df43a50eeb88846e6\",\"dweb:/ipfs/QmNXXUB3kQPAWUU2RLB82XToS9wGc6Wwcda2GhCRshPYZ9\"]},\"src/contracts/interfaces/IRegistrarGov.sol\":{\"keccak256\":\"0x806f310fb3ac245906049d72317f75c8c87f9b3bfb2e66d36eb59b9e234a47d1\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://4fc858223ca36ca5f10bbb60c138807c64acd19d73f4dde35e7b55329f8df836\",\"dweb:/ipfs/QmXSvS4zYKCqZAG6DAZgS1GfwkvNTm7Lg79EfdgseBxREx\"]},\"src/contracts/libraries/CheqBase64Encoding.sol\":{\"keccak256\":\"0xc87f381c2bbee6057204eba7a0407e87dd256f8d44920502f02984698ef7b13f\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://4824189b0af6ee89a445196b471c0ab4c0af2540902719b07d4622f17bfbd9a7\",\"dweb:/ipfs/QmSSwTmBWLDgXhFcwGg5V3TdqEh6wuxgdsYHoQhq4sG4ap\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0xb6a1cd2690be1a3e4a7005e4b9e05a9c36825c0a63901f94bd83a582d75c6ff4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f8822aedccc9ffe4d005a9e118895fec409ca7c8c0131635607749374e7e6f59\",\"dweb:/ipfs/QmXpjYS61nBnpSWD19mQja3WNmtoU7Ayk1vPGzdGcn2yFa\"]},\"src/test/mock/erc20.sol\":{\"keccak256\":\"0x9afe831e8888c8e19d3080fa8ddf4d46f68f8864c4a252bf12795305852630c9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c9c81ee8ffaa882957c63fb0cb0854883b01d6026dd1ece71fe2da6308939949\",\"dweb:/ipfs/QmYsjPMSiHgQQfNuQst4RpAw87L9uQGobFLqxfHSLwZKEW\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"IS_SCRIPT\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"run\",\"outputs\":[{\"internalType\":\"contract CheqRegistrar\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"setUp\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"vm\",\"outputs\":[{\"internalType\":\"contract Vm\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"script/Contract.s.sol\":\"ContractScript\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":10000000},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/forge-std/src/Script.sol\":{\"keccak256\":\"0x4424dbcb8f5b741475445726f87408fcd89951fad973bec2ca442ee157f910e7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5b0b9f6dfb69245d8f888558ae82bf1d2cdeace46201444fe4b2e6a5283f944a\",\"dweb:/ipfs/QmWFSKeFEZngNcwNn7A84EF7pASo5qe6r5oK24r9Kwca7Z\"]},\"lib/forge-std/src/Vm.sol\":{\"keccak256\":\"0xa0ede8e0d3dc3246912530aed6cacbc4703e4430c4b4acd91963ccea709755ea\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a28e7d00aab57ad5159247b0f0f268eda4c6980b29eee7f903578254a2be677f\",\"dweb:/ipfs/QmZrM8gY5BpW8o1QckmPNCYbBP5Q7k5DkcHdaVULKVntxp\"]},\"lib/forge-std/src/console.sol\":{\"keccak256\":\"0x91d5413c2434ca58fd278b6e1e79fd98d10c83931cc2596a6038eee4daeb34ba\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://91ccea707361e48b9b7a161fe81f496b9932bc471e9c4e4e1e9c283f2453cc70\",\"dweb:/ipfs/QmcB66sZhQ6Kz7MUHcLE78YXRUZxoZnnxZjN6yATsbB2ec\"]},\"lib/forge-std/src/console2.sol\":{\"keccak256\":\"0xbeb823fcdb356244a83aaccdf828ad019ecc1ffaa3dff18e624fc6d5714ea671\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4cbe9400340e5f9ec55e2aff3bad1c15fa3afbbe37e80800e6f3fed2ad26854f\",\"dweb:/ipfs/QmdJBABsuXkvWxVzEyGXsTE3vyfBPXDdw5xvvtUz3JeoYW\"]},\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol\":{\"keccak256\":\"0x3270d2a7a042dda9cf85dddd16e6106c2c9ad784c0972315630b2a148215fa7d\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b394e20d57877a825c24c1841e219d6ab1e41decec060ea935422ac9b7a25f8a\",\"dweb:/ipfs/QmVTaGCMR4Gi9w1LUVVcjEJHrHF2qcr1avFkLtsLD6sEAr\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol\":{\"keccak256\":\"0x8de418a5503946cabe331f35fe242d3201a73f67f77aaeb7110acb1f30423aca\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a376d3dda2cb70536c0a45c208b29b34ac560c4cb4f513a42079f96ba47d2dd\",\"dweb:/ipfs/QmZQg6gn1sUpM8wHzwNvSnihumUCAhxD119MpXeKp8B9s8\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol\":{\"keccak256\":\"0xf41ca991f30855bf80ffd11e9347856a517b977f0a6c2d52e6421a99b7840329\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b2717fd2bdac99daa960a6de500754ea1b932093c946388c381da48658234b95\",\"dweb:/ipfs/QmP6QVMn6UeA3ByahyJbYQr5M6coHKBKsf3ySZSfbyA8R7\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol\":{\"keccak256\":\"0x032807210d1d7d218963d7355d62e021a84bf1b3339f4f50be2f63b53cccaf29\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://11756f42121f6541a35a8339ea899ee7514cfaa2e6d740625fcc844419296aa6\",\"dweb:/ipfs/QmekMuk6BY4DAjzeXr4MSbKdgoqqsZnA8JPtuyWc6CwXHf\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x49bf2704b32f05938de826184a3a16fdb377b4f76ae3d790546cf4d03d1e59fb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7ff9c3bb275bee4eb51035bf6ae41901f96580e489f3caa1919ede85452a66fc\",\"dweb:/ipfs/QmTR6HYe8pnqJ7WLCLmcfapSk7JpvvCj4cGiwDUUGQtGdX\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x086fbe904291497e1532ef340f1bd589078f49e3d4d0bbfd88f5e02fb89261eb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0df1e3e965b78a0d98dda2d1d6a6acde88f515b1d3a9ad02f505e93fa7babeda\",\"dweb:/ipfs/QmW4cSbGriRAj7XRZu6zSaqspe4eyYWkF7WfJbj3rmmLbk\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708\",\"dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol\":{\"keccak256\":\"0x75b829ff2f26c14355d1cba20e16fe7b29ca58eb5fef665ede48bc0f9c6c74b9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a0a107160525724f9e1bbbab031defc2f298296dd9e331f16a6f7130cec32146\",\"dweb:/ipfs/QmemujxSd7gX8A9M8UwmNbz4Ms3U9FG9QfudUgxwvTmPWf\"]},\"lib/openzeppelin-contracts/contracts/utils/Address.sol\":{\"keccak256\":\"0x9720545d8ea1f76222f98683f861f919e9c28bd5d5503caa7e3620a21b6aaa24\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fe3dac0e0258d8396c33fd27c277699a9bfac198f2cb45632c4f5df2c2ca895a\",\"dweb:/ipfs/QmfEWsX7aGpWN9wooHiQo1XjiGM1h6iXeaeMTAJ1TUcnts\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":{\"keccak256\":\"0x20b522c62459df59d6fdde3efb7597492dd44970eacdc1a6acc2b20a93bf53b8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9ccfb6f87a4f86ffa8725f4c8dd48f9780ac3aeaa0d299394077122b23dfcea0\",\"dweb:/ipfs/QmZ6W2Ssx3oRUM9AtQrzf9ur94dYBqPCSBJypScXxNUqZE\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fb0048dee081f6fffa5f74afc3fb328483c2a30504e94a0ddd2a5114d731ec4d\",\"dweb:/ipfs/QmZptt1nmYoA5SgjwnSgWqgUSDgm4q52Yos3xhnMv3MV43\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"script/Contract.s.sol\":{\"keccak256\":\"0xb46cc0a431249cc7cd3833925491038afa3c4e3444f3ee9b811bebaa2b4956d6\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://cef7c41351d63dca6b8e82c5615989c446921f36c742d50f216d4a21bb266592\",\"dweb:/ipfs/QmPAbc55F4QLa8mWiFCduKLvTBCQgnpM5Msk6o6GSTSrn5\"]},\"src/contracts/CheqRegistrar.sol\":{\"keccak256\":\"0x71dd95b627e472f8318f5c46997616b8a733c5a5306d573a6300c1f2ed6d8f37\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://ceeef98c63d2f3662dfee046a48012b65c8c6b6e316dabfd81f12be40dc6cf7b\",\"dweb:/ipfs/QmduaZvNgnu7d4NpmgbXJHu8aWZZWnWiYrk1uP9FDySvLh\"]},\"src/contracts/RegistrarGov.sol\":{\"keccak256\":\"0x6aedf4cafda06394bc8be08cadbc1508b0452f2b988a974b0197c60bbee6b6b4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://cbee7350a79c1ddded92a75552dc86c005a52168120a0e9ac53d63af8aa44479\",\"dweb:/ipfs/QmTEeZsn6AiNysMQydV7V4NKBSNC2Gc1SRUdLevSnMowfe\"]},\"src/contracts/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x7153312d99268c6832d945bcbb32b0dd8d0047cd47774f5a8ac531fbe6b087be\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://95becb203332f64a23eb1824418da275fc4080a52e04ece051e9e9791fc24665\",\"dweb:/ipfs/QmTruCJ3s8CrWJTr2FRwThyqH47jAjRBg5MEX3S3Wcfv46\"]},\"src/contracts/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x38fa5cc4535b9d93a8b95e490b7ecec3f9533b193e10ae4a97d1ff927e74d78a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f6bcf1577ac5b9a47b552013fd51def84b62c288cf9a4c6df43a50eeb88846e6\",\"dweb:/ipfs/QmNXXUB3kQPAWUU2RLB82XToS9wGc6Wwcda2GhCRshPYZ9\"]},\"src/contracts/interfaces/IRegistrarGov.sol\":{\"keccak256\":\"0x806f310fb3ac245906049d72317f75c8c87f9b3bfb2e66d36eb59b9e234a47d1\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://4fc858223ca36ca5f10bbb60c138807c64acd19d73f4dde35e7b55329f8df836\",\"dweb:/ipfs/QmXSvS4zYKCqZAG6DAZgS1GfwkvNTm7Lg79EfdgseBxREx\"]},\"src/contracts/libraries/CheqBase64Encoding.sol\":{\"keccak256\":\"0xc87f381c2bbee6057204eba7a0407e87dd256f8d44920502f02984698ef7b13f\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://4824189b0af6ee89a445196b471c0ab4c0af2540902719b07d4622f17bfbd9a7\",\"dweb:/ipfs/QmSSwTmBWLDgXhFcwGg5V3TdqEh6wuxgdsYHoQhq4sG4ap\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0xb6a1cd2690be1a3e4a7005e4b9e05a9c36825c0a63901f94bd83a582d75c6ff4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f8822aedccc9ffe4d005a9e118895fec409ca7c8c0131635607749374e7e6f59\",\"dweb:/ipfs/QmXpjYS61nBnpSWD19mQja3WNmtoU7Ayk1vPGzdGcn2yFa\"]},\"src/test/mock/erc20.sol\":{\"keccak256\":\"0x9afe831e8888c8e19d3080fa8ddf4d46f68f8864c4a252bf12795305852630c9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c9c81ee8ffaa882957c63fb0cb0854883b01d6026dd1ece71fe2da6308939949\",\"dweb:/ipfs/QmYsjPMSiHgQQfNuQst4RpAw87L9uQGobFLqxfHSLwZKEW\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -88,6 +102,19 @@
           "stateMutability": "nonpayable",
           "type": "function",
           "name": "setUp"
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "vm",
+          "outputs": [
+            {
+              "internalType": "contract Vm",
+              "name": "",
+              "type": "address"
+            }
+          ]
         }
       ],
       "devdoc": {
@@ -129,107 +156,19 @@
       }
     },
     "sources": {
-      "lib/forge-std/lib/ds-test/src/test.sol": {
-        "keccak256": "0xb39cd1d5220cb474947b131e15a4538334b7e886af244b440ae5c9c6bba96a54",
-        "urls": [
-          "bzz-raw://3101520221449ac0070bda3881311a71d9aa87e5210765e875246922cb5cb5f5",
-          "dweb:/ipfs/Qmbg6kAHNoG7ox9N9Xqd9Ere2H2XixMFWFqvyPwFCzB3Gr"
-        ],
-        "license": "GPL-3.0-or-later"
-      },
-      "lib/forge-std/src/Common.sol": {
-        "keccak256": "0x1c92c530e5f0fcd895d48829ae786d63b87b02eaa203767813ffb39651d0b9b4",
-        "urls": [
-          "bzz-raw://75e17c301cf9072de9031b82821bb655e0d718ae16dd4de42f5a1355390697fd",
-          "dweb:/ipfs/Qma61YBx9XAmRoRyjLWzUz65rDmRv9ARt79c1QDrMVZeGN"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/Components.sol": {
-        "keccak256": "0xb2734f05b1a56bbdd8fd40c5c4b4f39e609501181583f4026fc4764416a0c350",
-        "urls": [
-          "bzz-raw://70a495f75d69f2f07c483ef479e1f7491d099329d7c8124d48ef88d528b15079",
-          "dweb:/ipfs/QmZiaWVGqE5PagnYiEPXzCxYiDbFcGYzZWtYkqEXf3j1ja"
-        ],
-        "license": "MIT"
-      },
       "lib/forge-std/src/Script.sol": {
-        "keccak256": "0xeac959e0df1a828c33434c177f596fa616a95abc919cf6beac6d3e137e6f2177",
+        "keccak256": "0x4424dbcb8f5b741475445726f87408fcd89951fad973bec2ca442ee157f910e7",
         "urls": [
-          "bzz-raw://160863313c265c243e634c167243d2d9f902748593aa6146b8e390cd4a135a75",
-          "dweb:/ipfs/QmSSfWVUu8GMq2eBszXH7FxCec4e7qVrkWc4wbpKHMp2F1"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/StdAssertions.sol": {
-        "keccak256": "0xde2bdee8e0e530de3269da50ebba83f4f90dde817971488980b720281e3cde4d",
-        "urls": [
-          "bzz-raw://cb3f05bb06b654db43f4ce38e22aa7e2296ee00615df5329623c08c9ac030f8d",
-          "dweb:/ipfs/QmdKwTpFsTiDFmc8zGwbPRu8mDs4oiKdZvzSj3WpiiGaez"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/StdChains.sol": {
-        "keccak256": "0x4b47eb30f37e79a5bb47ad36b8808b3cfee6c21c9a39d3bf9895d554fba5f969",
-        "urls": [
-          "bzz-raw://e5000580a2d5b0c7988356afcf5e9e0aadd6a34f12c92c84251195ffa10e3116",
-          "dweb:/ipfs/QmXUCKju3KdnnkkYjPdwD2fsqRVrnh1Ag2NdTbpxxWudTK"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/StdCheats.sol": {
-        "keccak256": "0x0654e956830a422d35060a2e7b66d4f97951921a3dc119eb89bae7202e4fb078",
-        "urls": [
-          "bzz-raw://eb22e4d811b49dd14f81fec6d4a1c37cbdd4e7c3ac9d2b5ccb966ab7a112eb9b",
-          "dweb:/ipfs/QmXSxM6y6q5Gw6yR28skW3L22MFEazLu8enQG2DSzBoTNR"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/StdError.sol": {
-        "keccak256": "0xbf477b11a42d7611696956546bcfaa29317d1166bf65e402344599c05943fc77",
-        "urls": [
-          "bzz-raw://bc2e117d1135e030862b96a6526a43feb38d396cc79857f1fb696d4eff0e5fd6",
-          "dweb:/ipfs/QmdSuQ5RrQudTLsNmWXGEeVJX8gR5U9XPm6m4dwwuQnJrj"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/StdJson.sol": {
-        "keccak256": "0x2291ee8f379552b86f34d98acb248d50442c7d4ab94aed03f1c8ddb6aea6852d",
-        "urls": [
-          "bzz-raw://1ca6ca6fe35692428b507008b24e4ec4ba0cabaf58110fd0b4456a42e0166bdc",
-          "dweb:/ipfs/QmUcSeXfYMyusrWxEdPRMeWFYhf9qD6YJaZXCVo29F4eus"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/StdMath.sol": {
-        "keccak256": "0xd90ad4fd8aeaeb8929964e686e769fdedd5eded3fc3815df194a0ab9f91a3fb2",
-        "urls": [
-          "bzz-raw://7919b70f636c7b805223992f28ad1ad0145d6c1385b5931a3589aface5fe6c92",
-          "dweb:/ipfs/QmY7FRaULwoGgFteF8GawjQJRfasNgpWnU2aiMsFrYpuTC"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/StdStorage.sol": {
-        "keccak256": "0xb0da85ce6999940eba6190a26c15b9bc7aede57123891287e1b30f80333a9cf5",
-        "urls": [
-          "bzz-raw://d287fd41de40ef992588f7a9531e66d1e9f8e4f3f194b9e721ac576d4613964a",
-          "dweb:/ipfs/QmbFYYjoc8WGLKVfDe4rscYPwdGq48incbwRQNoLtcMMjn"
-        ],
-        "license": "MIT"
-      },
-      "lib/forge-std/src/StdUtils.sol": {
-        "keccak256": "0x216818221765c43713791708d7dc83fcd5ada81766c9d4ce54551528c191a59f",
-        "urls": [
-          "bzz-raw://3f03d0ef065ce600e5922f3e9c92f0f54ff7c12895a250fa97d83e9ee38e7e2b",
-          "dweb:/ipfs/QmX59m9mNRNEhjhEZnxbDirniesi26pnDaNzF5hPB4A3E8"
+          "bzz-raw://5b0b9f6dfb69245d8f888558ae82bf1d2cdeace46201444fe4b2e6a5283f944a",
+          "dweb:/ipfs/QmWFSKeFEZngNcwNn7A84EF7pASo5qe6r5oK24r9Kwca7Z"
         ],
         "license": "MIT"
       },
       "lib/forge-std/src/Vm.sol": {
-        "keccak256": "0x4a4cf2f0b83bb2f2e513547d74abfdea52b37b803cc57ca090702f3aeed4859c",
+        "keccak256": "0xa0ede8e0d3dc3246912530aed6cacbc4703e4430c4b4acd91963ccea709755ea",
         "urls": [
-          "bzz-raw://2f6652149a35eaa3b339e6caca02f37f3739a5e541688e44469ccfc90956fbee",
-          "dweb:/ipfs/QmcqcpJuFJNr6Jgx8NeksRBa3zmkmjQW1fc9GD8ux2QjRx"
+          "bzz-raw://a28e7d00aab57ad5159247b0f0f268eda4c6980b29eee7f903578254a2be677f",
+          "dweb:/ipfs/QmZrM8gY5BpW8o1QckmPNCYbBP5Q7k5DkcHdaVULKVntxp"
         ],
         "license": "MIT"
       },
@@ -242,10 +181,10 @@
         "license": "MIT"
       },
       "lib/forge-std/src/console2.sol": {
-        "keccak256": "0x225cc1ec33efd35c90e78aec0792ed9751cd6217e646271172421e96e2e2cc0f",
+        "keccak256": "0xbeb823fcdb356244a83aaccdf828ad019ecc1ffaa3dff18e624fc6d5714ea671",
         "urls": [
-          "bzz-raw://6c6adbd216e40ca2387835b8618c82e7153cb826023d38943bbb0c2e992644aa",
-          "dweb:/ipfs/QmZeejwEkm7iH9NHih7dPbuNqivuFn27EkgJesgByzS9wD"
+          "bzz-raw://4cbe9400340e5f9ec55e2aff3bad1c15fa3afbbe37e80800e6f3fed2ad26854f",
+          "dweb:/ipfs/QmdJBABsuXkvWxVzEyGXsTE3vyfBPXDdw5xvvtUz3JeoYW"
         ],
         "license": "MIT"
       },
@@ -258,10 +197,10 @@
         "license": "MIT"
       },
       "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol": {
-        "keccak256": "0x4ffc0547c02ad22925310c585c0f166f8759e2648a09e9b489100c42f15dd98d",
+        "keccak256": "0x3270d2a7a042dda9cf85dddd16e6106c2c9ad784c0972315630b2a148215fa7d",
         "urls": [
-          "bzz-raw://15f52f51413a9de1ff191e2f6367c62178e1df7806d7880fe857a98b0b66253d",
-          "dweb:/ipfs/QmaQG1fwfgUt5E9nu2cccFiV47B2V78MM1tCy1qB7n4MsH"
+          "bzz-raw://b394e20d57877a825c24c1841e219d6ab1e41decec060ea935422ac9b7a25f8a",
+          "dweb:/ipfs/QmVTaGCMR4Gi9w1LUVVcjEJHrHF2qcr1avFkLtsLD6sEAr"
         ],
         "license": "MIT"
       },
@@ -290,26 +229,26 @@
         "license": "MIT"
       },
       "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol": {
-        "keccak256": "0x9b72f93be69ca894d8492c244259615c4a742afc8d63720dbc8bb81087d9b238",
+        "keccak256": "0x032807210d1d7d218963d7355d62e021a84bf1b3339f4f50be2f63b53cccaf29",
         "urls": [
-          "bzz-raw://f5a7b96e511be78d5cdf635c784e6ab8cdd38625bb8cafb8a80914a1c89cf0f6",
-          "dweb:/ipfs/QmVzTCwJxQAkjRQHboT5QrvsVJGWQHgfEjeTbvyxoKBrds"
+          "bzz-raw://11756f42121f6541a35a8339ea899ee7514cfaa2e6d740625fcc844419296aa6",
+          "dweb:/ipfs/QmekMuk6BY4DAjzeXr4MSbKdgoqqsZnA8JPtuyWc6CwXHf"
         ],
         "license": "MIT"
       },
       "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol": {
-        "keccak256": "0x7ee54e306cc9f42ccc9b414237d260636b7858bfebb5e5f3ceeedda0bbdc1314",
+        "keccak256": "0x49bf2704b32f05938de826184a3a16fdb377b4f76ae3d790546cf4d03d1e59fb",
         "urls": [
-          "bzz-raw://6ae94478a983f8fe01aafce9181a893cf39a564c08e8814162ce9e96af25101c",
-          "dweb:/ipfs/QmXMeKpSCEqkxbjgBDXRHd93hsNw9McZHH4P3nLvsVtT2f"
+          "bzz-raw://7ff9c3bb275bee4eb51035bf6ae41901f96580e489f3caa1919ede85452a66fc",
+          "dweb:/ipfs/QmTR6HYe8pnqJ7WLCLmcfapSk7JpvvCj4cGiwDUUGQtGdX"
         ],
         "license": "MIT"
       },
       "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol": {
-        "keccak256": "0xab28a56179c1db258c9bf5235b382698cb650debecb51b23d12be9e241374b68",
+        "keccak256": "0x086fbe904291497e1532ef340f1bd589078f49e3d4d0bbfd88f5e02fb89261eb",
         "urls": [
-          "bzz-raw://daae589a9d6fa7e55f99f86c0a16796ca490f243fb3693632c3711c0646c1d56",
-          "dweb:/ipfs/QmR3zpd7wNw3rcUdekwiv6FYHJqksuTCXLVioTxu6Fbxk3"
+          "bzz-raw://0df1e3e965b78a0d98dda2d1d6a6acde88f515b1d3a9ad02f505e93fa7babeda",
+          "dweb:/ipfs/QmW4cSbGriRAj7XRZu6zSaqspe4eyYWkF7WfJbj3rmmLbk"
         ],
         "license": "MIT"
       },
@@ -330,10 +269,10 @@
         "license": "MIT"
       },
       "lib/openzeppelin-contracts/contracts/utils/Address.sol": {
-        "keccak256": "0xf96f969e24029d43d0df89e59d365f277021dac62b48e1c1e3ebe0acdd7f1ca1",
+        "keccak256": "0x9720545d8ea1f76222f98683f861f919e9c28bd5d5503caa7e3620a21b6aaa24",
         "urls": [
-          "bzz-raw://ec772b45a624be516f1c81970caa8a2e144301e9d0921cbc1a2789fef39a1269",
-          "dweb:/ipfs/QmNyjwxCrGhQMyzLD93oUobJXVe9ceJvRvfXwbEtuxPiEj"
+          "bzz-raw://fe3dac0e0258d8396c33fd27c277699a9bfac198f2cb45632c4f5df2c2ca895a",
+          "dweb:/ipfs/QmfEWsX7aGpWN9wooHiQo1XjiGM1h6iXeaeMTAJ1TUcnts"
         ],
         "license": "MIT"
       },
@@ -346,10 +285,10 @@
         "license": "MIT"
       },
       "lib/openzeppelin-contracts/contracts/utils/Strings.sol": {
-        "keccak256": "0xa4d1d62251f8574deb032a35fc948386a9b4de74b812d4f545a1ac120486b48a",
+        "keccak256": "0x20b522c62459df59d6fdde3efb7597492dd44970eacdc1a6acc2b20a93bf53b8",
         "urls": [
-          "bzz-raw://8c969013129ba9e651a20735ef659fef6d8a1139ea3607bd4b26ddea2d645634",
-          "dweb:/ipfs/QmVhVa6LGuzAcB8qgDtVHRkucn4ihj5UZr8xBLcJkP6ucb"
+          "bzz-raw://9ccfb6f87a4f86ffa8725f4c8dd48f9780ac3aeaa0d299394077122b23dfcea0",
+          "dweb:/ipfs/QmZ6W2Ssx3oRUM9AtQrzf9ur94dYBqPCSBJypScXxNUqZE"
         ],
         "license": "MIT"
       },
@@ -369,14 +308,6 @@
         ],
         "license": "MIT"
       },
-      "lib/openzeppelin-contracts/contracts/utils/math/Math.sol": {
-        "keccak256": "0xa1e8e83cd0087785df04ac79fb395d9f3684caeaf973d9e2c71caef723a3a5d6",
-        "urls": [
-          "bzz-raw://33bbf48cc069be677705037ba7520c22b1b622c23b33e1a71495f2d36549d40b",
-          "dweb:/ipfs/Qmct36zWXv3j7LZB83uwbg7TXwnZSN1fqHNDZ93GG98bGz"
-        ],
-        "license": "MIT"
-      },
       "script/Contract.s.sol": {
         "keccak256": "0xb46cc0a431249cc7cd3833925491038afa3c4e3444f3ee9b811bebaa2b4956d6",
         "urls": [
@@ -386,10 +317,10 @@
         "license": "UNLICENSED"
       },
       "src/contracts/CheqRegistrar.sol": {
-        "keccak256": "0x759098b2f1511bd2bf7d6adb3474fad87215563bb3bdd740adbfdf11103c8ffc",
+        "keccak256": "0x71dd95b627e472f8318f5c46997616b8a733c5a5306d573a6300c1f2ed6d8f37",
         "urls": [
-          "bzz-raw://bf5e109b5f9b594aa825db1da4b6879df1b850a8e6898f7970d43c45c185fb2d",
-          "dweb:/ipfs/QmeZYK1cVBKqg9scpkx6Ru1DpZ79krK3zCcNHZYLArPFxV"
+          "bzz-raw://ceeef98c63d2f3662dfee046a48012b65c8c6b6e316dabfd81f12be40dc6cf7b",
+          "dweb:/ipfs/QmduaZvNgnu7d4NpmgbXJHu8aWZZWnWiYrk1uP9FDySvLh"
         ],
         "license": "BUSL-1.1"
       },
@@ -462,130 +393,100 @@
   },
   "ast": {
     "absolutePath": "script/Contract.s.sol",
-    "id": 28777,
+    "id": 25603,
     "exportedSymbols": {
       "Address": [
-        27649
+        24237
       ],
       "CheqBase64Encoding": [
-        31236
+        29374
       ],
       "CheqRegistrar": [
-        29587
-      ],
-      "CommonBase": [
-        1841
+        26413
       ],
       "Context": [
-        27671
+        24259
       ],
       "ContractScript": [
-        28776
+        25602
       ],
       "DataTypes": [
-        31258
+        29396
       ],
       "ERC165": [
-        27870
+        24647
       ],
       "ERC20": [
-        25857
+        22370
       ],
       "ERC721": [
-        27158
+        23746
       ],
       "Events": [
-        31392
+        29530
       ],
       "ICheqModule": [
-        30220
+        28223
       ],
       "ICheqRegistrar": [
-        30315
+        28318
       ],
       "IERC165": [
-        27882
+        24659
       ],
       "IERC20": [
-        25935
+        22448
       ],
       "IERC20Metadata": [
-        25960
+        22473
       ],
       "IERC20Permit": [
-        25996
+        22509
       ],
       "IERC721": [
-        27274
+        23862
       ],
       "IERC721Metadata": [
-        27319
+        23907
       ],
       "IERC721Receiver": [
-        27292
-      ],
-      "Math": [
-        28747
+        23880
       ],
       "Ownable": [
-        25162
+        21675
       ],
       "RegistrarGov": [
-        30108
+        28111
       ],
       "SafeERC20": [
-        26277
+        22790
       ],
       "Script": [
-        1890
-      ],
-      "ScriptBase": [
-        1878
-      ],
-      "StdChains": [
-        3027
-      ],
-      "StdCheatsSafe": [
-        4502
-      ],
-      "StdStorage": [
-        5866
-      ],
-      "StdUtils": [
-        7729
+        2022
       ],
       "Strings": [
-        27846
+        24623
       ],
       "TestERC20": [
-        37705
+        36033
       ],
-      "VmSafe": [
-        8595
+      "Vm": [
+        5434
       ],
       "console": [
-        16984
+        13498
       ],
       "console2": [
-        25049
-      ],
-      "stdJson": [
-        5693
-      ],
-      "stdMath": [
-        5835
-      ],
-      "stdStorageSafe": [
-        6759
+        21562
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "39:1473:33",
+    "src": "39:1473:29",
     "nodes": [
       {
-        "id": 28749,
+        "id": 25575,
         "nodeType": "PragmaDirective",
-        "src": "39:24:33",
+        "src": "39:24:29",
         "nodes": [],
         "literals": [
           "solidity",
@@ -595,76 +496,76 @@
         ]
       },
       {
-        "id": 28750,
+        "id": 25576,
         "nodeType": "ImportDirective",
-        "src": "65:30:33",
+        "src": "65:30:29",
         "nodes": [],
         "absolutePath": "lib/forge-std/src/Script.sol",
         "file": "forge-std/Script.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28777,
-        "sourceUnit": 1891,
+        "scope": 25603,
+        "sourceUnit": 2023,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 28751,
+        "id": 25577,
         "nodeType": "ImportDirective",
-        "src": "96:41:33",
+        "src": "96:41:29",
         "nodes": [],
         "absolutePath": "src/contracts/CheqRegistrar.sol",
         "file": "src/contracts/CheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28777,
-        "sourceUnit": 29588,
+        "scope": 25603,
+        "sourceUnit": 26414,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 28752,
+        "id": 25578,
         "nodeType": "ImportDirective",
-        "src": "138:33:33",
+        "src": "138:33:29",
         "nodes": [],
         "absolutePath": "src/test/mock/erc20.sol",
         "file": "src/test/mock/erc20.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28777,
-        "sourceUnit": 37706,
+        "scope": 25603,
+        "sourceUnit": 36034,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 28753,
+        "id": 25579,
         "nodeType": "ImportDirective",
-        "src": "172:31:33",
+        "src": "172:31:29",
         "nodes": [],
         "absolutePath": "lib/forge-std/src/console.sol",
         "file": "forge-std/console.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28777,
-        "sourceUnit": 16985,
+        "scope": 25603,
+        "sourceUnit": 13499,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 28755,
+        "id": 25581,
         "nodeType": "ImportDirective",
-        "src": "204:62:33",
+        "src": "204:62:29",
         "nodes": [],
         "absolutePath": "src/contracts/CheqRegistrar.sol",
         "file": "src/contracts/CheqRegistrar.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 28777,
-        "sourceUnit": 29588,
+        "scope": 25603,
+        "sourceUnit": 26414,
         "symbolAliases": [
           {
             "foreign": {
-              "id": 28754,
+              "id": 25580,
               "name": "CheqRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 29587,
-              "src": "212:13:33",
+              "referencedDeclaration": 26413,
+              "src": "212:13:29",
               "typeDescriptions": {}
             },
             "nameLocation": "-1:-1:-1"
@@ -673,19 +574,19 @@
         "unitAlias": ""
       },
       {
-        "id": 28776,
+        "id": 25602,
         "nodeType": "ContractDefinition",
-        "src": "268:1243:33",
+        "src": "268:1243:29",
         "nodes": [
           {
-            "id": 28761,
+            "id": 25587,
             "nodeType": "FunctionDefinition",
-            "src": "308:26:33",
+            "src": "308:26:29",
             "nodes": [],
             "body": {
-              "id": 28760,
+              "id": 25586,
               "nodeType": "Block",
-              "src": "332:2:33",
+              "src": "332:2:29",
               "nodes": [],
               "statements": []
             },
@@ -694,49 +595,49 @@
             "kind": "function",
             "modifiers": [],
             "name": "setUp",
-            "nameLocation": "317:5:33",
+            "nameLocation": "317:5:29",
             "parameters": {
-              "id": 28758,
+              "id": 25584,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "322:2:33"
+              "src": "322:2:29"
             },
             "returnParameters": {
-              "id": 28759,
+              "id": 25585,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "332:0:33"
+              "src": "332:0:29"
             },
-            "scope": 28776,
+            "scope": 25602,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           },
           {
-            "id": 28775,
+            "id": 25601,
             "nodeType": "FunctionDefinition",
-            "src": "340:1169:33",
+            "src": "340:1169:29",
             "nodes": [],
             "body": {
-              "id": 28774,
+              "id": 25600,
               "nodeType": "Block",
-              "src": "386:1123:33",
+              "src": "386:1123:29",
               "nodes": [],
               "statements": [
                 {
                   "assignments": [
-                    28768
+                    25594
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 28768,
+                      "id": 25594,
                       "mutability": "mutable",
                       "name": "deployerPrivateKey",
-                      "nameLocation": "404:18:33",
+                      "nameLocation": "404:18:29",
                       "nodeType": "VariableDeclaration",
-                      "scope": 28774,
-                      "src": "396:26:33",
+                      "scope": 25600,
+                      "src": "396:26:29",
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
@@ -744,10 +645,10 @@
                         "typeString": "uint256"
                       },
                       "typeName": {
-                        "id": 28767,
+                        "id": 25593,
                         "name": "uint256",
                         "nodeType": "ElementaryTypeName",
-                        "src": "396:7:33",
+                        "src": "396:7:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
@@ -756,19 +657,19 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 28773,
+                  "id": 25599,
                   "initialValue": {
                     "arguments": [
                       {
                         "hexValue": "307861633039373462656333396131376533366261346136623464323338666639343462616362343738636265643565666361653738346437626634663266663830",
-                        "id": 28771,
+                        "id": 25597,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "string",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "449:68:33",
+                        "src": "449:68:29",
                         "typeDescriptions": {
                           "typeIdentifier": "t_stringliteral_ef7acc72b2621dd91ef5e976d9305cd1b244a760de4a756fdb056db86cc07ebd",
                           "typeString": "literal_string \"0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80\""
@@ -784,33 +685,33 @@
                         }
                       ],
                       "expression": {
-                        "id": 28769,
+                        "id": 25595,
                         "name": "vm",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1837,
-                        "src": "425:2:33",
+                        "referencedDeclaration": 1817,
+                        "src": "425:2:29",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_Vm_$8920",
+                          "typeIdentifier": "t_contract$_Vm_$5434",
                           "typeString": "contract Vm"
                         }
                       },
-                      "id": 28770,
+                      "id": 25596,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
-                      "memberLocation": "428:7:33",
+                      "memberLocation": "428:7:29",
                       "memberName": "envUint",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 7859,
-                      "src": "425:10:33",
+                      "referencedDeclaration": 4910,
+                      "src": "425:10:29",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_external_view$_t_string_memory_ptr_$returns$_t_uint256_$",
-                        "typeString": "function (string memory) view external returns (uint256)"
+                        "typeIdentifier": "t_function_external_nonpayable$_t_string_memory_ptr_$returns$_t_uint256_$",
+                        "typeString": "function (string memory) external returns (uint256)"
                       }
                     },
-                    "id": 28772,
+                    "id": 25598,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -819,7 +720,7 @@
                     "nameLocations": [],
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "425:102:33",
+                    "src": "425:102:29",
                     "tryCall": false,
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
@@ -827,7 +728,7 @@
                     }
                   },
                   "nodeType": "VariableDeclarationStatement",
-                  "src": "396:131:33"
+                  "src": "396:131:29"
                 }
               ]
             },
@@ -836,58 +737,58 @@
             "kind": "function",
             "modifiers": [],
             "name": "run",
-            "nameLocation": "349:3:33",
+            "nameLocation": "349:3:29",
             "parameters": {
-              "id": 28762,
+              "id": 25588,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "352:2:33"
+              "src": "352:2:29"
             },
             "returnParameters": {
-              "id": 28766,
+              "id": 25592,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 28765,
+                  "id": 25591,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 28775,
-                  "src": "371:13:33",
+                  "scope": 25601,
+                  "src": "371:13:29",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_CheqRegistrar_$29587",
+                    "typeIdentifier": "t_contract$_CheqRegistrar_$26413",
                     "typeString": "contract CheqRegistrar"
                   },
                   "typeName": {
-                    "id": 28764,
+                    "id": 25590,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 28763,
+                      "id": 25589,
                       "name": "CheqRegistrar",
                       "nameLocations": [
-                        "371:13:33"
+                        "371:13:29"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 29587,
-                      "src": "371:13:33"
+                      "referencedDeclaration": 26413,
+                      "src": "371:13:29"
                     },
-                    "referencedDeclaration": 29587,
-                    "src": "371:13:33",
+                    "referencedDeclaration": 26413,
+                    "src": "371:13:29",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_CheqRegistrar_$29587",
+                      "typeIdentifier": "t_contract$_CheqRegistrar_$26413",
                       "typeString": "contract CheqRegistrar"
                     }
                   },
                   "visibility": "internal"
                 }
               ],
-              "src": "370:15:33"
+              "src": "370:15:29"
             },
-            "scope": 28776,
+            "scope": 25602,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
@@ -897,18 +798,18 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 28756,
+              "id": 25582,
               "name": "Script",
               "nameLocations": [
-                "295:6:33"
+                "295:6:29"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 1890,
-              "src": "295:6:33"
+              "referencedDeclaration": 2022,
+              "src": "295:6:29"
             },
-            "id": 28757,
+            "id": 25583,
             "nodeType": "InheritanceSpecifier",
-            "src": "295:6:33"
+            "src": "295:6:29"
           }
         ],
         "canonicalName": "ContractScript",
@@ -916,21 +817,16 @@
         "contractKind": "contract",
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          28776,
-          1890,
-          1878,
-          1841,
-          7729,
-          4502,
-          3027
+          25602,
+          2022
         ],
         "name": "ContractScript",
-        "nameLocation": "277:14:33",
-        "scope": 28777,
+        "nameLocation": "277:14:29",
+        "scope": 25603,
         "usedErrors": []
       }
     ],
     "license": "UNLICENSED"
   },
-  "id": 33
+  "id": 29
 }
