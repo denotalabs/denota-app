@@ -1,7 +1,7 @@
 # Denota v0.2
 Write notas (aka cheqs) to others that are time locked and can be reversed
 
-Contracts implementation located at [src/contracts](src/contracts)
+Contracts implementation located at [contracts/src](contracts/src)
 
 <img src="https://user-images.githubusercontent.com/10327933/212239333-5ca10e12-7572-4293-ba07-9986b025d0bd.png" alt="diagram" width="500"/>
 

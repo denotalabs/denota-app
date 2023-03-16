@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import express from "express";
 import nodemailer from "nodemailer";
 
-import chainInfo from "../../contractAddresses.json" assert { type: "json" };
+import chainInfo from "../../contracts/contractAddresses.json" assert { type: "json" };
 
 const app = express();
 const port = 6001;
@@ -76,7 +76,7 @@ app.post("/", jsonParser, async (req, res) => {
           }
         });
       } else {
-	console.log("Wrong contract address");      
+        console.log("Wrong contract address");
         res.status(400).send("Wrong contract address");
       }
     } else {
