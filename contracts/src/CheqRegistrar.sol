@@ -167,7 +167,7 @@ contract CheqRegistrar is
             cheq.module
         );
 
-        _cheqInfo[cheqId].escrowed += amount;
+        _cheqInfo[cheqId].escrowed += amount; // Question: is this cheaper than testing if amount == 0?
 
         emit Events.Funded(
             _msgSender(),
@@ -257,11 +257,14 @@ contract CheqRegistrar is
         string memory _tokenData = ICheqModule(_cheqInfo[_tokenId].module)
             .processTokenURI(_tokenId);
 
+        // string memory tokenName = _tokenName[_cheqInfo[_tokenId].currency];
+        // string memory moduleName = _moduleName[_cheqInfo[_tokenId].module];
         return
             buildMetadata(
-                toString(_cheqInfo[_tokenId].currency),
+                _tokenName[_cheqInfo[_tokenId].currency],
                 itoa(_cheqInfo[_tokenId].escrowed),
-                toString(_cheqInfo[_tokenId].module),
+                // itoa(_cheqInfo[_tokenId].createdAt),
+                _moduleName[_cheqInfo[_tokenId].module],
                 _tokenData
             );
     }
@@ -293,7 +296,7 @@ contract CheqRegistrar is
             }
             if (instant > 0) {
                 if (currency == address(0)) {
-                    if (msg.value != toEscrow)
+                    if (msg.value != instant)
                         revert InsufficientValue(msg.value);
                     (bool sent, ) = owner.call{value: msg.value}("");
                     if (!sent) revert SendFailed();

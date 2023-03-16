@@ -1,4 +1,4 @@
-specVersion: 0.0.4
+specVersion: 0.0.2
 schema:
   file: schema.graphql
 dataSources:
@@ -6,67 +6,57 @@ dataSources:
     name: Events
     network: mumbai
     source:
-      address: "0xF85D83258CD1D8beb5998439C73C11a6b820d6B9"
+      address: "0xcB9d362B22d14F3F451f439E50Da27709f9D3706"
       abi: Registrar
-      startBlock: 32985337
+      startBlock: 33201230
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Cheq  # Cheqs
-        - Transfer  # Write/Transfers
-        - Escrow  # Fund/Cash
-        - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
-        - DirectSend  # Payment modules
+        - Cheq
+        - Transfer
+        - Escrow
+        - ERC20
+        - Account
+        - DirectSend
         - DirectPayModule
         - DirectPayData
-        # - DirectPayData
       abis:
         - name: Registrar
           file: ../frontend-abi/Events.sol/Events.json
       eventHandlers:
-        # - event: ModuleBaseConstructed(indexed address,uint256)
-        # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
-        # - event: RuleWhitelisted(address,indexed address,indexed bool,uint256)
-        # - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
-        - event: Written(indexed address,uint256,indexed address,uint256,address,uint256,uint256,uint256,uint256,indexed address,bytes)
+        - event: Written(indexed address,uint256,indexed
+            address,uint256,address,uint256,uint256,uint256,uint256,indexed address,bytes)
           handler: handleWrite
-        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
+        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed
+            bytes,uint256,uint256,uint256)
           handler: handleFund
-        # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
-        #   handler: handleTransfer
-        # - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
-        #   handler: handleFund
-        # - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256,uint256)
-        #   handler: handleCash
-      file: mapping.ts
+      file: Events/Events.wasm
   - kind: ethereum/contract
     name: DirectPay
     network: mumbai
     source:
-      address: "0xc6573949538a07D722893c1A1b904b65b5BC41e3"
+      address: "0x317C44172e6482fda7a79924d25093F9Be538903"
       abi: DirectPay
-      startBlock: 32985337
+      startBlock: 33201230
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Cheq  # Cheqs
-        - Transfer  # Write/Transfers
-        - Escrow  # Fund/Cash
-        - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
-        - DirectSend  # Payment modules
+        - Cheq
+        - Transfer
+        - Escrow
+        - ERC20
+        - Account
+        - DirectSend
         - DirectPayModule
         - DirectPayData
-        # - DirectPayData
       abis:
         - name: DirectPay
           file: ../frontend-abi/DirectPay.sol/DirectPay.json
       eventHandlers:
         - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
-      file: mapping.ts
+      file: Events/Events.wasm

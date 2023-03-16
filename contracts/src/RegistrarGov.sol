@@ -14,8 +14,26 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     mapping(bytes32 => bool) internal _bytecodeWhitelist; // Question Can these be done without two mappings? Having both redeployable and static modules?
     mapping(address => bool) internal _addressWhitelist;
     mapping(address => bool) internal _tokenWhitelist;
+    mapping(address => string) internal _moduleName;
+    mapping(address => string) internal _tokenName;
 
     // uint256 public _writeFlatFee; // Question: is this needed?
+    // event MetadataUpdate(uint256 _tokenId);  // question how to update using this structure?
+    // event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId); // todo need totalSupply
+
+    function updateTokenName(
+        address _token,
+        string calldata tokenName
+    ) public onlyOwner {
+        _moduleName[_token] = tokenName;
+    }
+
+    function updateModuleName(
+        address module,
+        string calldata moduleName
+    ) public onlyOwner {
+        _moduleName[module] = moduleName;
+    }
 
     function moduleWithdraw(
         address token,
@@ -39,7 +57,8 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     function whitelistModule(
         address module,
         bool bytecodeAccepted,
-        bool addressAccepted
+        bool addressAccepted,
+        string calldata moduleName
     ) external onlyOwner {
         // Whitelist either bytecode or address
         require(
@@ -49,22 +68,31 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         );
         _bytecodeWhitelist[_returnCodeHash(module)] = bytecodeAccepted;
         _addressWhitelist[module] = addressAccepted;
+        _moduleName[module] = moduleName;
+
         emit Events.ModuleWhitelisted(
             _msgSender(),
             module,
             bytecodeAccepted,
             addressAccepted,
+            moduleName,
             block.timestamp
         );
     }
 
-    function whitelistToken(address _token, bool accepted) external onlyOwner {
+    function whitelistToken(
+        address _token,
+        bool accepted,
+        string calldata tokenName
+    ) external onlyOwner {
         // Whitelist for safety, modules can be more restrictive
         _tokenWhitelist[_token] = accepted;
+        _moduleName[_token] = tokenName;
         emit Events.TokenWhitelisted(
             _msgSender(),
             _token,
             accepted,
+            tokenName,
             block.timestamp
         );
     }

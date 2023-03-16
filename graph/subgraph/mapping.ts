@@ -4,7 +4,7 @@ import { Transfer as TransferEvent } from "../subgraph/generated/CheqRegistrar/C
 import { Cashed as CashedEvent } from "../subgraph/generated/Events/Events"; // Events to import
 import {
   Funded as FundedEvent,
-  Written as WrittenEvent,
+  Written as WrittenEvent
 } from "../subgraph/generated/Events/Registrar";
 import {
   Account,
@@ -13,7 +13,7 @@ import {
   ERC20,
   Escrow,
   Transaction,
-  Transfer,
+  Transfer
 } from "../subgraph/generated/schema"; // Entities that contain the event info
 
 import { PaymentCreated as PaymentCreatedEvent } from "../subgraph/generated/DirectPay/DirectPay";

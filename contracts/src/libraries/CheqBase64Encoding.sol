@@ -48,30 +48,18 @@ A URL to a YouTube video.
  */
 
 contract CheqBase64Encoding {
+    // string constant APP_TYPE = "data:application/json;base64,";
+    // string constant ATTRIBUTE_CURRENCY =
+    //     '{"attributes":[{"trait_type": "Currency","value":"';
+    // string constant ESCROWED =
+    //     '"},{"trait_type": "Escrowed","display_type": "number","value":';
+    // // string constant CREATEDAT =
+    // //     '"},{"trait_type": "CreatedAt","display_type": "number","value":';
+    // string constant MODULE = '},{"trait_type": "Module","value":"';
+    // string constant END = '"}]';
+    // string constant TOKENDATA_CLOSE = '"}';
+
     /// https://stackoverflow.com/questions/47129173/how-to-convert-uint-to-string-in-solidity
-    // function uint2str(
-    //     uint _i
-    // ) internal pure returns (string memory _uintAsString) {
-    //     if (_i == 0) {
-    //         return "0";
-    //     }
-    //     uint j = _i;
-    //     uint len;
-    //     while (j != 0) {
-    //         len++;
-    //         j /= 10;
-    //     }
-    //     bytes memory bstr = new bytes(len);
-    //     uint k = len;
-    //     while (_i != 0) {
-    //         k = k - 1;
-    //         uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
-    //         bytes1 b1 = bytes1(temp);
-    //         bstr[k] = b1;
-    //         _i /= 10;
-    //     }
-    //     return string(bstr);
-    // }
     function itoa32(uint x) private pure returns (uint y) {
         unchecked {
             require(x < 1e32);
@@ -211,15 +199,41 @@ contract CheqBase64Encoding {
         return string(str);
     }
 
+    // address currency,
+    // uint256 escrowed,
+    // // uint256 createdAt,
+    // address module,
+    // string memory _tokenData
     function buildMetadata(
         string memory currency,
         string memory escrowed,
+        // string memory createdAt,
         string memory module,
         string memory _tokenData
     ) internal pure returns (string memory) {
+        // 76460 with constants
+        // 74861 without
         return
             string(
                 abi.encodePacked(
+                    // APP_TYPE,
+                    // encode(
+                    //     bytes(
+                    //         abi.encodePacked(
+                    //             ATTRIBUTE_CURRENCY,
+                    //             currency,
+                    //             ESCROWED,
+                    //             escrowed,
+                    //             // CREATEDAT,
+                    //             // createdAt,
+                    //             MODULE,
+                    //             module,
+                    //             END,
+                    //             _tokenData,
+                    //             TOKENDATA_CLOSE
+                    //         )
+                    //     )
+                    // )
                     "data:application/json;base64,",
                     encode(
                         bytes(
@@ -227,21 +241,21 @@ contract CheqBase64Encoding {
                                 '{"attributes":',
                                 "[",
                                 '{"trait_type": "Currency",',
-                                '"value":',
+                                '"value":"',
                                 currency,
-                                "}",
+                                '"}',
                                 ',{"trait_type": "Escrowed",',
                                 '"display_type": "number",',
                                 '"value":',
                                 escrowed,
                                 "}",
                                 ',{"trait_type": "Module",',
-                                '"value":',
+                                '"value":"',
                                 module,
-                                "}",
+                                '"}',
                                 "]",
                                 _tokenData,
-                                "}"
+                                '"}'
                             )
                         )
                     )
