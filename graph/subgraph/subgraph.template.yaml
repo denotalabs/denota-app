@@ -69,8 +69,4 @@ dataSources:
       eventHandlers:
         - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
-        # - event: Transferred(uint256 indexed,address indexed,address indexed,uint256,uint256,uint256)
-        #   handler: handleTransfer
-        # - event: Cashed(address indexed,address,uint256 indexed,bytes indexed,uint256,uint256,uint256)
-        #   handler: handleCash
       file: mapping.ts
