@@ -12,10 +12,23 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 contract ReversibleRelease is ModuleBase {
     struct Payment {
         address inspector;
-        address drawer;
-        bytes32 memoHash;
+        address creditor;
+        address debtor;
+        uint256 amount;
+        string memoHash;
+        string imageURI;
     }
     mapping(uint256 => Payment) public payInfo;
+
+    error OnlyOwner();
+    error AmountZero();
+    error Disallowed();
+    error AddressZero();
+    error OnlyInspector();
+    error InvoiceWithPay();
+    error InsufficientPayment();
+    error OnlyToDebtorOrOwner();
+    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
@@ -34,49 +47,79 @@ contract ReversibleRelease is ModuleBase {
         uint256 instant,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        (address inspector, address dappOperator, bytes32 memoHash) = abi
-            .decode(initData, (address, address, bytes32));
-        require((caller != owner) && (owner != address(0)), "Invalid Params");
+        (
+            address toNotify,
+            address inspector,
+            address dappOperator,
+            uint256 amount, // Face value (for invoices)
+            string memory memoHash,
+            string memory imageURI
+        ) = abi.decode(
+                initData,
+                (address, address, address, uint256, string, string)
+            );
+        if (caller == owner) // Invoice
+        {
+            if (instant != 0) revert InvoiceWithPay();
+            if (amount == 0) revert AmountZero();
+            payInfo[cheqId].creditor = caller;
+            payInfo[cheqId].debtor = toNotify;
+            payInfo[cheqId].amount = amount;
+        } else if (owner == toNotify) // Payment
+        {
+            if (owner == address(0)) revert AddressZero();
+            payInfo[cheqId].creditor = toNotify;
+            payInfo[cheqId].debtor = caller;
+            payInfo[cheqId].amount = instant;
+        } else {
+            revert Disallowed();
+        }
 
         payInfo[cheqId].inspector = inspector;
-        payInfo[cheqId].drawer = caller;
         payInfo[cheqId].memoHash = memoHash;
+        payInfo[cheqId].imageURI = imageURI;
 
-        return takeReturnFee(currency, escrowed, dappOperator);
+        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
         address caller,
         address approved,
         address owner,
-        address, /*from*/
-        address, /*to*/
-        uint256, /*cheqId*/
-        address, /*currency*/
+        address /*from*/,
+        address /*to*/,
+        uint256 /*cheqId*/,
+        address currency,
         uint256 escrowed,
-        uint256, /*createdAt*/
-        bytes memory /*data*/
-    ) external view override onlyRegistrar returns (uint256) {
-        require(
-            caller == owner || caller == approved,
-            "Only owner or approved"
-        );
-        uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-        // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
-        return moduleFee;
+        uint256 /*createdAt*/,
+        bytes memory data
+    ) external override onlyRegistrar returns (uint256) {
+        if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
+        return
+            takeReturnFee(currency, escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(
-        address, // caller,
-        address, // owner,
-        uint256, // amount,
-        uint256, // instant,
-        uint256, // cheqId,
-        DataTypes.Cheq calldata, // cheq,
-        bytes calldata // initData
-    ) external view override onlyRegistrar returns (uint256) {
-        require(false, "");
-        return 0;
+        address /*caller*/,
+        address owner,
+        uint256 amount,
+        uint256 instant,
+        uint256 cheqId,
+        DataTypes.Cheq calldata cheq,
+        bytes calldata initData
+    ) external override onlyRegistrar returns (uint256) {
+        if (owner == address(0)) revert AddressZero();
+        if (amount != payInfo[cheqId].amount) revert InsufficientPayment();
+        // if (caller != payInfo[cheqId].debtor) revert OnlyDebtor(); // Should anyone be allowed to pay?
+        // if (payInfo[cheqId].wasPaid) revert Disallowed();
+        // payInfo[cheqId].wasPaid = true;
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount + instant,
+                abi.decode(initData, (address)),
+                2
+            );
     }
 
     function processCash(
@@ -85,30 +128,43 @@ contract ReversibleRelease is ModuleBase {
         address to,
         uint256 amount,
         uint256 cheqId,
-        DataTypes.Cheq calldata, /*cheq*/
-        bytes calldata /*initData*/
-    ) external view override onlyRegistrar returns (uint256) {
-        require(
-            caller == payInfo[cheqId].inspector,
-            "Inspector cash for owner"
-        );
-        require(to == owner || to == caller, "To must be inspector or owner");
-        uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-        return moduleFee;
+        DataTypes.Cheq calldata cheq,
+        bytes calldata initData
+    ) external override onlyRegistrar returns (uint256) {
+        if (caller != payInfo[cheqId].inspector) revert OnlyInspector();
+        if (to != payInfo[cheqId].debtor && to != owner)
+            revert OnlyToDebtorOrOwner();
+        return
+            takeReturnFee(
+                cheq.currency,
+                amount,
+                abi.decode(initData, (address)),
+                3
+            );
     }
 
     function processApproval(
         address caller,
         address owner,
-        address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
-        bytes memory initData
-    ) external override onlyRegistrar {}
+        address /*to*/,
+        uint256 /*cheqId*/,
+        DataTypes.Cheq calldata /*cheq*/,
+        bytes memory /*initData*/
+    ) external view override onlyRegistrar {
+        if (caller != owner) revert OnlyOwner();
+    }
 
     function processTokenURI(
-        uint256 /*tokenId*/
-    ) external pure override returns (string memory) {
-        return "";
+        uint256 tokenId
+    ) external view override returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+                    ',"external_url":"',
+                    abi.encodePacked(_URI, payInfo[tokenId].memoHash),
+                    '","image":"',
+                    payInfo[tokenId].imageURI
+                )
+            );
     }
 }
