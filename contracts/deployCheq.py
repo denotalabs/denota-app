@@ -55,9 +55,9 @@ if __name__ == "__main__":
     existing_addresses = json.loads(f.read())
 
   # Deploy libraries
-  datatypes = "src/contracts/libraries/DataTypes.sol:DataTypes"
-  errors = "src/contracts/libraries/Errors.sol:Errors"
-  events = "src/contracts/libraries/Events.sol:Events"
+  datatypes = "src/libraries/DataTypes.sol:DataTypes"
+  errors = "src/libraries/Errors.sol:Errors"
+  events = "src/libraries/Events.sol:Events"
   library_paths = [datatypes, errors, events]
   lib_addresses = []
   for library_path in library_paths:
@@ -75,7 +75,7 @@ if __name__ == "__main__":
   # Deploy the CheqRegistrar
   con_args = "(0,0,0,0)" #{"writeBPS": 0, "transferBPS": 0, "fundBPS": 0, "cashBPS": 0}
   if not existing_addresses[chain]["registrar"]:
-    registar_path = "src/contracts/CheqRegistrar.sol:CheqRegistrar"
+    registar_path = "src/CheqRegistrar.sol:CheqRegistrar"
     result = eth_call(f'forge create {registar_path} --constructor-args {con_args} {rpc_key_flags}', "Registrar deployment failed")
     registrar = extract_address(result.stdout)
     existing_addresses[chain]["registrar"] = registrar
@@ -84,7 +84,7 @@ if __name__ == "__main__":
   print(f'Registrar address: {registrar}')
 
   # Deploy ERC20s for testing
-  erc20_path, tokens = "src/test/mock/erc20.sol:TestERC20", []
+  erc20_path, tokens = "test/mock/erc20.sol:TestERC20", []
   for (supply, name, symbol) in [(10000000000000000000000000, "weth", "WETH"), (10000000000000000000000000, "dai", "DAI")]:
     if not existing_addresses[chain][name]:
       result = eth_call(f'forge create {erc20_path} --constructor-args {supply} {name} {symbol} {rpc_key_flags}', "ERC20 deployment failed")
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
   # Deploy the DirectPay module
   if not existing_addresses[chain]["directPay"]:
-    DirectPay_path = "src/contracts/modules/DirectPay.sol:DirectPay"
+    DirectPay_path = "src/modules/DirectPay.sol:DirectPay"
     result = eth_call(f'forge create {DirectPay_path} --constructor-args {registrar} {con_args} "ipfs://" {rpc_key_flags}', "Module deployment failed")
     direct_pay = extract_address(result.stdout)
     existing_addresses[chain]["directPay"] = direct_pay
@@ -109,10 +109,10 @@ if __name__ == "__main__":
   with open("contractAddresses.json", 'w') as f:
     f.write(json.dumps(existing_addresses))
 
-  with open("src/context/contractAddresses.tsx", 'w') as f:
+  with open("../frontend/context/contractAddresses.tsx", 'w') as f:
     f.write("export const ContractAddressMapping = " + json.dumps(existing_addresses))
 
-  with open("src/graph/subgraph/config/" + chain + ".json", 'w') as f:
+  with open("../graph/subgraph/config/" + chain + ".json", 'w') as f:
     existing_addresses[chain]["network"] = chain 
     existing_addresses[chain]["startBlock"] = "START"
     f.write(json.dumps(existing_addresses[chain]))
