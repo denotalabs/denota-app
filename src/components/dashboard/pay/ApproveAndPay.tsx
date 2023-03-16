@@ -55,14 +55,14 @@ function ApproveAndPay({ cheq, onClose }: Props) {
       case "WETH":
         return blockchainState.userWethBalanceRaw;
       case "NATIVE":
-        return blockchainState.walletBalance;
+        return blockchainState.walletBalanceRaw;
       default:
         return BigNumber.from(0);
     }
   }, [
     blockchainState.userDaiBalanceRaw,
     blockchainState.userWethBalanceRaw,
-    blockchainState.walletBalance,
+    blockchainState.walletBalanceRaw,
     cheq.token,
   ]);
 
