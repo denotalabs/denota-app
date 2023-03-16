@@ -11,6 +11,8 @@ cache
 /node_modules
 /.pnp
 .pnp.js
+*/node_modules
+frontend/node_modules
 
 # typescript
 *.tsbuildinfo
@@ -35,10 +37,10 @@ yarn-error.log*
 .env
 
 # graph
-src/graph/subgraph/config/config.json
-src/graph/subgraph/generated
-src/graph/subgraph/abis/*
-src/graph/graph-node/data
+graph/subgraph/config/config.json
+graph/subgraph/generated
+graph/subgraph/abis/*
+graph/graph-node/data
 **/aws.json
 
 .env
