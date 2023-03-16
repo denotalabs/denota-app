@@ -4,7 +4,7 @@ import HomeScreen from "../components/dashboard/HomeScreen";
 function HomePage() {
   return (
     <>
-      <Center my={2}>
+      <Center>
         <Stack width="100%">
           <Center>
             <HomeScreen />
