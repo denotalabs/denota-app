@@ -25,7 +25,7 @@ dataSources:
         # - DirectPayData
       abis:
         - name: Registrar
-          file: ../../frontend-abi/Events.sol/Events.json
+          file: ../frontend-abi/Events.sol/Events.json
       eventHandlers:
         # - event: ModuleBaseConstructed(indexed address,uint256)
         # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
@@ -65,7 +65,7 @@ dataSources:
         # - DirectPayData
       abis:
         - name: DirectPay
-          file: ../../frontend-abi/DirectPay.sol/DirectPay.json
+          file: ../frontend-abi/DirectPay.sol/DirectPay.json
       eventHandlers:
         - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
