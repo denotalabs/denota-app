@@ -6,7 +6,7 @@ import SimpleModal from "../designSystem/SimpleModal";
 import WaveIcon from "./WaveIcon";
 
 export const notionOnboardingLink =
-  "https://cheq-finance.notion.site/Cheq-Onboarding-8f3e101956f14e86b83feb06622988ad";
+  "https://denota.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
