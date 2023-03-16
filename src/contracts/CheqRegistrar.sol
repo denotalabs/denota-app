@@ -159,13 +159,15 @@ contract CheqRegistrar is
 
         // Fee taking and escrow
         _transferTokens(
-            cheq.escrowed,
+            amount,
             instant,
             cheq.currency,
             owner,
             moduleFee,
             cheq.module
         );
+
+        _cheqInfo[cheqId].escrowed += amount;
 
         emit Events.Funded(
             _msgSender(),
