@@ -38,6 +38,11 @@ function AmountField({ token, mode }: Props) {
             return "Insufficient balance";
           }
           break;
+        case "NATIVE":
+          if (Number(blockchainState.walletBalance) < value) {
+            return "Insufficient balance";
+          }
+          break;
       }
     }
     return undefined;
