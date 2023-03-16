@@ -140,7 +140,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               tokenAddress,
               amountWei,
               address: formData.address,
-              instantWei: transferWei,
+              escrowedWei: transferWei,
               noteKey: formData.noteKey,
               isInvoice: formData.mode === "invoice",
             });
