@@ -39,7 +39,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     return ethers.utils.parseEther(formData.amount);
   }, [formData]);
 
-  const escrowedWei =
+  const transferWei =
     formData.mode === "invoice" ? BigNumber.from(0) : amountWei;
 
   const { refreshWithDelay } = useCheqContext();
@@ -130,7 +130,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               tokenAddress,
               amountWei,
               address: formData.address,
-              escrowedWei,
+              instantWei: transferWei,
               noteKey: formData.noteKey,
               isInvoice: formData.mode === "invoice",
             });
@@ -140,7 +140,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               tokenAddress,
               amountWei,
               address: formData.address,
-              escrowedWei,
+              escrowedWei: transferWei,
               noteKey: formData.noteKey,
               isInvoice: formData.mode === "invoice",
             });
@@ -188,7 +188,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     amountWei,
     blockchainState.chainId,
     blockchainState.cheqAddress,
-    escrowedWei,
+    transferWei,
     formData.address,
     formData.amount,
     formData.dueDate,

@@ -7,7 +7,7 @@ interface Props {
   tokenAddress: string;
   amountWei: BigNumber;
   address: string;
-  escrowedWei: BigNumber;
+  instantWei: BigNumber;
   noteKey: string;
   isInvoice: boolean;
 }
@@ -21,7 +21,7 @@ export const useDirectPay = () => {
       tokenAddress,
       amountWei,
       address,
-      escrowedWei,
+      instantWei,
       noteKey,
       isInvoice,
     }: Props) => {
@@ -48,13 +48,13 @@ export const useDirectPay = () => {
       const msgValue =
         tokenAddress === "0x0000000000000000000000000000000000000000" &&
         !isInvoice
-          ? escrowedWei
+          ? instantWei
           : BigNumber.from(0);
 
       const tx = await blockchainState.cheq?.write(
         tokenAddress,
         0,
-        escrowedWei,
+        instantWei,
         isInvoice ? blockchainState.account : address,
         blockchainState.directPayAddress,
         payload,
