@@ -15,8 +15,8 @@ remove :; rm -rf .gitmodules && rm -rf .git/modules/* && rm -rf lib && touch .gi
 
 # Install the Modules
 install :; 
-	forge install dapphub/ds-test --no-commit
-	forge install OpenZeppelin/openzeppelin-contracts --no-commit
+	cd contracts && forge install dapphub/ds-test --no-commit
+	cd contracts && forge install OpenZeppelin/openzeppelin-contracts --no-commit
 
 # Update Dependencies
 update:; forge update
@@ -57,34 +57,25 @@ create-mumbai-data: # write cheqs from different modules, transfer, fund, cash
 
 graph-start:
 	# Requires docker to be running
-	npm run clean-graph-node # If node has run before remove the old subgraph
-	npm run run-graph-node  # (re)start the node [postgres & ipfs & blockchain ingester]
+	cd graph && npm run clean # If node has run before remove the old subgraph
+	cd graph && npm run start  # (re)start the node [postgres & ipfs & blockchain ingester]
 	# npm run codegen
 
 graph-deploy-local:
-	npm run graph-prepare-mumbai # TODO change to graph-prepare-local
-	npm run create-local # 
-	npm run graph-ship-local  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
+	cd graph && npm run prepare && GRAPH_CHAIN=mumbai npm run create-local
+	cd graph && npm run deploy-local  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
 
 graph-deploy-local-alfajores:
-	export GRAPH_CHAIN=alfajores
-	npm run graph-prepare
-	npm run create-local # 
-	npm run graph-ship-local
+	cd graph && GRAPH_CHAIN=alfajores npm run prepare
+	cd graph && npm run create-local
+	cd graph && npm run deploy-local
 
 graph-deploy-remote-mumbai:
-	export GRAPH_CHAIN=mumbai
-	npm run graph-prepare
-	npm run graph-create-remote 
-	npm run graph-ship-remote  
+	cd graph && GRAPH_CHAIN=mumbai npm run prepare
+	cd graph && npm run create-remote
+	cd graph && npm run deploy-remote
 
 graph-deploy-remote-alfajores:
-	export GRAPH_CHAIN=alfajores
-	npm run graph-prepare
-	npm run graph-create-remote  
-	npm run graph-ship-remote  
- 
- graph-deploy-remote:
-	npm run graph-prepare
-	npm run graph-create-remote  
-	npm run graph-ship-remote  
+	cd graph && GRAPH_CHAIN=alfajores npm run prepare
+	cd graph && npm run create-remote
+	cd graph && npm run deploy-remote

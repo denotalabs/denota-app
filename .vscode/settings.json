@@ -7,8 +7,13 @@
   "editor.formatOnSave": true,
   "terminal.integrated.shell.osx": "/bin/bash",
   "editor.codeActionsOnSave": {
-   "source.fixAll": true,
-   "source.organizeImports": true,
-   "source.sortMembers": true
-  }
+    "source.fixAll": true,
+    "source.organizeImports": true,
+    "source.sortMembers": true
+  },
+  "solidity.remappings": [
+    "ds-test/=contracts/lib/forge-std/lib/ds-test/src/",
+    "forge-std/=contracts/lib/forge-std/src/",
+    "openzeppelin/=contracts/lib/openzeppelin-contracts/contracts/"
+  ]
 }
