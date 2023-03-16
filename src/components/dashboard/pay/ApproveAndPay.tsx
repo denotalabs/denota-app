@@ -48,6 +48,28 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     }
   }, [blockchainState.dai?.address, blockchainState.weth?.address, cheq.token]);
 
+  const tokenBalance = useMemo(() => {
+    switch (cheq.token) {
+      case "DAI":
+        return blockchainState.userDaiBalanceRaw;
+      case "WETH":
+        return blockchainState.userWethBalanceRaw;
+      case "NATIVE":
+        return blockchainState.walletBalance;
+      default:
+        return BigNumber.from(0);
+    }
+  }, [
+    blockchainState.userDaiBalanceRaw,
+    blockchainState.userWethBalanceRaw,
+    blockchainState.walletBalance,
+    cheq.token,
+  ]);
+
+  const insufficientBalance = useMemo(() => {
+    return cheq.amountRaw.sub(tokenBalance) > BigNumber.from(0);
+  }, [cheq.amountRaw, tokenBalance]);
+
   useEffect(() => {
     const fetchAllowance = async () => {
       if (token === null) {
@@ -74,11 +96,14 @@ function ApproveAndPay({ cheq, onClose }: Props) {
   ]);
 
   const buttonText = useMemo(() => {
+    if (insufficientBalance) {
+      return "Insufficient funds";
+    }
     if (needsApproval) {
       return "Approve " + cheq.token;
     }
     return "Pay";
-  }, [cheq.token, needsApproval]);
+  }, [cheq.token, insufficientBalance, needsApproval]);
 
   const handlePay = useCallback(async () => {
     setIsLoading(true);
@@ -124,6 +149,14 @@ function ApproveAndPay({ cheq, onClose }: Props) {
         refreshWithDelay();
         onClose();
       }
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Transaction failed",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -145,10 +178,14 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     <Box w="100%" p={4}>
       <RoundedBox mt={8} p={6}>
         <Text fontWeight={600} fontSize={"xl"} textAlign="center">
-          {"You have 30 days to request a refund"}
+          {"Funds will be released immediately"}
         </Text>
       </RoundedBox>
-      <RoundedButton isLoading={isLoading} onClick={handlePay}>
+      <RoundedButton
+        isDisabled={insufficientBalance}
+        isLoading={isLoading}
+        onClick={handlePay}
+      >
         {buttonText}
       </RoundedButton>
     </Box>
