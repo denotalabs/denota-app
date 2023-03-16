@@ -36,11 +36,15 @@ yarn-error.log*
 
 .env
 
-# graph
-graph/subgraph/config/config.json
+# Graph build artifacts
+graph/subgraph/build
 graph/subgraph/generated
-graph/subgraph/abis/*
+graph/subgraph/abis
 graph/graph-node/data
+
+# graph config
+graph/subgraph/config/config.json
+
 **/aws.json
 
 .env

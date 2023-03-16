@@ -2,7 +2,7 @@
   "name": "denota-graph",
   "version": "0.1.0",
   "description": "Denota Protocol Graph",
-  "author": "Cheq Labs",
+  "author": "Denota Labs",
   "private": true,
   "scripts": {
     "clean": "rm -rf graph-node/data/",
@@ -23,5 +23,9 @@
   },
   "devDependencies": {
     "mustache": "^3.2.1"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.42.4",
+    "@graphprotocol/graph-ts": "^0.29.3"
   }
 }
