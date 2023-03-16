@@ -4,8 +4,6 @@ import { Center, Spinner, useDisclosure } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
-import { MUMBAI_ADDRESS } from "../../context/chainInfo";
-import { switchNetwork } from "../../context/SwitchNetwork";
 import NewUserModal from "../nux/NewUserModal";
 import { WrongChain } from "../WrongChain";
 import MyCheqsView from "./MyCheqsView";
@@ -18,10 +16,6 @@ function HomeScreen() {
     </Center>
   );
 }
-
-const switchToMumbai = async () => {
-  await switchNetwork(MUMBAI_ADDRESS);
-};
 
 function HomeScreenContent() {
   const { blockchainState, isInitializing, isWrongChain } = useBlockchainData();

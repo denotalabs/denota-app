@@ -116,6 +116,9 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                 height={40}
                 unoptimized={true}
               />
+              <Center>
+                <Text>ALPHA</Text>
+              </Center>
             </Box>
             <CloseButton
               display={{ base: "flex", md: "none" }}
