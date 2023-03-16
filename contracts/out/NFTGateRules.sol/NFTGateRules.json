@@ -1,0 +1,209 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "src/rules/NFTGateRules.sol",
+    "id": 11061,
+    "exportedSymbols": {
+      "Address": [
+        2033
+      ],
+      "Context": [
+        2055
+      ],
+      "DataTypes": [
+        5754
+      ],
+      "ERC165": [
+        2254
+      ],
+      "ERC721": [
+        1542
+      ],
+      "IApproveRule": [
+        4937
+      ],
+      "ICashRule": [
+        4920
+      ],
+      "IERC165": [
+        2266
+      ],
+      "IERC721": [
+        1658
+      ],
+      "IERC721Metadata": [
+        1703
+      ],
+      "IERC721Receiver": [
+        1676
+      ],
+      "IFundRule": [
+        4901
+      ],
+      "ITransferRule": [
+        4882
+      ],
+      "IWriteRule": [
+        4861
+      ],
+      "Math": [
+        3131
+      ],
+      "Strings": [
+        2230
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "37:2961:51",
+    "nodes": [
+      {
+        "id": 11050,
+        "nodeType": "PragmaDirective",
+        "src": "37:24:51",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".16"
+        ]
+      },
+      {
+        "id": 11051,
+        "nodeType": "ImportDirective",
+        "src": "62:46:51",
+        "nodes": [],
+        "absolutePath": "lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol",
+        "file": "openzeppelin/token/ERC721/ERC721.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 11061,
+        "sourceUnit": 1543,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 11052,
+        "nodeType": "ImportDirective",
+        "src": "109:54:51",
+        "nodes": [],
+        "absolutePath": "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
+        "file": "openzeppelin/utils/introspection/IERC165.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 11061,
+        "sourceUnit": 2267,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 11054,
+        "nodeType": "ImportDirective",
+        "src": "164:53:51",
+        "nodes": [],
+        "absolutePath": "src/libraries/DataTypes.sol",
+        "file": "../libraries/DataTypes.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 11061,
+        "sourceUnit": 5755,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 11053,
+              "name": "DataTypes",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 5754,
+              "src": "172:9:51",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 11060,
+        "nodeType": "ImportDirective",
+        "src": "218:107:51",
+        "nodes": [],
+        "absolutePath": "src/interfaces/IWTFCRules.sol",
+        "file": "../interfaces/IWTFCRules.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 11061,
+        "sourceUnit": 4938,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 11055,
+              "name": "IWriteRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 4861,
+              "src": "226:10:51",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 11056,
+              "name": "ITransferRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 4882,
+              "src": "238:13:51",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 11057,
+              "name": "IFundRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 4901,
+              "src": "253:9:51",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 11058,
+              "name": "ICashRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 4920,
+              "src": "264:9:51",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 11059,
+              "name": "IApproveRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 4937,
+              "src": "275:12:51",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      }
+    ],
+    "license": "BUSL-1.1"
+  },
+  "id": 51
+}
