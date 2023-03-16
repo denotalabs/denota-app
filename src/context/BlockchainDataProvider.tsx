@@ -38,6 +38,9 @@ interface BlockchainDataInterface {
   chainId: string;
   graphUrl: string;
   nativeCurrenySymbol: string;
+  walletBalance: BigNumber;
+  userDaiBalanceRaw: BigNumber;
+  userWethBalanceRaw: BigNumber;
 }
 
 interface BlockchainDataContextInterface {
@@ -64,6 +67,9 @@ const defaultBlockchainState = {
   graphUrl: "",
   escrowAddress: "",
   nativeCurrenySymbol: "",
+  walletBalance: BigNumber.from(0),
+  userDaiBalanceRaw: BigNumber.from(0),
+  userWethBalanceRaw: BigNumber.from(0),
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -142,6 +148,8 @@ export const BlockchainDataProvider = memo(
             signer
           );
 
+          const walletBalance = await provider.getBalance(account);
+
           const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
           const daiAllowance = await dai.allowance(
             account,
@@ -171,6 +179,9 @@ export const BlockchainDataProvider = memo(
             graphUrl: deployedChainInfo.graphUrl,
             escrowAddress: contractMapping.directPay, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
+            walletBalance,
+            userDaiBalanceRaw: userDaiBalance,
+            userWethBalanceRaw: userWethBalance,
           });
           setIsInitializing(false);
         }
