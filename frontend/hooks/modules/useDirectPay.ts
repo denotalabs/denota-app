@@ -27,7 +27,7 @@ export const useDirectPay = () => {
     }: Props) => {
       const utcOffset = new Date().getTimezoneOffset();
 
-      let dueTimestamp;
+      let dueTimestamp: number;
 
       if (dueDate) {
         dueTimestamp =
@@ -40,9 +40,10 @@ export const useDirectPay = () => {
         dueTimestamp = Date.parse(`${today}T00:00:00Z`) / 1000 + utcOffset * 60;
       }
 
+      // TODO: handle image key
       const payload = ethers.utils.defaultAbiCoder.encode(
-        ["address", "uint256", "uint256", "address", "string", "uint256"],
-        [address, amountWei, 0, blockchainState.account, noteKey, dueTimestamp]
+        ["address", "uint256", "uint256", "address", "string", "string"],
+        [address, amountWei, dueTimestamp, blockchainState.account, "", noteKey]
       );
 
       const msgValue =
@@ -52,12 +53,12 @@ export const useDirectPay = () => {
           : BigNumber.from(0);
 
       const tx = await blockchainState.cheq?.write(
-        tokenAddress,
-        0,
-        instantWei,
-        isInvoice ? blockchainState.account : address,
-        blockchainState.directPayAddress,
-        payload,
+        tokenAddress, //currency
+        0, //escrowed
+        instantWei, //instant
+        isInvoice ? blockchainState.account : address, //owner
+        blockchainState.directPayAddress, //module
+        payload, //moduleWriteData
         { value: msgValue }
       );
       const receipt = await tx.wait();
