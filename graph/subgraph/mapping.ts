@@ -77,7 +77,7 @@ export function handleWrite(event: WrittenEvent): void {
     cheq.escrowed = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
     cheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
 
-    if (cheq.moduleData?.endsWith("/direct")) {
+    if (cheq.moduleData && cheq.moduleData.endsWith("/direct")) {
       const directPayData = DirectPayData.load(cheq.moduleData);
       if (directPayData) {
         if (cheqEscrowed > BigInt.fromI32(0)) {
@@ -86,7 +86,7 @@ export function handleWrite(event: WrittenEvent): void {
           directPayData.status = "AWAITING_PAYMENT";
         }
       }
-    } else if (cheq.moduleData?.endsWith("/escrow")) {
+    } else if (cheq.moduleData && cheq.moduleData.endsWith("/escrow")) {
       const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
       if (reversiblePayData) {
         if (cheqEscrowed > BigInt.fromI32(0)) {
@@ -215,12 +215,12 @@ export function handleFund(event: FundedEvent): void {
     event.block.number
   );
 
-  if (cheq.moduleData?.endsWith("/direct")) {
+  if (cheq.moduleData && cheq.moduleData.endsWith("/direct")) {
     const directPayData = DirectPayData.load(cheq.moduleData);
     if (directPayData) {
       directPayData.status = "PAID";
     }
-  } else if (cheq.moduleData?.endsWith("/escrow")) {
+  } else if (cheq.moduleData && cheq.moduleData.endsWith("/escrow")) {
     const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
     if (reversiblePayData) {
       reversiblePayData.status = "AWAITING_RELEASE";
@@ -265,7 +265,7 @@ export function handleCash(event: CashedEvent): void {
     event.block.number
   );
 
-  if (cheq.moduleData?.endsWith("/escrow")) {
+  if (cheq.moduleData && cheq.moduleData.endsWith("/escrow")) {
     const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
     if (reversiblePayData) {
       if (cheq.owner === toAccount.id) {

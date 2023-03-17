@@ -334,6 +334,7 @@ export const useCheqs = ({ cheqField }: Props) => {
           } else {
             setCheqsSent([]);
             setCheqReceived([]);
+            setCheqsInspected([]);
           }
           setIsLoading(false);
         })
@@ -349,7 +350,12 @@ export const useCheqs = ({ cheqField }: Props) => {
   }, [refresh, account]);
 
   const cheqs = useMemo(() => {
-    if (cheqsReceived === undefined || cheqsSent === undefined || isLoading) {
+    if (
+      cheqsReceived === undefined ||
+      cheqsSent === undefined ||
+      cheqsInspected === undefined ||
+      isLoading
+    ) {
       return undefined;
     }
     const nonSelfSigned = cheqsInspected.filter(

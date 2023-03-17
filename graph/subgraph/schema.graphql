@@ -95,7 +95,7 @@ type Cheq @entity {
   approvals: [Approval!]! @derivedFrom(field: "cheq")
   sender: Account
   receiver: Account
-  moduleData: ModuleData 
+  moduleData: ModuleData!
   transaction: Transaction!
   inspector: Account
 }
