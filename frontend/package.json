@@ -2,7 +2,7 @@
   "name": "denota",
   "version": "0.1.0",
   "description": "Denota Protocol Frontend",
-  "author": "Cheq Labs",
+  "author": "Denota Labs",
   "homepage": ".",
   "dependencies": {
     "@apollo/client": "^3.6.9",
@@ -49,23 +49,7 @@
     "lint": "next lint",
     "solhint": "./node_modules/.bin/solhint -f table **/*.sol",
     "prettier:solidity": "./node_modules/.bin/prettier --write **/*.sol",
-    "prettier:ts": "./node_modules/.bin/prettier --write **/*.tsx",
-    "clean-graph-node": "rm -rf src/graph/graph-node/data/",
-    "run-graph-node": "cd src/graph/graph-node && docker-compose up",
-    "graph-build": "cd src/graph/subgraph && graph build",
-    "create-local": "graph create --node http://localhost:8020/ CheqRegistrar/CheqRegistrar",
-    "graph-ship-local": "cd src/graph/subgraph && npm run codegen && npm run deploy-local",
-    "remove-graph-node": "cd src/graph/graph-node && docker-compose down",
-    "remove-local": "graph remove --node http://localhost:8020/ CheqRegistrar/CheqRegistrar",
-    "deploy-local": "cd src/graph/subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 CheqRegistrar/CheqRegistrar",
-    "codegen": "cd src/graph/subgraph && graph codegen",
-    "graph-prepare-mumbai": "mustache src/graph/subgraph/config/mumbai.json src/graph/subgraph/subgraph.template.yaml > src/graph/subgraph/subgraph.yaml",
-    "graph-prepare": "mustache src/graph/subgraph/config/${GRAPH_CHAIN}.json src/graph/subgraph/subgraph.template.yaml > src/graph/subgraph/subgraph.yaml",
-    "graph-create-remote": "graph create --node ${GQL_HOST}:8020/ CheqRegistrar/${GRAPH_CHAIN}",
-    "graph-ship-remote": "cd src/graph/subgraph && npm run codegen && npm run graph-deploy-remote",
-    "graph-remove-node-remote": "cd src/graph/graph-node && docker-compose down",
-    "graph-remove-remote": "graph remove --node ${GQL_HOST}:8020/ CheqRegistrar/${GRAPH_CHAIN}",
-    "graph-deploy-remote": "cd src/graph/subgraph && graph deploy --node ${GQL_HOST}:8020/ --ipfs ${GQL_HOST}:5001 CheqRegistrar/${GRAPH_CHAIN}"
+    "prettier:ts": "./node_modules/.bin/prettier --write **/*.tsx"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.2",
@@ -75,7 +59,6 @@
     "@typescript-eslint/parser": "^5.30.6",
     "eslint": "^8.19.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "mustache": "^3.2.1",
     "prettier-plugin-organize-imports": "^3.2.2",
     "react-icons": "^4.7.1"
   }

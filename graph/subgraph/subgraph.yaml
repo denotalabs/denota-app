@@ -1,4 +1,4 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 schema:
   file: schema.graphql
 dataSources:
@@ -11,7 +11,7 @@ dataSources:
       startBlock: 32985337
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Cheq  # Cheqs
@@ -25,7 +25,7 @@ dataSources:
         # - DirectPayData
       abis:
         - name: Registrar
-          file: ../../frontend-abi/Events.sol/Events.json
+          file: ../frontend-abi/Events.sol/Events.json
       eventHandlers:
         # - event: ModuleBaseConstructed(indexed address,uint256)
         # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
@@ -51,7 +51,7 @@ dataSources:
       startBlock: 32985337
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Cheq  # Cheqs
@@ -65,12 +65,8 @@ dataSources:
         # - DirectPayData
       abis:
         - name: DirectPay
-          file: ../../frontend-abi/DirectPay.sol/DirectPay.json
+          file: ../frontend-abi/DirectPay.sol/DirectPay.json
       eventHandlers:
         - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
-        # - event: Transferred(uint256 indexed,address indexed,address indexed,uint256,uint256,uint256)
-        #   handler: handleTransfer
-        # - event: Cashed(address indexed,address,uint256 indexed,bytes indexed,uint256,uint256,uint256)
-        #   handler: handleCash
       file: mapping.ts
