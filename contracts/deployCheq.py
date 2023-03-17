@@ -134,6 +134,9 @@ if __name__ == "__main__":
             f'forge create {DirectPay_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {rpc_key_flags}', "Module deployment failed")
         direct_pay = extract_address(result.stdout)
         existing_addresses[chain]["directPay"] = direct_pay
+        # Whitelist the DirectPay module
+        eth_call(
+            f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {direct_pay} "false" "true" "DirectPay" {rpc_key_flags}', "Whitelist module failed")
         print(f'DirectPay address: {direct_pay}')
     else:
         direct_pay = existing_addresses[chain]["directPay"]
@@ -147,6 +150,10 @@ if __name__ == "__main__":
         result = eth_call(f'forge create {Escrow_path} --constructor-args {registrar} {con_args} "ipfs://" {rpc_key_flags}', "Module deployment failed")
         escrow = extract_address(result.stdout)
         existing_addresses[chain]["escrow"] = escrow
+        # Whitelist the Escrow module
+        eth_call(
+            f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {escrow} "false" "true" "Escrow" {rpc_key_flags}', "Whitelist module failed")
+        print(f'Escrow address: {escrow}')
 
     # Update the address JSON
     with open("contractAddresses.json", 'w') as f:
@@ -160,10 +167,6 @@ if __name__ == "__main__":
         # Queried right before deployements
         existing_addresses[chain]["startBlock"] = block_number.strip("\n")
         f.write(json.dumps(existing_addresses[chain]))
-
-    # Whitelist the DirectPay module
-    eth_call(
-        f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {direct_pay} "false" "true" "DirectPay" {rpc_key_flags}', "Whitelist module failed")
 
     # Whitelist tokens
     for (token, name, symbol) in tokens:
