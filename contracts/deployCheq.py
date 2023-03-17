@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
     if not existing_addresses[chain]["escrow"]:
         Escrow_path = "src/modules/ReversibleRelease.sol:ReversibleRelease"
-        result = eth_call(f'forge create {Escrow_path} --constructor-args {registrar} {con_args} "ipfs://" {rpc_key_flags}', "Module deployment failed")
+        result = eth_call(f'forge create {Escrow_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {rpc_key_flags}', "Module deployment failed")
         escrow = extract_address(result.stdout)
         existing_addresses[chain]["escrow"] = escrow
         # Whitelist the Escrow module
@@ -158,11 +158,11 @@ if __name__ == "__main__":
     # Update the address JSON
     with open("contractAddresses.json", 'w') as f:
         f.write(json.dumps(existing_addresses))
-        with open("src/context/contractAddresses.tsx", 'w') as f:
-            f.write("export const ContractAddressMapping = " +
-                    json.dumps(existing_addresses))
+    
+    with open("../frontend/context/contractAddresses.tsx", 'w') as f:
+        f.write("export const ContractAddressMapping = " + json.dumps(existing_addresses))
 
-    with open("src/graph/subgraph/config/" + chain + ".json", 'w') as f:
+    with open("../graph/subgraph/config/" + chain + ".json", 'w') as f:
         existing_addresses[chain]["network"] = chain
         # Queried right before deployements
         existing_addresses[chain]["startBlock"] = block_number.strip("\n")

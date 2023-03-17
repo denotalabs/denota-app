@@ -14,14 +14,15 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Cheq
-        - Transfer
-        - Escrow
-        - ERC20
-        - Account
-        - DirectSend
+        - Cheq  # Cheqs
+        - Transfer  # Write/Transfers
+        - Escrow  # Fund/Cash
+        - ERC20  # ERC20s that have interacted with the protocol
+        - Account  # Accounts that have interacted with CheqRegistrar
+        - DirectSend  # Payment modules
         - DirectPayModule
         - DirectPayData
+        # - DirectPayData
       abis:
         - name: Registrar
           file: ../frontend-abi/Events.sol/Events.json
@@ -49,14 +50,15 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Cheq
-        - Transfer
-        - Escrow
-        - ERC20
-        - Account
-        - DirectSend
+        - Cheq  # Cheqs
+        - Transfer  # Write/Transfers
+        - Escrow  # Fund/Cash
+        - ERC20  # ERC20s that have interacted with the protocol
+        - Account  # Accounts that have interacted with CheqRegistrar
+        - DirectSend  # Payment modules
         - DirectPayModule
         - DirectPayData
+        # - DirectPayData
       abis:
         - name: DirectPay
           file: ../frontend-abi/DirectPay.sol/DirectPay.json
@@ -68,9 +70,9 @@ dataSources:
     name: ReversibleRelease
     network: mumbai
     source:
-      address: "0xc6573949538a07D722893c1A1b904b65b5BC41e3"
+      address: "0xfEE63D6a4017b53703Ed64B38b67659277756D95"
       abi: ReversibleRelease
-      startBlock: 32985337
+      startBlock: 33229194
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5

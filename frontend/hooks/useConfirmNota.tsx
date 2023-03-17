@@ -143,6 +143,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               escrowedWei: transferWei,
               noteKey: formData.noteKey,
               isInvoice: formData.mode === "invoice",
+              inspector: formData.auditor,
             });
             break;
 
@@ -185,27 +186,28 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       }
     }
   }, [
-    amountWei,
-    blockchainState.chainId,
+    needsApproval,
+    token?.functions,
     blockchainState.cheqAddress,
-    transferWei,
-    formData.address,
-    formData.amount,
-    formData.dueDate,
+    blockchainState.chainId,
+    amountWei,
+    formData.module,
     formData.email,
     formData.mode,
-    formData.module,
+    formData.dueDate,
+    formData.address,
     formData.noteKey,
+    formData.auditor,
     formData.token,
-    needsApproval,
-    onSuccess,
-    refreshWithDelay,
-    sendEmail,
+    formData.amount,
     toast,
-    token?.functions,
-    tokenAddress,
+    refreshWithDelay,
+    onSuccess,
     writeDirectPayCheq,
+    tokenAddress,
+    transferWei,
     writeEscrowCheq,
+    sendEmail,
   ]);
 
   return { needsApproval, approveAmount, writeNota };
