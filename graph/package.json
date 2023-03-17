@@ -12,7 +12,7 @@
     "deploy-local": "npm run codegen && npm run deploy-local-subgraph",
     "remove-node": "cd graph-node && docker-compose down",
     "remove-local": "graph remove --node http://localhost:8020/ CheqRegistrar/CheqRegistrar",
-    "deploy-local-subgraph": "cd subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 CheqRegistrar/CheqRegistrar",
+    "deploy-local-subgraph": "cd subgraph && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 CheqRegistrar/${GRAPH_CHAIN}",
     "codegen": "cd subgraph && graph codegen",
     "prepare": "mustache subgraph/config/${GRAPH_CHAIN:-mumbai}.json subgraph/subgraph.template.yaml > subgraph/subgraph.yaml",
     "create-remote": "graph create --node ${GQL_HOST}:8020/ CheqRegistrar/${GRAPH_CHAIN}",

@@ -27,7 +27,8 @@ contract ReversibleRelease is ModuleBase {
         uint256 timestamp,
         address referer,
         address creditor,
-        address debtor
+        address debtor,
+        address inspector
     );
 
     error OnlyOwner();
@@ -105,7 +106,8 @@ contract ReversibleRelease is ModuleBase {
             block.timestamp,
             referer,
             payInfo[cheqId].creditor,
-            payInfo[cheqId].debtor
+            payInfo[cheqId].debtor,
+            payInfo[cheqId].inspector
         );
     }
 

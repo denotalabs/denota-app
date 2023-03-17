@@ -25,6 +25,7 @@ type Account @entity {
   numCheqsSent: BigInt!
   cheqsReceived: [Cheq!]! @derivedFrom(field: "receiver")
   numCheqsReceived: BigInt!
+  cheqsInspected: [Cheq!]! @derivedFrom(field: "inspector")
 
   transfersFrom: [Transfer!]! @derivedFrom(field: "from")
   transfersTo: [Transfer!]! @derivedFrom(field: "to")
@@ -96,6 +97,7 @@ type Cheq @entity {
   receiver: Account
   moduleData: ModuleData 
   transaction: Transaction!
+  inspector: Account
 }
 
 # TODO: figure out why unions aren't working
@@ -145,6 +147,7 @@ type ReversiblePaymentData implements ModuleData @entity {
   memo: Bytes!
   dueDate: BigInt!
   status: EscrowStatus
+  isSelfSigned: Boolean!
 }
 
 interface Module {  # Allows new modules to inherit from Module interface

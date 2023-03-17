@@ -152,13 +152,18 @@ export function handleReversiblePayment(
   const sender = event.transaction.from.toHexString();
   const creditor = event.params.creditor.toHexString();
   const debtor = event.params.debtor.toHexString();
+  const inspector = event.params.inspector.toHexString();
 
   let creditorAccount = Account.load(creditor);
   let debtorAccount = Account.load(debtor);
+  let inspectorAccount = Account.load(inspector);
+
   creditorAccount =
     creditorAccount == null ? saveNewAccount(creditor) : creditorAccount;
   debtorAccount =
     debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
+  inspectorAccount =
+    inspectorAccount == null ? saveNewAccount(inspector) : inspectorAccount;
 
   const cheqId = event.params.cheqId.toString();
 
@@ -166,6 +171,7 @@ export function handleReversiblePayment(
   reversibleRelease.creditor = creditorAccount.id;
   reversibleRelease.debtor = debtorAccount.id;
   reversibleRelease.amount = event.params.amount;
+  reversibleRelease.isSelfSigned = debtorAccount.id === inspectorAccount.id;
   reversibleRelease.save();
 
   const newCheq = new Cheq(cheqId);

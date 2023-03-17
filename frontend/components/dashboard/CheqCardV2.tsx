@@ -19,6 +19,7 @@ import {
 } from "react-icons/md";
 import { Cheq } from "../../hooks/useCheqs";
 import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
+import { useFormatAddress } from "../../hooks/useFormatAddress";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
@@ -84,6 +85,8 @@ function CheqCardV2({ cheq }: Props) {
     onOpen: onOpenPay,
     onClose: onClosePay,
   } = useDisclosure();
+
+  const { formatAddress } = useFormatAddress();
 
   const icon = useMemo(() => {
     switch (cheq.moduleData.status) {
@@ -157,7 +160,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {cheq.formattedPayer}
+              {formatAddress(cheq.payer)}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -166,7 +169,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {cheq.formattedPayee}
+              {formatAddress(cheq.payee)}
             </Text>
           </HStack>
 

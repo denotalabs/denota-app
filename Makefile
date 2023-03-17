@@ -67,13 +67,13 @@ graph-deploy-local:
 
 graph-deploy-local-alfajores:
 	cd graph && GRAPH_CHAIN=alfajores npm run prepare
-	cd graph && npm run create-local
-	cd graph && npm run deploy-local
+	cd graph && GRAPH_CHAIN=alfajores npm run create-local
+	cd graph && GRAPH_CHAIN=alfajores npm run deploy-local
 
 graph-deploy-remote-mumbai:
 	cd graph && GRAPH_CHAIN=mumbai npm run prepare
-	cd graph && npm run create-remote
-	cd graph && npm run deploy-remote
+	cd graph && GRAPH_CHAIN=mumbai npm run create-remote
+	cd graph && GRAPH_CHAIN=mumbai npm run deploy-remote
 
 graph-deploy-remote-alfajores:
 	cd graph && GRAPH_CHAIN=alfajores npm run prepare
