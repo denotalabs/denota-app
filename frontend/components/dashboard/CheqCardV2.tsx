@@ -33,9 +33,14 @@ interface Props {
 }
 
 const TOOLTIP_MESSAGE_MAP = {
-  payable: "payment due",
+  payable: "payment requested",
   paid: "paid",
-  pending_payment: "awaiting payment",
+  awaiting_payment: "awaiting payment",
+  voided: "voided by payer",
+  released: "released by payer",
+  awaiting_release: "waiting for payer to release funds",
+  releasable: "payment can be released or voided",
+  awaiting_escrow: "waiting for payer to escrow funds",
 };
 
 function CheqCardV2({ cheq }: Props) {
@@ -68,19 +73,6 @@ function CheqCardV2({ cheq }: Props) {
   const createdLocaleDate = useMemo(() => {
     return createdTransaction.date.toLocaleDateString();
   }, [createdTransaction.date]);
-
-  const status: CheqStatus | undefined = useMemo(() => {
-    if (cheq.isPaid) {
-      return "paid";
-    }
-
-    if (!cheq.isPaid && cheq.isPayer) {
-      return "payable";
-    }
-
-    return "pending_payment";
-  }, [cheq.isPaid, cheq.isPayer]);
-
   const {
     isOpen: isDetailsOpen,
     onOpen: onOpenDetails,
@@ -94,26 +86,30 @@ function CheqCardV2({ cheq }: Props) {
   } = useDisclosure();
 
   const icon = useMemo(() => {
-    switch (status) {
+    switch (cheq.moduleData.status) {
       case "paid":
         return <MdOutlineDoneAll color="white" size={20} />;
       case "payable":
         return <MdOutlineAttachMoney color="white" size={20} />;
-      case "pending_payment":
+      case "awaiting_payment":
+        return <MdOutlineHourglassEmpty color="white" size={20} />;
+      default:
         return <MdOutlineHourglassEmpty color="white" size={20} />;
     }
-  }, [status]);
+  }, [cheq.moduleData.status]);
 
   const iconColor = useMemo(() => {
-    switch (status) {
+    switch (cheq.moduleData.status) {
       case "paid":
         return "#00C28E";
       case "payable":
         return "#4A67ED";
-      case "pending_payment":
+      case "awaiting_payment":
         return "#C5CCD8";
+      default:
+        return "#4A67ED";
     }
-  }, [status]);
+  }, [cheq.moduleData.status]);
   const gradient = generateCheqGradient(cheq);
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
@@ -186,7 +182,7 @@ function CheqCardV2({ cheq }: Props) {
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
             <ButtonGroup>
-              {status === "payable" ? (
+              {cheq.moduleData.status === "payable" ? (
                 <Button
                   variant="outline"
                   w="min(40vw, 100px)"

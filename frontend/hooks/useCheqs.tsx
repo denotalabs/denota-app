@@ -8,12 +8,6 @@ interface Props {
   cheqField: string;
 }
 
-export interface CheqTransactions {
-  created: string | null;
-  funded: string | null;
-  cashed: string | null;
-}
-
 export interface CheqDates {
   created: Date;
 }
@@ -33,6 +27,16 @@ export type EscrowStatus =
   | "awaiting_escrow"
   | "payable";
 
+export interface EscrowModuleData {
+  status: EscrowStatus;
+  module: "escrow";
+}
+
+export interface DirectPayModuleData {
+  status: DirectPayStatus;
+  module: "direct";
+}
+
 export interface Cheq {
   id: string;
   amount: number;
@@ -46,12 +50,12 @@ export interface Cheq {
   isInvoice: boolean;
   createdTransaction: CheqTransaction;
   fundedTransaction: CheqTransaction | null;
-  isPaid: boolean;
   isPayer: boolean;
   uri: string;
   payer: string;
   payee: string;
   dueDate?: Date;
+  moduleData: EscrowModuleData | DirectPayModuleData;
 }
 
 const convertExponent = (amountExact: number) => {
@@ -105,18 +109,14 @@ export const useCheqs = ({ cheqField }: Props) => {
         (gqlCheq: any) =>
           BigInt(gqlCheq.amount) > 0 || BigInt(gqlCheq.instantAmount) > 0
       );
-      const { hasEscrow, fundedDate, fundedTimestamp, fundedTx } =
+      const { fundedDate, fundedTx } =
         escrowedCheqs.length > 0
           ? {
-              hasEscrow: true,
               fundedDate: new Date(Number(escrowedCheqs[0].timestamp) * 1000),
-              fundedTimestamp: Number(escrowedCheqs[0].timestamp),
               fundedTx: escrowedCheqs[0].transaction.id,
             }
           : {
-              hasEscrow: false,
               fundedDate: null,
-              fundedTimestamp: 0,
               fundedTx: null,
             };
 
@@ -134,6 +134,48 @@ export const useCheqs = ({ cheqField }: Props) => {
 
       if (gqlCheq.moduleData.dueDate) {
         dueDate = new Date(Number(gqlCheq.moduleData.dueDate) * 1000);
+      }
+
+      let moduleData: EscrowModuleData | DirectPayModuleData;
+
+      if (gqlCheq.moduleData.__typename === "DirectPayData") {
+        const status = gqlCheq.moduleData.status;
+        let viewerStatus: DirectPayStatus = "awaiting_payment";
+        if (status === "AWAITING_PAYMENT") {
+          if (payer) {
+            viewerStatus = "payable";
+          } else {
+            viewerStatus = "awaiting_payment";
+          }
+        } else {
+          viewerStatus = "paid";
+        }
+        moduleData = { module: "direct", status: viewerStatus };
+      } else if (gqlCheq.moduleData.__typename === "ReversiblePaymentData") {
+        const status = gqlCheq.moduleData.status;
+        let viewerStatus: EscrowStatus = "awaiting_escrow";
+        switch (status) {
+          case "AWAITING_ESCROW":
+            if (payer) {
+              viewerStatus = "payable";
+            } else {
+              viewerStatus = "awaiting_escrow";
+            }
+            break;
+          case "AWAITING_RELEASE":
+            if (payer) {
+              viewerStatus = "payable";
+            } else {
+              viewerStatus = "awaiting_escrow";
+            }
+            break;
+          case "RELEASED":
+            viewerStatus = "released";
+            break;
+          case "VOIDED":
+            viewerStatus = "voided";
+        }
+        moduleData = { module: "escrow", status: viewerStatus };
       }
 
       return {
@@ -158,12 +200,12 @@ export const useCheqs = ({ cheqField }: Props) => {
               }
             : null,
         isInvoice,
-        isPaid: hasEscrow,
         uri: gqlCheq.uri,
         isPayer,
         payer,
         payee,
         dueDate,
+        moduleData,
       };
     },
     [blockchainState.account, currencyForTokenId]
@@ -192,6 +234,7 @@ export const useCheqs = ({ cheqField }: Props) => {
       moduleData {
         ... on DirectPayData {
           __typename
+          status
           amount
           creditor {
             id
@@ -203,6 +246,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         }
         ... on ReversiblePaymentData {
           __typename
+          status
           amount
           creditor {
             id
