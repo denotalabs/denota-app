@@ -35,12 +35,10 @@ dataSources:
           handler: handleWrite
         - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
           handler: handleFund
+        - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256,uint256)
+          handler: handleCash
         # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
         #   handler: handleTransfer
-        # - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
-        #   handler: handleFund
-        # - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256,uint256)
-        #   handler: handleCash
       file: mapping.ts
   - kind: ethereum/contract
     name: DirectPay
@@ -69,4 +67,32 @@ dataSources:
       eventHandlers:
         - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
+      file: mapping.ts
+  - kind: ethereum/contract
+    name: ReversibleRelease
+    network: {{network}}
+    source:
+      address: "{{escrow}}"
+      abi: ReversibleRelease
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Cheq  # Cheqs
+        - Transfer  # Write/Transfers
+        - Escrow  # Fund/Cash
+        - ERC20  # ERC20s that have interacted with the protocol
+        - Account  # Accounts that have interacted with CheqRegistrar
+        - DirectSend  # Payment modules
+        - DirectPayModule
+        - DirectPayData
+        # - DirectPayData
+      abis:
+        - name: ReversibleRelease
+          file: ../frontend-abi/ReversibleRelease.sol/ReversibleRelease.json
+      eventHandlers:
+        - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address)
+          handler: handleReversiblePayment
       file: mapping.ts

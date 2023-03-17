@@ -115,6 +115,11 @@ interface ModuleData {
     id: ID!
 } 
 
+enum DirectPayStatus {
+  AWAITING_PAYMENT
+  PAID
+}
+
 type DirectPayData implements ModuleData @entity {
   id: ID!
   amount: BigInt!
@@ -122,6 +127,24 @@ type DirectPayData implements ModuleData @entity {
   debtor: Account!
   memo: Bytes!
   dueDate: BigInt!
+  status: DirectPayStatus
+}
+
+enum EscrowStatus {
+  AWAITING_ESCROW
+  AWAITING_RELEASE
+  RELEASED
+  VOIDED
+}
+
+type ReversiblePaymentData implements ModuleData @entity {
+  id: ID!
+  amount: BigInt!
+  creditor: Account!
+  debtor: Account!
+  memo: Bytes!
+  dueDate: BigInt!
+  status: EscrowStatus
 }
 
 interface Module {  # Allows new modules to inherit from Module interface

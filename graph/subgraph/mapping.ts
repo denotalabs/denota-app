@@ -1,8 +1,7 @@
 // import { fetchERC20, fetchERC20Balance, fetchERC20Approval } from "@openzeppelin/subgraphs/src/fetch/erc20"
-import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { Transfer as TransferEvent } from "../subgraph/generated/CheqRegistrar/CheqRegistrar"; // Events to import
-import { Cashed as CashedEvent } from "../subgraph/generated/Events/Events"; // Events to import
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
+  Cashed as CashedEvent,
   Funded as FundedEvent,
   Written as WrittenEvent,
 } from "../subgraph/generated/Events/Registrar";
@@ -12,11 +11,14 @@ import {
   DirectPayData,
   ERC20,
   Escrow,
+  ReversiblePaymentData,
   Transaction,
-  Transfer,
 } from "../subgraph/generated/schema"; // Entities that contain the event info
 
-import { PaymentCreated as PaymentCreatedEvent } from "../subgraph/generated/DirectPay/DirectPay";
+import { PaymentCreated as DirectPaymentCreatedEvent } from "../subgraph/generated/DirectPay/DirectPay";
+
+import { PaymentCreated as ReversiblePaymentCreatedEvent } from "../subgraph/generated/ReversibleRelease/ReversibleRelease";
+
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
   newAccount.save();
@@ -74,6 +76,26 @@ export function handleWrite(event: WrittenEvent): void {
     cheq.module = event.params.module.toHexString();
     cheq.escrowed = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
     cheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
+
+    if (cheq.moduleData?.endsWith("/direct")) {
+      const directPayData = DirectPayData.load(cheq.moduleData);
+      if (directPayData) {
+        if (cheqEscrowed > BigInt.fromI32(0)) {
+          directPayData.status = "PAID";
+        } else {
+          directPayData.status = "AWAITING_PAYMENT";
+        }
+      }
+    } else if (cheq.moduleData?.endsWith("/escrow")) {
+      const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+      if (reversiblePayData) {
+        if (cheqEscrowed > BigInt.fromI32(0)) {
+          reversiblePayData.status = "AWAITING_RELEASE";
+        } else {
+          reversiblePayData.status = "AWAITING_ESCROW";
+        }
+      }
+    }
     cheq.save();
   }
 
@@ -88,7 +110,7 @@ export function handleWrite(event: WrittenEvent): void {
   escrow.save();
 }
 
-export function handleDirectPayment(event: PaymentCreatedEvent): void {
+export function handleDirectPayment(event: DirectPaymentCreatedEvent): void {
   const sender = event.transaction.from.toHexString();
   const creditor = event.params.creditor.toHexString();
   const debtor = event.params.debtor.toHexString();
@@ -124,48 +146,41 @@ export function handleDirectPayment(event: PaymentCreatedEvent): void {
   newCheq.save();
 }
 
-// TODO: Transfer event being fired before write event is causing problems
-export function handleTransfer(event: TransferEvent): void {
-  // Load event params
-  const from = event.params.from.toHexString();
-  const to = event.params.to.toHexString();
-  const cheqId = event.params.tokenId.toHexString();
-  const transactionHexHash = event.transaction.hash.toHex();
-  // Load from and to Accounts
-  let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
-  let toAccount = Account.load(to);
-  fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
-  toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
-  // Load Cheq
-  let cheq = Cheq.load(cheqId); // Write event fires before Transfer event: cheq should exist
-  if (cheq == null) {
-    // SHOULDN'T BE THE CASE
-    cheq = new Cheq(cheqId);
-    cheq.save();
+export function handleReversiblePayment(
+  event: ReversiblePaymentCreatedEvent
+): void {
+  const sender = event.transaction.from.toHexString();
+  const creditor = event.params.creditor.toHexString();
+  const debtor = event.params.debtor.toHexString();
+
+  let creditorAccount = Account.load(creditor);
+  let debtorAccount = Account.load(debtor);
+  creditorAccount =
+    creditorAccount == null ? saveNewAccount(creditor) : creditorAccount;
+  debtorAccount =
+    debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
+
+  const cheqId = event.params.cheqId.toString();
+
+  const reversibleRelease = new ReversiblePaymentData(cheqId + "/escrow");
+  reversibleRelease.creditor = creditorAccount.id;
+  reversibleRelease.debtor = debtorAccount.id;
+  reversibleRelease.amount = event.params.amount;
+  reversibleRelease.save();
+
+  const newCheq = new Cheq(cheqId);
+  const cheqTimestamp = event.block.timestamp;
+  newCheq.timestamp = cheqTimestamp;
+  newCheq.createdAt = cheqTimestamp;
+  newCheq.uri = event.params.memoHash.toString();
+  if (sender == creditor) {
+    newCheq.receiver = debtorAccount.id;
+  } else {
+    newCheq.receiver = creditorAccount.id;
   }
-  // Update accounts' cheq balances
-  if (event.params.from != Address.zero()) {
-    fromAccount.numCheqsOwned = fromAccount.numCheqsSent.minus(
-      BigInt.fromI32(1)
-    );
-    fromAccount.save();
-  }
-  toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
-  toAccount.save();
-  const transaction = saveTransaction(
-    transactionHexHash,
-    cheqId,
-    event.block.timestamp,
-    event.block.number
-  );
-  const transfer = new Transfer(transactionHexHash + "/" + cheqId);
-  transfer.emitter = fromAccount.id;
-  transfer.transaction = transactionHexHash;
-  transfer.timestamp = event.block.timestamp;
-  transfer.cheq = cheqId;
-  transfer.from = fromAccount.id;
-  transfer.to = toAccount.id;
-  transfer.save();
+  newCheq.sender = sender;
+  newCheq.moduleData = reversibleRelease.id;
+  newCheq.save();
 }
 
 export function handleFund(event: FundedEvent): void {
@@ -193,6 +208,18 @@ export function handleFund(event: FundedEvent): void {
     event.block.timestamp,
     event.block.number
   );
+
+  if (cheq.moduleData?.endsWith("/direct")) {
+    const directPayData = DirectPayData.load(cheq.moduleData);
+    if (directPayData) {
+      directPayData.status = "PAID";
+    }
+  } else if (cheq.moduleData?.endsWith("/escrow")) {
+    const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+    if (reversiblePayData) {
+      reversiblePayData.status = "AWAITING_RELEASE";
+    }
+  }
 
   const escrow = new Escrow(transactionHexHash + "/" + cheqId);
   escrow.emitter = fromAccount.id;
@@ -232,6 +259,17 @@ export function handleCash(event: CashedEvent): void {
     event.block.number
   );
 
+  if (cheq.moduleData?.endsWith("/escrow")) {
+    const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+    if (reversiblePayData) {
+      if (cheq.owner === toAccount.id) {
+        reversiblePayData.status = "RELEASED";
+      } else {
+        reversiblePayData.status = "VOIDED";
+      }
+    }
+  }
+
   const escrow = new Escrow(transactionHexHash + "/" + cheqId);
   escrow.emitter = toAccount.id;
   escrow.transaction = transactionHexHash;
@@ -241,6 +279,50 @@ export function handleCash(event: CashedEvent): void {
   escrow.amount = amount.neg(); // TODO may need more general differentiation of Cashing/Funding
   escrow.save();
 }
+
+// TODO: Transfer event being fired before write event is causing problems
+// export function handleTransfer(event: TransferEvent): void {
+//   // Load event params
+//   const from = event.params.from.toHexString();
+//   const to = event.params.to.toHexString();
+//   const cheqId = event.params.tokenId.toHexString();
+//   const transactionHexHash = event.transaction.hash.toHex();
+//   // Load from and to Accounts
+//   let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
+//   let toAccount = Account.load(to);
+//   fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
+//   toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
+//   // Load Cheq
+//   let cheq = Cheq.load(cheqId); // Write event fires before Transfer event: cheq should exist
+//   if (cheq == null) {
+//     // SHOULDN'T BE THE CASE
+//     cheq = new Cheq(cheqId);
+//     cheq.save();
+//   }
+//   // Update accounts' cheq balances
+//   if (event.params.from != Address.zero()) {
+//     fromAccount.numCheqsOwned = fromAccount.numCheqsSent.minus(
+//       BigInt.fromI32(1)
+//     );
+//     fromAccount.save();
+//   }
+//   toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
+//   toAccount.save();
+//   const transaction = saveTransaction(
+//     transactionHexHash,
+//     cheqId,
+//     event.block.timestamp,
+//     event.block.number
+//   );
+//   const transfer = new Transfer(transactionHexHash + "/" + cheqId);
+//   transfer.emitter = fromAccount.id;
+//   transfer.transaction = transactionHexHash;
+//   transfer.timestamp = event.block.timestamp;
+//   transfer.cheq = cheqId;
+//   transfer.from = fromAccount.id;
+//   transfer.to = toAccount.id;
+//   transfer.save();
+// }
 
 // export function handleWhitelist(event: ModuleWhitelisted): void {
 //   const module = event.params.module;

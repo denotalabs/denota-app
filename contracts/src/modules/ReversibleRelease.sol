@@ -20,6 +20,16 @@ contract ReversibleRelease is ModuleBase {
     }
     mapping(uint256 => Payment) public payInfo;
 
+    event PaymentCreated(
+        uint256 cheqId,
+        string memoHash,
+        uint256 amount,
+        uint256 timestamp,
+        address referer,
+        address creditor,
+        address debtor
+    );
+
     error OnlyOwner();
     error AmountZero();
     error Disallowed();
@@ -79,7 +89,24 @@ contract ReversibleRelease is ModuleBase {
         payInfo[cheqId].memoHash = memoHash;
         payInfo[cheqId].imageURI = imageURI;
 
+        _logPaymentCreated(cheqId, dappOperator);
+
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+    }
+
+    function _logPaymentCreated(
+        uint256 cheqId,
+        address referer
+    ) private {
+        emit PaymentCreated(
+            cheqId,
+            payInfo[cheqId].memoHash,
+            payInfo[cheqId].amount,
+            block.timestamp,
+            referer,
+            payInfo[cheqId].creditor,
+            payInfo[cheqId].debtor
+        );
     }
 
     function processTransfer(

@@ -106,7 +106,7 @@ if __name__ == "__main__":
     direct_pay = existing_addresses[chain]["directPay"]
 
   if not existing_addresses[chain]["escrow"]:
-    Escrow_path = "src/contracts/modules/ReversableTimelock.sol:ReversableTimelock"
+    Escrow_path = "src/modules/ReversibleRelease.sol:ReversibleRelease"
     result = eth_call(f'forge create {Escrow_path} --constructor-args {registrar} {con_args} "ipfs://" {rpc_key_flags}', "Module deployment failed")
     escrow = extract_address(result.stdout)
     existing_addresses[chain]["escrow"] = escrow

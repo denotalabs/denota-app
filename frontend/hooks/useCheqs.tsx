@@ -23,6 +23,16 @@ export interface CheqTransaction {
   hash: string;
 }
 
+export type DirectPayStatus = "paid" | "awaiting_payment" | "payable";
+
+export type EscrowStatus =
+  | "voided"
+  | "released"
+  | "awaiting_release"
+  | "releasable"
+  | "awaiting_escrow"
+  | "payable";
+
 export interface Cheq {
   id: string;
   amount: number;
@@ -181,6 +191,18 @@ export const useCheqs = ({ cheqField }: Props) => {
       }
       moduleData {
         ... on DirectPayData {
+          __typename
+          amount
+          creditor {
+            id
+          }
+          debtor {
+            id
+          }
+          dueDate
+        }
+        ... on ReversiblePaymentData {
+          __typename
           amount
           creditor {
             id
