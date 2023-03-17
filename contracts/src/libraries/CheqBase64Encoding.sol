@@ -238,22 +238,13 @@ contract CheqBase64Encoding {
                     encode(
                         bytes(
                             abi.encodePacked(
-                                '{"attributes":',
-                                "[",
-                                '{"trait_type": "Currency",',
-                                '"value":"',
+                                '{"attributes":[{"trait_type":"Currency","value":"',
                                 currency,
-                                '"}',
-                                ',{"trait_type": "Escrowed",',
-                                '"display_type": "number",',
-                                '"value":',
+                                '"},{"trait_type":"Escrowed","display_type":"number","value":',
                                 escrowed,
-                                "}",
-                                ',{"trait_type": "Module",',
-                                '"value":"',
+                                '},{"trait_type": "Module","value":"',
                                 module,
-                                '"}',
-                                "]",
+                                '"}]',
                                 _tokenData,
                                 '"}'
                             )

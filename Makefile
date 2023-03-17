@@ -79,3 +79,8 @@ graph-deploy-remote-alfajores:
 	cd graph && GRAPH_CHAIN=alfajores npm run prepare
 	cd graph && npm run create-remote
 	cd graph && npm run deploy-remote
+
+ graph-deploy-remote:
+	npm run graph-prepare
+	npm run graph-create-remote
+	npm run graph-ship-remote

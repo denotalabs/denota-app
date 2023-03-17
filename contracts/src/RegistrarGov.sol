@@ -87,7 +87,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     ) external onlyOwner {
         // Whitelist for safety, modules can be more restrictive
         _tokenWhitelist[_token] = accepted;
-        _moduleName[_token] = tokenName;
+        _tokenName[_token] = tokenName;
         emit Events.TokenWhitelisted(
             _msgSender(),
             _token,
