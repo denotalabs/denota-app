@@ -147,6 +147,6 @@ abstract contract URIUpdater is ModuleBase {
 }
 
 /// @notice write a cheq (to the zero address?) and the winner of a game (or other bet) gets to transfer to themselves and cash
-abstract contract BoolRelease is ModuleBase {
+abstract contract OracleRelease is ModuleBase {
 
 }

@@ -45,10 +45,9 @@ export const useDirectPay = () => {
         ["address", "uint256", "uint256", "address", "string", "string"],
         [address, amountWei, dueTimestamp, blockchainState.account, "", noteKey]
       );
-
       const msgValue =
         tokenAddress === "0x0000000000000000000000000000000000000000" &&
-        !isInvoice
+          !isInvoice
           ? instantWei
           : BigNumber.from(0);
 

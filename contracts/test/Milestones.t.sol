@@ -1,12 +1,12 @@
-// // // SPDX-License-Identifier: BUSL-1.1
-// pragma solidity ^0.8.16;
+// // SPDX-License-Identifier: BUSL-1.1
+pragma solidity ^0.8.16;
 
 // import "./mock/erc20.sol";
 // import "forge-std/Test.sol";
 // import "forge-std/console.sol";
-// import {CheqRegistrar} from "../src/CheqRegistrar.sol";
-// import {DataTypes} from "../src/libraries/DataTypes.sol";
-// import {Milestones} from "../src/modules/Milestones.sol";
+// import {CheqRegistrar} from "../contracts/CheqRegistrar.sol";
+// import {DataTypes} from "../contracts/libraries/DataTypes.sol";
+// import {Milestones} from "../contracts/modules/Milestones.sol";
 
 // // TODO add fail tests
 // contract MilestonesTest is Test {
@@ -537,41 +537,41 @@
 
 //     //     bytes memory cashData =  abi.encode(bytes32(""));
 //     //     vm.prank(owner);
-//     //     REGISTRAR.cash(cheqId, amount, owner, cashData);
-//     // }
+//     // REGISTRAR.cash(cheqId, amount, owner, cashData);
+// }
 // }
 
-// // function testTransferPay(address caller, uint256 amount, address recipient) public {
-// //     vm.assume(amount != 0 && amount <= tokensCreated);
-// //     (address drawer, uint256 directAmount, address owner) = (caller, amount, recipient);
-// //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
-// //     vm.assume(drawer != recipient);
+// function testTransferPay(address caller, uint256 amount, address recipient) public {
+//     vm.assume(amount != 0 && amount <= tokensCreated);
+//     (address drawer, uint256 directAmount, address owner) = (caller, amount, recipient);
+//     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+//     vm.assume(drawer != recipient);
 
-// //     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
-// //     vm.expectRevert(bytes("Rule: Disallowed"));
-// //     REGISTRAR.transferFrom(owner, drawer, cheqId);
-// // }
+//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
+//     vm.expectRevert(bytes("Rule: Disallowed"));
+//     REGISTRAR.transferFrom(owner, drawer, cheqId);
+// }
 
-// // function testTransferInvoice(address caller, uint256 amount, address recipient) public {
-// //     vm.assume(amount != 0 && amount <= tokensCreated);
-// //     (address drawer, uint256 directAmount, address owner) = (caller, amount, caller);
-// //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
-// //     vm.assume(drawer != recipient);
+// function testTransferInvoice(address caller, uint256 amount, address recipient) public {
+//     vm.assume(amount != 0 && amount <= tokensCreated);
+//     (address drawer, uint256 directAmount, address owner) = (caller, amount, caller);
+//     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+//     vm.assume(drawer != recipient);
 
-// //     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
-// //     vm.expectRevert(bytes("Rule: Disallowed"));
-// //     REGISTRAR.transferFrom(owner, drawer, cheqId);
-// // }
+//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
+//     vm.expectRevert(bytes("Rule: Disallowed"));
+//     REGISTRAR.transferFrom(owner, drawer, cheqId);
+// }
 
-// // function testFundPay(address caller, uint256 amount, address drawer, address recipient) public {
-// //     vm.assume(amount != 0 && amount <= tokensCreated);
-// //     (address drawer, uint256 escrowed, address owner) = (caller, amount, caller);
-// //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
-// //     vm.assume(drawer != recipient);
+// function testFundPay(address caller, uint256 amount, address drawer, address recipient) public {
+//     vm.assume(amount != 0 && amount <= tokensCreated);
+//     (address drawer, uint256 escrowed, address owner) = (caller, amount, caller);
+//     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
+//     vm.assume(drawer != recipient);
 
-// //     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
-// //     bytes memory fundData =  abi.encode(bytes32(""));
+//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+//     bytes memory fundData =  abi.encode(bytes32(""));
 
-// //     vm.expectRevert(bytes("Rule: Only recipient"));
-// //     REGISTRAR.fund(cheqId, 0, amount, fundData);
-// // }
+//     vm.expectRevert(bytes("Rule: Only recipient"));
+//     REGISTRAR.fund(cheqId, 0, amount, fundData);
+// }

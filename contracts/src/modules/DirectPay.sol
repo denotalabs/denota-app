@@ -79,25 +79,24 @@ contract DirectPay is ModuleBase {
             if (instant != 0) revert InvoiceWithPay();
             payInfo[cheqId].creditor = caller;
             payInfo[cheqId].debtor = toNotify;
+            payInfo[cheqId].amount = amount;
         } else if (owner == toNotify) // Payment
         {
-            if (instant != amount) revert InsufficientPayment();
             if (owner == address(0)) revert AddressZero();
             payInfo[cheqId].creditor = toNotify;
             payInfo[cheqId].debtor = caller;
+            payInfo[cheqId].amount = instant;
             payInfo[cheqId].wasPaid = true;
         } else {
             revert Disallowed();
         }
-
-        payInfo[cheqId].amount = amount;
         // payInfo[cheqId].timestamp = timestamp;
         payInfo[cheqId].memoHash = memoHash;
         payInfo[cheqId].imageURI = imageURI;
 
         _logPaymentCreated(cheqId, dappOperator, dueDate);
 
-        return takeReturnFee(currency, escrowed + amount, dappOperator, 0);
+        return takeReturnFee(currency, instant, dappOperator, 0);
     }
 
     function _logPaymentCreated(
@@ -188,9 +187,9 @@ contract DirectPay is ModuleBase {
         return
             string(
                 abi.encodePacked(
-                    ',"external_url":',
+                    ',"external_url":"',
                     abi.encodePacked(_URI, payInfo[tokenId].memoHash),
-                    ',"image":',
+                    '","image":"',
                     payInfo[tokenId].imageURI
                 )
             );
