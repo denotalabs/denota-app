@@ -32,8 +32,6 @@ import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
-export type CheqType = "invoice" | "escrow";
-
 interface Props {
   cheq: Cheq;
 }
