@@ -5,6 +5,7 @@ import Head from "next/head";
 import SidebarNav from "../components/nav/SidebarNav";
 import { BlockchainDataProvider } from "../context/BlockchainDataProvider";
 import { CheqsProvider } from "../context/CheqsContext";
+import GoogleAnalytics from "../context/GoogleAnalytics";
 import customTheme from "../theme";
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -17,6 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           content="Supercharged web3 pay for the future of work"
         />
       </Head>
+      <GoogleAnalytics measurementId="G-RX5F5Q2B8D" />
       <ChakraProvider theme={customTheme} resetCSS={true}>
         <BlockchainDataProvider>
           <CheqsProvider>
