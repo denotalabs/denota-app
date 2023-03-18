@@ -173,7 +173,11 @@ export function handleReversiblePayment(
   reversibleRelease.creditor = creditorAccount.id;
   reversibleRelease.debtor = debtorAccount.id;
   reversibleRelease.amount = event.params.amount;
-  reversibleRelease.isSelfSigned = debtorAccount.id === inspectorAccount.id;
+  if (debtor == inspector) {
+    reversibleRelease.isSelfSigned = true;
+  } else {
+    reversibleRelease.isSelfSigned = false;
+  }
   reversibleRelease.save();
 
   const newCheq = new Cheq(cheqId);

@@ -19,12 +19,9 @@ type Account @entity {
   # TODO need to query every new user's token balances for future modules that may depend on token balance logic
   # ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
   cheqsOwned: [Cheq!]! @derivedFrom(field: "owner")
-  numCheqsOwned: BigInt!
 
   cheqsSent: [Cheq!]! @derivedFrom(field: "sender")
-  numCheqsSent: BigInt!
   cheqsReceived: [Cheq!]! @derivedFrom(field: "receiver")
-  numCheqsReceived: BigInt!
   cheqsInspected: [Cheq!]! @derivedFrom(field: "inspector")
 
   transfersFrom: [Transfer!]! @derivedFrom(field: "from")
@@ -96,7 +93,7 @@ type Cheq @entity {
   sender: Account
   receiver: Account
   moduleData: ModuleData!
-  transaction: Transaction!
+  transaction: Transaction
   inspector: Account
 }
 

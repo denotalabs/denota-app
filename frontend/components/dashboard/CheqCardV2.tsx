@@ -22,6 +22,7 @@ import {
   MdOutlineDoneAll,
   MdOutlineHourglassEmpty,
 } from "react-icons/md";
+import { useCashCheq } from "../../hooks/useCashCheq";
 import { Cheq } from "../../hooks/useCheqs";
 import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
@@ -125,9 +126,29 @@ function CheqCardV2({ cheq }: Props) {
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
-  const cashCheq = useCallback(async (isVoid = false) => {
-    // TODO
-  }, []);
+  const { cashCheq } = useCashCheq();
+
+  const handleRelease = useCallback(async () => {
+    setCashingInProgress(true);
+    await cashCheq({
+      cheqId: cheq.id,
+      amountWei: cheq.amountRaw,
+      to: cheq.payee,
+      message: "Payment released",
+    });
+    setCashingInProgress(false);
+  }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payee]);
+
+  const handleVoid = useCallback(async () => {
+    setCashingInProgress(false);
+    await cashCheq({
+      cheqId: cheq.id,
+      amountWei: cheq.amountRaw,
+      to: cheq.payer,
+      message: "Payment voided",
+    });
+    setCashingInProgress(false);
+  }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payer]);
 
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
@@ -215,20 +236,8 @@ function CheqCardV2({ cheq }: Props) {
                     Options {cashingInProgress ? <Spinner size="xs" /> : null}
                   </MenuButton>
                   <MenuList alignItems={"center"}>
-                    <MenuItem
-                      onClick={() => {
-                        cashCheq(false);
-                      }}
-                    >
-                      Release
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        cashCheq(true);
-                      }}
-                    >
-                      Void
-                    </MenuItem>
+                    <MenuItem onClick={handleRelease}>Release</MenuItem>
+                    <MenuItem onClick={handleVoid}>Void</MenuItem>
                   </MenuList>
                 </Menu>
               ) : null}

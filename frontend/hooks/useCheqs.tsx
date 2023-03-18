@@ -135,7 +135,8 @@ export const useCheqs = ({ cheqField }: Props) => {
 
       const isPayer = payer === blockchainState.account.toLowerCase();
 
-      const isInspector = gqlCheq.inspector?.id === blockchainState.account;
+      const isInspector =
+        gqlCheq.inspector?.id === blockchainState.account.toLowerCase();
 
       let dueDate: Date | undefined = undefined;
 
