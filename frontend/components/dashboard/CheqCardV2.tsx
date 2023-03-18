@@ -6,12 +6,17 @@ import {
   Flex,
   GridItem,
   HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Spinner,
   Text,
   Tooltip,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   MdOutlineAttachMoney,
   MdOutlineDoneAll,
@@ -117,6 +122,13 @@ function CheqCardV2({ cheq }: Props) {
   const gradient = generateCheqGradient(cheq);
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
+
+  const [cashingInProgress, setCashingInProgress] = useState(false);
+
+  const cashCheq = useCallback(async (isVoid = false) => {
+    // TODO
+  }, []);
+
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
       <VStack
@@ -196,6 +208,29 @@ function CheqCardV2({ cheq }: Props) {
                 >
                   Pay
                 </Button>
+              ) : null}
+              {cheq.moduleData.status === "releasable" ? (
+                <Menu>
+                  <MenuButton disabled={cashingInProgress} as={Button} minW={0}>
+                    Options {cashingInProgress ? <Spinner size="xs" /> : null}
+                  </MenuButton>
+                  <MenuList alignItems={"center"}>
+                    <MenuItem
+                      onClick={() => {
+                        cashCheq(false);
+                      }}
+                    >
+                      Release
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        cashCheq(true);
+                      }}
+                    >
+                      Void
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
               ) : null}
               <Button
                 variant="outline"
