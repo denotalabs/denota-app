@@ -35,8 +35,8 @@ dataSources:
           handler: handleWrite
         - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256)
           handler: handleFund
-        # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
-        #   handler: handleTransfer
+        - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256)
+          handler: handleCash
       file: mapping.ts
   - kind: ethereum/contract
     name: DirectPay

@@ -243,7 +243,7 @@ export function handleFund(event: FundedEvent): void {
       directPayData.status = "PAID";
       directPayData.fundedTransaction = transaction.id;
       directPayData.fundedTimestamp = event.block.timestamp;
-      directPayData.save;
+      directPayData.save();
     }
   } else if (cheq.moduleData.endsWith("/escrow")) {
     const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
@@ -293,10 +293,10 @@ export function handleCash(event: CashedEvent): void {
     event.block.number
   );
 
-  if (cheq.moduleData && cheq.moduleData.endsWith("/escrow")) {
+  if (cheq.moduleData.endsWith("/escrow")) {
     const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
     if (reversiblePayData) {
-      if (cheq.owner === toAccount.id) {
+      if (cheq.owner == toAccount.id) {
         reversiblePayData.status = "RELEASED";
       } else {
         reversiblePayData.status = "VOIDED";
