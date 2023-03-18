@@ -26,11 +26,15 @@
     "typescript": "^4.7.4",
     "uuid": "^9.0.0"
   },
-  "scripts": {},
+  "scripts": {
+    "start:email": "forever start send_email/send_email.mjs",
+    "start:storage": "forever start metadata_upload/nft_storage.mjs"
+  },
   "devDependencies": {
     "@types/mime": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
-    "eslint": "^8.19.0"
+    "eslint": "^8.19.0",
+    "forever": "^4.0.3"
   }
 }
