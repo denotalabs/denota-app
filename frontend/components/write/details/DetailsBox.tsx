@@ -65,7 +65,12 @@ function DetailsBox({ isInvoice, token, mode }: Props) {
             <FormLabel>Amount</FormLabel>
             <AmountField token={token} mode={mode} />
           </FormControl>
-          <AccountField fieldName="address" placeholder="0x" />
+          <FormControl>
+            <FormLabel noOfLines={1} flexShrink={0}>
+              Client Address
+            </FormLabel>
+            <AccountField fieldName="address" placeholder="0x" />
+          </FormControl>
         </Flex>
       </Flex>
     </RoundedBox>

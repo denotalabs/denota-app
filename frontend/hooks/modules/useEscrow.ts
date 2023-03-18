@@ -9,6 +9,7 @@ interface Props {
   escrowedWei: BigNumber;
   noteKey: string;
   isInvoice: boolean;
+  inspector?: string;
 }
 
 export const useEscrow = () => {
@@ -22,18 +23,36 @@ export const useEscrow = () => {
       escrowedWei,
       noteKey,
       isInvoice,
+      inspector,
     }: Props) => {
+      const debtor = isInvoice ? address : blockchainState.account;
+      const notaInspector = inspector ?? debtor;
+
       const payload = ethers.utils.defaultAbiCoder.encode(
-        ["address", "uint256", "uint256", "address", "string", "uint256"],
-        [address, amountWei, 0, blockchainState.account, noteKey]
+        ["address", "address", "address", "uint256", "string", "string"],
+        [
+          address,
+          notaInspector,
+          blockchainState.account,
+          amountWei,
+          noteKey,
+          "",
+        ]
       );
+      const msgValue =
+        tokenAddress === "0x0000000000000000000000000000000000000000" &&
+        !isInvoice
+          ? escrowedWei
+          : BigNumber.from(0);
+
       const tx = await blockchainState.cheq?.write(
-        tokenAddress,
-        0,
-        escrowedWei,
-        isInvoice ? blockchainState.account : address,
-        blockchainState.escrowAddress,
-        payload
+        tokenAddress, //currency
+        escrowedWei, //escrowed
+        0, //instant
+        isInvoice ? blockchainState.account : address, //owner
+        blockchainState.escrowAddress, //module
+        payload, //moduleWriteData
+        { value: msgValue }
       );
       const receipt = await tx.wait();
       return receipt.transactionHash;

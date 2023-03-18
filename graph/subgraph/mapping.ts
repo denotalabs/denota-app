@@ -1,8 +1,6 @@
-// import { fetchERC20, fetchERC20Balance, fetchERC20Approval } from "@openzeppelin/subgraphs/src/fetch/erc20"
-import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { Transfer as TransferEvent } from "../subgraph/generated/CheqRegistrar/CheqRegistrar"; // Events to import
-import { Cashed as CashedEvent } from "../subgraph/generated/Events/Events"; // Events to import
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
+  Cashed as CashedEvent,
   Funded as FundedEvent,
   Written as WrittenEvent,
 } from "../subgraph/generated/Events/Registrar";
@@ -12,11 +10,14 @@ import {
   DirectPayData,
   ERC20,
   Escrow,
+  ReversiblePaymentData,
   Transaction,
-  Transfer,
-} from "../subgraph/generated/schema"; // Entities that contain the event info
+} from "../subgraph/generated/schema";
 
-import { PaymentCreated as PaymentCreatedEvent } from "../subgraph/generated/DirectPay/DirectPay";
+import { PaymentCreated as DirectPaymentCreatedEvent } from "../subgraph/generated/DirectPay/DirectPay";
+
+import { PaymentCreated as ReversiblePaymentCreatedEvent } from "../subgraph/generated/ReversibleRelease/ReversibleRelease";
+
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
   newAccount.save();
@@ -53,12 +54,12 @@ export function handleWrite(event: WrittenEvent): void {
   let owningAccount = Account.load(owner);
   let ERC20Token = ERC20.load(currency);
   if (ERC20Token == null) {
-    ERC20Token = new ERC20(currency); // Query it's symbol and decimals here?
+    ERC20Token = new ERC20(currency);
     ERC20Token.save();
   }
 
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
-  const cheqId = event.params.cheqId.toString(); // let [currency, amount, escrowed, drawer, recipient, module, mintTimestamp] = event.params.cheq;
+  const cheqId = event.params.cheqId.toString();
   const cheq = Cheq.load(cheqId);
   const cheqEscrowed = event.params.escrowed;
 
@@ -70,16 +71,43 @@ export function handleWrite(event: WrittenEvent): void {
   );
 
   if (cheq) {
+    cheq.createdTransaction = transaction.id;
     cheq.erc20 = ERC20Token.id;
     cheq.module = event.params.module.toHexString();
-    cheq.escrowed = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
-    cheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
+    cheq.escrowed = cheqEscrowed;
+    cheq.owner = owningAccount.id;
+
+    if (cheq.moduleData && cheq.moduleData.endsWith("/direct")) {
+      const directPayData = DirectPayData.load(cheq.moduleData);
+      if (directPayData) {
+        if (event.params.instant > BigInt.fromI32(0)) {
+          directPayData.status = "PAID";
+          directPayData.fundedTransaction = transaction.id;
+          directPayData.fundedTimestamp = event.block.timestamp;
+        } else {
+          directPayData.status = "AWAITING_PAYMENT";
+        }
+        directPayData.save();
+      }
+    } else if (cheq.moduleData && cheq.moduleData.endsWith("/escrow")) {
+      const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+      if (reversiblePayData) {
+        if (cheqEscrowed > BigInt.fromI32(0)) {
+          reversiblePayData.status = "AWAITING_RELEASE";
+          reversiblePayData.fundedTransaction = transaction.id;
+          reversiblePayData.fundedTimestamp = event.block.timestamp;
+        } else {
+          reversiblePayData.status = "AWAITING_ESCROW";
+        }
+        reversiblePayData.save();
+      }
+    }
     cheq.save();
   }
 
-  const escrow = new Escrow(transactionHexHash + "/" + cheqId); // How OZ does IDs entities that implements Event?
+  const escrow = new Escrow(transactionHexHash + "/" + cheqId);
   escrow.emitter = event.transaction.from.toHexString();
-  escrow.transaction = transaction.id; // TODO How OZ does it, how does it work?
+  escrow.transaction = transaction.id;
   escrow.timestamp = event.block.timestamp;
   escrow.cheq = event.params.cheqId.toString();
   escrow.from = event.transaction.from.toHexString();
@@ -88,7 +116,7 @@ export function handleWrite(event: WrittenEvent): void {
   escrow.save();
 }
 
-export function handleDirectPayment(event: PaymentCreatedEvent): void {
+export function handleDirectPayment(event: DirectPaymentCreatedEvent): void {
   const sender = event.transaction.from.toHexString();
   const creditor = event.params.creditor.toHexString();
   const debtor = event.params.debtor.toHexString();
@@ -107,6 +135,11 @@ export function handleDirectPayment(event: PaymentCreatedEvent): void {
   directPay.debtor = debtorAccount.id;
   directPay.amount = event.params.amount;
   directPay.dueDate = event.params.dueDate;
+  if (sender == creditor) {
+    directPay.isInvoice = true;
+  } else {
+    directPay.isInvoice = false;
+  }
   directPay.save();
 
   const newCheq = new Cheq(cheqId);
@@ -124,48 +157,57 @@ export function handleDirectPayment(event: PaymentCreatedEvent): void {
   newCheq.save();
 }
 
-// TODO: Transfer event being fired before write event is causing problems
-export function handleTransfer(event: TransferEvent): void {
-  // Load event params
-  const from = event.params.from.toHexString();
-  const to = event.params.to.toHexString();
-  const cheqId = event.params.tokenId.toHexString();
-  const transactionHexHash = event.transaction.hash.toHex();
-  // Load from and to Accounts
-  let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
-  let toAccount = Account.load(to);
-  fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
-  toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
-  // Load Cheq
-  let cheq = Cheq.load(cheqId); // Write event fires before Transfer event: cheq should exist
-  if (cheq == null) {
-    // SHOULDN'T BE THE CASE
-    cheq = new Cheq(cheqId);
-    cheq.save();
+export function handleReversiblePayment(
+  event: ReversiblePaymentCreatedEvent
+): void {
+  const sender = event.transaction.from.toHexString();
+  const creditor = event.params.creditor.toHexString();
+  const debtor = event.params.debtor.toHexString();
+  const inspector = event.params.inspector.toHexString();
+
+  let creditorAccount = Account.load(creditor);
+  let debtorAccount = Account.load(debtor);
+  let inspectorAccount = Account.load(inspector);
+
+  creditorAccount =
+    creditorAccount == null ? saveNewAccount(creditor) : creditorAccount;
+  debtorAccount =
+    debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
+  inspectorAccount =
+    inspectorAccount == null ? saveNewAccount(inspector) : inspectorAccount;
+
+  const cheqId = event.params.cheqId.toString();
+
+  const reversibleRelease = new ReversiblePaymentData(cheqId + "/escrow");
+  reversibleRelease.creditor = creditorAccount.id;
+  reversibleRelease.debtor = debtorAccount.id;
+  reversibleRelease.amount = event.params.amount;
+  if (debtor == inspector) {
+    reversibleRelease.isSelfSigned = true;
+  } else {
+    reversibleRelease.isSelfSigned = false;
   }
-  // Update accounts' cheq balances
-  if (event.params.from != Address.zero()) {
-    fromAccount.numCheqsOwned = fromAccount.numCheqsSent.minus(
-      BigInt.fromI32(1)
-    );
-    fromAccount.save();
+  if (sender == creditor) {
+    reversibleRelease.isInvoice = true;
+  } else {
+    reversibleRelease.isInvoice = false;
   }
-  toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
-  toAccount.save();
-  const transaction = saveTransaction(
-    transactionHexHash,
-    cheqId,
-    event.block.timestamp,
-    event.block.number
-  );
-  const transfer = new Transfer(transactionHexHash + "/" + cheqId);
-  transfer.emitter = fromAccount.id;
-  transfer.transaction = transactionHexHash;
-  transfer.timestamp = event.block.timestamp;
-  transfer.cheq = cheqId;
-  transfer.from = fromAccount.id;
-  transfer.to = toAccount.id;
-  transfer.save();
+  reversibleRelease.save();
+
+  const newCheq = new Cheq(cheqId);
+  const cheqTimestamp = event.block.timestamp;
+  newCheq.timestamp = cheqTimestamp;
+  newCheq.createdAt = cheqTimestamp;
+  newCheq.uri = event.params.memoHash.toString();
+  if (sender == creditor) {
+    newCheq.receiver = debtorAccount.id;
+  } else {
+    newCheq.receiver = creditorAccount.id;
+  }
+  newCheq.sender = sender;
+  newCheq.moduleData = reversibleRelease.id;
+  newCheq.inspector = inspectorAccount.id;
+  newCheq.save();
 }
 
 export function handleFund(event: FundedEvent): void {
@@ -176,7 +218,6 @@ export function handleFund(event: FundedEvent): void {
       ? saveNewAccount(event.params.funder.toHexString())
       : fromAccount;
   const amount = event.params.amount;
-  // const directAmount = event.params.directAmount;
   const transactionHexHash = event.transaction.hash.toHex();
   const cheqId = event.params.cheqId.toString();
 
@@ -193,6 +234,24 @@ export function handleFund(event: FundedEvent): void {
     event.block.timestamp,
     event.block.number
   );
+
+  if (cheq.moduleData.endsWith("/direct")) {
+    const directPayData = DirectPayData.load(cheq.moduleData);
+    if (directPayData) {
+      directPayData.status = "PAID";
+      directPayData.fundedTransaction = transaction.id;
+      directPayData.fundedTimestamp = event.block.timestamp;
+      directPayData.save();
+    }
+  } else if (cheq.moduleData.endsWith("/escrow")) {
+    const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+    if (reversiblePayData) {
+      reversiblePayData.status = "AWAITING_RELEASE";
+      reversiblePayData.fundedTransaction = transaction.id;
+      reversiblePayData.fundedTimestamp = event.block.timestamp;
+      reversiblePayData.save();
+    }
+  }
 
   const escrow = new Escrow(transactionHexHash + "/" + cheqId);
   escrow.emitter = fromAccount.id;
@@ -232,15 +291,71 @@ export function handleCash(event: CashedEvent): void {
     event.block.number
   );
 
+  if (cheq.moduleData.endsWith("/escrow")) {
+    const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+    if (reversiblePayData) {
+      if (cheq.owner == toAccount.id) {
+        reversiblePayData.status = "RELEASED";
+      } else {
+        reversiblePayData.status = "VOIDED";
+      }
+      reversiblePayData.save();
+    }
+  }
+
   const escrow = new Escrow(transactionHexHash + "/" + cheqId);
   escrow.emitter = toAccount.id;
   escrow.transaction = transactionHexHash;
   escrow.timestamp = event.block.timestamp;
   escrow.cheq = cheqId;
   escrow.from = toAccount.id;
-  escrow.amount = amount.neg(); // TODO may need more general differentiation of Cashing/Funding
+  escrow.amount = amount.neg();
   escrow.save();
 }
+
+// TODO: Transfer event being fired before write event is causing problems
+// export function handleTransfer(event: TransferEvent): void {
+//   // Load event params
+//   const from = event.params.from.toHexString();
+//   const to = event.params.to.toHexString();
+//   const cheqId = event.params.tokenId.toHexString();
+//   const transactionHexHash = event.transaction.hash.toHex();
+//   // Load from and to Accounts
+//   let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
+//   let toAccount = Account.load(to);
+//   fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
+//   toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
+//   // Load Cheq
+//   let cheq = Cheq.load(cheqId); // Write event fires before Transfer event: cheq should exist
+//   if (cheq == null) {
+//     // SHOULDN'T BE THE CASE
+//     cheq = new Cheq(cheqId);
+//     cheq.save();
+//   }
+//   // Update accounts' cheq balances
+//   if (event.params.from != Address.zero()) {
+//     fromAccount.numCheqsOwned = fromAccount.numCheqsSent.minus(
+//       BigInt.fromI32(1)
+//     );
+//     fromAccount.save();
+//   }
+//   toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
+//   toAccount.save();
+//   const transaction = saveTransaction(
+//     transactionHexHash,
+//     cheqId,
+//     event.block.timestamp,
+//     event.block.number
+//   );
+//   const transfer = new Transfer(transactionHexHash + "/" + cheqId);
+//   transfer.emitter = fromAccount.id;
+//   transfer.transaction = transactionHexHash;
+//   transfer.timestamp = event.block.timestamp;
+//   transfer.cheq = cheqId;
+//   transfer.from = fromAccount.id;
+//   transfer.to = toAccount.id;
+//   transfer.save();
+// }
 
 // export function handleWhitelist(event: ModuleWhitelisted): void {
 //   const module = event.params.module;

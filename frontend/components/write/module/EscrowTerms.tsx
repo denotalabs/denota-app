@@ -1,29 +1,31 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { Flex, FormControl, FormLabel, Tooltip } from "@chakra-ui/react";
+import { useFormikContext } from "formik";
+import { useEffect } from "react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 import AccountField from "../../fields/input/AccountField";
-import Inspection from "./Inspection";
+
+export type PaymentTermsFormValues = {
+  auditor: string;
+};
 
 export function EscrowTerms() {
+  const { values } = useFormikContext<PaymentTermsFormValues>();
+  const { appendFormData } = useNotaForm();
+
+  useEffect(() => {
+    if (values.auditor != "") {
+      appendFormData({ auditor: values.auditor });
+    }
+  }, [appendFormData, values.auditor]);
+
   return (
     <Flex flexWrap={"wrap"} direction={"column"} gap={"18px"}>
-      <FormControl mt={5}>
-        <FormLabel noOfLines={1} flexShrink={0}>
-          Inspection Period
-          <Tooltip
-            label="The amount of time the payer has to request a refund"
-            aria-label="module tooltip"
-            placement="right"
-          >
-            <QuestionOutlineIcon ml={2} mb={1} />
-          </Tooltip>
-        </FormLabel>
-        <Inspection />
-      </FormControl>
       <FormControl>
         <FormLabel noOfLines={1} flexShrink={0}>
-          Disputation method
+          Inspector
           <Tooltip
-            label="Method for resolving payment disputes"
+            label="Party responsible arbitrating disputes. Leave empty for self sign"
             aria-label="module tooltip"
             placement="right"
           >

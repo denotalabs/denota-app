@@ -8,12 +8,6 @@ interface Props {
   cheqField: string;
 }
 
-export interface CheqTransactions {
-  created: string | null;
-  funded: string | null;
-  cashed: string | null;
-}
-
 export interface CheqDates {
   created: Date;
 }
@@ -21,6 +15,27 @@ export interface CheqDates {
 export interface CheqTransaction {
   date: Date;
   hash: string;
+}
+
+export type DirectPayStatus = "paid" | "awaiting_payment" | "payable";
+
+export type EscrowStatus =
+  | "voided"
+  | "released"
+  | "awaiting_release"
+  | "releasable"
+  | "awaiting_escrow"
+  | "payable";
+
+export interface EscrowModuleData {
+  status: EscrowStatus;
+  isSelfSigned: boolean;
+  module: "escrow";
+}
+
+export interface DirectPayModuleData {
+  status: DirectPayStatus;
+  module: "direct";
 }
 
 export interface Cheq {
@@ -31,29 +46,22 @@ export interface Cheq {
   receiver: string;
   owner: string;
   token: CheqCurrency;
-  formattedPayer: string;
-  formattedPayee: string;
   isInvoice: boolean;
   createdTransaction: CheqTransaction;
   fundedTransaction: CheqTransaction | null;
-  isPaid: boolean;
   isPayer: boolean;
   uri: string;
   payer: string;
   payee: string;
   dueDate?: Date;
+  moduleData: EscrowModuleData | DirectPayModuleData;
+  inspector?: string;
+  isInspector: boolean;
 }
 
 const convertExponent = (amountExact: number) => {
   // Use right exponent
   return Number(BigInt(amountExact) / BigInt(10 ** 16)) / 100;
-};
-
-const formatAddress = (adress: string, account: string) => {
-  if (adress.toLowerCase() === account.toLowerCase()) {
-    return "You";
-  }
-  return adress.slice(0, 5) + "..." + adress.slice(-4);
 };
 
 export const useCheqs = ({ cheqField }: Props) => {
@@ -63,6 +71,10 @@ export const useCheqs = ({ cheqField }: Props) => {
     undefined
   );
   const [cheqsSent, setCheqsSent] = useState<Cheq[] | undefined>(undefined);
+  const [cheqsInspected, setCheqsInspected] = useState<Cheq[] | undefined>(
+    undefined
+  );
+
   const [isLoading, setIsLoading] = useState(false);
 
   const currencyForTokenId = useCallback(
@@ -81,34 +93,17 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const mapField = useCallback(
     (gqlCheq: any) => {
-      // TODO: Move this logic to graph (mappings.ts)
+      const createdTx = gqlCheq.createdTransaction.id;
 
-      const allEscrows = [...gqlCheq.escrows].sort((a: any, b: any) => {
-        return Number(a.timestamp) - Number(b.timestamp);
-      });
-      const createdTx =
-        allEscrows.length > 0 ? allEscrows[0].transaction.id : null;
+      const isInvoice = gqlCheq.moduleData.isInvoice;
 
-      const isInvoice = gqlCheq.sender.id === gqlCheq.owner.id;
+      const fundedDate = gqlCheq.moduleData.fundedTimestamp
+        ? new Date(Number(gqlCheq.moduleData.fundedTimestamp) * 1000)
+        : null;
 
-      const escrowedCheqs = gqlCheq.escrows.filter(
-        (gqlCheq: any) =>
-          BigInt(gqlCheq.amount) > 0 || BigInt(gqlCheq.instantAmount) > 0
-      );
-      const { hasEscrow, fundedDate, fundedTimestamp, fundedTx } =
-        escrowedCheqs.length > 0
-          ? {
-              hasEscrow: true,
-              fundedDate: new Date(Number(escrowedCheqs[0].timestamp) * 1000),
-              fundedTimestamp: Number(escrowedCheqs[0].timestamp),
-              fundedTx: escrowedCheqs[0].transaction.id,
-            }
-          : {
-              hasEscrow: false,
-              fundedDate: null,
-              fundedTimestamp: 0,
-              fundedTx: null,
-            };
+      const fundedTx = gqlCheq.moduleData.fundedTransaction
+        ? gqlCheq.moduleData.fundedTransaction.id
+        : null;
 
       const payer = isInvoice
         ? (gqlCheq.receiver.id as string)
@@ -120,10 +115,59 @@ export const useCheqs = ({ cheqField }: Props) => {
 
       const isPayer = payer === blockchainState.account.toLowerCase();
 
+      const isInspector =
+        gqlCheq.inspector?.id === blockchainState.account.toLowerCase();
+
       let dueDate: Date | undefined = undefined;
 
       if (gqlCheq.moduleData.dueDate) {
         dueDate = new Date(Number(gqlCheq.moduleData.dueDate) * 1000);
+      }
+
+      let moduleData: EscrowModuleData | DirectPayModuleData;
+
+      if (gqlCheq.moduleData.__typename === "DirectPayData") {
+        const status = gqlCheq.moduleData.status;
+        let viewerStatus: DirectPayStatus = "awaiting_payment";
+        if (status === "AWAITING_PAYMENT") {
+          if (isPayer) {
+            viewerStatus = "payable";
+          } else {
+            viewerStatus = "awaiting_payment";
+          }
+        } else {
+          viewerStatus = "paid";
+        }
+        moduleData = { module: "direct", status: viewerStatus };
+      } else if (gqlCheq.moduleData.__typename === "ReversiblePaymentData") {
+        const status = gqlCheq.moduleData.status;
+        let viewerStatus: EscrowStatus = "awaiting_escrow";
+        switch (status) {
+          case "AWAITING_ESCROW":
+            if (isPayer) {
+              viewerStatus = "payable";
+            } else {
+              viewerStatus = "awaiting_escrow";
+            }
+            break;
+          case "AWAITING_RELEASE":
+            if (isInspector) {
+              viewerStatus = "releasable";
+            } else {
+              viewerStatus = "awaiting_release";
+            }
+            break;
+          case "RELEASED":
+            viewerStatus = "released";
+            break;
+          case "VOIDED":
+            viewerStatus = "voided";
+        }
+        moduleData = {
+          module: "escrow",
+          status: viewerStatus,
+          isSelfSigned: gqlCheq.moduleData.isSelfSigned,
+        };
       }
 
       return {
@@ -134,8 +178,6 @@ export const useCheqs = ({ cheqField }: Props) => {
         receiver: gqlCheq.receiver.id as string,
         sender: gqlCheq.sender.id as string,
         owner: gqlCheq.owner.id as string,
-        formattedPayer: formatAddress(payer, blockchainState.account),
-        formattedPayee: formatAddress(payee, blockchainState.account),
         createdTransaction: {
           date: new Date(Number(gqlCheq.timestamp) * 1000),
           hash: createdTx,
@@ -148,12 +190,16 @@ export const useCheqs = ({ cheqField }: Props) => {
               }
             : null,
         isInvoice,
-        isPaid: hasEscrow,
         uri: gqlCheq.uri,
         isPayer,
         payer,
         payee,
         dueDate,
+        moduleData,
+        inspector: gqlCheq.inspector
+          ? (gqlCheq.inspector?.id as string)
+          : undefined,
+        isInspector,
       };
     },
     [blockchainState.account, currencyForTokenId]
@@ -167,6 +213,9 @@ export const useCheqs = ({ cheqField }: Props) => {
       escrowed
       timestamp
       uri
+      createdTransaction {
+        id
+      }
       sender {
         id
       }
@@ -179,9 +228,19 @@ export const useCheqs = ({ cheqField }: Props) => {
       erc20 {
         id
       }
+      inspector {
+        id
+      }
       moduleData {
         ... on DirectPayData {
+          __typename
+          status
           amount
+          fundedTimestamp
+          isInvoice
+          fundedTransaction {
+            id
+          }
           creditor {
             id
           }
@@ -190,17 +249,22 @@ export const useCheqs = ({ cheqField }: Props) => {
           }
           dueDate
         }
-      }
-      escrows {
-        id
-        amount
-        instantAmount
-        emitter {
-          id
-        }
-        timestamp
-        transaction {
-          id
+        ... on ReversiblePaymentData {
+          __typename
+          status
+          amount
+          fundedTimestamp
+          isInvoice
+          fundedTransaction {
+            id
+          }
+          isSelfSigned
+          creditor {
+            id
+          }
+          debtor {
+            id
+          }
         }
       }
       `;
@@ -213,6 +277,9 @@ export const useCheqs = ({ cheqField }: Props) => {
             ${tokenFields}
           }
           cheqsReceived(orderBy: createdAt, orderDirection: desc) {
+            ${tokenFields}
+          }
+          cheqsInspected(orderBy: createdAt, orderDirection: desc) {
             ${tokenFields}
           }
        }
@@ -239,11 +306,16 @@ export const useCheqs = ({ cheqField }: Props) => {
             const gqlCheqsReceived = data["data"]["accounts"][0][
               "cheqsReceived"
             ] as any[];
+            const gqlCheqsInspected = data["data"]["accounts"][0][
+              "cheqsInspected"
+            ] as any[];
             setCheqsSent(gqlCheqsSent.map(mapField));
             setCheqReceived(gqlCheqsReceived.map(mapField));
+            setCheqsInspected(gqlCheqsInspected.map(mapField));
           } else {
             setCheqsSent([]);
             setCheqReceived([]);
+            setCheqsInspected([]);
           }
           setIsLoading(false);
         })
@@ -259,23 +331,35 @@ export const useCheqs = ({ cheqField }: Props) => {
   }, [refresh, account]);
 
   const cheqs = useMemo(() => {
-    if (cheqsReceived === undefined || cheqsSent === undefined || isLoading) {
+    if (
+      cheqsReceived === undefined ||
+      cheqsSent === undefined ||
+      cheqsInspected === undefined ||
+      isLoading
+    ) {
       return undefined;
     }
+    const nonSelfSigned = cheqsInspected.filter(
+      (cheq: Cheq) =>
+        cheq.moduleData.module === "escrow" && !cheq.moduleData.isSelfSigned
+    );
     switch (cheqField) {
       case "cheqsSent":
         return cheqsSent;
       case "cheqsReceived":
         return cheqsReceived;
       default:
-        return cheqsReceived.concat(cheqsSent).sort((a, b) => {
-          return (
-            b.createdTransaction.date.getTime() -
-            a.createdTransaction.date.getTime()
-          );
-        });
+        return cheqsReceived
+          .concat(cheqsSent)
+          .concat(nonSelfSigned)
+          .sort((a, b) => {
+            return (
+              b.createdTransaction.date.getTime() -
+              a.createdTransaction.date.getTime()
+            );
+          });
     }
-  }, [cheqField, cheqsReceived, cheqsSent, isLoading]);
+  }, [cheqField, cheqsInspected, cheqsReceived, cheqsSent, isLoading]);
 
   return { cheqs, refresh };
 };

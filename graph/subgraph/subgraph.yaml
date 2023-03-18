@@ -1,17 +1,17 @@
-specVersion: 0.0.4
+specVersion: 0.0.2
 schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Events
-    network: mumbai
+    network: alfajores
     source:
-      address: "0xF85D83258CD1D8beb5998439C73C11a6b820d6B9"
+      address: "0xCc7a0cE9E0411BF5083491Fe502261319a19201d"
       abi: Registrar
-      startBlock: 32985337
+      startBlock: 16760860
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Cheq  # Cheqs
@@ -31,27 +31,23 @@ dataSources:
         # - event: ModuleWhitelisted(indexed address,indexed address,bool,bool,uint256)
         # - event: RuleWhitelisted(address,indexed address,indexed bool,uint256)
         # - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
-        - event: Written(indexed address,uint256,indexed address,uint256,address,uint256,uint256,uint256,uint256,indexed address,bytes)
+        - event: Written(indexed address,uint256,indexed address,uint256,address,uint256,uint256,uint256,indexed address,bytes)
           handler: handleWrite
-        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
+        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256)
           handler: handleFund
-        # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,uint256,uint256)
-        #   handler: handleTransfer
-        # - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed bytes,uint256,uint256,uint256)
-        #   handler: handleFund
-        # - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256,uint256)
-        #   handler: handleCash
+        - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256)
+          handler: handleCash
       file: mapping.ts
   - kind: ethereum/contract
     name: DirectPay
-    network: mumbai
+    network: alfajores
     source:
-      address: "0xc6573949538a07D722893c1A1b904b65b5BC41e3"
+      address: "0x1ddc87BdEEdb29ef6d1C6C7Fa7cEeA1a7F3c098b"
       abi: DirectPay
-      startBlock: 32985337
+      startBlock: 16760860
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - Cheq  # Cheqs
@@ -69,4 +65,32 @@ dataSources:
       eventHandlers:
         - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
+      file: mapping.ts
+  - kind: ethereum/contract
+    name: ReversibleRelease
+    network: alfajores
+    source:
+      address: "0x3773f4ef0A9b0C5d49dfb2b3cA3C6FbE293a5926"
+      abi: ReversibleRelease
+      startBlock: 16760860
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Cheq  # Cheqs
+        - Transfer  # Write/Transfers
+        - Escrow  # Fund/Cash
+        - ERC20  # ERC20s that have interacted with the protocol
+        - Account  # Accounts that have interacted with CheqRegistrar
+        - DirectSend  # Payment modules
+        - DirectPayModule
+        - DirectPayData
+        # - DirectPayData
+      abis:
+        - name: ReversibleRelease
+          file: ../frontend-abi/ReversibleRelease.sol/ReversibleRelease.json
+      eventHandlers:
+        - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,address)
+          handler: handleReversiblePayment
       file: mapping.ts

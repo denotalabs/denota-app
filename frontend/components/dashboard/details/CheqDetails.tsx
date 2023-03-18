@@ -1,10 +1,11 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { Cheq } from "../../../hooks/useCheqs";
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
+import { useFormatAddress } from "../../../hooks/useFormatAddress";
 import { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
@@ -51,6 +52,16 @@ function CheqDetails({ cheq }: Props) {
   }, [cheq.uri]);
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
+  const { formatAddress } = useFormatAddress();
+
+  const moduleName = useMemo(() => {
+    switch (cheq.moduleData.module) {
+      case "escrow":
+        return "Escrow";
+      case "direct":
+        return "Direct Pay";
+    }
+  }, [cheq.moduleData.module]);
 
   return (
     <VStack gap={4} mt={10} mb={6}>
@@ -58,14 +69,21 @@ function CheqDetails({ cheq }: Props) {
         <VStack gap={0}>
           <DetailsRow
             title="Payer"
-            value={cheq.formattedPayer}
+            value={formatAddress(cheq.payer)}
             copyValue={!cheq.isPayer ? cheq.payer : undefined}
           />
           <DetailsRow
             title="Recipient"
-            value={cheq.formattedPayee}
+            value={formatAddress(cheq.payee)}
             copyValue={!cheq.isPayer ? undefined : cheq.payee}
           />
+          {cheq.inspector && (
+            <DetailsRow
+              title="Inspector"
+              value={formatAddress(cheq.inspector)}
+              copyValue={!cheq.isInspector ? undefined : cheq.payee}
+            />
+          )}
           {cheq.dueDate && cheq.isInvoice && (
             <DetailsRow title="Due Date" value={cheq.dueDate.toDateString()} />
           )}
@@ -91,7 +109,7 @@ function CheqDetails({ cheq }: Props) {
           />
           <DetailsRow
             title="Module"
-            value="Direct Pay"
+            value={moduleName}
             tooltip="Funds are released immediately upon payment"
           />
         </VStack>

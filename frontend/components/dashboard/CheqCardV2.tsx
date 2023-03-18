@@ -6,36 +6,45 @@ import {
   Flex,
   GridItem,
   HStack,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Spinner,
   Text,
   Tooltip,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   MdOutlineAttachMoney,
+  MdOutlineClose,
   MdOutlineDoneAll,
   MdOutlineHourglassEmpty,
+  MdOutlineLock,
 } from "react-icons/md";
+import { useCashCheq } from "../../hooks/useCashCheq";
 import { Cheq } from "../../hooks/useCheqs";
 import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
+import { useFormatAddress } from "../../hooks/useFormatAddress";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
-
-// Add more state when the escrow module is ready
-export type CheqStatus = "pending_payment" | "payable" | "paid";
-
-export type CheqType = "invoice" | "escrow";
 
 interface Props {
   cheq: Cheq;
 }
 
 const TOOLTIP_MESSAGE_MAP = {
-  payable: "payment due",
+  payable: "payment requested",
   paid: "paid",
-  pending_payment: "awaiting payment",
+  awaiting_payment: "awaiting payment",
+  voided: "voided by inspector",
+  released: "released by inspector",
+  awaiting_release: "waiting for payer to release funds",
+  releasable: "payment can be released or voided",
+  awaiting_escrow: "waiting for payer to escrow funds",
 };
 
 function CheqCardV2({ cheq }: Props) {
@@ -68,19 +77,6 @@ function CheqCardV2({ cheq }: Props) {
   const createdLocaleDate = useMemo(() => {
     return createdTransaction.date.toLocaleDateString();
   }, [createdTransaction.date]);
-
-  const status: CheqStatus | undefined = useMemo(() => {
-    if (cheq.isPaid) {
-      return "paid";
-    }
-
-    if (!cheq.isPaid && cheq.isPayer) {
-      return "payable";
-    }
-
-    return "pending_payment";
-  }, [cheq.isPaid, cheq.isPayer]);
-
   const {
     isOpen: isDetailsOpen,
     onOpen: onOpenDetails,
@@ -93,30 +89,79 @@ function CheqCardV2({ cheq }: Props) {
     onClose: onClosePay,
   } = useDisclosure();
 
+  const { formatAddress } = useFormatAddress();
+
   const icon = useMemo(() => {
-    switch (status) {
+    switch (cheq.moduleData.status) {
       case "paid":
         return <MdOutlineDoneAll color="white" size={20} />;
       case "payable":
         return <MdOutlineAttachMoney color="white" size={20} />;
-      case "pending_payment":
+      case "awaiting_payment":
+        return <MdOutlineHourglassEmpty color="white" size={20} />;
+      case "releasable":
+        return <MdOutlineLock color="white" size={20} />;
+      case "awaiting_release":
+        return <MdOutlineLock color="white" size={20} />;
+      case "released":
+        return <MdOutlineDoneAll color="white" size={20} />;
+      case "voided":
+        return <MdOutlineClose color="white" size={20} />;
+      default:
         return <MdOutlineHourglassEmpty color="white" size={20} />;
     }
-  }, [status]);
+  }, [cheq.moduleData.status]);
 
   const iconColor = useMemo(() => {
-    switch (status) {
+    switch (cheq.moduleData.status) {
       case "paid":
+        return "#00C28E";
+      case "released":
         return "#00C28E";
       case "payable":
         return "#4A67ED";
-      case "pending_payment":
+      case "releasable":
+        return "#4A67ED";
+      case "awaiting_payment":
         return "#C5CCD8";
+      case "awaiting_escrow":
+        return "#C5CCD8";
+      case "voided":
+        return "#E53E3E";
+      default:
+        return "#4A67ED";
     }
-  }, [status]);
+  }, [cheq.moduleData.status]);
   const gradient = generateCheqGradient(cheq);
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
+
+  const [cashingInProgress, setCashingInProgress] = useState(false);
+
+  const { cashCheq } = useCashCheq();
+
+  const handleRelease = useCallback(async () => {
+    setCashingInProgress(true);
+    await cashCheq({
+      cheqId: cheq.id,
+      amountWei: cheq.amountRaw,
+      to: cheq.payee,
+      message: "Payment released",
+    });
+    setCashingInProgress(false);
+  }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payee]);
+
+  const handleVoid = useCallback(async () => {
+    setCashingInProgress(true);
+    await cashCheq({
+      cheqId: cheq.id,
+      amountWei: cheq.amountRaw,
+      to: cheq.payer,
+      message: "Payment voided",
+    });
+    setCashingInProgress(false);
+  }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payer]);
+
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
       <VStack
@@ -137,7 +182,7 @@ function CheqCardV2({ cheq }: Props) {
               {createdLocaleDate}
             </Text>
             <Tooltip
-              label={TOOLTIP_MESSAGE_MAP[status]}
+              label={TOOLTIP_MESSAGE_MAP[cheq.moduleData.status]}
               aria-label="status tooltip"
               placement="bottom"
               bg="brand.100"
@@ -161,7 +206,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {cheq.formattedPayer}
+              {formatAddress(cheq.payer)}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -170,7 +215,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {cheq.formattedPayee}
+              {formatAddress(cheq.payee)}
             </Text>
           </HStack>
 
@@ -186,7 +231,7 @@ function CheqCardV2({ cheq }: Props) {
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
             <ButtonGroup>
-              {status === "payable" ? (
+              {cheq.moduleData.status === "payable" ? (
                 <Button
                   variant="outline"
                   w="min(40vw, 100px)"
@@ -196,6 +241,17 @@ function CheqCardV2({ cheq }: Props) {
                 >
                   Pay
                 </Button>
+              ) : null}
+              {cheq.moduleData.status === "releasable" ? (
+                <Menu>
+                  <MenuButton disabled={cashingInProgress} as={Button} minW={0}>
+                    Options {cashingInProgress ? <Spinner size="xs" /> : null}
+                  </MenuButton>
+                  <MenuList alignItems={"center"}>
+                    <MenuItem onClick={handleRelease}>Release</MenuItem>
+                    <MenuItem onClick={handleVoid}>Void</MenuItem>
+                  </MenuList>
+                </Menu>
               ) : null}
               <Button
                 variant="outline"

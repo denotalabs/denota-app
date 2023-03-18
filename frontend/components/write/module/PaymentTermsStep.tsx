@@ -36,13 +36,9 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
             : 604800,
           module: formData.module ?? "direct",
           dueDate: formData.dueDate ?? currentDate,
+          auditor: formData.auditor ?? "",
         }}
-        onSubmit={(values, actions) => {
-          appendFormData({
-            inspection: values.inspection.toString(),
-            module: values.module,
-            dueDate: values.dueDate,
-          });
+        onSubmit={() => {
           next?.();
         }}
       >

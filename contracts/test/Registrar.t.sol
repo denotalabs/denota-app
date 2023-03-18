@@ -37,10 +37,10 @@ contract RegistrarTest is Test {
         vm.label(address(REGISTRAR), "CheqRegistrarContract");
     }
 
-    function whitelist(address module) public {
+    function whitelist(address module, string calldata moduleName) public {
         // Whitelists tokens, rules, modules
         // REGISTRAR.whitelistRule(rule, true);
-        REGISTRAR.whitelistModule(module, false, true); // Whitelist bytecode
+        REGISTRAR.whitelistModule(module, false, true, moduleName); // Whitelist bytecode
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -55,12 +55,12 @@ contract RegistrarTest is Test {
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Unauthorized whitelist"
         );
-        REGISTRAR.whitelistToken(daiAddress, true);
+        REGISTRAR.whitelistToken(daiAddress, true, "DAI");
         assertTrue(
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Whitelisting failed"
         );
-        REGISTRAR.whitelistToken(daiAddress, false);
+        REGISTRAR.whitelistToken(daiAddress, false, "DAI");
         assertFalse(
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Un-whitelisting failed"

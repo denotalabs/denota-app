@@ -1,11 +1,6 @@
 import { Field } from "formik";
 
-import {
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-} from "@chakra-ui/react";
+import { FormControl, FormErrorMessage, Input } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
@@ -39,13 +34,10 @@ function AccountField({ fieldName, placeholder }: Props) {
       {({ field, form: { errors, touched } }: any) => {
         return (
           <FormControl
-            isInvalid={errors.address && (touched.address || hasStarted)}
+            isInvalid={errors[fieldName] && (touched[fieldName] || hasStarted)}
           >
-            <FormLabel noOfLines={1} flexShrink={0}>
-              Client Address
-            </FormLabel>
             <Input {...field} placeholder={placeholder} />
-            <FormErrorMessage>{errors.address}</FormErrorMessage>
+            <FormErrorMessage>{errors[fieldName]}</FormErrorMessage>
           </FormControl>
         );
       }}

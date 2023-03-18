@@ -27,12 +27,14 @@ library Events {
         address indexed module,
         bool isAccepted,
         bool isClonable,
+        string moduleName,
         uint256 timestamp
     );
     event TokenWhitelisted(
         address caller,
         address indexed token,
         bool indexed accepted,
+        string tokenName,
         uint256 timestamp
     );
 

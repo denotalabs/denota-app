@@ -67,7 +67,7 @@ contract DirectPayTest is Test {
     function whitelist(address module) public {
         // Whitelists tokens, rules, modules
         // REGISTRAR.whitelistRule(rule, true);
-        REGISTRAR.whitelistModule(module, false, true); // Whitelist bytecode
+        REGISTRAR.whitelistModule(module, false, true, "Direct Pay"); // Whitelist bytecode
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -82,12 +82,12 @@ contract DirectPayTest is Test {
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Unauthorized whitelist"
         );
-        REGISTRAR.whitelistToken(daiAddress, true);
+        REGISTRAR.whitelistToken(daiAddress, true, "DAI");
         assertTrue(
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Whitelisting failed"
         );
-        REGISTRAR.whitelistToken(daiAddress, false);
+        REGISTRAR.whitelistToken(daiAddress, false, "DAI");
         assertFalse(
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Un-whitelisting failed"
@@ -125,7 +125,7 @@ contract DirectPayTest is Test {
             addressWhitelisted || bytecodeWhitelisted,
             "Unauthorized whitelist"
         );
-        REGISTRAR.whitelistModule(directPayAddress, true, false); // whitelist bytecode, not address
+        REGISTRAR.whitelistModule(directPayAddress, true, false, "Direct Pay"); // whitelist bytecode, not address
         (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
             directPayAddress
         );
@@ -133,7 +133,7 @@ contract DirectPayTest is Test {
             addressWhitelisted || bytecodeWhitelisted,
             "Whitelisting failed"
         );
-        REGISTRAR.whitelistModule(directPayAddress, false, false);
+        REGISTRAR.whitelistModule(directPayAddress, false, false, "Direct Pay");
         (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
             directPayAddress
         );
@@ -158,7 +158,12 @@ contract DirectPayTest is Test {
             DataTypes.WTFCFees(0, 0, 0, 0),
             "ipfs://"
         );
-        REGISTRAR.whitelistModule(address(directPay), true, false);
+        REGISTRAR.whitelistModule(
+            address(directPay),
+            true,
+            false,
+            "Direct Pay"
+        );
         vm.label(address(directPay), "DirectPay");
         return directPay;
     }
@@ -275,7 +280,7 @@ contract DirectPayTest is Test {
             console.log(directAmount, "-->", totalWithFees);
         }
 
-        REGISTRAR.whitelistToken(address(dai), true);
+        REGISTRAR.whitelistToken(address(dai), true, "DAI");
         vm.prank(debtor);
         dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
         dai.transfer(debtor, totalWithFees);
@@ -377,7 +382,7 @@ contract DirectPayTest is Test {
             escrowed,
             directAmount
         );
-        REGISTRAR.whitelistToken(address(dai), true);
+        REGISTRAR.whitelistToken(address(dai), true, "DAI");
         vm.prank(caller);
         dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
         dai.transfer(caller, totalWithFees);

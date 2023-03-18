@@ -19,12 +19,10 @@ type Account @entity {
   # TODO need to query every new user's token balances for future modules that may depend on token balance logic
   # ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
   cheqsOwned: [Cheq!]! @derivedFrom(field: "owner")
-  numCheqsOwned: BigInt!
 
   cheqsSent: [Cheq!]! @derivedFrom(field: "sender")
-  numCheqsSent: BigInt!
   cheqsReceived: [Cheq!]! @derivedFrom(field: "receiver")
-  numCheqsReceived: BigInt!
+  cheqsInspected: [Cheq!]! @derivedFrom(field: "inspector")
 
   transfersFrom: [Transfer!]! @derivedFrom(field: "from")
   transfersTo: [Transfer!]! @derivedFrom(field: "to")
@@ -81,6 +79,7 @@ type Cheq @entity {
   id: ID!
   timestamp: BigInt!
   createdAt: BigInt!
+  createdTransaction: Transaction
   erc20: ERC20
 
   module: Module
@@ -94,8 +93,9 @@ type Cheq @entity {
   approvals: [Approval!]! @derivedFrom(field: "cheq")
   sender: Account
   receiver: Account
-  moduleData: ModuleData 
-  transaction: Transaction!
+  moduleData: ModuleData!
+  transaction: Transaction
+  inspector: Account
 }
 
 # TODO: figure out why unions aren't working
@@ -115,6 +115,11 @@ interface ModuleData {
     id: ID!
 } 
 
+enum DirectPayStatus {
+  AWAITING_PAYMENT
+  PAID
+}
+
 type DirectPayData implements ModuleData @entity {
   id: ID!
   amount: BigInt!
@@ -122,6 +127,30 @@ type DirectPayData implements ModuleData @entity {
   debtor: Account!
   memo: Bytes!
   dueDate: BigInt!
+  isInvoice: Boolean!
+  status: DirectPayStatus
+  fundedTransaction: Transaction
+  fundedTimestamp: BigInt
+}
+
+enum EscrowStatus {
+  AWAITING_ESCROW
+  AWAITING_RELEASE
+  RELEASED
+  VOIDED
+}
+
+type ReversiblePaymentData implements ModuleData @entity {
+  id: ID!
+  amount: BigInt!
+  creditor: Account!
+  debtor: Account!
+  memo: Bytes!
+  status: EscrowStatus
+  isSelfSigned: Boolean!
+  isInvoice: Boolean!
+  fundedTransaction: Transaction
+  fundedTimestamp: BigInt
 }
 
 interface Module {  # Allows new modules to inherit from Module interface

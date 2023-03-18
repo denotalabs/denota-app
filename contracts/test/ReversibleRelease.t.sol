@@ -42,7 +42,7 @@ contract ReversibleReleaseTest is Test {
     function whitelist(address module) public {
         // Whitelists tokens, rules, modules
         // REGISTRAR.whitelistRule(rule, true);
-        REGISTRAR.whitelistModule(module, false, true); // Whitelist bytecode
+        REGISTRAR.whitelistModule(module, false, true, "Reversible Release"); // Whitelist bytecode
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -57,12 +57,12 @@ contract ReversibleReleaseTest is Test {
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Unauthorized whitelist"
         );
-        REGISTRAR.whitelistToken(daiAddress, true);
+        REGISTRAR.whitelistToken(daiAddress, true, "DAI");
         assertTrue(
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Whitelisting failed"
         );
-        REGISTRAR.whitelistToken(daiAddress, false);
+        REGISTRAR.whitelistToken(daiAddress, false, "DAI");
         assertFalse(
             REGISTRAR.tokenWhitelisted(daiAddress),
             "Un-whitelisting failed"
@@ -80,7 +80,12 @@ contract ReversibleReleaseTest is Test {
             addressWhitelisted || bytecodeWhitelisted,
             "Unauthorized whitelist"
         );
-        REGISTRAR.whitelistModule(reversibleReleaseAddress, true, false); // whitelist bytecode, not address
+        REGISTRAR.whitelistModule(
+            reversibleReleaseAddress,
+            true,
+            false,
+            "Reversible Release"
+        ); // whitelist bytecode, not address
         (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
             reversibleReleaseAddress
         );
@@ -88,7 +93,12 @@ contract ReversibleReleaseTest is Test {
             addressWhitelisted || bytecodeWhitelisted,
             "Whitelisting failed"
         );
-        REGISTRAR.whitelistModule(reversibleReleaseAddress, false, false);
+        REGISTRAR.whitelistModule(
+            reversibleReleaseAddress,
+            false,
+            false,
+            "Reversible Release"
+        );
         (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
             reversibleReleaseAddress
         );
@@ -113,7 +123,12 @@ contract ReversibleReleaseTest is Test {
             DataTypes.WTFCFees(0, 0, 0, 0),
             "ipfs://"
         );
-        REGISTRAR.whitelistModule(address(reversibleRelease), true, false);
+        REGISTRAR.whitelistModule(
+            address(reversibleRelease),
+            true,
+            false,
+            "Reversible Release"
+        );
         vm.label(address(reversibleRelease), "ReversibleRelease");
         return reversibleRelease;
     }
@@ -218,7 +233,7 @@ contract ReversibleReleaseTest is Test {
             0
         );
 
-        REGISTRAR.whitelistToken(address(dai), true);
+        REGISTRAR.whitelistToken(address(dai), true, "DAI");
         vm.prank(debtor);
         dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
         dai.transfer(debtor, totalWithFees);
@@ -286,7 +301,7 @@ contract ReversibleReleaseTest is Test {
             escrowed,
             instant
         );
-        REGISTRAR.whitelistToken(address(dai), true);
+        REGISTRAR.whitelistToken(address(dai), true, "DAI");
         vm.prank(caller);
         dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
         dai.transfer(caller, totalWithFees);

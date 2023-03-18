@@ -80,6 +80,11 @@ export const deployedChains: Record<string, ChainInfo> = {
     displayName: "Ethereum",
     chainId: "0x1",
     logoSrc: "/logos/ethereum-logo.svg",
+    nativeCurrency: {
+      name: "Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
     blockExplorerUrls: ["https://etherscan.io/"],
     rpcUrls: ["https://eth.llamarpc.com"],
     graphUrl: "https://denota.klymr.me/graph/ethereum",
