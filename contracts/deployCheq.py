@@ -152,7 +152,7 @@ if __name__ == "__main__":
         existing_addresses[chain]["escrow"] = escrow
         # Whitelist the Escrow module
         eth_call(
-            f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {escrow} "false" "true" "Escrow" {rpc_key_flags}', "Whitelist module failed")
+            f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {escrow} "false" "true" "ReversibleRelease" {rpc_key_flags}', "Whitelist module failed")
         print(f'Escrow address: {escrow}')
 
     # Update the address JSON

@@ -72,6 +72,7 @@ export function handleWrite(event: WrittenEvent): void {
   );
 
   if (cheq) {
+    cheq.createdTransaction = transaction.id;
     cheq.erc20 = ERC20Token.id;
     cheq.module = event.params.module.toHexString();
     cheq.escrowed = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
@@ -82,6 +83,8 @@ export function handleWrite(event: WrittenEvent): void {
       if (directPayData) {
         if (event.params.instant > BigInt.fromI32(0)) {
           directPayData.status = "PAID";
+          directPayData.fundedTransaction = transaction.id;
+          directPayData.fundedTimestamp = event.block.timestamp;
         } else {
           directPayData.status = "AWAITING_PAYMENT";
         }
@@ -92,6 +95,8 @@ export function handleWrite(event: WrittenEvent): void {
       if (reversiblePayData) {
         if (cheqEscrowed > BigInt.fromI32(0)) {
           reversiblePayData.status = "AWAITING_RELEASE";
+          reversiblePayData.fundedTransaction = transaction.id;
+          reversiblePayData.fundedTimestamp = event.block.timestamp;
         } else {
           reversiblePayData.status = "AWAITING_ESCROW";
         }
@@ -131,6 +136,11 @@ export function handleDirectPayment(event: DirectPaymentCreatedEvent): void {
   directPay.debtor = debtorAccount.id;
   directPay.amount = event.params.amount;
   directPay.dueDate = event.params.dueDate;
+  if (sender == creditor) {
+    directPay.isInvoice = true;
+  } else {
+    directPay.isInvoice = false;
+  }
   directPay.save();
 
   const newCheq = new Cheq(cheqId);
@@ -178,6 +188,11 @@ export function handleReversiblePayment(
   } else {
     reversibleRelease.isSelfSigned = false;
   }
+  if (sender == creditor) {
+    reversibleRelease.isInvoice = true;
+  } else {
+    reversibleRelease.isInvoice = false;
+  }
   reversibleRelease.save();
 
   const newCheq = new Cheq(cheqId);
@@ -222,15 +237,21 @@ export function handleFund(event: FundedEvent): void {
     event.block.number
   );
 
-  if (cheq.moduleData && cheq.moduleData.endsWith("/direct")) {
+  if (cheq.moduleData.endsWith("/direct")) {
     const directPayData = DirectPayData.load(cheq.moduleData);
     if (directPayData) {
       directPayData.status = "PAID";
+      directPayData.fundedTransaction = transaction.id;
+      directPayData.fundedTimestamp = event.block.timestamp;
+      directPayData.save;
     }
-  } else if (cheq.moduleData && cheq.moduleData.endsWith("/escrow")) {
+  } else if (cheq.moduleData.endsWith("/escrow")) {
     const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
     if (reversiblePayData) {
       reversiblePayData.status = "AWAITING_RELEASE";
+      reversiblePayData.fundedTransaction = transaction.id;
+      reversiblePayData.fundedTimestamp = event.block.timestamp;
+      reversiblePayData.save();
     }
   }
 

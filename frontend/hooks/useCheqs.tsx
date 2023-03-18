@@ -64,13 +64,6 @@ const convertExponent = (amountExact: number) => {
   return Number(BigInt(amountExact) / BigInt(10 ** 16)) / 100;
 };
 
-const formatAddress = (adress: string, account: string) => {
-  if (adress.toLowerCase() === account.toLowerCase()) {
-    return "You";
-  }
-  return adress.slice(0, 5) + "..." + adress.slice(-4);
-};
-
 export const useCheqs = ({ cheqField }: Props) => {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
@@ -100,30 +93,17 @@ export const useCheqs = ({ cheqField }: Props) => {
 
   const mapField = useCallback(
     (gqlCheq: any) => {
-      // TODO: Move this logic to graph (mappings.ts)
+      const createdTx = gqlCheq.createdTransaction.id;
 
-      const allEscrows = [...gqlCheq.escrows].sort((a: any, b: any) => {
-        return Number(a.timestamp) - Number(b.timestamp);
-      });
-      const createdTx =
-        allEscrows.length > 0 ? allEscrows[0].transaction.id : null;
+      const isInvoice = gqlCheq.moduleData.isInvoice;
 
-      const isInvoice = gqlCheq.sender.id === gqlCheq.owner.id;
+      const fundedDate = gqlCheq.moduleData.fundedTimestamp
+        ? new Date(Number(gqlCheq.moduleData.fundedTimestamp) * 1000)
+        : null;
 
-      const escrowedCheqs = gqlCheq.escrows.filter(
-        (gqlCheq: any) =>
-          BigInt(gqlCheq.amount) > 0 || BigInt(gqlCheq.instantAmount) > 0
-      );
-      const { fundedDate, fundedTx } =
-        escrowedCheqs.length > 0
-          ? {
-              fundedDate: new Date(Number(escrowedCheqs[0].timestamp) * 1000),
-              fundedTx: escrowedCheqs[0].transaction.id,
-            }
-          : {
-              fundedDate: null,
-              fundedTx: null,
-            };
+      const fundedTx = gqlCheq.moduleData.fundedTransaction
+        ? gqlCheq.moduleData.fundedTransaction.id
+        : null;
 
       const payer = isInvoice
         ? (gqlCheq.receiver.id as string)
@@ -233,6 +213,9 @@ export const useCheqs = ({ cheqField }: Props) => {
       escrowed
       timestamp
       uri
+      createdTransaction {
+        id
+      }
       sender {
         id
       }
@@ -253,6 +236,11 @@ export const useCheqs = ({ cheqField }: Props) => {
           __typename
           status
           amount
+          fundedTimestamp
+          isInvoice
+          fundedTransaction {
+            id
+          }
           creditor {
             id
           }
@@ -265,6 +253,11 @@ export const useCheqs = ({ cheqField }: Props) => {
           __typename
           status
           amount
+          fundedTimestamp
+          isInvoice
+          fundedTransaction {
+            id
+          }
           isSelfSigned
           creditor {
             id
@@ -272,18 +265,6 @@ export const useCheqs = ({ cheqField }: Props) => {
           debtor {
             id
           }
-        }
-      }
-      escrows {
-        id
-        amount
-        instantAmount
-        emitter {
-          id
-        }
-        timestamp
-        transaction {
-          id
         }
       }
       `;

@@ -19,8 +19,10 @@ import {
 import { useCallback, useMemo, useState } from "react";
 import {
   MdOutlineAttachMoney,
+  MdOutlineClose,
   MdOutlineDoneAll,
   MdOutlineHourglassEmpty,
+  MdOutlineLock,
 } from "react-icons/md";
 import { useCashCheq } from "../../hooks/useCashCheq";
 import { Cheq } from "../../hooks/useCheqs";
@@ -29,9 +31,6 @@ import { useFormatAddress } from "../../hooks/useFormatAddress";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
-
-// Add more state when the escrow module is ready
-export type CheqStatus = "pending_payment" | "payable" | "paid";
 
 export type CheqType = "invoice" | "escrow";
 
@@ -95,7 +94,6 @@ function CheqCardV2({ cheq }: Props) {
   const { formatAddress } = useFormatAddress();
 
   const icon = useMemo(() => {
-    console.log({ status: cheq.moduleData.status });
     switch (cheq.moduleData.status) {
       case "paid":
         return <MdOutlineDoneAll color="white" size={20} />;
@@ -103,6 +101,14 @@ function CheqCardV2({ cheq }: Props) {
         return <MdOutlineAttachMoney color="white" size={20} />;
       case "awaiting_payment":
         return <MdOutlineHourglassEmpty color="white" size={20} />;
+      case "releasable":
+        return <MdOutlineLock color="white" size={20} />;
+      case "awaiting_release":
+        return <MdOutlineLock color="white" size={20} />;
+      case "released":
+        return <MdOutlineDoneAll color="white" size={20} />;
+      case "voided":
+        return <MdOutlineClose color="white" size={20} />;
       default:
         return <MdOutlineHourglassEmpty color="white" size={20} />;
     }
@@ -112,10 +118,18 @@ function CheqCardV2({ cheq }: Props) {
     switch (cheq.moduleData.status) {
       case "paid":
         return "#00C28E";
+      case "released":
+        return "#00C28E";
       case "payable":
+        return "#4A67ED";
+      case "releasable":
         return "#4A67ED";
       case "awaiting_payment":
         return "#C5CCD8";
+      case "awaiting_escrow":
+        return "#C5CCD8";
+      case "voided":
+        return "#E53E3E";
       default:
         return "#4A67ED";
     }

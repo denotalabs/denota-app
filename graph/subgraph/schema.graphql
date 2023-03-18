@@ -79,6 +79,7 @@ type Cheq @entity {
   id: ID!
   timestamp: BigInt!
   createdAt: BigInt!
+  createdTransaction: Transaction
   erc20: ERC20
 
   module: Module
@@ -126,7 +127,10 @@ type DirectPayData implements ModuleData @entity {
   debtor: Account!
   memo: Bytes!
   dueDate: BigInt!
+  isInvoice: Boolean!
   status: DirectPayStatus
+  fundedTransaction: Transaction
+  fundedTimestamp: BigInt
 }
 
 enum EscrowStatus {
@@ -144,6 +148,9 @@ type ReversiblePaymentData implements ModuleData @entity {
   memo: Bytes!
   status: EscrowStatus
   isSelfSigned: Boolean!
+  isInvoice: Boolean!
+  fundedTransaction: Transaction
+  fundedTimestamp: BigInt
 }
 
 interface Module {  # Allows new modules to inherit from Module interface

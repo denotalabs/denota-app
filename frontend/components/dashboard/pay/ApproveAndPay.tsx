@@ -131,10 +131,14 @@ function ApproveAndPay({ cheq, onClose }: Props) {
           ["address"],
           [blockchainState.account]
         );
+
+        const instantAmount = cheq.moduleData.module === "direct" ? amount : 0;
+        const escrowAmount = cheq.moduleData.module === "escrow" ? amount : 0;
+
         const tx = await blockchainState.cheq?.fund(
           cheqId,
-          0,
-          amount,
+          escrowAmount, // escrow
+          instantAmount, // instant
           payload,
           { value: msgValue }
         );
@@ -174,11 +178,20 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     tokenAddress,
   ]);
 
+  const moduleInfo = useMemo(() => {
+    switch (cheq.moduleData.module) {
+      case "direct":
+        return "Funds will be released immediately";
+      case "escrow":
+        return "Funds will be held in escrow";
+    }
+  }, [cheq.moduleData.module]);
+
   return (
     <Box w="100%" p={4}>
       <RoundedBox mt={8} p={6}>
         <Text fontWeight={600} fontSize={"xl"} textAlign="center">
-          {"Funds will be released immediately"}
+          {moduleInfo}
         </Text>
       </RoundedBox>
       <RoundedButton
