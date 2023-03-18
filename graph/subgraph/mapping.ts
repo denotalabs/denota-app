@@ -301,6 +301,7 @@ export function handleCash(event: CashedEvent): void {
       } else {
         reversiblePayData.status = "VOIDED";
       }
+      reversiblePayData.save();
     }
   }
 

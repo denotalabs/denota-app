@@ -154,7 +154,7 @@ function CheqCardV2({ cheq }: Props) {
   }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payee]);
 
   const handleVoid = useCallback(async () => {
-    setCashingInProgress(false);
+    setCashingInProgress(true);
     await cashCheq({
       cheqId: cheq.id,
       amountWei: cheq.amountRaw,
