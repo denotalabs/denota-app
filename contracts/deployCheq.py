@@ -83,9 +83,9 @@ if __name__ == "__main__":
         existing_addresses = json.loads(f.read())
 
     # Deploy libraries
-    datatypes = "src/contracts/libraries/DataTypes.sol:DataTypes"
-    errors = "src/contracts/libraries/Errors.sol:Errors"
-    events = "src/contracts/libraries/Events.sol:Events"
+    datatypes = "src/libraries/DataTypes.sol:DataTypes"
+    errors = "src/libraries/Errors.sol:Errors"
+    events = "src/libraries/Events.sol:Events"
     library_paths = [datatypes, errors, events]
     lib_addresses = []
     for library_path in library_paths:
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     block_number = (
         eth_call(f'cast block-number --rpc-url {rpc}', "Block failed to fetch")).stdout
     if not existing_addresses[chain]["registrar"]:
-        registar_path = "src/contracts/CheqRegistrar.sol:CheqRegistrar"
+        registar_path = "src/CheqRegistrar.sol:CheqRegistrar"
         result = eth_call(
             f'forge create {registar_path} {rpc_key_flags}', "Registrar deployment failed")
         registrar = extract_address(result.stdout)
@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     # Deploy the DirectPay module
     if not existing_addresses[chain]["directPay"]:
-        DirectPay_path = "src/contracts/modules/DirectPay.sol:DirectPay"
+        DirectPay_path = "src/modules/DirectPay.sol:DirectPay"
         result = eth_call(
             f'forge create {DirectPay_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {rpc_key_flags}', "Module deployment failed")
         direct_pay = extract_address(result.stdout)

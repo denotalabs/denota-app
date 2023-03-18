@@ -83,11 +83,11 @@ graph-deploy-mumbai-prod:
 
 graph-deploy-alfajores-test:
 	cd graph && GRAPH_CHAIN=alfajores npm run prepare
-	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_TEST} npm run create-remote
-	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_TEST} npm run deploy-remote
+	cd graph && GRAPH_CHAIN=alfajores GQL_HOST=${GQL_HOST_TEST} npm run create-remote
+	cd graph && GRAPH_CHAIN=alfajores GQL_HOST=${GQL_HOST_TEST} npm run deploy-remote
 
 graph-deploy-alfajores-prod:
 	cd graph && GRAPH_CHAIN=alfajores npm run prepare
-	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_PROD} npm run create-remote
-	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_PROD} npm run deploy-remote
+	cd graph && GRAPH_CHAIN=alfajores GQL_HOST=${GQL_HOST_PROD} npm run create-remote
+	cd graph && GRAPH_CHAIN=alfajores GQL_HOST=${GQL_HOST_PROD} npm run deploy-remote
 

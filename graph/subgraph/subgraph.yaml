@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Events
-    network: mumbai
+    network: alfajores
     source:
-      address: "0x3D8B0f18a9456ecB5403ED2910773910BdA1ffD9"
+      address: "0xCc7a0cE9E0411BF5083491Fe502261319a19201d"
       abi: Registrar
-      startBlock: 33229194
+      startBlock: 16760860
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -40,11 +40,11 @@ dataSources:
       file: mapping.ts
   - kind: ethereum/contract
     name: DirectPay
-    network: mumbai
+    network: alfajores
     source:
-      address: "0x54A011b3770752Bf24ca05B53fdc6A45d8d68307"
+      address: "0x1ddc87BdEEdb29ef6d1C6C7Fa7cEeA1a7F3c098b"
       abi: DirectPay
-      startBlock: 33229194
+      startBlock: 16760860
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -68,11 +68,11 @@ dataSources:
       file: mapping.ts
   - kind: ethereum/contract
     name: ReversibleRelease
-    network: mumbai
+    network: alfajores
     source:
-      address: "0x5EeBfCDCb192B71Efc497D240bbD3994b21a5E4e"
+      address: "0x3773f4ef0A9b0C5d49dfb2b3cA3C6FbE293a5926"
       abi: ReversibleRelease
-      startBlock: 33229194
+      startBlock: 16760860
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
