@@ -1,4 +1,3 @@
-// import { fetchERC20, fetchERC20Balance, fetchERC20Approval } from "@openzeppelin/subgraphs/src/fetch/erc20"
 import { BigInt } from "@graphprotocol/graph-ts";
 import {
   Cashed as CashedEvent,
@@ -13,7 +12,7 @@ import {
   Escrow,
   ReversiblePaymentData,
   Transaction,
-} from "../subgraph/generated/schema"; // Entities that contain the event info
+} from "../subgraph/generated/schema";
 
 import { PaymentCreated as DirectPaymentCreatedEvent } from "../subgraph/generated/DirectPay/DirectPay";
 
@@ -55,12 +54,12 @@ export function handleWrite(event: WrittenEvent): void {
   let owningAccount = Account.load(owner);
   let ERC20Token = ERC20.load(currency);
   if (ERC20Token == null) {
-    ERC20Token = new ERC20(currency); // Query it's symbol and decimals here?
+    ERC20Token = new ERC20(currency);
     ERC20Token.save();
   }
 
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
-  const cheqId = event.params.cheqId.toString(); // let [currency, amount, escrowed, drawer, recipient, module, mintTimestamp] = event.params.cheq;
+  const cheqId = event.params.cheqId.toString();
   const cheq = Cheq.load(cheqId);
   const cheqEscrowed = event.params.escrowed;
 
@@ -75,8 +74,8 @@ export function handleWrite(event: WrittenEvent): void {
     cheq.createdTransaction = transaction.id;
     cheq.erc20 = ERC20Token.id;
     cheq.module = event.params.module.toHexString();
-    cheq.escrowed = cheqEscrowed; // .divDecimal(BigInt.fromI32(18).toBigDecimal());
-    cheq.owner = owningAccount.id; // TODO inefficient to add ownership info on Transfer(address(0), to, cheqId) event?
+    cheq.escrowed = cheqEscrowed;
+    cheq.owner = owningAccount.id;
 
     if (cheq.moduleData && cheq.moduleData.endsWith("/direct")) {
       const directPayData = DirectPayData.load(cheq.moduleData);
@@ -106,9 +105,9 @@ export function handleWrite(event: WrittenEvent): void {
     cheq.save();
   }
 
-  const escrow = new Escrow(transactionHexHash + "/" + cheqId); // How OZ does IDs entities that implements Event?
+  const escrow = new Escrow(transactionHexHash + "/" + cheqId);
   escrow.emitter = event.transaction.from.toHexString();
-  escrow.transaction = transaction.id; // TODO How OZ does it, how does it work?
+  escrow.transaction = transaction.id;
   escrow.timestamp = event.block.timestamp;
   escrow.cheq = event.params.cheqId.toString();
   escrow.from = event.transaction.from.toHexString();
@@ -219,7 +218,6 @@ export function handleFund(event: FundedEvent): void {
       ? saveNewAccount(event.params.funder.toHexString())
       : fromAccount;
   const amount = event.params.amount;
-  // const directAmount = event.params.directAmount;
   const transactionHexHash = event.transaction.hash.toHex();
   const cheqId = event.params.cheqId.toString();
 
@@ -311,7 +309,7 @@ export function handleCash(event: CashedEvent): void {
   escrow.timestamp = event.block.timestamp;
   escrow.cheq = cheqId;
   escrow.from = toAccount.id;
-  escrow.amount = amount.neg(); // TODO may need more general differentiation of Cashing/Funding
+  escrow.amount = amount.neg();
   escrow.save();
 }
 
