@@ -149,7 +149,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         const status = gqlCheq.moduleData.status;
         let viewerStatus: DirectPayStatus = "awaiting_payment";
         if (status === "AWAITING_PAYMENT") {
-          if (payer) {
+          if (isPayer) {
             viewerStatus = "payable";
           } else {
             viewerStatus = "awaiting_payment";
@@ -163,7 +163,7 @@ export const useCheqs = ({ cheqField }: Props) => {
         let viewerStatus: EscrowStatus = "awaiting_escrow";
         switch (status) {
           case "AWAITING_ESCROW":
-            if (payer) {
+            if (isPayer) {
               viewerStatus = "payable";
             } else {
               viewerStatus = "awaiting_escrow";
@@ -271,7 +271,6 @@ export const useCheqs = ({ cheqField }: Props) => {
           debtor {
             id
           }
-          dueDate
         }
       }
       escrows {

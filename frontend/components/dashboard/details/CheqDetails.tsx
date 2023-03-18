@@ -1,7 +1,7 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { Cheq } from "../../../hooks/useCheqs";
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
@@ -54,6 +54,15 @@ function CheqDetails({ cheq }: Props) {
   const { displayNameForCurrency } = useCurrencyDisplayName();
   const { formatAddress } = useFormatAddress();
 
+  const moduleName = useMemo(() => {
+    switch (cheq.moduleData.module) {
+      case "escrow":
+        return "Escrow";
+      case "direct":
+        return "Direct Pay";
+    }
+  }, [cheq.moduleData.module]);
+
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
@@ -100,7 +109,7 @@ function CheqDetails({ cheq }: Props) {
           />
           <DetailsRow
             title="Module"
-            value="Direct Pay"
+            value={moduleName}
             tooltip="Funds are released immediately upon payment"
           />
         </VStack>

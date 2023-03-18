@@ -145,7 +145,6 @@ type ReversiblePaymentData implements ModuleData @entity {
   creditor: Account!
   debtor: Account!
   memo: Bytes!
-  dueDate: BigInt!
   status: EscrowStatus
   isSelfSigned: Boolean!
 }

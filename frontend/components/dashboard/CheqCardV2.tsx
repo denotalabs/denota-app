@@ -89,6 +89,7 @@ function CheqCardV2({ cheq }: Props) {
   const { formatAddress } = useFormatAddress();
 
   const icon = useMemo(() => {
+    console.log({ status: cheq.moduleData.status });
     switch (cheq.moduleData.status) {
       case "paid":
         return <MdOutlineDoneAll color="white" size={20} />;
@@ -136,7 +137,7 @@ function CheqCardV2({ cheq }: Props) {
               {createdLocaleDate}
             </Text>
             <Tooltip
-              label={TOOLTIP_MESSAGE_MAP[status]}
+              label={TOOLTIP_MESSAGE_MAP[cheq.moduleData.status]}
               aria-label="status tooltip"
               placement="bottom"
               bg="brand.100"

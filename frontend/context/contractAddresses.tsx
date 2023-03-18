@@ -7,6 +7,7 @@ export const ContractAddressMapping = {
     directPay: "0x59b670e9fA9D0A427751Af201D676719a970857b",
     dai: "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
     weth: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+    escrow: "",
   },
   mumbai: {
     DataTypes: "0x4287f38FecFC24Bd80F643f682E727bD6407F484",
@@ -26,5 +27,6 @@ export const ContractAddressMapping = {
     directPay: "0x657eb9F744E49e6b31c42335C1662287d34465D4",
     dai: "0xe314158969CCa87E88350196308f96D879D18b83",
     weth: "0x722D4CED724b69A416AfA50860cEd7B71a1bf689",
+    escrow: "",
   },
 };

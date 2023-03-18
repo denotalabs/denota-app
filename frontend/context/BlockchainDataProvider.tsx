@@ -4,7 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useState
+  useState,
 } from "react";
 
 import { useColorMode } from "@chakra-ui/react";
@@ -17,7 +17,7 @@ import {
   ChainInfo,
   chainInfoForChainId,
   chainNumberToChainHex,
-  contractMappingForChainId
+  contractMappingForChainId,
 } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
@@ -179,7 +179,7 @@ export const BlockchainDataProvider = memo(
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphTestUrl, // Change to graphTestUrl for testing a local graph node
-            escrowAddress: contractMapping.directPay, // TODO: deploy escrow
+            escrowAddress: contractMapping.escrow, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
             walletBalance: ethers.utils.formatUnits(walletBalance),
             userDaiBalanceRaw: userDaiBalance,

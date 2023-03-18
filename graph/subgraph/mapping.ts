@@ -80,11 +80,12 @@ export function handleWrite(event: WrittenEvent): void {
     if (cheq.moduleData && cheq.moduleData.endsWith("/direct")) {
       const directPayData = DirectPayData.load(cheq.moduleData);
       if (directPayData) {
-        if (cheqEscrowed > BigInt.fromI32(0)) {
+        if (event.params.instant > BigInt.fromI32(0)) {
           directPayData.status = "PAID";
         } else {
           directPayData.status = "AWAITING_PAYMENT";
         }
+        directPayData.save();
       }
     } else if (cheq.moduleData && cheq.moduleData.endsWith("/escrow")) {
       const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
@@ -94,6 +95,7 @@ export function handleWrite(event: WrittenEvent): void {
         } else {
           reversiblePayData.status = "AWAITING_ESCROW";
         }
+        reversiblePayData.save();
       }
     }
     cheq.save();
@@ -186,6 +188,7 @@ export function handleReversiblePayment(
   }
   newCheq.sender = sender;
   newCheq.moduleData = reversibleRelease.id;
+  newCheq.inspector = inspectorAccount.id;
   newCheq.save();
 }
 

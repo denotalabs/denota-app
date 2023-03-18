@@ -25,11 +25,20 @@ export const useEscrow = () => {
       isInvoice,
       inspector,
     }: Props) => {
+      console.log({
+        tokenAddress,
+        amountWei,
+        address,
+        escrowedWei,
+        noteKey,
+        isInvoice,
+        inspector,
+      });
       const debtor = isInvoice ? address : blockchainState.account;
       const notaInspector = inspector ?? debtor;
 
       const payload = ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "address", "uint256", "string", "uint256"],
+        ["address", "address", "address", "uint256", "string", "string"],
         [
           address,
           notaInspector,

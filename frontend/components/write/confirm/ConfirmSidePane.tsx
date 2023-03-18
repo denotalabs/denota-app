@@ -38,7 +38,7 @@ export function ConfirmSidePane() {
           formData.dueDate
         );
       case "escrow":
-        return false;
+        return true;
     }
   }, [
     formData.address,
