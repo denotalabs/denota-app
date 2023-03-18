@@ -61,26 +61,33 @@ graph-start:
 	cd graph && npm run start  # (re)start the node [postgres & ipfs & blockchain ingester]
 	# npm run codegen
 
-graph-deploy-local:
-	cd graph && npm run prepare && GRAPH_CHAIN=mumbai npm run create-local
-	cd graph && npm run deploy-local  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
+graph-deploy-local-mumbai:
+	cd graph && GRAPH_CHAIN=mumbai npm run prepare  
+	cd graph && GRAPH_CHAIN=mumbai npm run create-local
+	cd graph && GRAPH_CHAIN=mumbai npm run deploy-local  # Send the subgraph to the node (May need delay before this command if graphNode not ready to receive subgraph)
 
 graph-deploy-local-alfajores:
 	cd graph && GRAPH_CHAIN=alfajores npm run prepare
 	cd graph && GRAPH_CHAIN=alfajores npm run create-local
 	cd graph && GRAPH_CHAIN=alfajores npm run deploy-local
 
-graph-deploy-remote-mumbai:
+graph-deploy-mumbai-test:
 	cd graph && GRAPH_CHAIN=mumbai npm run prepare
-	cd graph && GRAPH_CHAIN=mumbai npm run create-remote
-	cd graph && GRAPH_CHAIN=mumbai npm run deploy-remote
+	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_TEST} npm run create-remote
+	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_TEST} npm run deploy-remote
 
-graph-deploy-remote-alfajores:
+graph-deploy-mumbai-prod:
+	cd graph && GRAPH_CHAIN=mumbai npm run prepare
+	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_PROD} npm run create-remote
+	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_PROD} npm run deploy-remote
+
+graph-deploy-alfajores-test:
 	cd graph && GRAPH_CHAIN=alfajores npm run prepare
-	cd graph && npm run create-remote
-	cd graph && npm run deploy-remote
+	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_TEST} npm run create-remote
+	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_TEST} npm run deploy-remote
 
- graph-deploy-remote:
-	npm run graph-prepare
-	npm run graph-create-remote
-	npm run graph-ship-remote
+graph-deploy-alfajores-prod:
+	cd graph && GRAPH_CHAIN=alfajores npm run prepare
+	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_PROD} npm run create-remote
+	cd graph && GRAPH_CHAIN=mumbai GQL_HOST=${GQL_HOST_PROD} npm run deploy-remote
+
