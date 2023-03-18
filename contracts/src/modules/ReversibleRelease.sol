@@ -81,7 +81,7 @@ contract ReversibleRelease is ModuleBase {
             if (owner == address(0)) revert AddressZero();
             payInfo[cheqId].creditor = toNotify;
             payInfo[cheqId].debtor = caller;
-            payInfo[cheqId].amount = instant;
+            payInfo[cheqId].amount = escrowed;
         } else {
             revert Disallowed();
         }
