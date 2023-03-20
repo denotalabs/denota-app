@@ -36,7 +36,14 @@ function CurrencyIcon({ currency }: Props) {
     currencyKey = currency;
   }
 
-  return <Image boxSize="20px" src={URL_MAP[currencyKey]} alt="USDC" />;
+  return (
+    <Image
+      borderRadius="full"
+      boxSize="20px"
+      src={URL_MAP[currencyKey]}
+      alt="USDC"
+    />
+  );
 }
 
 export default CurrencyIcon;
