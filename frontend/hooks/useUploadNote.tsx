@@ -10,51 +10,51 @@ interface NotaMetadata {
   tags?: string;
 }
 
-export const useUploadNote = () => {
-  const uploadFile = useCallback(
-    async (file: any, note: string, tags: string) => {
-      if (!file && !note && !tags) {
-        return;
+export const useUploadMetadata = () => {
+  const upload = useCallback(async (file: any, note: string, tags: string) => {
+    if (!file && !note && !tags) {
+      return;
+    }
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      const formData = new FormData();
+      if (file) {
+        formData.append("file", file);
       }
-      try {
-        const config = {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        };
+      if (note || tags) {
+        const rqData: NotaMetadata = {};
 
-        const formData = new FormData();
-        if (file) {
-          formData.append("file", file);
-        }
-        if (note || tags) {
-          const rqData: NotaMetadata = {};
-
-          if (note) {
-            rqData.desc = note;
-          }
-
-          if (tags) {
-            rqData.tags = tags;
-          }
-
-          const json = JSON.stringify(rqData);
-          const blob = new Blob([json], {
-            type: "application/json",
-          });
-          formData.append("document", blob);
+        if (note) {
+          rqData.desc = note;
         }
 
-        const resp = await axios.post(CHEQ_NOTE_SERVICE, formData, config);
-        console.log(resp.data.url);
-        return resp.data.key as string;
-      } catch (error) {
-        console.log(error);
-        return undefined;
-      }
-    },
-    []
-  );
+        if (tags) {
+          rqData.tags = tags;
+        }
 
-  return { uploadFile };
+        const json = JSON.stringify(rqData);
+        const blob = new Blob([json], {
+          type: "application/json",
+        });
+        formData.append("document", blob);
+      }
+
+      const resp = await axios.post(CHEQ_NOTE_SERVICE, formData, config);
+      console.log(resp.data.url);
+      return {
+        ipfsHash: resp.data.key as string,
+        imageUrl: resp.data.imageUrl as string,
+      };
+    } catch (error) {
+      console.log(error);
+      return undefined;
+    }
+  }, []);
+
+  return { upload };
 };
