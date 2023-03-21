@@ -15,35 +15,37 @@ export const useUploadMetadata = () => {
     if (!file && !note && !tags) {
       return;
     }
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    };
+
+    const formData = new FormData();
+
+    if (file) {
+      formData.append("file", file);
+    }
+
+    if (note || tags) {
+      const rqData: NotaMetadata = {};
+
+      if (note) {
+        rqData.desc = note;
+      }
+
+      if (tags) {
+        rqData.tags = tags;
+      }
+
+      const json = JSON.stringify(rqData);
+      const blob = new Blob([json], {
+        type: "application/json",
+      });
+      formData.append("document", blob);
+    }
+
     try {
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-
-      const formData = new FormData();
-      if (file) {
-        formData.append("file", file);
-      }
-      if (note || tags) {
-        const rqData: NotaMetadata = {};
-
-        if (note) {
-          rqData.desc = note;
-        }
-
-        if (tags) {
-          rqData.tags = tags;
-        }
-
-        const json = JSON.stringify(rqData);
-        const blob = new Blob([json], {
-          type: "application/json",
-        });
-        formData.append("document", blob);
-      }
-
       const resp = await axios.post(CHEQ_NOTE_SERVICE, formData, config);
       console.log(resp.data);
       return {
