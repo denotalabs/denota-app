@@ -44,8 +44,12 @@ export const useUploadMetadata = () => {
         formData.append("document", blob);
       }
 
-      const resp = await axios.post(CHEQ_NOTE_SERVICE, formData, config);
-      console.log(resp.data.url);
+      const resp = await axios.post(
+        CHEQ_NOTE_SERVICE_URL_LOCAL,
+        formData,
+        config
+      );
+      console.log(resp.data);
       return {
         ipfsHash: resp.data.key as string,
         imageUrl: resp.data.imageUrl as string,

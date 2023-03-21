@@ -4,6 +4,8 @@ import multer from "multer";
 
 import lighthouse from "@lighthouse-web3/sdk";
 
+import imageType from "image-type";
+
 const app = express();
 
 app.use(function (req, res, next) {
@@ -41,8 +43,9 @@ app.post("/lighthouse", cpUpload, async function (req, res) {
       obj.filename = req.files.file[0].originalname;
       obj.file = response.data.Hash;
 
-      let fileExt = req.files.file[0].originalname.split(".").slice(-1)[0];
-      if (["jpg", "jpeg", "png", "gif"].includes(fileExt)) {
+      const type = await imageType(fileContent);
+      const isImage = !!type;
+      if (isImage) {
         obj.image = "ipfs://" + response.data.Hash;
       }
     }
