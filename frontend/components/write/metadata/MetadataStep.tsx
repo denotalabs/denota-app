@@ -2,7 +2,7 @@ import { Box, Checkbox, Link, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useState } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import { useUploadNote } from "../../../hooks/useUploadNote";
+import { useUploadMetadata } from "../../../hooks/useUploadNote";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import MetadataBox from "./MetadataBox";
@@ -17,7 +17,7 @@ export type MetadataStepFormValues = {
 const MetadataStep: React.FC<ScreenProps> = () => {
   const { next } = useStep();
   const { appendFormData, formData, file, setFile } = useNotaForm();
-  const { uploadFile } = useUploadNote();
+  const { upload } = useUploadMetadata();
   const [hasConsented, setHasConsented] = useState(true);
   const toast = useToast();
 
@@ -32,20 +32,29 @@ const MetadataStep: React.FC<ScreenProps> = () => {
         }}
         onSubmit={async (values, actions) => {
           actions.setSubmitting(true);
-          let noteKey = "";
+          let ipfsHash = "";
+          let imageUrl = "";
           if (values.note || values.file || values.tags) {
             if (
               formData.note === values.note &&
               values.file?.name === file?.name &&
               formData.tags === values.tags
             ) {
-              noteKey = formData.noteKey;
+              ipfsHash = formData.ipfsHash;
+              imageUrl = formData.imageUrl;
             } else {
-              noteKey =
-                (await uploadFile(values.file, values.note, values.tags)) ?? "";
+              const result = await upload(
+                values.file,
+                values.note,
+                values.tags
+              );
+              if (result) {
+                ipfsHash = result.ipfsHash;
+                imageUrl = result.imageUrl;
+              }
             }
           }
-          if (noteKey === undefined) {
+          if (ipfsHash === undefined) {
             toast({
               title: "Error uploading file",
               status: "error",
@@ -56,7 +65,8 @@ const MetadataStep: React.FC<ScreenProps> = () => {
             appendFormData({
               note: values.note,
               email: values.email,
-              noteKey,
+              ipfsHash,
+              imageUrl,
               tags: values.tags,
             });
             if (values.file) {

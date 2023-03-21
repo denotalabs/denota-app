@@ -8,7 +8,8 @@ interface Props {
   amountWei: BigNumber;
   address: string;
   instantWei: BigNumber;
-  noteKey: string;
+  ipfsHash: string;
+  imageUrl: string;
   isInvoice: boolean;
 }
 
@@ -22,8 +23,9 @@ export const useDirectPay = () => {
       amountWei,
       address,
       instantWei,
-      noteKey,
+      ipfsHash,
       isInvoice,
+      imageUrl,
     }: Props) => {
       const utcOffset = new Date().getTimezoneOffset();
 
@@ -43,11 +45,18 @@ export const useDirectPay = () => {
       // TODO: handle image key
       const payload = ethers.utils.defaultAbiCoder.encode(
         ["address", "uint256", "uint256", "address", "string", "string"],
-        [address, amountWei, dueTimestamp, blockchainState.account, "", noteKey]
+        [
+          address,
+          amountWei,
+          dueTimestamp,
+          blockchainState.account,
+          imageUrl,
+          ipfsHash,
+        ]
       );
       const msgValue =
         tokenAddress === "0x0000000000000000000000000000000000000000" &&
-          !isInvoice
+        !isInvoice
           ? instantWei
           : BigNumber.from(0);
 

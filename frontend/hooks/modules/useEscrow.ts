@@ -7,7 +7,8 @@ interface Props {
   amountWei: BigNumber;
   address: string;
   escrowedWei: BigNumber;
-  noteKey: string;
+  ipfsHash: string;
+  imageUrl: string;
   isInvoice: boolean;
   inspector?: string;
 }
@@ -21,9 +22,10 @@ export const useEscrow = () => {
       amountWei,
       address,
       escrowedWei,
-      noteKey,
+      ipfsHash,
       isInvoice,
       inspector,
+      imageUrl,
     }: Props) => {
       const debtor = isInvoice ? address : blockchainState.account;
       const notaInspector = inspector ?? debtor;
@@ -35,8 +37,8 @@ export const useEscrow = () => {
           notaInspector,
           blockchainState.account,
           amountWei,
-          noteKey,
-          "",
+          ipfsHash,
+          imageUrl,
         ]
       );
       const msgValue =

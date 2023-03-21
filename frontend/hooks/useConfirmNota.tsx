@@ -131,8 +131,9 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               amountWei,
               address: formData.address,
               instantWei: transferWei,
-              noteKey: formData.noteKey,
+              ipfsHash: formData.ipfsHash,
               isInvoice: formData.mode === "invoice",
+              imageUrl: formData.imageUrl,
             });
             break;
           case "escrow":
@@ -141,9 +142,10 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               amountWei,
               address: formData.address,
               escrowedWei: transferWei,
-              noteKey: formData.noteKey,
+              ipfsHash: formData.ipfsHash,
               isInvoice: formData.mode === "invoice",
               inspector: formData.auditor,
+              imageUrl: formData.imageUrl,
             });
             break;
 
@@ -196,7 +198,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     formData.mode,
     formData.dueDate,
     formData.address,
-    formData.noteKey,
+    formData.ipfsHash,
+    formData.imageUrl,
     formData.auditor,
     formData.token,
     formData.amount,
