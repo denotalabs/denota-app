@@ -11,6 +11,7 @@ import { useColorMode } from "@chakra-ui/react";
 import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
 
+import { setProvider } from "@denota-labs/denota-sdk";
 import CheqRegistrar from "../frontend-abi/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {
@@ -97,6 +98,7 @@ export const BlockchainDataProvider = memo(
         theme: colorMode,
       });
       const web3ModalConnection = await safeAppWeb3Modal.connect();
+      setProvider(web3ModalConnection);
       const provider = new ethers.providers.Web3Provider(web3ModalConnection);
       const signer = provider.getSigner(); //console.log(provider)
       const account = await signer.getAddress(); //console.log(account)

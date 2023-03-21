@@ -39,27 +39,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     return ethers.utils.parseEther(formData.amount);
   }, [formData]);
 
-  const transferWei =
-    formData.mode === "invoice" ? BigNumber.from(0) : amountWei;
-
   const { refreshWithDelay } = useCheqContext();
-
-  const tokenAddress = useMemo(() => {
-    switch (formData.token) {
-      case "DAI":
-        return blockchainState.dai?.address ?? "";
-      case "WETH":
-        return blockchainState.weth?.address ?? "";
-      case "NATIVE":
-        return "0x0000000000000000000000000000000000000000";
-      default:
-        return "";
-    }
-  }, [
-    blockchainState.dai?.address,
-    blockchainState.weth?.address,
-    formData.token,
-  ]);
 
   useEffect(() => {
     const fetchAllowance = async () => {
@@ -127,10 +107,9 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           case "direct":
             txHash = await writeDirectPayCheq({
               dueDate: formData.dueDate,
-              tokenAddress,
-              amountWei,
+              token: formData.token,
+              amount: formData.amount,
               address: formData.address,
-              instantWei: transferWei,
               ipfsHash: formData.ipfsHash ?? "",
               isInvoice: formData.mode === "invoice",
               imageUrl: formData.imageUrl ?? "",
@@ -138,10 +117,9 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             break;
           case "escrow":
             txHash = await writeEscrowCheq({
-              tokenAddress,
-              amountWei,
+              token: formData.token,
+              amount: formData.amount,
               address: formData.address,
-              escrowedWei: transferWei,
               ipfsHash: formData.ipfsHash ?? "",
               isInvoice: formData.mode === "invoice",
               inspector: formData.auditor,
@@ -207,8 +185,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     refreshWithDelay,
     onSuccess,
     writeDirectPayCheq,
-    tokenAddress,
-    transferWei,
     writeEscrowCheq,
     sendEmail,
   ]);
