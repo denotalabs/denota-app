@@ -7,7 +7,7 @@ import {Events} from "./libraries/Events.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 
-// Idea Registrar could take different fees from different modules. Business related ones would be charged but not social ones
+// Idea Registrar could take different fees from different modules. Business related ones would be charged but not social ones?
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
     mapping(address => mapping(address => uint256)) internal _moduleRevenue; // Could collapse this into a single mapping
@@ -17,7 +17,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     mapping(address => string) internal _moduleName;
     mapping(address => string) internal _tokenName;
 
-    // uint256 public _writeFlatFee; // Question: is this needed?
+    // uint256 public _writeFlatFee;
     // event MetadataUpdate(uint256 _tokenId);  // question how to update using this structure?
     // event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId); // todo need totalSupply
 
@@ -45,13 +45,6 @@ contract RegistrarGov is Ownable, IRegistrarGov {
             _moduleRevenue[_msgSender()][token] -= amount;
         }
         IERC20(token).safeTransferFrom(address(this), to, amount);
-    }
-
-    function validWrite(
-        address module,
-        address token
-    ) public view returns (bool) {
-        return _validModule(module) && _tokenWhitelist[token]; // Valid module and whitelisted currency
     }
 
     function whitelistModule(
@@ -105,10 +98,21 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         return moduleCodeHash;
     }
 
-    function _validModule(address module) internal view returns (bool) {
+    function validModule(address module) public view returns (bool) {
         return
             _addressWhitelist[module] ||
             _bytecodeWhitelist[_returnCodeHash(module)];
+    }
+
+    function tokenWhitelisted(address token) public view returns (bool) {
+        return _tokenWhitelist[token];
+    }
+
+    function validWrite(
+        address module,
+        address token
+    ) public view returns (bool) {
+        return validModule(module) && tokenWhitelisted(token); // Valid module and whitelisted currency
     }
 
     function moduleWhitelisted(
@@ -118,9 +122,5 @@ contract RegistrarGov is Ownable, IRegistrarGov {
             _addressWhitelist[module],
             _bytecodeWhitelist[_returnCodeHash(module)]
         );
-    }
-
-    function tokenWhitelisted(address token) public view returns (bool) {
-        return _tokenWhitelist[token];
     }
 }

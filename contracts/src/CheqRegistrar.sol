@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
-import "openzeppelin/token/ERC721/ERC721.sol";
+import {ERC721} from "./ERC721.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {Events} from "./libraries/Events.sol";
 import {RegistrarGov} from "./RegistrarGov.sol";
@@ -23,9 +23,8 @@ import {CheqBase64Encoding} from "./libraries/CheqBase64Encoding.sol";
  * @title  The Cheq Payment Registrar
  * @notice The main contract where users can WTFCA cheqs
  * @author Alejandro Almaraz
- * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.
+ * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules, and collects revenue.
  */
-// Question: will we be making many, custom made models, or try to make them as general as possible?
 contract CheqRegistrar is
     ERC721,
     RegistrarGov,
@@ -37,19 +36,18 @@ contract CheqRegistrar is
     mapping(uint256 => DataTypes.Cheq) private _cheqInfo;
     uint256 private _totalSupply;
 
-    error Disallowed();
     error SendFailed();
-    error SelfApproval();
     error InsufficientValue(uint256);
     error InvalidWrite(address, address);
     error InsufficientEscrow(uint256, uint256);
 
     constructor() ERC721("denota", "NOTA") {}
 
+    /*/////////////////////// WTFCAT ////////////////////////////*/
     function write(
         address currency,
         uint256 escrowed,
-        uint256 instant, // if nonFungible is supported make sure this can't be used
+        uint256 instant, // if nonFungible is supported make sure this can't be used (or use native)
         address owner,
         address module,
         bytes calldata moduleWriteData
@@ -71,10 +69,10 @@ contract CheqRegistrar is
 
         _transferTokens(escrowed, instant, currency, owner, moduleFee, module);
 
-        _safeMint(owner, _totalSupply);
+        _mint(owner, _totalSupply);
         _cheqInfo[_totalSupply].currency = currency;
         _cheqInfo[_totalSupply].escrowed = escrowed;
-        _cheqInfo[_totalSupply].createdAt = block.timestamp; // This necessary?
+        _cheqInfo[_totalSupply].createdAt = block.timestamp;
         _cheqInfo[_totalSupply].module = module;
 
         emit Events.Written(
@@ -94,47 +92,13 @@ contract CheqRegistrar is
         } // NOTE: Will this ever overflow?
     }
 
-    function safeTransferFrom(
+    function transferFrom(
         address from,
         address to,
-        uint256 tokenId,
-        bytes memory moduleTransferData
+        uint256 tokenId
     ) public override(ERC721, ICheqRegistrar) {
-        address owner = ownerOf(tokenId); // require(from == owner,  "") ?
-        DataTypes.Cheq storage cheq = _cheqInfo[tokenId]; // Better to assign than to index?
-
-        // Module hook
-        uint256 moduleFee = ICheqModule(cheq.module).processTransfer(
-            _msgSender(),
-            getApproved(tokenId),
-            owner,
-            from, // TODO Might not be needed
-            to,
-            tokenId,
-            cheq.currency,
-            cheq.escrowed,
-            cheq.createdAt,
-            moduleTransferData
-        );
-
-        // Fee taking and escrowing
-        if (cheq.escrowed > 0) {
-            // Can't take from 0 escrow
-            cheq.escrowed = cheq.escrowed - moduleFee;
-            _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
-            emit Events.Transferred(
-                tokenId,
-                owner,
-                to,
-                moduleFee,
-                block.timestamp
-            );
-        } else {
-            // Must be case since fee's can't be taken without an escrow to take from
-            emit Events.Transferred(tokenId, owner, to, 0, block.timestamp);
-        }
-
-        _safeTransfer(from, to, tokenId, "");
+        _transferHookTakeFee(from, to, tokenId, "");
+        _transfer(from, to, tokenId);
     }
 
     function fund(
@@ -143,7 +107,8 @@ contract CheqRegistrar is
         uint256 instant,
         bytes calldata fundData
     ) external payable {
-        DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // TODO check that token exists
+        // if (cheqId >= _totalSupply) revert NotMinted();
+        DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // TODO module MUST check that token exists
         address owner = ownerOf(cheqId); // Is used twice
 
         // Module hook
@@ -186,7 +151,7 @@ contract CheqRegistrar is
         address to,
         bytes calldata cashData
     ) external payable {
-        // Should percent fee work here too?
+        // if (cheqId >= _totalSupply) revert NotMinted();
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
 
         // Module Hook
@@ -232,6 +197,7 @@ contract CheqRegistrar is
         address to,
         uint256 tokenId
     ) public override(ERC721, ICheqRegistrar) {
+        // if (cheqId >= _totalSupply) revert NotMinted();
         if (to == _msgSender()) revert SelfApproval();
 
         // Module hook
@@ -257,8 +223,6 @@ contract CheqRegistrar is
         string memory _tokenData = ICheqModule(_cheqInfo[_tokenId].module)
             .processTokenURI(_tokenId);
 
-        // string memory tokenName = _tokenName[_cheqInfo[_tokenId].currency];
-        // string memory moduleName = _moduleName[_cheqInfo[_tokenId].module];
         return
             buildMetadata(
                 _tokenName[_cheqInfo[_tokenId].currency],
@@ -269,6 +233,7 @@ contract CheqRegistrar is
             );
     }
 
+    /*//////////////////////// HELPERS ///////////////////////////*/
     function _transferTokens(
         uint256 escrowed,
         uint256 instant,
@@ -312,26 +277,61 @@ contract CheqRegistrar is
         }
     }
 
-    function transferFrom(
+    function _transferHookTakeFee(
         address from,
         address to,
-        uint256 tokenId
-    ) public override {
-        // Removed the approveOrOwner check, allow module to decide
-        safeTransferFrom(from, to, tokenId, "");
+        uint256 tokenId,
+        bytes memory moduleTransferData
+    ) internal {
+        if (moduleTransferData.length == 0)
+            moduleTransferData = abi.encode(owner());
+        address owner = ownerOf(tokenId); // require(from == owner,  "") ?
+        DataTypes.Cheq storage cheq = _cheqInfo[tokenId]; // Better to assign than to index?
+        // No approveOrOwner check, allow module to decide
+
+        // Module hook
+        uint256 moduleFee = ICheqModule(cheq.module).processTransfer(
+            _msgSender(),
+            getApproved(tokenId),
+            owner,
+            from, // TODO Might not be needed
+            to,
+            tokenId,
+            cheq.currency,
+            cheq.escrowed,
+            cheq.createdAt,
+            moduleTransferData
+        );
+
+        // Fee taking and escrowing
+        if (cheq.escrowed > 0) {
+            // Can't take from 0 escrow
+            cheq.escrowed = cheq.escrowed - moduleFee;
+            _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
+            emit Events.Transferred(
+                tokenId,
+                owner,
+                to,
+                moduleFee,
+                block.timestamp
+            );
+        } else {
+            // Must be case since fee's can't be taken without an escrow to take from
+            emit Events.Transferred(tokenId, owner, to, 0, block.timestamp);
+        }
     }
 
-    function setApprovalForAll(
-        address /*operator*/,
-        bool /*approved*/
-    ) public pure override {
-        revert Disallowed(); // Question: Does OS require operators?
-        // _setApprovalForAll(_msgSender(), operator, approved);
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory moduleTransferData
+    ) public override(ERC721, ICheqRegistrar) {
+        _transferHookTakeFee(from, to, tokenId, moduleTransferData);
+        _safeTransfer(from, to, tokenId, moduleTransferData);
     }
 
-    /*//////////////////////////////////////////////////////////////
-                                VIEW
-    //////////////////////////////////////////////////////////////*/
+    /*///////////////////////// VIEW ////////////////////////////*/
     function cheqInfo(
         uint256 cheqId
     ) public view returns (DataTypes.Cheq memory) {
@@ -358,13 +358,4 @@ contract CheqRegistrar is
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }
-
-    // function ownerOf(uint256 tokenId) public view override returns (address) {
-    //     address owner = _ownerOf(tokenId);
-    //     // return ICheqModule(_cheqInfo[tokenId].module).processOwnerOf(_msgSender(), tokenId);
-    // }
-
-    // function balanceOf(address owner) public view override returns (uint256) {
-    //     // uint256 tokenBalance = module.processBalanceOf(owner); // takes into consideration blacklisted
-    // }
 }

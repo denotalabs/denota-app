@@ -9,7 +9,6 @@ import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {ReversibleRelease} from "../src/modules/ReversibleRelease.sol";
 
 // TODO add fail tests
-
 contract ReversibleReleaseTest is Test {
     CheqRegistrar public REGISTRAR;
     TestERC20 public dai;
@@ -344,14 +343,14 @@ contract ReversibleReleaseTest is Test {
     function fundHelper(
         uint256 cheqId,
         ReversibleRelease reversibleRelease,
-        uint256 faceValue,
+        uint256 fundAmount,
         address debtor,
         address creditor
     ) public {
         uint256 totalWithFees = calcTotalFees(
             REGISTRAR,
             reversibleRelease,
-            faceValue, // escrowed amount
+            fundAmount, // escrowed amount
             0 // instant amount
         );
         vm.prank(debtor);
@@ -360,32 +359,27 @@ contract ReversibleReleaseTest is Test {
         dai.transfer(debtor, totalWithFees);
         vm.assume(dai.balanceOf(debtor) >= totalWithFees);
 
-        uint256 creditorBalanceBefore = dai.balanceOf(creditor);
         uint256 debtorBalanceBefore = dai.balanceOf(debtor);
 
         vm.prank(debtor);
         REGISTRAR.fund(
             cheqId,
-            faceValue, // Escrow amount
+            fundAmount, // Escrow amount
             0, // Instant amount
             abi.encode(address(0)) // Fund data
         );
 
-        // assertTrue(
-        //     faceValue + debtorBalanceBefore == dai.balanceOf(debtor),
-        //     "Didnt decrement balance"
-        // );
-        // assertTrue(
-        //     dai.balanceOf(creditor) - faceValue == creditorBalanceBefore,
-        //     "Didnt increment balance"
-        // );
+        assertTrue(
+            debtorBalanceBefore - fundAmount == dai.balanceOf(debtor),
+            "Didnt decrement balance"
+        );
     }
 
     function writeAssumptions(
         address debtor,
         uint256 faceValue,
         address creditor
-    ) public {
+    ) public view {
         vm.assume(debtor != creditor);
         vm.assume(faceValue != 0 && faceValue <= tokensCreated);
         vm.assume(
@@ -401,8 +395,7 @@ contract ReversibleReleaseTest is Test {
         address creditor
     ) public {
         writeAssumptions(debtor, faceValue, creditor);
-
-        (uint256 cheqId, ReversibleRelease reversibleRelease) = writeHelper(
+        writeHelper(
             creditor, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -469,15 +462,18 @@ contract ReversibleReleaseTest is Test {
         address creditor
     ) public {
         writeAssumptions(debtor, faceValue, creditor);
-        (uint256 cheqId, ReversibleRelease reversibleRelease) = writeHelper(
-            debtor, // Caller
-            faceValue, // Face value
-            faceValue, // escrowed
-            0, // instant
-            creditor, // toNotify
-            creditor, // Owner
-            address(this)
-        );
+        (
+            uint256 cheqId /*ReversibleRelease reversibleRelease*/,
+
+        ) = writeHelper(
+                debtor, // Caller
+                faceValue, // Face value
+                faceValue, // escrowed
+                0, // instant
+                creditor, // toNotify
+                creditor, // Owner
+                address(this)
+            );
 
         uint256 balanceBefore = dai.balanceOf(creditor);
         vm.prank(address(this));
@@ -498,15 +494,18 @@ contract ReversibleReleaseTest is Test {
     ) public {
         writeAssumptions(debtor, faceValue, creditor);
 
-        (uint256 cheqId, ReversibleRelease reversibleRelease) = writeHelper(
-            debtor, // Who the caller should be
-            faceValue, // Face value of invoice
-            faceValue, // escrowed amount
-            0, // instant amount
-            creditor, // toNotify
-            creditor, // The owner
-            address(this)
-        );
+        (
+            uint256 cheqId /*ReversibleRelease reversibleRelease*/,
+
+        ) = writeHelper(
+                debtor, // Who the caller should be
+                faceValue, // Face value of invoice
+                faceValue, // escrowed amount
+                0, // instant amount
+                creditor, // toNotify
+                creditor, // The owner
+                address(this)
+            );
 
         uint256 balanceBefore = dai.balanceOf(creditor);
         vm.prank(address(this));

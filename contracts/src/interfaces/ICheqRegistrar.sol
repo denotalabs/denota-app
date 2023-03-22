@@ -20,7 +20,17 @@ interface ICheqRegistrar {
         bytes calldata moduleWriteData
     ) external payable returns (uint256);
 
-    // function transferFrom(address from, address to, uint256 tokenId, bytes memory moduleTransferData) external; // Question: Should this be allowed?
+    // function safeWrite(
+    //     address currency,
+    //     uint256 escrowed,
+    //     uint256 instant,
+    //     address owner,
+    //     address module,
+    //     bytes calldata moduleWriteData
+    // ) external payable returns (uint256);
+
+    function transferFrom(address from, address to, uint256 tokenId) external;
+
     function safeTransferFrom(
         address from,
         address to,

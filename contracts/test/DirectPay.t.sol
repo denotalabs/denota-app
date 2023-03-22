@@ -215,7 +215,7 @@ contract DirectPayTest is Test {
 
     function registrarWriteAfter(
         uint256 cheqId,
-        uint256 amount,
+        uint256 /*amount*/,
         uint256 escrowed,
         address owner,
         address drawer,
@@ -262,7 +262,6 @@ contract DirectPayTest is Test {
         address creditor
     ) public {
         vm.assume(directAmount != 0 && directAmount <= tokensCreated);
-        address owner = creditor;
         vm.assume(
             debtor != address(0) &&
                 creditor != address(0) &&
@@ -527,11 +526,12 @@ contract DirectPayTest is Test {
         assertTrue(dai.balanceOf(caller) - faceValue == balanceBefore);
 
         vm.prank(caller);
-        REGISTRAR.safeTransferFrom(
-            caller,
-            address(1),
-            cheqId,
-            abi.encode(bytes32("")) // transfer data
-        );
+        // REGISTRAR.safeTransferFrom(
+        //     caller,
+        //     address(1),
+        //     cheqId,
+        //     abi.encode(bytes32("")) // transfer data
+        // );
+        REGISTRAR.transferFrom(caller, address(1), cheqId);
     }
 }
