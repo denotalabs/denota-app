@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
-import {IWriteRule, ITransferRule, IFundRule, ICashRule, IApproveRule} from "../interfaces/IWTFCRules.sol";
 
 /**
  * @notice Issuer pays out the entire escrow amount at once. Defines the size and times of each vest in the schedule.
