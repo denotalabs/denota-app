@@ -13,30 +13,30 @@ library Errors {
     error InitParamsInvalid();
 
     // Cheq Errors
-    error CheqInvalid();
-    error ZeroAddress();
-    error ZeroEscrow();
+    // error CheqInvalid();
+    // error ZeroAddress();
+    // error ZeroEscrow();
 
     // MultiState Errors
-    error Paused();
-    error WritingPaused();
-    error TransferringPaused();
-    error FundingPaused();
-    error CashingPaused();
-    error ApprovingPaused();
-    error BurningPaused();
+    // error Paused();
+    // error WritingPaused();
+    // error TransferringPaused();
+    // error FundingPaused();
+    // error CashingPaused();
+    // error ApprovingPaused();
+    // error BurningPaused();
 
-    // error CannotInitImplementation();
-    // error Initialized();
-    // error SignatureExpired();
-    // error ZeroSpender();
-    // error SignatureInvalid();
-    // error NotOwnerOrApproved();
-    // error TokenDoesNotExist();
-    // error NotGovernanceOrEmergencyAdmin();
-    // error EmergencyAdminCannotUnpause();
-    // error NotDispatcher();
-    // error BlockNumberInvalid();
-    // error ArrayMismatch();
-    // error InvalidParameter();
+    //// error CannotInitImplementation();
+    //// error Initialized();
+    //// error SignatureExpired();
+    //// error ZeroSpender();
+    //// error SignatureInvalid();
+    //// error NotOwnerOrApproved();
+    //// error TokenDoesNotExist();
+    //// error NotGovernanceOrEmergencyAdmin();
+    //// error EmergencyAdminCannotUnpause();
+    //// error NotDispatcher();
+    //// error BlockNumberInvalid();
+    //// error ArrayMismatch();
+    //// error InvalidParameter();
 }

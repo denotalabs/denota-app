@@ -18,16 +18,6 @@ abstract contract ModuleBase is ICheqModule {
     uint256 internal constant BPS_MAX = 10_000; // Lens uses uint16
     string public _URI; // Should this be in the ModuleBase?
     error FeeTooHigh();
-    /**
-return takeReturnFee(currency, escrowed + instant, dappOperator);
-return takeReturnFee(currency, escrowed, abi.decode(data, (address)));
-return
-            takeReturnFee(
-                cheq.currency,
-                amount,
-                abi.decode(initData, (address))
-            );
-*/
 
     modifier onlyRegistrar() {
         if (msg.sender != REGISTRAR) revert Errors.NotRegistrar();
