@@ -95,10 +95,7 @@ contract ReversibleRelease is ModuleBase {
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
-    function _logPaymentCreated(
-        uint256 cheqId,
-        address referer
-    ) private {
+    function _logPaymentCreated(uint256 cheqId, address referer) private {
         emit PaymentCreated(
             cheqId,
             payInfo[cheqId].memoHash,

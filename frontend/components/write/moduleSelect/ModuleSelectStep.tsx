@@ -7,7 +7,7 @@ import {
   CardHeader,
   Heading,
   SimpleGrid,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
@@ -52,7 +52,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ isInvoice }) => {
         </Card>
         <Card>
           <CardHeader>
-            <Heading size="md"> Escrow</Heading>
+            <Heading size="md"> Reversible Release</Heading>
           </CardHeader>
           <CardBody>
             <Text>Funds are held in escrow until released by the payer </Text>

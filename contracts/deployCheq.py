@@ -147,7 +147,8 @@ if __name__ == "__main__":
 
     if not existing_addresses[chain]["escrow"]:
         Escrow_path = "src/modules/ReversibleRelease.sol:ReversibleRelease"
-        result = eth_call(f'forge create {Escrow_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {rpc_key_flags}', "Module deployment failed")
+        result = eth_call(
+            f'forge create {Escrow_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {rpc_key_flags}', "Module deployment failed")
         escrow = extract_address(result.stdout)
         existing_addresses[chain]["escrow"] = escrow
         # Whitelist the Escrow module
@@ -158,9 +159,10 @@ if __name__ == "__main__":
     # Update the address JSON
     with open("contractAddresses.json", 'w') as f:
         f.write(json.dumps(existing_addresses))
-    
+
     with open("../frontend/context/contractAddresses.tsx", 'w') as f:
-        f.write("export const ContractAddressMapping = " + json.dumps(existing_addresses))
+        f.write("export const ContractAddressMapping = " +
+                json.dumps(existing_addresses))
 
     with open("../graph/subgraph/config/" + chain + ".json", 'w') as f:
         existing_addresses[chain]["network"] = chain
@@ -176,3 +178,5 @@ if __name__ == "__main__":
     native_token_name = native_token_name_chain(chain)
     eth_call(
         f'cast send {registrar} "whitelistToken(address,bool,string)" "0x0000000000000000000000000000000000000000" "true" {native_token_name} {rpc_key_flags}', "Whitelist token failed")
+    # print(
+    #     f"cast call {registrar} 'tokenURI(uint256)' '0' --rpc-url {rpc}")
