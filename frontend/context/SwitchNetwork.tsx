@@ -20,6 +20,7 @@ export const switchNetwork = async (chainId: string) => {
       method: "wallet_switchEthereumChain",
       params: [{ chainId: id }],
     });
+    return true;
   } catch (error: any) {
     if (error.code === METAMASK_ERROR_CODE) {
       try {
@@ -35,9 +36,12 @@ export const switchNetwork = async (chainId: string) => {
             },
           ],
         });
+        return true;
       } catch (addError) {
         console.error(addError);
+        return false;
       }
     }
+    return false;
   }
 };

@@ -6,7 +6,7 @@ function NewUserScreen() {
       <Center flexDirection={"column"} w="100%" px={5}>
         <Text fontSize="2xl">
           {" "}
-          Hola from Denota! Check out our docs on the sidebar.
+          Hola from Denota! Please connect your wallet.
         </Text>
       </Center>
     </Box>
