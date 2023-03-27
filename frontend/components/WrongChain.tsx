@@ -1,4 +1,11 @@
-import { Button, Center, Text } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Button,
+  Center,
+  Text,
+} from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import { MUMBAI_ADDRESS } from "../context/chainInfo";
 import { switchNetwork } from "../context/SwitchNetwork";
@@ -18,16 +25,24 @@ export function WrongChain() {
       <Text fontWeight={600} fontSize={"md"} textAlign="center" pb={6}>
         Please switch to Polygon Mumbai Testnet
       </Text>
-      <Button
-        colorScheme="blue"
-        onClick={() => {
-          switchToMumbai?.();
-        }}
-      >
-        {!chainSwitchFailed
-          ? "Switch to Mumbai"
-          : "Seems like we can't switch the network automatically. Please check if you can change it from the wallet."}
-      </Button>
+      {chainSwitchFailed ? (
+        <Alert status="error" maxW="500px">
+          <AlertIcon />
+          <AlertDescription>
+            Seems like we can't switch the network automatically. Please check
+            if you can change it from the wallet.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Button
+          colorScheme="blue"
+          onClick={() => {
+            switchToMumbai?.();
+          }}
+        >
+          Switch to Mumbai
+        </Button>
+      )}
     </Center>
   );
 }
