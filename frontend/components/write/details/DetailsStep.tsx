@@ -45,60 +45,58 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
           amount: formData.amount ?? undefined,
           address: formData.address ?? "",
           mode: initialMode,
-          note: formData.note,
+          note: formData.note ?? "",
           email: formData.email ?? "",
           file: file,
           tags: formData.tags ?? "",
         }}
         onSubmit={async (values, actions) => {
-          if (showMetadata) {
+          const hasMetadata = values.note || values.file || values.tags;
+          if (showMetadata && hasMetadata) {
             actions.setSubmitting(true);
-            let ipfsHash = "";
-            let imageUrl = "";
-            if (values.note || values.file || values.tags) {
-              if (
-                formData.note === values.note &&
-                values.file?.name === file?.name &&
-                formData.tags === values.tags
-              ) {
-                ipfsHash = formData.ipfsHash;
-                imageUrl = formData.imageUrl;
+
+            const metadataChanged =
+              formData.note !== values.note ||
+              values.file?.name !== file?.name ||
+              formData.tags !== values.tags;
+
+            if (metadataChanged) {
+              const result = await upload(
+                values.file,
+                values.note,
+                values.tags
+              );
+
+              const { ipfsHash, imageUrl } = result;
+
+              if (ipfsHash === undefined) {
+                toast({
+                  title: "Error uploading file",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                });
               } else {
-                const result = await upload(
-                  values.file,
-                  values.note,
-                  values.tags
-                );
-                if (result) {
-                  ipfsHash = result.ipfsHash;
-                  imageUrl = result.imageUrl;
-                }
+                appendFormData({
+                  ipfsHash,
+                  imageUrl,
+                });
               }
             }
-            if (ipfsHash === undefined) {
-              toast({
-                title: "Error uploading file",
-                status: "error",
-                duration: 3000,
-                isClosable: true,
-              });
-            } else {
-              appendFormData({
-                note: values.note,
-                email: values.email,
-                ipfsHash,
-                imageUrl,
-                tags: values.tags,
-              });
-              if (values.file) {
-                setFile?.(values.file);
-              }
-              actions.setSubmitting(false);
-              next?.();
-            }
-          } else {
-            next?.();
           }
+
+          appendFormData({
+            note: values.note,
+            email: values.email,
+            tags: values.tags,
+          });
+
+          if (values.file) {
+            setFile?.(values.file);
+          }
+
+          actions.setSubmitting(false);
+          next?.();
         }}
       >
         {(props) => {

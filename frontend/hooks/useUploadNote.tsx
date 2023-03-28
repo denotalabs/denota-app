@@ -54,7 +54,7 @@ export const useUploadMetadata = () => {
       };
     } catch (error) {
       console.log(error);
-      return undefined;
+      return { ipfsHash: undefined, imageUrl: undefined };
     }
   }, []);
 
