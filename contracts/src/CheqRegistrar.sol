@@ -37,8 +37,8 @@ contract CheqRegistrar is
     uint256 private _totalSupply;
 
     error SendFailed();
-    error InsufficientValue(uint256);
     error InvalidWrite(address, address);
+    error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
 
     constructor() ERC721("denota", "NOTA") {}
@@ -95,10 +95,11 @@ contract CheqRegistrar is
     function transferFrom(
         address from,
         address to,
-        uint256 tokenId
+        uint256 cheqId
     ) public override(ERC721, ICheqRegistrar) {
-        _transferHookTakeFee(from, to, tokenId, "");
-        _transfer(from, to, tokenId);
+        if (cheqId >= _totalSupply) revert NotMinted();
+        _transferHookTakeFee(from, to, cheqId, abi.encode(""));
+        _transfer(from, to, cheqId);
     }
 
     function fund(
@@ -107,7 +108,7 @@ contract CheqRegistrar is
         uint256 instant,
         bytes calldata fundData
     ) external payable {
-        // if (cheqId >= _totalSupply) revert NotMinted();
+        if (cheqId >= _totalSupply) revert NotMinted();
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // TODO module MUST check that token exists
         address owner = ownerOf(cheqId); // Is used twice
 
@@ -151,7 +152,7 @@ contract CheqRegistrar is
         address to,
         bytes calldata cashData
     ) external payable {
-        // if (cheqId >= _totalSupply) revert NotMinted();
+        if (cheqId >= _totalSupply) revert NotMinted();
         DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
 
         // Module Hook
@@ -195,40 +196,40 @@ contract CheqRegistrar is
 
     function approve(
         address to,
-        uint256 tokenId
+        uint256 cheqId
     ) public override(ERC721, ICheqRegistrar) {
-        // if (cheqId >= _totalSupply) revert NotMinted();
+        if (cheqId >= _totalSupply) revert NotMinted();
         if (to == _msgSender()) revert SelfApproval();
 
         // Module hook
-        DataTypes.Cheq memory cheq = _cheqInfo[tokenId];
+        DataTypes.Cheq memory cheq = _cheqInfo[cheqId];
         ICheqModule(cheq.module).processApproval(
             _msgSender(),
-            ownerOf(tokenId),
+            ownerOf(cheqId),
             to,
-            tokenId,
+            cheqId,
             cheq,
             ""
         );
 
         // Approve
-        _approve(to, tokenId);
+        _approve(to, cheqId);
     }
 
     function tokenURI(
-        uint256 _tokenId
+        uint256 cheqId
     ) public view override returns (string memory) {
-        _requireMinted(_tokenId);
+        if (cheqId >= _totalSupply) revert NotMinted();
 
-        string memory _tokenData = ICheqModule(_cheqInfo[_tokenId].module)
-            .processTokenURI(_tokenId);
+        string memory _tokenData = ICheqModule(_cheqInfo[cheqId].module)
+            .processTokenURI(cheqId);
 
         return
             buildMetadata(
-                _tokenName[_cheqInfo[_tokenId].currency],
-                itoa(_cheqInfo[_tokenId].escrowed),
-                // itoa(_cheqInfo[_tokenId].createdAt),
-                _moduleName[_cheqInfo[_tokenId].module],
+                _tokenName[_cheqInfo[cheqId].currency],
+                itoa(_cheqInfo[cheqId].escrowed),
+                // itoa(_cheqInfo[_cheqId].createdAt),
+                _moduleName[_cheqInfo[cheqId].module],
                 _tokenData
             );
     }
@@ -242,16 +243,15 @@ contract CheqRegistrar is
         uint256 moduleFee,
         address module
     ) private {
-        uint256 totalAmount = escrowed + instant;
-        if (totalAmount != 0) {
-            // Module forces user to escrow moduleFee, even when escrowed == 0
-            uint256 toEscrow = escrowed + moduleFee;
+        uint256 toEscrow = escrowed + moduleFee; // Module forces user to escrow moduleFee, even when escrowed == 0
+        if (toEscrow + instant != 0) {
             if (toEscrow > 0) {
                 if (currency == address(0)) {
                     if (msg.value < toEscrow)
-                        // Downside is user must send value in this case, whereas ERC20 only requires sufficient approval
-                        revert InsufficientValue(msg.value);
+                        // User must send sufficient value ahead of time
+                        revert InsufficientValue(toEscrow, msg.value);
                 } else {
+                    // User must approve sufficient value ahead of time
                     IERC20(currency).safeTransferFrom(
                         _msgSender(),
                         address(this),
@@ -259,11 +259,13 @@ contract CheqRegistrar is
                     );
                 }
             }
+
             if (instant > 0) {
                 if (currency == address(0)) {
-                    if (msg.value != instant)
-                        revert InsufficientValue(msg.value);
-                    (bool sent, ) = owner.call{value: msg.value}("");
+                    if (msg.value != instant + toEscrow)
+                        // need to subtract toEscrow from msg.value
+                        revert InsufficientValue(instant + toEscrow, msg.value);
+                    (bool sent, ) = owner.call{value: instant}("");
                     if (!sent) revert SendFailed();
                 } else {
                     IERC20(currency).safeTransferFrom(
@@ -273,6 +275,7 @@ contract CheqRegistrar is
                     );
                 }
             }
+
             _moduleRevenue[module][currency] += moduleFee;
         }
     }
@@ -280,23 +283,23 @@ contract CheqRegistrar is
     function _transferHookTakeFee(
         address from,
         address to,
-        uint256 tokenId,
+        uint256 cheqId,
         bytes memory moduleTransferData
     ) internal {
         if (moduleTransferData.length == 0)
             moduleTransferData = abi.encode(owner());
-        address owner = ownerOf(tokenId); // require(from == owner,  "") ?
-        DataTypes.Cheq storage cheq = _cheqInfo[tokenId]; // Better to assign than to index?
+        address owner = ownerOf(cheqId); // require(from == owner,  "") ?
+        DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // Better to assign than to index?
         // No approveOrOwner check, allow module to decide
 
         // Module hook
         uint256 moduleFee = ICheqModule(cheq.module).processTransfer(
             _msgSender(),
-            getApproved(tokenId),
+            getApproved(cheqId),
             owner,
             from, // TODO Might not be needed
             to,
-            tokenId,
+            cheqId,
             cheq.currency,
             cheq.escrowed,
             cheq.createdAt,
@@ -309,7 +312,7 @@ contract CheqRegistrar is
             cheq.escrowed = cheq.escrowed - moduleFee;
             _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
             emit Events.Transferred(
-                tokenId,
+                cheqId,
                 owner,
                 to,
                 moduleFee,
@@ -317,41 +320,45 @@ contract CheqRegistrar is
             );
         } else {
             // Must be case since fee's can't be taken without an escrow to take from
-            emit Events.Transferred(tokenId, owner, to, 0, block.timestamp);
+            emit Events.Transferred(cheqId, owner, to, 0, block.timestamp);
         }
     }
 
     function safeTransferFrom(
         address from,
         address to,
-        uint256 tokenId,
+        uint256 cheqId,
         bytes memory moduleTransferData
     ) public override(ERC721, ICheqRegistrar) {
-        _transferHookTakeFee(from, to, tokenId, moduleTransferData);
-        _safeTransfer(from, to, tokenId, moduleTransferData);
+        _transferHookTakeFee(from, to, cheqId, moduleTransferData);
+        _safeTransfer(from, to, cheqId, moduleTransferData);
     }
 
     /*///////////////////////// VIEW ////////////////////////////*/
     function cheqInfo(
         uint256 cheqId
     ) public view returns (DataTypes.Cheq memory) {
-        _requireMinted(cheqId);
+        if (cheqId >= _totalSupply) revert NotMinted();
         return _cheqInfo[cheqId];
     }
 
     function cheqCurrency(uint256 cheqId) public view returns (address) {
+        if (cheqId >= _totalSupply) revert NotMinted();
         return _cheqInfo[cheqId].currency;
     }
 
     function cheqEscrowed(uint256 cheqId) public view returns (uint256) {
+        if (cheqId >= _totalSupply) revert NotMinted();
         return _cheqInfo[cheqId].escrowed;
     }
 
     function cheqModule(uint256 cheqId) public view returns (address) {
+        if (cheqId >= _totalSupply) revert NotMinted();
         return _cheqInfo[cheqId].module;
     }
 
     function cheqCreatedAt(uint256 cheqId) public view returns (uint256) {
+        if (cheqId >= _totalSupply) revert NotMinted();
         return _cheqInfo[cheqId].createdAt;
     }
 

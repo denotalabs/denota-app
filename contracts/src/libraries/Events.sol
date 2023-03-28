@@ -20,7 +20,7 @@ library Events {
     //     uint256 timestamp
     // );
     // // event FeeModuleBaseConstructed(address indexed moduleGlobals, uint256 timestamp);
-    event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
+    // event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
     // Question: emit the module address or bytehash?
     event ModuleWhitelisted(
         address indexed user,

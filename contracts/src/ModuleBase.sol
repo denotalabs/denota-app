@@ -1,15 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import "openzeppelin/access/Ownable.sol";
-import {Errors} from "./libraries/Errors.sol";
-import {Events} from "./libraries/Events.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 import {ICheqModule} from "./interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "./interfaces/ICheqRegistrar.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 
 // TODO separate fee and non-fee modules (perhaps URI distinction ones as well?)
-// HACK: if the module doesn't check for address(0), users can cash and fund zero init cheqs
 // ERC-4906: EIP-721 Metadata Update Extension
 abstract contract ModuleBase is ICheqModule {
     address public immutable REGISTRAR; // Question: Make this a hardcoded address?
@@ -17,25 +12,20 @@ abstract contract ModuleBase is ICheqModule {
     mapping(address => DataTypes.WTFCFees) public dappOperatorFees;
     uint256 internal constant BPS_MAX = 10_000; // Lens uses uint16
     string public _URI; // Should this be in the ModuleBase?
+
+    event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
+
     error FeeTooHigh();
-    /**
-return takeReturnFee(currency, escrowed + instant, dappOperator);
-return takeReturnFee(currency, escrowed, abi.decode(data, (address)));
-return
-            takeReturnFee(
-                cheq.currency,
-                amount,
-                abi.decode(initData, (address))
-            );
-*/
+    error NotRegistrar();
+    error InitParamsInvalid();
 
     modifier onlyRegistrar() {
-        if (msg.sender != REGISTRAR) revert Errors.NotRegistrar();
+        if (msg.sender != REGISTRAR) revert NotRegistrar();
         _;
     }
 
     constructor(address registrar, DataTypes.WTFCFees memory _fees) {
-        if (registrar == address(0)) revert Errors.InitParamsInvalid();
+        if (registrar == address(0)) revert InitParamsInvalid();
         REGISTRAR = registrar; // Question: Should this be before or after rule checking?
 
         if (BPS_MAX < _fees.writeBPS) revert FeeTooHigh();
@@ -45,7 +35,7 @@ return
 
         dappOperatorFees[msg.sender] = _fees;
 
-        emit Events.ModuleBaseConstructed(registrar, block.timestamp);
+        emit ModuleBaseConstructed(registrar, block.timestamp);
     }
 
     function setFees(DataTypes.WTFCFees memory _fees) public {

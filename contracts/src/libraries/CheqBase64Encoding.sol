@@ -2,34 +2,14 @@
 pragma solidity ^0.8.16;
 
 /**
-OpenSea metadata standards:
-image: This is the URL to the image of the item. Can be just about any type of image (including SVGs, which will be cached into PNGs by OpenSea), and can be IPFS URLs or paths. We recommend using a 350 x 350 image.
-
-external_url: This is the URL that will appear below the asset's image on OpenSea and will allow users to leave OpenSea and view the item on your site.
-
-description: A human readable description of the item. Markdown is supported.
-
-name: Name of the item.
-
-attributes: These are the attributes for the item, which will show up on the OpenSea page for the item. (see below)
-
-background_color: Background color of the item on OpenSea. Must be a six-character hexadecimal without a pre-pended #.
-
-animation_url: A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA. Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported.
-
-image_data: Raw SVG image data, if you want to generate images on the fly (not recommended). Only use this if you're not including the image parameter.
-youtube_url: A URL to a YouTube video.
- */
-
-/**
 {
     "name": STRING_NAME,
     "image": URL_STRING: ipfs, https (recommended 350 x 350px),
     "image_data": SVG_DATA (Only use this if you're not including the image parameter),
     "external_url": (to allow users to leave OpenSea and view the item on your site),
     "description": human readable description of the item (markdown supported),
-    attributes: [
-    ],
+    "attributes": [
+     ],
     "background_color": must be a six-character hexadecimal without a pre-pended #
     "animation_url": A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported.
     "youtube_url": A URL to a YT video
@@ -37,13 +17,6 @@ youtube_url: A URL to a YouTube video.
  */
 
 contract CheqBase64Encoding {
-    // string constant APP_TYPE = "data:application/json;base64,";
-    // string constant ATTRIBUTE_CURRENCY =
-    //     '{"attributes":[{"trait_type": "Currency","value":"';
-    // string constant ESCROWED =
-    //     '"},{"trait_type": "Escrowed","display_type": "number","value":';
-    // // string constant CREATEDAT =
-    // //     '"},{"trait_type": "CreatedAt","display_type": "number","value":';
     // string constant MODULE = '},{"trait_type": "Module","value":"';
     // string constant END = '"}]';
     // string constant TOKENDATA_CLOSE = '"}';
@@ -167,11 +140,6 @@ contract CheqBase64Encoding {
         }
     }
 
-    // address currency,
-    // uint256 escrowed,
-    // // uint256 createdAt,
-    // address module,
-    // string memory _tokenData
     function buildMetadata(
         string memory currency,
         string memory escrowed,
@@ -179,8 +147,7 @@ contract CheqBase64Encoding {
         string memory module,
         string memory _tokenData
     ) internal pure returns (string memory) {
-        // 76460 with constants
-        // 74861 without
+        // 76460 with storage constants, 74861 without
         return
             string(
                 abi.encodePacked(
@@ -192,7 +159,7 @@ contract CheqBase64Encoding {
                                 currency,
                                 '"},{"trait_type":"Escrowed","display_type":"number","value":',
                                 escrowed,
-                                '},{"trait_type": "Module","value":"',
+                                '},{"trait_type":"Module","value":"',
                                 module,
                                 '"}]',
                                 _tokenData,
@@ -204,21 +171,6 @@ contract CheqBase64Encoding {
             );
     }
 
-    // '{"name":',
-    // '"Cheq serial number #',
-    // _tokenId,
-
-    // '", "description":"',
-    // cheq.description,
-    // '", "image": "',
-
-    // "data:image/svg+xml;base64,",
-    // buildImage(_tokenId),
-
-    // '{"trait_type": "Created At",',
-    // '"value":',
-    // createdAt,
-    // "}",
     /**
      * @dev Base64 Encoding/Decoding Table
      */
