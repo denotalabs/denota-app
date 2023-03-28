@@ -68,7 +68,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       } else {
         const tokenAllowance = await token?.functions.allowance(
           blockchainState.account,
-          blockchainState.cheqAddress
+          blockchainState.registrarAddress
         );
         if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
           setNeedsApproval(true);
@@ -83,7 +83,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   }, [
     amountWei,
     blockchainState.account,
-    blockchainState.cheqAddress,
+    blockchainState.registrarAddress,
     formData.mode,
     token,
     token?.functions,
@@ -100,12 +100,12 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     // );
     const tx = await token?.functions.approve(
-      blockchainState.cheqAddress,
+      blockchainState.registrarAddress,
       amountWei
     );
     await tx.wait();
     setNeedsApproval(false);
-  }, [amountWei, blockchainState.cheqAddress, token?.functions]);
+  }, [amountWei, blockchainState.registrarAddress, token?.functions]);
 
   const writeNota = useCallback(async () => {
     if (needsApproval) {
@@ -115,7 +115,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       // );
       const tx = await token?.functions.approve(
-        blockchainState.cheqAddress,
+        blockchainState.registrarAddress,
         amountWei
       );
       await tx.wait();
@@ -190,7 +190,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   }, [
     needsApproval,
     token?.functions,
-    blockchainState.cheqAddress,
+    blockchainState.registrarAddress,
     blockchainState.chainId,
     amountWei,
     formData.module,

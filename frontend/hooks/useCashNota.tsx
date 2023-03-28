@@ -24,7 +24,7 @@ export const useCashNota = () => {
           [blockchainState.account]
         );
 
-        const tx = await blockchainState.cheq?.cash(
+        const tx = await blockchainState.registrar?.cash(
           cheqId,
           amountWei,
           to,
@@ -49,7 +49,12 @@ export const useCashNota = () => {
         });
       }
     },
-    [blockchainState.account, blockchainState.cheq, refreshWithDelay, toast]
+    [
+      blockchainState.account,
+      blockchainState.registrar,
+      refreshWithDelay,
+      toast,
+    ]
   );
 
   return { cashCheq };

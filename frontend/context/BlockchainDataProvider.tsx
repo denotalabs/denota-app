@@ -4,7 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useState
+  useState,
 } from "react";
 
 import { useColorMode } from "@chakra-ui/react";
@@ -17,7 +17,7 @@ import {
   ChainInfo,
   chainInfoForChainId,
   chainNumberToChainHex,
-  contractMappingForChainId
+  contractMappingForChainId,
 } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
@@ -27,10 +27,10 @@ interface BlockchainDataInterface {
   weth: null | ethers.Contract;
   daiAllowance: BigNumber;
   wethAllowance: BigNumber;
-  cheqAddress: string;
+  registrarAddress: string;
   userDaiBalance: string;
   userWethBalance: string;
-  cheq: null | ethers.Contract;
+  registrar: null | ethers.Contract;
   directPayAddress: string;
   escrowAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
@@ -53,12 +53,12 @@ interface BlockchainDataContextInterface {
 
 const defaultBlockchainState = {
   account: "",
-  cheq: null,
+  registrar: null,
   dai: null,
   weth: null,
   daiAllowance: BigNumber.from(0),
   wethAllowance: BigNumber.from(0),
-  cheqAddress: "",
+  registrarAddress: "",
   userDaiBalance: "",
   userWethBalance: "",
   signer: null,
@@ -133,7 +133,7 @@ export const BlockchainDataProvider = memo(
         } else {
           // Load contracts
           const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
-          const cheq = new ethers.Contract(
+          const registrar = new ethers.Contract(
             contractMapping.registrar,
             CheqRegistrar.abi,
             signer
@@ -171,11 +171,11 @@ export const BlockchainDataProvider = memo(
             weth,
             daiAllowance,
             wethAllowance,
-            cheqAddress: contractMapping.registrar,
+            registrarAddress: contractMapping.registrar,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: firstBlockExplorer,
-            cheq,
+            registrar,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node

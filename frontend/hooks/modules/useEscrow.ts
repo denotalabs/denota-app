@@ -47,7 +47,7 @@ export const useEscrow = () => {
           ? escrowedWei
           : BigNumber.from(0);
 
-      const tx = await blockchainState.cheq?.write(
+      const tx = await blockchainState.registrar?.write(
         tokenAddress, //currency
         escrowedWei, //escrowed
         0, //instant
@@ -61,7 +61,7 @@ export const useEscrow = () => {
     },
     [
       blockchainState.account,
-      blockchainState.cheq,
+      blockchainState.registrar,
       blockchainState.escrowAddress,
     ]
   );

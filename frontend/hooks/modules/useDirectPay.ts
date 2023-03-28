@@ -60,7 +60,7 @@ export const useDirectPay = () => {
           ? instantWei
           : BigNumber.from(0);
 
-      const tx = await blockchainState.cheq?.write(
+      const tx = await blockchainState.registrar?.write(
         tokenAddress, //currency
         0, //escrowed
         instantWei, //instant
@@ -74,7 +74,7 @@ export const useDirectPay = () => {
     },
     [
       blockchainState.account,
-      blockchainState.cheq,
+      blockchainState.registrar,
       blockchainState.directPayAddress,
     ]
   );
