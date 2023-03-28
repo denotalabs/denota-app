@@ -72,7 +72,7 @@ const MetadataStep: React.FC<ScreenProps> = () => {
             if (values.file) {
               setFile?.(values.file);
             }
-            actions.setSubmitting(true);
+            actions.setSubmitting(false);
             next?.();
           }
         }}

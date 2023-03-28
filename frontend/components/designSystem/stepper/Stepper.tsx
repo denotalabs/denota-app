@@ -70,6 +70,8 @@ function Stepper({ children, onClose }: StepperProps) {
     allScreens,
   });
 
+  // TODO: re-render screens when children change
+
   const next = () => {
     dispatch({ type: StepperActionKind.NEXT });
   };
