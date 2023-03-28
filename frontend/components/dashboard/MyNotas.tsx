@@ -12,12 +12,17 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { MdOutlineAdd } from "react-icons/md";
-import { useCheqContext } from "../../context/CheqsContext";
-import { Cheq } from "../../hooks/useCheqs";
-import CheqCardV2 from "./CheqCardV2";
+import { useNotaContext } from "../../context/NotasContext";
+import { Nota } from "../../hooks/useNotas";
+import NotaCard from "./NotaCard";
 
-function MyCheqsView() {
-  const { cheqs, refresh, setCheqField, isLoading } = useCheqContext();
+function MyNotas() {
+  const {
+    notas,
+    refresh,
+    setNotaField: setCheqField,
+    isLoading,
+  } = useNotaContext();
 
   return (
     <VStack
@@ -50,19 +55,19 @@ function MyCheqsView() {
         />
       </HStack>
 
-      <CheqGrid cheqs={isLoading ? undefined : cheqs} />
+      <MyNotasGrid notas={isLoading ? undefined : notas} />
     </VStack>
   );
 }
 
-interface CheqGridProps {
-  cheqs: Cheq[] | undefined;
+interface GridProps {
+  notas: Nota[] | undefined;
 }
 
-function CheqGrid({ cheqs }: CheqGridProps) {
+function MyNotasGrid({ notas }: GridProps) {
   const router = useRouter();
 
-  if (cheqs === undefined) {
+  if (notas === undefined) {
     return (
       <Center flexDirection={"column"} w="100%" px={5}>
         <Spinner size="xl" />
@@ -70,7 +75,7 @@ function CheqGrid({ cheqs }: CheqGridProps) {
     );
   }
 
-  if (cheqs.length === 0) {
+  if (notas.length === 0) {
     return (
       <Center>
         <Text fontWeight={600} fontSize={"xl"} textAlign="center" pb={6}>
@@ -105,11 +110,11 @@ function CheqGrid({ cheqs }: CheqGridProps) {
       borderRadius="10px"
       p={{ md: "0", lg: "4" }}
     >
-      {cheqs.map((cheq) => {
-        return <CheqCardV2 key={cheq.id} cheq={cheq} />;
+      {notas.map((cheq) => {
+        return <NotaCard key={cheq.id} nota={cheq} />;
       })}
     </Grid>
   );
 }
 
-export default MyCheqsView;
+export default MyNotas;

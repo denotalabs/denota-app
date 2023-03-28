@@ -22,7 +22,7 @@ export type DetailsStepFormValues = {
   mode: string;
 };
 
-const CheqDetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
+const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
   const { next } = useStep();
   const { formData, file, appendFormData, setFile } = useNotaForm();
   const { upload } = useUploadMetadata();
@@ -154,4 +154,4 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
   );
 };
 
-export default CheqDetailsStep;
+export default DetailsStep;

@@ -12,7 +12,7 @@ interface Props {
   isInvoice: boolean;
 }
 
-export function WriteCheqFlow({ onClose, isInvoice }: Props) {
+export function WriteFlow({ onClose, isInvoice }: Props) {
   return (
     <NotaFormProvider>
       <VStack
@@ -97,4 +97,4 @@ export function WriteStepperMobile({ onClose, isInvoice }: Props) {
   );
 }
 
-export default WriteCheqFlow;
+export default WriteFlow;

@@ -3,18 +3,18 @@ import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { Cheq } from "../../../hooks/useCheqs";
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
+import { Nota } from "../../../hooks/useNotas";
 import { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
-  cheq: Cheq;
+  cheq: Nota;
 }
 
-function CheqDetails({ cheq }: Props) {
+function NotaDetails({ cheq }: Props) {
   const { blockchainState } = useBlockchainData();
 
   const [note, setNote] = useState<string | undefined>(undefined);
@@ -166,4 +166,4 @@ function CheqDetails({ cheq }: Props) {
   );
 }
 
-export default CheqDetails;
+export default NotaDetails;

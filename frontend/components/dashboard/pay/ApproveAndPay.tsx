@@ -2,19 +2,19 @@ import { Box, Text, useToast } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { useCheqContext } from "../../../context/CheqsContext";
-import { Cheq } from "../../../hooks/useCheqs";
+import { useNotaContext } from "../../../context/NotasContext";
+import { Nota } from "../../../hooks/useNotas";
 import RoundedBox from "../../designSystem/RoundedBox";
 import RoundedButton from "../../designSystem/RoundedButton";
 
 interface Props {
-  cheq: Cheq;
+  cheq: Nota;
   onClose: () => void;
 }
 
 function ApproveAndPay({ cheq, onClose }: Props) {
   // TODO: support optimistic updates in useCheqs
-  const { refreshWithDelay } = useCheqContext();
+  const { refreshWithDelay } = useNotaContext();
 
   const toast = useToast();
 

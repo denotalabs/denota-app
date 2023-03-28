@@ -24,16 +24,16 @@ import {
   MdOutlineHourglassEmpty,
   MdOutlineLock,
 } from "react-icons/md";
-import { useCashCheq } from "../../hooks/useCashCheq";
-import { Cheq } from "../../hooks/useCheqs";
+import { useCashNota } from "../../hooks/useCashNota";
 import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
+import { Nota } from "../../hooks/useNotas";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
 interface Props {
-  cheq: Cheq;
+  nota: Nota;
 }
 
 const TOOLTIP_MESSAGE_MAP = {
@@ -47,7 +47,7 @@ const TOOLTIP_MESSAGE_MAP = {
   awaiting_escrow: "waiting for payer to escrow funds",
 };
 
-function CheqCardV2({ cheq }: Props) {
+function NotaCard({ nota: cheq }: Props) {
   const hashCode = (s: string) =>
     s.split("").reduce((a, b) => {
       a = (a << 5) - a + b.charCodeAt(0);
@@ -64,7 +64,7 @@ function CheqCardV2({ cheq }: Props) {
     ["#6D4C41", "#E6B8B89F"],
   ];
 
-  const generateCheqGradient = (cheq: Cheq): string => {
+  const generateCheqGradient = (cheq: Nota): string => {
     const { id, amount, sender, receiver } = cheq;
     const hash = hashCode(`${id}${amount}${sender}${receiver}`);
     const colorIndex = Math.abs(hash) % GRADIENT_COLORS.length;
@@ -138,7 +138,7 @@ function CheqCardV2({ cheq }: Props) {
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
-  const { cashCheq } = useCashCheq();
+  const { cashCheq } = useCashNota();
 
   const handleRelease = useCallback(async () => {
     setCashingInProgress(true);
@@ -275,4 +275,4 @@ function CheqCardV2({ cheq }: Props) {
   );
 }
 
-export default CheqCardV2;
+export default NotaCard;

@@ -2,8 +2,8 @@ import { useToast } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
-import { useCheqContext } from "../context/CheqsContext";
 import { useNotaForm } from "../context/NotaFormProvider";
+import { useNotaContext } from "../context/NotasContext";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEscrow } from "./modules/useEscrow";
 import { useEmail } from "./useEmail";
@@ -42,7 +42,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const transferWei =
     formData.mode === "invoice" ? BigNumber.from(0) : amountWei;
 
-  const { refreshWithDelay } = useCheqContext();
+  const { refreshWithDelay } = useNotaContext();
 
   const tokenAddress = useMemo(() => {
     switch (formData.token) {

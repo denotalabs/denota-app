@@ -20,7 +20,7 @@ interface Props extends ScreenProps {
   showTerms: boolean;
 }
 
-const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
+const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   const { next } = useStep();
   const { appendFormData, formData } = useNotaForm();
 
@@ -127,4 +127,4 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   );
 };
 
-export default CheqModuleSelectStep;
+export default ModuleSelectStep;
