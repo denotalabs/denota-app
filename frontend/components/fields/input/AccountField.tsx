@@ -8,15 +8,20 @@ import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 interface Props {
   fieldName: string;
   placeholder: string;
+  isRequired?: boolean;
 }
 
-function AccountField({ fieldName, placeholder }: Props) {
+function AccountField({ fieldName, placeholder, isRequired = true }: Props) {
   const { blockchainState } = useBlockchainData();
   const [hasStarted, setHasStarted] = useState(false);
 
   function validateAddress(value: string) {
     if (value !== "") {
       setHasStarted(true);
+    }
+
+    if (!isRequired && value === "") {
+      return undefined;
     }
 
     let error;

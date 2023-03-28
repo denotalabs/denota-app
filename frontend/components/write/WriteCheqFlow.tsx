@@ -1,7 +1,6 @@
 import { HStack, VStack } from "@chakra-ui/react";
 import { NotaFormProvider } from "../../context/NotaFormProvider";
 import Stepper from "../designSystem/stepper/Stepper";
-import { ConfirmSidePane } from "./confirm/ConfirmSidePane";
 import ConfirmStep from "./confirm/ConfirmStep";
 import DetailsStep from "./details/DetailsStep";
 import MetadataStep from "./metadata/MetadataStep";
@@ -24,7 +23,7 @@ export function WriteCheqFlow({ onClose, isInvoice }: Props) {
         borderRadius="30px"
         display={{ base: "flex", md: "none" }}
       >
-        <WriteCheqStepper onClose={onClose} isInvoice={isInvoice} />
+        <WriteStepperMobile onClose={onClose} isInvoice={isInvoice} />
       </VStack>
       <HStack
         justifyContent="center"
@@ -36,21 +35,44 @@ export function WriteCheqFlow({ onClose, isInvoice }: Props) {
         display={{ base: "none", md: "flex" }}
       >
         <VStack w="650px" bg="brand.100" py={2} px={4} borderRadius="30px">
-          <WriteCheqStepper onClose={onClose} isInvoice={isInvoice} />
+          <WriteStepperDesktop onClose={onClose} isInvoice={isInvoice} />
         </VStack>
-        <ConfirmSidePane />
       </HStack>
     </NotaFormProvider>
   );
 }
 
-export function WriteCheqStepper({ onClose, isInvoice }: Props) {
+export function WriteStepperDesktop({ onClose, isInvoice }: Props) {
   return (
     <Stepper onClose={onClose}>
       <DetailsStep
         screenKey="write"
         screenTitle={"Payment Details"}
         isInvoice={isInvoice}
+        showMetadata={true}
+      ></DetailsStep>
+      <ModuleSelectStep
+        screenKey="moduleSelect"
+        screenTitle="Payment Term"
+        showTerms={true}
+      />
+      <ConfirmStep
+        screenKey="confirm"
+        screenTitle="Confirm"
+        isInvoice={isInvoice}
+      ></ConfirmStep>
+    </Stepper>
+  );
+}
+
+export function WriteStepperMobile({ onClose, isInvoice }: Props) {
+  return (
+    <Stepper onClose={onClose}>
+      <DetailsStep
+        screenKey="write"
+        screenTitle={"Payment Details"}
+        isInvoice={isInvoice}
+        showMetadata={false}
       ></DetailsStep>
       <MetadataStep
         screenKey="metadata"
@@ -59,7 +81,7 @@ export function WriteCheqStepper({ onClose, isInvoice }: Props) {
       <ModuleSelectStep
         screenKey="moduleSelect"
         screenTitle="Payment Module"
-        isInvoice={isInvoice}
+        showTerms={false}
       />
       <PaymentTermsStep
         screenKey="module"

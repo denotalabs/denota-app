@@ -18,7 +18,7 @@ export type PaymentTermsFormValues = {
 
 const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
   const { next } = useStep();
-  const { appendFormData, formData } = useNotaForm();
+  const { formData } = useNotaForm();
 
   const currentDate = useMemo(() => {
     const d = new Date();
@@ -45,12 +45,7 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
         {(props) => (
           <Form>
             <ModuleTerms module={props.values.module} isInvoice={isInvoice} />
-            <RoundedButton
-              display={{ base: "block", md: "none" }}
-              type="submit"
-            >
-              {"Next"}
-            </RoundedButton>
+            <RoundedButton type="submit">{"Next"}</RoundedButton>
           </Form>
         )}
       </Formik>

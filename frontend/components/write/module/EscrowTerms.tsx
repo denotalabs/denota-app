@@ -32,7 +32,7 @@ export function EscrowTerms() {
             <QuestionOutlineIcon ml={2} mb={1} />
           </Tooltip>
         </FormLabel>
-        <AccountField fieldName="auditor" placeholder="0x" />
+        <AccountField fieldName="auditor" isRequired={false} placeholder="0x" />
       </FormControl>
     </Flex>
   );
