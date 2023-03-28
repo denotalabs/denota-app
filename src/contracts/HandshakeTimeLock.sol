@@ -12,23 +12,23 @@ pragma solidity ^0.8.16;
 //     }
 
 //     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
-//     mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User
+//     mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User  
 //     // mapping(address => mapping(address => address)) public acceptedCombos;  // Whether this combination of user-auditor-user exists (not address(0)). ASSUMES ONLY MANY-1 RELATIONSHIP BETWEEN USERS AND AUDITOR
 //     mapping(uint256 => address) public cheqAuditor;
 //     mapping(uint256 => uint256) public cheqCreated;
 //     mapping(uint256 => uint256) public cheqInspectionPeriod;
-//     mapping(uint256 => bool) public cheqVoided;
+//     mapping(uint256 => bool) public cheqVoided; 
 
 //     function isWriteable(
-//         address sender,
-//         IERC20 _token,
-//         uint256 amount,
-//         uint256 escrowed,
-//         address recipient,
-//         address owner,
-//         address auditor,
+//         address sender, 
+//         IERC20 _token, 
+//         uint256 amount, 
+//         uint256 escrowed, 
+//         address recipient, 
+//         address owner, 
+//         address auditor, 
 //         uint256 inspectionPeriod
-//         ) public view returns(bool) {
+//         ) public view returns(bool) { 
 //         return userAuditor[sender][auditor] && auditorUser[auditor][sender];
 //     }
 
@@ -41,7 +41,7 @@ pragma solidity ^0.8.16;
 //         address auditor,
 //         uint256 inspectionPeriod
 //         ) external returns(uint256){
-//         require(isWriteable(_msgSender(), _token, amount, escrowed, recipient, owner, auditor, inspectionPeriod), "Not writeable");
+//         require(isWriteable(_msgSender(), _token, amount, escrowed, recipient, owner, auditor, inspectionPeriod), "Not writeable"); 
 //         uint256 cheqId = crx.write(_msgSender(), recipient, _token, amount, escrowed, owner);
 //         cheqCreated[cheqId] = block.timestamp;
 //         cheqAuditor[cheqId] = auditor;
@@ -58,9 +58,9 @@ pragma solidity ^0.8.16;
 //         return 0;
 //     }
 
-//     function cashable(uint256 cheqId, address caller, uint256 /* amount */) public view returns(uint256) {  // Let anyone see what's cashable, ALSO
-//         if (block.timestamp >= cheqCreated[cheqId]+cheqInspectionPeriod[cheqId]
-//             || crx.ownerOf(cheqId)!=caller
+//     function cashable(uint256 cheqId, address caller, uint256 /* amount */) public view returns(uint256) {  // Let anyone see what's cashable, ALSO 
+//         if (block.timestamp >= cheqCreated[cheqId]+cheqInspectionPeriod[cheqId] 
+//             || crx.ownerOf(cheqId)!=caller 
 //             || cheqVoided[cheqId]){
 //             return 0;
 //         } else{
@@ -88,7 +88,7 @@ pragma solidity ^0.8.16;
 //             return "pending";
 //         }
 //     }
-
+    
 //     function isApprovable(uint256 cheqId, address caller, address to) external view returns(bool){
 //         return true;
 //     }
