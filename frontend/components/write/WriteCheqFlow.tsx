@@ -23,7 +23,7 @@ export function WriteCheqFlow({ onClose, isInvoice }: Props) {
         borderRadius="30px"
         display={{ base: "flex", md: "none" }}
       >
-        <WriteCheqStepperMobile onClose={onClose} isInvoice={isInvoice} />
+        <WriteStepperMobile onClose={onClose} isInvoice={isInvoice} />
       </VStack>
       <HStack
         justifyContent="center"
@@ -35,14 +35,14 @@ export function WriteCheqFlow({ onClose, isInvoice }: Props) {
         display={{ base: "none", md: "flex" }}
       >
         <VStack w="650px" bg="brand.100" py={2} px={4} borderRadius="30px">
-          <WriteCheqStepperDesktop onClose={onClose} isInvoice={isInvoice} />
+          <WriteStepperDesktop onClose={onClose} isInvoice={isInvoice} />
         </VStack>
       </HStack>
     </NotaFormProvider>
   );
 }
 
-export function WriteCheqStepperDesktop({ onClose, isInvoice }: Props) {
+export function WriteStepperDesktop({ onClose, isInvoice }: Props) {
   return (
     <Stepper onClose={onClose}>
       <DetailsStep
@@ -65,7 +65,7 @@ export function WriteCheqStepperDesktop({ onClose, isInvoice }: Props) {
   );
 }
 
-export function WriteCheqStepperMobile({ onClose, isInvoice }: Props) {
+export function WriteStepperMobile({ onClose, isInvoice }: Props) {
   return (
     <Stepper onClose={onClose}>
       <DetailsStep
