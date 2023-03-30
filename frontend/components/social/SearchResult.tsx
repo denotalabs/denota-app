@@ -35,11 +35,17 @@ function SearchResult({ title, items }: Props) {
 function SearchResultItem({ title, description, subItems }: Item) {
   return (
     <>
-      <DetailsRow title={title} value={description} />
+      <DetailsRow title={title} value={description} fontColor="gray.400" />
       {subItems && (
         <Box pl={6}>
           {subItems.map((item) => {
-            return <DetailsRow title={item.title} value={item.description} />;
+            return (
+              <DetailsRow
+                title={item.title}
+                value={item.description}
+                fontColor="gray.400"
+              />
+            );
           })}
         </Box>
       )}
