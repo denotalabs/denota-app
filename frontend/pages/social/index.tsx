@@ -1,12 +1,15 @@
 import { SearchIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Center,
   Input,
   InputGroup,
   InputLeftElement,
+  Text,
   VStack,
 } from "@chakra-ui/react";
 import { ChangeEvent, useMemo, useState } from "react";
+import DetailsRow from "../../components/designSystem/DetailsRow";
 import RoundedBox from "../../components/designSystem/RoundedBox";
 
 function SocialPage() {
@@ -44,11 +47,34 @@ function SocialPage() {
         </InputGroup>
         {resultsFound && (
           <>
-            <RoundedBox h="340px" p={4}>
-              Search result 1
+            <RoundedBox p={4}>
+              <Text fontSize="lg">vitalik.eth</Text>
+
+              <Box pl={6}>
+                <DetailsRow
+                  title="1/5/2023 | MakerDAO.eth"
+                  value="Invoice | 12 wETH | ONGOING"
+                />
+                <Box pl={6}>
+                  <DetailsRow title="10/01/2022" value="Invoice created" />
+                  <DetailsRow title="10/25/2022" value="Milestone #1 paid" />
+                  <DetailsRow title="11/18/2022" value="Milestone #2 paid" />
+                  <DetailsRow title="1/5/2023" value="Milestone #3 paid" />
+                </Box>
+                <DetailsRow
+                  title="12/9/2019 | Bankless.eth"
+                  value="0.2 wETH | PAID"
+                />
+              </Box>
             </RoundedBox>
-            <RoundedBox h="168px" p={4}>
-              Search result 2
+            <RoundedBox p={4}>
+              <Text fontSize="lg">vitalik2.eth</Text>
+              <Box pl={6}>
+                <DetailsRow
+                  title="6/6/2018 | vitalik.eth"
+                  value="Invoice | 0.1 rBTC | PAID"
+                />
+              </Box>
             </RoundedBox>
           </>
         )}
