@@ -58,7 +58,7 @@ const defaultBlockchainState = {
   weth: null,
   daiAllowance: BigNumber.from(0),
   wethAllowance: BigNumber.from(0),
-  cheqAddress: "",
+  registrarAddress: "",
   userDaiBalance: "",
   userWethBalance: "",
   signer: null,
