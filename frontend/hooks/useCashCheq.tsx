@@ -37,7 +37,7 @@ export const useCashCheq = () => {
         });
       }
     },
-    [blockchainState.account, blockchainState.cheq, toast]
+    [refreshWithDelay, toast]
   );
 
   return { cashCheq };
