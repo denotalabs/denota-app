@@ -1,9 +1,9 @@
 // // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
-import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
+import "./mock/erc20.sol";
 import {CheqRegistrar} from "../src/CheqRegistrar.sol";
 import {DataTypes} from "../src/libraries/DataTypes.sol";
 
@@ -66,14 +66,6 @@ contract RegistrarTest is Test {
             "Un-whitelisting failed"
         );
     }
-
-    // function testFailWhitelist(address caller) public {
-    //     vm.assume(caller == address(0));  // Deployer can whitelist, test others accounts
-    //     Marketplace market = new Marketplace(REGISTRAR);
-    //     vm.prank(caller);
-    //     REGISTRAR.whitelistModule(market, true);
-    //     assertFalse(REGISTRAR.moduleWhitelisted(address(this), market), "Unauthorized whitelist");
-    // }
 
     /*//////////////////////////////////////////////////////////////
                             MODULE TESTS

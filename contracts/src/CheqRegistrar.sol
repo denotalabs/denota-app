@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import "openzeppelin/access/Ownable.sol";
-import "openzeppelin/token/ERC20/IERC20.sol";
 import {ERC721} from "./ERC721.sol";
-import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin/token/ERC20/IERC20.sol";
 import {Events} from "./libraries/Events.sol";
 import {RegistrarGov} from "./RegistrarGov.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
+import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {ICheqModule} from "./interfaces/ICheqModule.sol";
 import {ICheqRegistrar} from "./interfaces/ICheqRegistrar.sol";
 import {CheqBase64Encoding} from "./libraries/CheqBase64Encoding.sol";
