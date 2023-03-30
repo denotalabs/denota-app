@@ -6,11 +6,7 @@ interface ShareToLensButtonProps {
   via?: string;
 }
 
-const ShareToLensButton = ({
-  text,
-  url,
-  via,
-}: ShareToLensButtonProps): JSX.Element => {
+const ShareToLensButton = ({ text, url, via }: ShareToLensButtonProps) => {
   const lensUrl = `https://testnet.lenster.xyz/?text=${encodeURIComponent(
     text
   )}&url=${encodeURIComponent(url)}${
@@ -25,6 +21,7 @@ const ShareToLensButton = ({
     <Button
       onClick={handleClick}
       colorScheme="green"
+      size="sm"
       leftIcon={
         <Image src="/logos/lens-logo.svg" alt="Lens Logo" boxSize="30px" />
       }
