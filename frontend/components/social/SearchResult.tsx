@@ -35,7 +35,12 @@ function SearchResult({ title, items }: Props) {
 function SearchResultItem({ title, description, subItems }: Item) {
   return (
     <>
-      <DetailsRow title={title} value={description} fontColor="gray.400" />
+      <DetailsRow
+        title={title}
+        value={description}
+        link="https://denota.xyz"
+        fontColor="gray.400"
+      />
       {subItems && (
         <Box pl={6}>
           {subItems.map((item) => {

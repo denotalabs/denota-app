@@ -13,7 +13,7 @@ const fakeResult1 = {
   title: "vitalik.eth",
   items: [
     {
-      title: "1/5/2023 | MakerDAO.eth",
+      title: "1/5/2023 → MakerDAO.eth",
       description: "Invoice | 12 wETH | ONGOING",
       subItems: [
         { title: "10/01/2022", description: "Invoice created" },
@@ -38,6 +38,28 @@ const fakeResult2 = {
 
 const fakeResults = [fakeResult1, fakeResult2];
 
+const nullResult1 = {
+  title: "almaraz.eth",
+  items: [
+    {
+      title: "6/6/2018 | rafi.eth → almaraz.eth",
+      description: "Invoice | 0.11 rBTC | PAID",
+    },
+  ],
+};
+
+const nullResult2 = {
+  title: "rafi.eth",
+  items: [
+    {
+      title: "6/6/2018 | michael.eth → rafi.eth",
+      description: "Invoice | 0.42 rBTC | PAID",
+    },
+  ],
+};
+
+const nullResults = [nullResult1, nullResult2];
+
 function SocialPage() {
   const [searchValue, setSearchValue] = useState("");
 
@@ -48,6 +70,26 @@ function SocialPage() {
   const resultsFound = useMemo(() => {
     return searchValue.includes("vita");
   }, [searchValue]);
+
+  const result = useMemo(() => {
+    if (resultsFound) {
+      return (
+        <>
+          {fakeResults.map((item) => {
+            return <SearchResult {...item} />;
+          })}
+        </>
+      );
+    }
+    return (
+      <>
+        {nullResults.map((item) => {
+          return <SearchResult {...item} />;
+        })}{" "}
+      </>
+    );
+  }, [resultsFound]);
+
   return (
     <Center w="100%" h="100%">
       <VStack
@@ -71,13 +113,9 @@ function SocialPage() {
             onChange={handleSearchInputChange}
           />
         </InputGroup>
-        {resultsFound && (
-          <VStack w="100%" gap={3} pt={3}>
-            {fakeResults.map((item) => {
-              return <SearchResult {...item} />;
-            })}
-          </VStack>
-        )}
+        <VStack w="100%" gap={3} pt={3}>
+          {result}
+        </VStack>
       </VStack>
     </Center>
   );
