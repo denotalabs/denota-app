@@ -15,7 +15,7 @@ interface Props {
 
 function DetailsModal(props: Props) {
   const { blockchainState } = useBlockchainData();
-  const { explorer, chainId } = blockchainState;
+  const { explorer, chainId, registrarAddress } = blockchainState;
   const { cheq } = props;
   return (
     <SimpleModal {...props}>
@@ -23,7 +23,7 @@ function DetailsModal(props: Props) {
       {chainId === MUMBAI_ADDRESS && (
         <Center>
           <HStack spacing={4}>
-            <ViewOnOpenSeaButton id={cheq.id} />
+            <ViewOnOpenSeaButton id={cheq.id} registrarAddress={registrarAddress} />
             <ShareToLensButton
               text={`I just created a nota payment NFT! View my nota here: ${explorer}${props.cheq.createdTransaction.hash}`}
               url="https://denota.xyz"

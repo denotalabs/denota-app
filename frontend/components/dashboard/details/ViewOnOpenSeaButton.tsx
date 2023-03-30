@@ -1,19 +1,25 @@
 import { Button, Image } from "@chakra-ui/react";
 
-const OPENSEA_URL =
-  "https://testnets.opensea.io/assets/mumbai/0x50d535af78a154a493d6ed466b363ddebe4ee88f/";
+const OPENSEA_URL = "https://testnets.opensea.io/assets/";
 
 interface ViewOnOpenSeaButtonProps {
   id: string;
+  chain?: string;
+  registrarAddress: string;
 }
 
-const ViewOnOpenSeaButton = ({ id }: ViewOnOpenSeaButtonProps) => {
+const ViewOnOpenSeaButton = ({
+  id,
+  registrarAddress,
+  chain = "mumbai",
+}: ViewOnOpenSeaButtonProps) => {
+  const url = `${OPENSEA_URL}${chain}/${registrarAddress}/${id}`;
   return (
     <Button
       as="a"
       size="sm"
       colorScheme="blue"
-      href={OPENSEA_URL + id}
+      href={url}
       target="_blank"
       rel="noopener noreferrer"
       leftIcon={
