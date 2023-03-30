@@ -16,7 +16,7 @@ interface Props {
 
 function CheqDetails({ cheq }: Props) {
   const { blockchainState } = useBlockchainData();
-
+  const { explorer } = blockchainState;
   const [note, setNote] = useState<string | undefined>(undefined);
   const [file, setFile] = useState<string | undefined>(undefined);
   const [tags, setTags] = useState<string[] | undefined>(undefined);
@@ -90,13 +90,13 @@ function CheqDetails({ cheq }: Props) {
           <DetailsRow
             title="Created On"
             value={cheq.createdTransaction.date.toDateString()}
-            link={`${blockchainState.explorer}${cheq.createdTransaction.hash}`}
+            link={`${explorer}${cheq.createdTransaction.hash}`}
           />
           {cheq.fundedTransaction && (
             <DetailsRow
               title="Funded Date"
               value={cheq.fundedTransaction.date.toDateString()}
-              link={`${blockchainState.explorer}${cheq.fundedTransaction.hash}`}
+              link={`${explorer}${cheq.fundedTransaction.hash}`}
             />
           )}
           <DetailsRow

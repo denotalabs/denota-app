@@ -4,7 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useState
+  useState,
 } from "react";
 
 import { useColorMode } from "@chakra-ui/react";
@@ -17,7 +17,7 @@ import {
   ChainInfo,
   chainInfoForChainId,
   chainNumberToChainHex,
-  contractMappingForChainId
+  contractMappingForChainId,
 } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
@@ -27,7 +27,7 @@ interface BlockchainDataInterface {
   weth: null | ethers.Contract;
   daiAllowance: BigNumber;
   wethAllowance: BigNumber;
-  cheqAddress: string;
+  registrarAddress: string;
   userDaiBalance: string;
   userWethBalance: string;
   cheq: null | ethers.Contract;
@@ -58,7 +58,7 @@ const defaultBlockchainState = {
   weth: null,
   daiAllowance: BigNumber.from(0),
   wethAllowance: BigNumber.from(0),
-  cheqAddress: "",
+  registrarAddress: "",
   userDaiBalance: "",
   userWethBalance: "",
   signer: null,
@@ -171,7 +171,7 @@ export const BlockchainDataProvider = memo(
             weth,
             daiAllowance,
             wethAllowance,
-            cheqAddress: contractMapping.registrar,
+            registrarAddress: contractMapping.registrar,
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: firstBlockExplorer,

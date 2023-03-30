@@ -77,7 +77,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
       } else {
         const tokenAllowance = await token?.functions.allowance(
           blockchainState.account,
-          blockchainState.cheqAddress
+          blockchainState.registrarAddress
         );
         if (cheq.amountRaw.sub(tokenAllowance[0]) > BigNumber.from(0)) {
           setNeedsApproval(true);
@@ -89,7 +89,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     fetchAllowance();
   }, [
     blockchainState.account,
-    blockchainState.cheqAddress,
+    blockchainState.registrarAddress,
     cheq.amountRaw,
     token,
     token?.functions,
@@ -115,7 +115,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
         //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         // );
         const tx = await token?.functions.approve(
-          blockchainState.cheqAddress,
+          blockchainState.registrarAddress,
           cheq.amountRaw
         );
         await tx.wait();
@@ -167,7 +167,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
   }, [
     blockchainState.account,
     blockchainState.cheq,
-    blockchainState.cheqAddress,
+    blockchainState.registrarAddress,
     cheq.amountRaw,
     cheq.id,
     needsApproval,
