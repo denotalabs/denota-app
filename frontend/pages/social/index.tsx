@@ -78,16 +78,16 @@ function SocialPage() {
     if (resultsFound) {
       return (
         <>
-          {fakeResults.map((item) => {
-            return <SearchResult {...item} />;
+          {fakeResults.map((item, index) => {
+            return <SearchResult key={index} {...item} />;
           })}
         </>
       );
     }
     return (
       <>
-        {nullResults.map((item) => {
-          return <SearchResult {...item} />;
+        {nullResults.map((item, index) => {
+          return <SearchResult key={index} {...item} />;
         })}{" "}
       </>
     );
