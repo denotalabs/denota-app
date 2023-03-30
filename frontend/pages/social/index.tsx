@@ -6,9 +6,19 @@ import {
   InputLeftElement,
   VStack,
 } from "@chakra-ui/react";
+import { ChangeEvent, useMemo, useState } from "react";
 import RoundedBox from "../../components/designSystem/RoundedBox";
 
 function SocialPage() {
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value);
+  };
+
+  const resultsFound = useMemo(() => {
+    return searchValue.includes("vita");
+  }, [searchValue]);
   return (
     <Center w="100%" h="100%">
       <VStack
@@ -26,14 +36,22 @@ function SocialPage() {
             pointerEvents="none"
             children={<SearchIcon color="gray.300" />}
           />
-          <Input placeholder="Search" variant="filled" />
+          <Input
+            placeholder="Search"
+            variant="filled"
+            onChange={handleSearchInputChange}
+          />
         </InputGroup>
-        <RoundedBox h="340px" p={4}>
-          Search result 1
-        </RoundedBox>
-        <RoundedBox h="168px" p={4}>
-          Search result 2
-        </RoundedBox>
+        {resultsFound && (
+          <>
+            <RoundedBox h="340px" p={4}>
+              Search result 1
+            </RoundedBox>
+            <RoundedBox h="168px" p={4}>
+              Search result 2
+            </RoundedBox>
+          </>
+        )}
       </VStack>
     </Center>
   );
