@@ -144,23 +144,21 @@ function CheqCardV2({ cheq }: Props) {
     setCashingInProgress(true);
     await cashCheq({
       cheqId: cheq.id,
-      amountWei: cheq.amountRaw,
-      to: cheq.payee,
+      type: "release",
       message: "Payment released",
     });
     setCashingInProgress(false);
-  }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payee]);
+  }, [cashCheq, cheq.id]);
 
   const handleVoid = useCallback(async () => {
     setCashingInProgress(true);
     await cashCheq({
       cheqId: cheq.id,
-      amountWei: cheq.amountRaw,
-      to: cheq.payer,
+      type: "reversal",
       message: "Payment voided",
     });
     setCashingInProgress(false);
-  }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payer]);
+  }, [cashCheq, cheq.id]);
 
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>

@@ -1,13 +1,12 @@
 import { useToast } from "@chakra-ui/react";
-import { BigNumber, ethers } from "ethers";
+import { cash } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useCheqContext } from "../context/CheqsContext";
 
 interface Props {
   cheqId: string;
-  amountWei: BigNumber;
-  to: string;
+  type: "reversal" | "release";
   message: string;
 }
 
@@ -17,20 +16,9 @@ export const useCashCheq = () => {
   const { refreshWithDelay } = useCheqContext();
 
   const cashCheq = useCallback(
-    async ({ cheqId, amountWei, to, message }: Props) => {
+    async ({ cheqId, type, message }: Props) => {
       try {
-        const payload = ethers.utils.defaultAbiCoder.encode(
-          ["address"],
-          [blockchainState.account]
-        );
-
-        const tx = await blockchainState.cheq?.cash(
-          cheqId,
-          amountWei,
-          to,
-          payload
-        );
-        await tx.wait();
+        await cash({ cheqId, type });
         toast({
           title: "Transaction succeeded",
           description: message,
