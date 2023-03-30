@@ -112,7 +112,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             next?.();
           }}
         >
-          {(props) => (
+          {() => (
             <Form>
               <ModuleTerms
                 module={formData.module}
