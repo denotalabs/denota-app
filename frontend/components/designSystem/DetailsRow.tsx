@@ -21,9 +21,17 @@ interface Props {
   link?: string | null;
   tooltip?: string;
   copyValue?: string;
+  fontColor?: string;
 }
 
-function DetailsRow({ title, value, link, tooltip, copyValue }: Props) {
+function DetailsRow({
+  title,
+  value,
+  link,
+  tooltip,
+  copyValue,
+  fontColor,
+}: Props) {
   const { onCopy } = useClipboard(copyValue ?? "");
   const toast = useToast();
 
@@ -36,11 +44,18 @@ function DetailsRow({ title, value, link, tooltip, copyValue }: Props) {
           textAlign="left"
           flexShrink={0}
           noOfLines={1}
+          color={fontColor}
         >
           {title}
         </Text>
         <HStack minWidth={0} pl={4}>
-          <Text fontWeight={200} fontSize="md" textAlign="right" noOfLines={1}>
+          <Text
+            fontWeight={200}
+            fontSize="md"
+            textAlign="right"
+            noOfLines={1}
+            color={fontColor}
+          >
             {value}
           </Text>
 
