@@ -1,5 +1,6 @@
 import { Box, Text, useToast } from "@chakra-ui/react";
-import { BigNumber, ethers } from "ethers";
+import { fund } from "@denota-labs/denota-sdk";
+import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useCheqContext } from "../../../context/CheqsContext";
@@ -121,28 +122,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
         await tx.wait();
         setNeedsApproval(false);
       } else {
-        const cheqId = Number(cheq.id);
-        const amount = BigNumber.from(cheq.amountRaw);
-        const msgValue =
-          tokenAddress === "0x0000000000000000000000000000000000000000"
-            ? amount
-            : BigNumber.from(0);
-        const payload = ethers.utils.defaultAbiCoder.encode(
-          ["address"],
-          [blockchainState.account]
-        );
-
-        const instantAmount = cheq.moduleData.module === "direct" ? amount : 0;
-        const escrowAmount = cheq.moduleData.module === "escrow" ? amount : 0;
-
-        const tx = await blockchainState.cheq?.fund(
-          cheqId,
-          escrowAmount, // escrow
-          instantAmount, // instant
-          payload,
-          { value: msgValue }
-        );
-        await tx.wait();
+        await fund({ cheqId: cheq.id });
         toast({
           title: "Transaction succeeded",
           description: "Invoice paid",
@@ -165,8 +145,6 @@ function ApproveAndPay({ cheq, onClose }: Props) {
       setIsLoading(false);
     }
   }, [
-    blockchainState.account,
-    blockchainState.cheq,
     blockchainState.registrarAddress,
     cheq.amountRaw,
     cheq.id,
@@ -175,7 +153,6 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     refreshWithDelay,
     toast,
     token?.functions,
-    tokenAddress,
   ]);
 
   const moduleInfo = useMemo(() => {
