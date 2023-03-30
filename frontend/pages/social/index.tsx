@@ -1,16 +1,42 @@
 import { SearchIcon } from "@chakra-ui/icons";
 import {
-  Box,
   Center,
   Input,
   InputGroup,
   InputLeftElement,
-  Text,
   VStack,
 } from "@chakra-ui/react";
 import { ChangeEvent, useMemo, useState } from "react";
-import DetailsRow from "../../components/designSystem/DetailsRow";
-import RoundedBox from "../../components/designSystem/RoundedBox";
+import SearchResult from "../../components/social/SearchResult";
+
+const fakeResult1 = {
+  title: "vitalik.eth",
+  items: [
+    {
+      title: "1/5/2023 | MakerDAO.eth",
+      description: "Invoice | 12 wETH | ONGOING",
+      subItems: [
+        { title: "10/01/2022", description: "Invoice created" },
+        { title: "10/25/2022", description: "Milestone #1 paid" },
+        { title: "11/18/2022", description: "Milestone #2 paid" },
+        { title: "1/5/2023", description: "Milestone #3 paid" },
+      ],
+    },
+    { title: "12/9/2019 | Bankless.eth", description: "0.2 wETH | PAID" },
+  ],
+};
+
+const fakeResult2 = {
+  title: "vitalik2.eth",
+  items: [
+    {
+      title: "6/6/2018 | vitalik.eth",
+      description: "Invoice | 0.1 rBTC | PAID",
+    },
+  ],
+};
+
+const fakeResults = [fakeResult1, fakeResult2];
 
 function SocialPage() {
   const [searchValue, setSearchValue] = useState("");
@@ -46,37 +72,11 @@ function SocialPage() {
           />
         </InputGroup>
         {resultsFound && (
-          <>
-            <RoundedBox p={4}>
-              <Text fontSize="lg">vitalik.eth</Text>
-
-              <Box pl={6}>
-                <DetailsRow
-                  title="1/5/2023 | MakerDAO.eth"
-                  value="Invoice | 12 wETH | ONGOING"
-                />
-                <Box pl={6}>
-                  <DetailsRow title="10/01/2022" value="Invoice created" />
-                  <DetailsRow title="10/25/2022" value="Milestone #1 paid" />
-                  <DetailsRow title="11/18/2022" value="Milestone #2 paid" />
-                  <DetailsRow title="1/5/2023" value="Milestone #3 paid" />
-                </Box>
-                <DetailsRow
-                  title="12/9/2019 | Bankless.eth"
-                  value="0.2 wETH | PAID"
-                />
-              </Box>
-            </RoundedBox>
-            <RoundedBox p={4}>
-              <Text fontSize="lg">vitalik2.eth</Text>
-              <Box pl={6}>
-                <DetailsRow
-                  title="6/6/2018 | vitalik.eth"
-                  value="Invoice | 0.1 rBTC | PAID"
-                />
-              </Box>
-            </RoundedBox>
-          </>
+          <VStack w="100%" gap={3} pt={3}>
+            {fakeResults.map((item) => {
+              return <SearchResult {...item} />;
+            })}
+          </VStack>
         )}
       </VStack>
     </Center>
