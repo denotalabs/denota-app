@@ -90,4 +90,36 @@ export const deployedChains: Record<string, ChainInfo> = {
     graphUrl: "https://denota.klymr.me/graph/ethereum",
     graphTestUrl: "https://denota.klymr.me/graph/ethereum",
   },
+  "0x1A4": {
+    isDisabled: true,
+    name: "Optimism Goerli",
+    displayName: "Optimism",
+    chainId: "0x1A4",
+    logoSrc: "/logos/optimism-logo.svg",
+    nativeCurrency: {
+      name: "Optimism Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
+    blockExplorerUrls: ["https://goerli-optimistic.etherscan.io/"],
+    rpcUrls: ["https://goerli.optimism.io/"],
+    graphUrl: "",
+    graphTestUrl: "",
+  },
+  "0x118": {
+    isDisabled: true,
+    name: "zkSync Era Testnet",
+    displayName: "zkSync Era",
+    chainId: "0x118",
+    logoSrc: "/logos/zksync-logo.svg",
+    nativeCurrency: {
+      name: "zkSync Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
+    blockExplorerUrls: [""],
+    rpcUrls: [""],
+    graphUrl: "",
+    graphTestUrl: "",
+  }
 };
