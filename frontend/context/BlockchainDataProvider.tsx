@@ -11,14 +11,15 @@ import { useColorMode } from "@chakra-ui/react";
 import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
 
-import { setProvider } from "@denota-labs/denota-sdk";
-import CheqRegistrar from "../frontend-abi/CheqRegistrar.sol/CheqRegistrar.json";
+import {
+  contractMappingForChainId,
+  setProvider,
+} from "@denota-labs/denota-sdk";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {
   ChainInfo,
   chainInfoForChainId,
   chainNumberToChainHex,
-  contractMappingForChainId,
 } from "./chainInfo";
 import { providerOptions } from "./providerOptions";
 
@@ -31,7 +32,6 @@ interface BlockchainDataInterface {
   registrarAddress: string;
   userDaiBalance: string;
   userWethBalance: string;
-  cheq: null | ethers.Contract;
   directPayAddress: string;
   escrowAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
@@ -135,11 +135,6 @@ export const BlockchainDataProvider = memo(
         } else {
           // Load contracts
           const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
-          const cheq = new ethers.Contract(
-            contractMapping.registrar,
-            CheqRegistrar.abi,
-            signer
-          );
 
           const weth = new ethers.Contract(
             contractMapping.weth,
@@ -177,7 +172,6 @@ export const BlockchainDataProvider = memo(
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: firstBlockExplorer,
-            cheq,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node

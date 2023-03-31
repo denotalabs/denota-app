@@ -1,20 +1,5 @@
-import { ContractAddressMapping } from "./contractAddresses";
-
 export const MUMBAI_ADDRESS = "0x13881";
 export const METAMASK_ERROR_CODE = 4902;
-
-export const contractMappingForChainId = (chainId: number) => {
-  switch (chainId) {
-    case 80001:
-      return ContractAddressMapping.mumbai;
-    case 31337:
-      return ContractAddressMapping.local;
-    case 44787:
-      return ContractAddressMapping.alfajores;
-    default:
-      return undefined;
-  }
-};
 
 export interface ChainInfo {
   displayName: string;
@@ -121,5 +106,5 @@ export const deployedChains: Record<string, ChainInfo> = {
     rpcUrls: [""],
     graphUrl: "",
     graphTestUrl: "",
-  }
+  },
 };

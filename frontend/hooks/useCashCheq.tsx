@@ -1,7 +1,6 @@
 import { useToast } from "@chakra-ui/react";
 import { cash } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
-import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useCheqContext } from "../context/CheqsContext";
 
 interface Props {
@@ -11,7 +10,6 @@ interface Props {
 }
 
 export const useCashCheq = () => {
-  const { blockchainState } = useBlockchainData();
   const toast = useToast();
   const { refreshWithDelay } = useCheqContext();
 
