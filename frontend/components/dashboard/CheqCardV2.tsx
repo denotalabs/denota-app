@@ -24,7 +24,7 @@ import {
   MdOutlineHourglassEmpty,
   MdOutlineLock,
 } from "react-icons/md";
-import { useCashCheq } from "../../hooks/useCashCheq";
+import { useCash } from "../../hooks/useCash";
 import { Cheq } from "../../hooks/useCheqs";
 import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
@@ -138,27 +138,23 @@ function CheqCardV2({ cheq }: Props) {
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
-  const { cashCheq } = useCashCheq();
+  const { release, reverse } = useCash();
 
   const handleRelease = useCallback(async () => {
     setCashingInProgress(true);
-    await cashCheq({
+    await release({
       cheqId: cheq.id,
-      type: "release",
-      message: "Payment released",
     });
     setCashingInProgress(false);
-  }, [cashCheq, cheq.id]);
+  }, [cheq.id, release]);
 
   const handleVoid = useCallback(async () => {
     setCashingInProgress(true);
-    await cashCheq({
+    await reverse({
       cheqId: cheq.id,
-      type: "reversal",
-      message: "Payment voided",
     });
     setCashingInProgress(false);
-  }, [cashCheq, cheq.id]);
+  }, [cheq.id, reverse]);
 
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
