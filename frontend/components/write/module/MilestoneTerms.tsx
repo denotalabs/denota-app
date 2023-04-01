@@ -33,7 +33,7 @@ export function MilestoneTerms() {
             <FormLabel noOfLines={1} flexShrink={0}>
               Milestone #{index + 1}
             </FormLabel>
-            <Input value={"0.5"} />
+            <Input value={item} />
           </FormControl>
         );
       })}
