@@ -12,6 +12,7 @@ import {
 import { Form, Formik } from "formik";
 import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import useDemoMode from "../../../hooks/useDemoMode";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ModuleTerms from "../module/ModuleTerms";
@@ -21,6 +22,8 @@ interface Props extends ScreenProps {
 }
 
 const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
+  const isDemoMode = useDemoMode();
+
   const { next } = useStep();
   const { appendFormData, formData } = useNotaForm();
 
@@ -94,7 +97,11 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             <Text>Funds are released on completion of milestones </Text>
           </CardBody>
           <CardFooter>
-            <Button isDisabled>Coming Soon</Button>
+            {isDemoMode ? (
+              <Button>Select</Button>
+            ) : (
+              <Button isDisabled>Coming Soon</Button>
+            )}
           </CardFooter>
         </Card>
       </SimpleGrid>

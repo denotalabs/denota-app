@@ -29,6 +29,7 @@ import {
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
+import useDemoMode from "../../hooks/useDemoMode";
 import DesktopNav from "./DesktopNav";
 import { MobileNav } from "./MobileNav";
 
@@ -91,6 +92,10 @@ interface SidebarProps extends BoxProps {
 }
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+  const isDemoMode = useDemoMode();
+  const filteredLinkItems = isDemoMode
+    ? LinkItems
+    : LinkItems.filter((link) => link.name !== "Social");
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}
@@ -128,7 +133,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             />
           </Flex>
           <VStack gap={3} alignItems="flex-start">
-            {LinkItems.map((link) => (
+            {filteredLinkItems.map((link) => (
               <NavItem key={link.name} onClose={onClose} {...link}>
                 <Text fontSize="lg">{link.name}</Text>
               </NavItem>
