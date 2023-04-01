@@ -121,18 +121,24 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             module: formData.module ?? "direct",
             dueDate: formData.dueDate ?? currentDate,
             auditor: formData.auditor ?? "",
+            milestones: [formData.amount],
           }}
           onSubmit={() => {
             next?.();
           }}
         >
-          {() => (
+          {(props) => (
             <Form>
               <ModuleTerms
                 module={formData.module}
                 isInvoice={formData.mode === "invoice"}
               />
-              <RoundedButton type="submit">{"Next"}</RoundedButton>
+              <RoundedButton
+                isDisabled={props.errors.milestones !== undefined}
+                type="submit"
+              >
+                {"Next"}
+              </RoundedButton>
             </Form>
           )}
         </Formik>

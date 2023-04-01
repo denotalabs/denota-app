@@ -14,6 +14,7 @@ export type PaymentTermsFormValues = {
   inspection: number;
   module: string;
   dueDate: string;
+  milestones: any[];
 };
 
 const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
@@ -37,6 +38,7 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
           module: formData.module ?? "direct",
           dueDate: formData.dueDate ?? currentDate,
           auditor: formData.auditor ?? "",
+          milestones: [],
         }}
         onSubmit={() => {
           next?.();
