@@ -89,7 +89,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        <Card variant="outline">
+        <Card variant={formData.module === "milestone" ? "filled" : "outline"}>
           <CardHeader>
             <Heading size="md"> Milestones</Heading>
           </CardHeader>
@@ -97,11 +97,18 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             <Text>Funds are released on completion of milestones </Text>
           </CardBody>
           <CardFooter>
-            {isDemoMode ? (
-              <Button>Select</Button>
-            ) : (
-              <Button isDisabled>Coming Soon</Button>
-            )}
+            <Button
+              onClick={() => {
+                appendFormData({
+                  module: "milestone",
+                });
+                if (!showTerms) {
+                  next?.();
+                }
+              }}
+            >
+              Select
+            </Button>
           </CardFooter>
         </Card>
       </SimpleGrid>
