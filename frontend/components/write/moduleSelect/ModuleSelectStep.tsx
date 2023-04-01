@@ -121,9 +121,16 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             module: formData.module ?? "direct",
             dueDate: formData.dueDate ?? currentDate,
             auditor: formData.auditor ?? "",
-            milestones: [formData.amount],
+            milestones: formData.milestones
+              ? formData.milestones.split(",")
+              : [formData.amount],
           }}
-          onSubmit={() => {
+          onSubmit={(values) => {
+            appendFormData({
+              milestones: values.milestones.join(","),
+              dueDate: values.dueDate,
+              auditor: values.auditor,
+            });
             next?.();
           }}
         >

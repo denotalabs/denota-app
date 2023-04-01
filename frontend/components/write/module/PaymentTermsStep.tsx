@@ -19,7 +19,7 @@ export type PaymentTermsFormValues = {
 
 const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
   const { next } = useStep();
-  const { formData } = useNotaForm();
+  const { appendFormData, formData } = useNotaForm();
 
   const currentDate = useMemo(() => {
     const d = new Date();
@@ -38,9 +38,16 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
           module: formData.module ?? "direct",
           dueDate: formData.dueDate ?? currentDate,
           auditor: formData.auditor ?? "",
-          milestones: [],
+          milestones: formData.milestones
+            ? formData.milestones.split(",")
+            : [formData.amount],
         }}
-        onSubmit={() => {
+        onSubmit={(values) => {
+          appendFormData({
+            milestones: values.milestones.join(","),
+            dueDate: values.dueDate,
+            auditor: values.auditor,
+          });
           next?.();
         }}
       >
