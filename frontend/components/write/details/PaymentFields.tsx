@@ -3,7 +3,6 @@ import { Flex, FormControl, FormLabel, Tooltip } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
 import { useEffect } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import AccountField from "../../fields/input/AccountField";
 
 import AmountField from "../../fields/input/AmountField";
 import { DetailsStepFormValues } from "./DetailsStep";

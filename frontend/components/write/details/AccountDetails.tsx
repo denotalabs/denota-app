@@ -1,10 +1,14 @@
 import { FormControl, FormHelperText, FormLabel, Text } from "@chakra-ui/react";
 import useDemoMode from "../../../hooks/useDemoMode";
-import ContactSelector from "../../contacts/ContactSelector";
+import ContactBar from "../../contacts/ContactBar";
 import RoundedBox from "../../designSystem/RoundedBox";
 import AccountField from "../../fields/input/AccountField";
 
-function AccountDetails() {
+interface AccountDetailsProps {
+  onSelectContact: (address: string) => void;
+}
+
+function AccountDetails({ onSelectContact }: AccountDetailsProps) {
   const isDemoMode = useDemoMode();
   return (
     <RoundedBox padding={4} mb={6}>
@@ -14,16 +18,13 @@ function AccountDetails() {
           <FormHelperText mt={0} mb={2}>
             <Text as="i">Wallet address, ENS, or Lens</Text>
           </FormHelperText>
-          <ContactSelector
-            fieldName="Select Contact"
-            placeholder="Select contact..."
-          />
+          <ContactBar onSelectContact={onSelectContact} />
         </FormControl>
       ) : (
         <FormControl>
           <FormLabel mb={2}>Client Address</FormLabel>
           <AccountField fieldName="address" placeholder="0x..." />
-          </FormControl>
+        </FormControl>
       )}
     </RoundedBox>
   );

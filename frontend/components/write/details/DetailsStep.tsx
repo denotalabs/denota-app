@@ -111,7 +111,11 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
                 token={props.values.token}
                 mode={props.values.mode}
               />
-              <AccountDetails />
+              <AccountDetails
+                onSelectContact={(address) => {
+                  props.setFieldValue("address", address);
+                }}
+              />
               {showMetadata && (
                 <>
                   <Button

@@ -14,6 +14,9 @@ const cheqTheme = extendTheme({
   },
   shadows: { outline: "0 !important" },
   colors: {
+    success: {
+      100: "#4A90E2",
+    },
     brand: {
       100: "#0E111B",
       200: "#5981F3",
