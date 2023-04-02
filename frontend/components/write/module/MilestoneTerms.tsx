@@ -31,9 +31,9 @@ export function MilestoneTerms() {
 
   const setMilestone = useCallback(
     (index: number, value: string) => {
-      const newMilestones = values.milestones;
+      const newMilestones = [...values.milestones];
       newMilestones[index] = value;
-      setFieldValue("milestones", [...newMilestones], false);
+      setFieldValue("milestones", newMilestones, false);
     },
     [setFieldValue, values.milestones]
   );
