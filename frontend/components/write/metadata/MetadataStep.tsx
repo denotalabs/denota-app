@@ -16,7 +16,7 @@ export type MetadataStepFormValues = {
 
 const MetadataStep: React.FC<ScreenProps> = () => {
   const { next } = useStep();
-  const { appendFormData, formData, file, setFile } = useNotaForm();
+  const { updateNotaFormValues, notaFormValues, file, setFile } = useNotaForm();
   const { upload } = useUploadMetadata();
   const [hasConsented, setHasConsented] = useState(true);
   const toast = useToast();
@@ -25,10 +25,10 @@ const MetadataStep: React.FC<ScreenProps> = () => {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          note: formData.note,
-          email: formData.email ?? "",
+          note: notaFormValues.note,
+          email: notaFormValues.email ?? "",
           file: file,
-          tags: formData.tags ?? "",
+          tags: notaFormValues.tags ?? "",
         }}
         onSubmit={async (values, actions) => {
           actions.setSubmitting(true);
@@ -36,12 +36,12 @@ const MetadataStep: React.FC<ScreenProps> = () => {
           let imageUrl = "";
           if (values.note || values.file || values.tags) {
             if (
-              formData.note === values.note &&
+              notaFormValues.note === values.note &&
               values.file?.name === file?.name &&
-              formData.tags === values.tags
+              notaFormValues.tags === values.tags
             ) {
-              ipfsHash = formData.ipfsHash;
-              imageUrl = formData.imageUrl;
+              ipfsHash = notaFormValues.ipfsHash;
+              imageUrl = notaFormValues.imageUrl;
             } else {
               const result = await upload(
                 values.file,
@@ -62,7 +62,7 @@ const MetadataStep: React.FC<ScreenProps> = () => {
               isClosable: true,
             });
           } else {
-            appendFormData({
+            updateNotaFormValues({
               note: values.note,
               email: values.email,
               ipfsHash,

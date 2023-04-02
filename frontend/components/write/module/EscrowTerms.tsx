@@ -1,8 +1,5 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { Flex, FormControl, FormLabel, Tooltip } from "@chakra-ui/react";
-import { useFormikContext } from "formik";
-import { useEffect } from "react";
-import { useNotaForm } from "../../../context/NotaFormProvider";
 import AccountField from "../../fields/input/AccountField";
 
 export type PaymentTermsFormValues = {
@@ -10,15 +7,6 @@ export type PaymentTermsFormValues = {
 };
 
 export function EscrowTerms() {
-  const { values } = useFormikContext<PaymentTermsFormValues>();
-  const { appendFormData } = useNotaForm();
-
-  useEffect(() => {
-    if (values.auditor != "") {
-      appendFormData({ auditor: values.auditor });
-    }
-  }, [appendFormData, values.auditor]);
-
   return (
     <Flex flexWrap={"wrap"} direction={"column"} gap={"18px"}>
       <FormControl>

@@ -15,7 +15,7 @@ interface Props extends ScreenProps {
 }
 
 const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
-  const { formData } = useNotaForm();
+  const { notaFormValues } = useNotaForm();
   const { needsApproval, approveAmount, writeNota } = useConfirmNota({
     onSuccess: () => {
       router.push("/", undefined, { shallow: true });
@@ -26,16 +26,18 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
 
   const buttonText = useMemo(() => {
     if (needsApproval) {
-      return "Approve " + formData.token;
+      return "Approve " + notaFormValues.token;
     }
-    return formData.mode === "invoice" ? "Create Invoice" : "Confirm Payment";
-  }, [formData.mode, formData.token, needsApproval]);
+    return notaFormValues.mode === "invoice"
+      ? "Create Invoice"
+      : "Confirm Payment";
+  }, [notaFormValues.mode, notaFormValues.token, needsApproval]);
 
   return (
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          module: formData.module ?? "direct",
+          module: notaFormValues.module ?? "direct",
         }}
         onSubmit={async (values, actions) => {
           if (needsApproval) {
@@ -50,7 +52,7 @@ const CheqConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
         {(props) => (
           <Form>
             <ConfirmNotice
-              isInvoice={formData.mode === "invoice"}
+              isInvoice={notaFormValues.mode === "invoice"}
               module={props.values.module}
             ></ConfirmNotice>
             <ConfirmDetails isInvoice={isInvoice}></ConfirmDetails>
