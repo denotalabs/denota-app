@@ -98,6 +98,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           </CardBody>
           <CardFooter>
             <Button
+              isDisabled={!isDemoMode}
               onClick={() => {
                 appendFormData({
                   module: "milestone",
@@ -107,7 +108,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
                 }
               }}
             >
-              Select
+              {isDemoMode ? "Select" : "Coming Soon"}
             </Button>
           </CardFooter>
         </Card>
