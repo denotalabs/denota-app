@@ -25,7 +25,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   const isDemoMode = useDemoMode();
 
   const { next } = useStep();
-  const { appendFormData, formData } = useNotaForm();
+  const { updateNotaFormValues, notaFormValues } = useNotaForm();
 
   const currentDate = useMemo(() => {
     const d = new Date();
@@ -45,7 +45,9 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
         }}
         mb={4}
       >
-        <Card variant={formData.module === "direct" ? "filled" : "outline"}>
+        <Card
+          variant={notaFormValues.module === "direct" ? "filled" : "outline"}
+        >
           <CardHeader>
             <Heading size="md"> Direct Pay</Heading>
           </CardHeader>
@@ -55,7 +57,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           <CardFooter>
             <Button
               onClick={() => {
-                appendFormData({
+                updateNotaFormValues({
                   module: "direct",
                 });
                 if (!showTerms) {
@@ -67,7 +69,9 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        <Card variant={formData.module === "escrow" ? "filled" : "outline"}>
+        <Card
+          variant={notaFormValues.module === "escrow" ? "filled" : "outline"}
+        >
           <CardHeader>
             <Heading size="md">Escrow</Heading>
           </CardHeader>
@@ -77,7 +81,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           <CardFooter>
             <Button
               onClick={() => {
-                appendFormData({
+                updateNotaFormValues({
                   module: "escrow",
                 });
                 if (!showTerms) {
@@ -89,7 +93,9 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        <Card variant={formData.module === "milestone" ? "filled" : "outline"}>
+        <Card
+          variant={notaFormValues.module === "milestone" ? "filled" : "outline"}
+        >
           <CardHeader>
             <Heading size="md"> Milestones</Heading>
           </CardHeader>
@@ -100,7 +106,7 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             <Button
               isDisabled={!isDemoMode}
               onClick={() => {
-                appendFormData({
+                updateNotaFormValues({
                   module: "milestone",
                 });
                 if (!showTerms) {
@@ -113,21 +119,21 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           </CardFooter>
         </Card>
       </SimpleGrid>
-      {showTerms && formData.module && (
+      {showTerms && notaFormValues.module && (
         <Formik
           initialValues={{
-            inspection: formData.inspection
-              ? Number(formData.inspection)
+            inspection: notaFormValues.inspection
+              ? Number(notaFormValues.inspection)
               : 604800,
-            module: formData.module ?? "direct",
-            dueDate: formData.dueDate ?? currentDate,
-            auditor: formData.auditor ?? "",
-            milestones: formData.milestones
-              ? formData.milestones.split(",")
-              : [formData.amount],
+            module: notaFormValues.module ?? "direct",
+            dueDate: notaFormValues.dueDate ?? currentDate,
+            auditor: notaFormValues.auditor ?? "",
+            milestones: notaFormValues.milestones
+              ? notaFormValues.milestones.split(",")
+              : [notaFormValues.amount],
           }}
           onSubmit={(values) => {
-            appendFormData({
+            updateNotaFormValues({
               milestones: values.milestones.join(","),
               dueDate: values.dueDate,
               auditor: values.auditor,
@@ -138,8 +144,8 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           {(props) => (
             <Form>
               <ModuleTerms
-                module={formData.module}
-                isInvoice={formData.mode === "invoice"}
+                module={notaFormValues.module}
+                isInvoice={notaFormValues.mode === "invoice"}
               />
               <RoundedButton
                 isDisabled={props.errors.milestones !== undefined}

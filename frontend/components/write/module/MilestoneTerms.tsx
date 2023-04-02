@@ -21,7 +21,7 @@ export function MilestoneTerms() {
   const { values, setFieldValue, setFieldError, errors } =
     useFormikContext<PaymentTermsFormValues>();
 
-  const { formData } = useNotaForm();
+  const { notaFormValues } = useNotaForm();
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
 
@@ -44,12 +44,12 @@ export function MilestoneTerms() {
       0
     );
 
-    if (total !== Number(formData.amount)) {
+    if (total !== Number(notaFormValues.amount)) {
       setFieldError("milestones", "Milestones should add up to total value");
     } else {
       setFieldError("milestones", undefined);
     }
-  }, [formData.amount, setFieldError, values.milestones]);
+  }, [notaFormValues.amount, setFieldError, values.milestones]);
 
   return (
     <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
@@ -71,8 +71,8 @@ export function MilestoneTerms() {
         );
       })}
       <Text textAlign="right" textColor={errors.milestones ? "red" : undefined}>
-        Total amount must add up to {formData.amount}{" "}
-        {displayNameForCurrency(formData.token as CheqCurrency)}
+        Total amount must add up to {notaFormValues.amount}{" "}
+        {displayNameForCurrency(notaFormValues.token as CheqCurrency)}
       </Text>
       <FormControl>
         <FormLabel noOfLines={1} flexShrink={0} mb={3}>

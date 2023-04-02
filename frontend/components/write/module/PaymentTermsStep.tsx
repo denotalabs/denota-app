@@ -19,7 +19,7 @@ export type PaymentTermsFormValues = {
 
 const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
   const { next } = useStep();
-  const { appendFormData, formData } = useNotaForm();
+  const { updateNotaFormValues, notaFormValues } = useNotaForm();
 
   const currentDate = useMemo(() => {
     const d = new Date();
@@ -32,18 +32,18 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          inspection: formData.inspection
-            ? Number(formData.inspection)
+          inspection: notaFormValues.inspection
+            ? Number(notaFormValues.inspection)
             : 604800,
-          module: formData.module ?? "direct",
-          dueDate: formData.dueDate ?? currentDate,
-          auditor: formData.auditor ?? "",
-          milestones: formData.milestones
-            ? formData.milestones.split(",")
-            : [formData.amount],
+          module: notaFormValues.module ?? "direct",
+          dueDate: notaFormValues.dueDate ?? currentDate,
+          auditor: notaFormValues.auditor ?? "",
+          milestones: notaFormValues.milestones
+            ? notaFormValues.milestones.split(",")
+            : [notaFormValues.amount],
         }}
         onSubmit={(values) => {
-          appendFormData({
+          updateNotaFormValues({
             milestones: values.milestones.join(","),
             dueDate: values.dueDate,
             auditor: values.auditor,

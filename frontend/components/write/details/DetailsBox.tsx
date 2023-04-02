@@ -18,17 +18,17 @@ interface Props {
 
 function DetailsBox({ isInvoice, token, mode }: Props) {
   const { values } = useFormikContext<DetailsStepFormValues>();
-  const { appendFormData } = useNotaForm();
+  const { updateNotaFormValues } = useNotaForm();
 
   useEffect(() => {
     const { token, amount, address, mode } = values;
-    appendFormData({
+    updateNotaFormValues({
       token,
       amount: amount ? String(Number(amount)) : "",
       address,
       mode,
     });
-  }, [appendFormData, values]);
+  }, [updateNotaFormValues, values]);
 
   return (
     <RoundedBox p={4} pb={6}>
