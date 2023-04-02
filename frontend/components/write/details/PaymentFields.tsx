@@ -15,17 +15,17 @@ interface Props {
 
 function PaymentFields({ token, mode }: Props) {
   const { values } = useFormikContext<DetailsStepFormValues>();
-  const { appendFormData } = useNotaForm();
+  const { updateNotaFormValues } = useNotaForm();
 
   useEffect(() => {
     const { token, amount, address, mode } = values;
-    appendFormData({
+    updateNotaFormValues({
       token,
       amount: amount ? String(Number(amount)) : "",
       address,
       mode,
     });
-  }, [appendFormData, values]);
+  }, [updateNotaFormValues, values]);
 
   return (
     <Flex flexWrap={"wrap"} gap={"18px"} direction={"row"} mt={5}>

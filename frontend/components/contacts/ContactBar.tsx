@@ -63,6 +63,7 @@ const ContactBar = ({ onSelectContact }: ContactBarProps) => {
 
       console.log(`Resolved address: ${address}`);
       onSelectContact(address);
+      setSelectedAddress(address);
       setSearchText("");
     } catch (error) {
       console.error("Error resolving address:", error);
