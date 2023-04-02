@@ -7,8 +7,8 @@ import { useUploadMetadata } from "../../../hooks/useUploadNote";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import MetadataBox from "../metadata/MetadataBox";
-import CurrencySelectorV2 from "./CurrencySelector";
-import DetailsBox from "./DetailsBox";
+import AccountDetails from "./AccountDetails";
+import PaymentDetails from "./PaymentDetails";
 
 interface Props extends ScreenProps {
   isInvoice: boolean;
@@ -22,7 +22,7 @@ export type DetailsStepFormValues = {
   mode: string;
 };
 
-const CheqDetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
+const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
   const { next } = useStep();
   const { formData, file, appendFormData, setFile } = useNotaForm();
   const { upload } = useUploadMetadata();
@@ -107,12 +107,11 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
             props.values.amount;
           return (
             <Form>
-              <CurrencySelectorV2></CurrencySelectorV2>
-              <DetailsBox
-                isInvoice={isInvoice}
+              <PaymentDetails
                 token={props.values.token}
                 mode={props.values.mode}
-              ></DetailsBox>
+              />
+              <AccountDetails />
               {showMetadata && (
                 <>
                   <Button
@@ -152,4 +151,4 @@ const CheqDetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
   );
 };
 
-export default CheqDetailsStep;
+export default DetailsStep;

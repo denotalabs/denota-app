@@ -24,6 +24,7 @@ import {
   MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
+  MdOutlineGroup,
   MdOutlinePerson,
   MdSwapHoriz,
 } from "react-icons/md";
@@ -47,7 +48,14 @@ const LinkItems: Array<LinkItemProps> = [
     isExternal: false,
   },
   { name: "New Nota", icon: MdOutlineAdd, href: "/send", isExternal: false },
-  { name: "Social", icon: MdOutlinePerson, href: "/social", isExternal: false },
+  {
+    name: "Contacts",
+    icon: MdOutlinePerson,
+    href: "/contacts",
+    isExternal: false,
+  },
+  { name: "Social", icon: MdOutlineGroup, href: "/social", isExternal: false },
+
   { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
     name: "Documentation",
@@ -95,7 +103,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   const isDemoMode = useDemoMode();
   const filteredLinkItems = isDemoMode
     ? LinkItems
-    : LinkItems.filter((link) => link.name !== "Social");
+    : LinkItems.filter((link) => link.name !== "Social" && link.name !== "Contacts");
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}

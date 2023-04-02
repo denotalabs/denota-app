@@ -1,20 +1,13 @@
 import { Select } from "@chakra-ui/react";
-import { Field } from "formik";
+import { Field, FieldProps } from "formik";
 
-interface Props {
-  isInvoice: boolean;
-}
-
-function ModeSelect({ isInvoice }: Props) {
+function ModeSelect() {
   return (
-    <Field
-      name="mode"
-      // validate={validateAmount}
-    >
+    <Field name="mode">
       {({
         field,
-        form: { setFieldValue, setFieldTouched, errors, touched, values },
-      }: any) => (
+        form: { setFieldValue, setFieldTouched, values },
+      }: FieldProps) => (
         <Select
           w={120}
           {...field}
