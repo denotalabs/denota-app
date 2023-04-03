@@ -55,12 +55,10 @@ export function DirectPayTerms({ isInvoice }: Props) {
         )}
         {/* Actually support Axelar cross-chain and send this via formik field */}
         <HStack spacing={5}>
-          <Checkbox
-            isChecked={isChecked}
-            colorScheme="blue"
-            onChange={handleCheckboxChange}
-          >
-            <Text fontSize={"lg"}>Mint cross-chain on Polygon with Axelar</Text>
+          <Checkbox isChecked={isChecked} onChange={handleCheckboxChange}>
+            <Text fontSize="lg" color="cheqPurple.100">
+              Mint cross-chain on Polygon with Axelar
+            </Text>
           </Checkbox>
         </HStack>
       </Stack>
