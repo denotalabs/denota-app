@@ -10,10 +10,10 @@ import { ChangeEvent, useMemo, useState } from "react";
 import SearchResult from "../../components/social/SearchResult";
 
 const fakeResult1 = {
-  title: "vitalik.eth",
+  title: "0xrafi.eth",
   items: [
     {
-      title: "1/5/2023 | MakerDAO.eth → vitalik.eth",
+      title: "1/5/2023 | MakerDAO.eth → 0xrafi.eth",
       description: "Invoice | 12 wETH | ONGOING",
       subItems: [
         { title: "10/01/2022", description: "Invoice created" },
@@ -30,10 +30,10 @@ const fakeResult1 = {
 };
 
 const fakeResult2 = {
-  title: "vitalik2.eth",
+  title: "0xrafi1.eth",
   items: [
     {
-      title: "6/6/2018 | vitalik.eth → vitalik2.eth",
+      title: "12/6/2022 | vitalik.eth → 0xrafi1.eth",
       description: "Invoice | 0.1 rBTC | PAID",
     },
   ],
@@ -45,17 +45,17 @@ const nullResult1 = {
   title: "almaraz.eth",
   items: [
     {
-      title: "6/6/2018 | rafi.eth → almaraz.eth",
+      title: "3/6/2023 | 0xrafi.eth → almaraz.eth",
       description: "Invoice | 0.11 rBTC | PAID",
     },
   ],
 };
 
 const nullResult2 = {
-  title: "rafi.eth",
+  title: "0xrafi.eth",
   items: [
     {
-      title: "6/6/2018 | michael.eth → rafi.eth",
+      title: "2/6/2023 | pengu.eth → 0xrafi.eth",
       description: "Invoice | 0.42 rBTC | PAID",
     },
   ],
@@ -71,7 +71,7 @@ function SocialPage() {
   };
 
   const resultsFound = useMemo(() => {
-    return searchValue.includes("vita");
+    return searchValue.includes("ra");
   }, [searchValue]);
 
   const result = useMemo(() => {
@@ -102,7 +102,7 @@ function SocialPage() {
         px={6}
         pb={8}
         borderRadius="30px"
-        width="100%"
+        width="95%"
         maxWidth="65rem"
       >
         <InputGroup>
