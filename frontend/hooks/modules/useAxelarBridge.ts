@@ -28,8 +28,8 @@ export const useAxelarBridge = () => {
         CHAINS.TESTNET["CELO"],
         CHAINS.TESTNET["POLYGON"],
         "CELO",
-        300000,
-        1.2
+        300000, // gas limit
+        1.2 // gas multiplier
       );
 
       const axelarFee = BigNumber.from(axelarFeeString);
