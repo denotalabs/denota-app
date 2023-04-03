@@ -132,7 +132,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           case "direct":
             if (
               blockchainState.chainId === "0xaef3" &&
-              notaFormValues.mode === "pay"
+              notaFormValues.mode === "pay" &&
+              notaFormValues.axelarEnabled
             ) {
               txHash = await writeCrosschain({
                 tokenAddress,
@@ -218,11 +219,12 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.module,
     notaFormValues.email,
     notaFormValues.mode,
-    notaFormValues.dueDate,
+    notaFormValues.axelarEnabled,
     notaFormValues.address,
     notaFormValues.ipfsHash,
-    notaFormValues.imageUrl,
     notaFormValues.auditor,
+    notaFormValues.imageUrl,
+    notaFormValues.dueDate,
     notaFormValues.token,
     notaFormValues.amount,
     toast,
