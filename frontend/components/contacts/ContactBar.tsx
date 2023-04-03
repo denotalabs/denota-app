@@ -14,7 +14,7 @@ import React, { useState } from "react";
 import { MdCheck, MdContacts, MdSearch } from "react-icons/md";
 
 import AddressBookModal from "./AddressBookModal";
-
+// import useENSResolver from "../../hooks/useENSResolver";
 interface ContactBarProps {
   onSelectContact: (address: string) => void;
 }
@@ -38,12 +38,14 @@ const ContactBar = ({ onSelectContact }: ContactBarProps) => {
     onSelectContact(address);
   };
 
+  const projectId = process.env.NEXT_PUBLIC_INFURA_KEY;
+
   const handleSearch = async () => {
+    // TODO refactor to use ENS Resolver hook, add search suggestions
+    // TODO add Lens support as well
     try {
-      //  TODO resolve on Polygon, Celo, etc
-      //  pass in static URL for infura/etc for ETH and should resolve on ETH
-      const provider = new ethers.providers.JsonRpcProvider(
-        "https://cloudflare-eth.com"
+      const ensProvider = new ethers.providers.JsonRpcProvider(
+        `https://mainnet.infura.io/v3/${projectId}`
       );
 
       let address: string;
@@ -51,11 +53,11 @@ const ContactBar = ({ onSelectContact }: ContactBarProps) => {
       if (ethers.utils.isAddress(searchText)) {
         address = ethers.utils.getAddress(searchText);
       } else {
-        const resolver = await provider.getResolver(searchText);
-        if (!resolver) {
+        const ensResolver = await ensProvider.getResolver(searchText);
+        if (!ensResolver) {
           throw new Error("Could not resolve ENS name");
         }
-        address = await resolver.getAddress();
+        address = await ensResolver.getAddress();
         if (address === ethers.constants.AddressZero) {
           throw new Error("ENS name does not have an associated address");
         }
@@ -120,6 +122,7 @@ const ContactBar = ({ onSelectContact }: ContactBarProps) => {
           </Flex>
           <Text fontWeight="bold">Recipient selected</Text>
           {selectedName !== "" ? (
+            // TODO if ENS is selected show ENS info
             <Text>
               {selectedName} ({selectedAddress.slice(0, 6)}...
               {selectedAddress.slice(-4)})
