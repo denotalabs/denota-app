@@ -1,9 +1,9 @@
 import { Image } from "@chakra-ui/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
-export type CheqCurrency = "DAI" | "USDC" | "WETH" | "NATIVE";
+export type CheqCurrency = "DAI" | "USDC" | "WETH" | "USDT" | "NATIVE";
 
-type URLKey = "MATIC" | "CELO" | "USDC" | "DAI" | "WETH";
+type URLKey = "MATIC" | "CELO" | "USDC" | "DAI" | "WETH" | "USDT";
 
 const URL_MAP = {
   USDC: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023",
@@ -11,6 +11,7 @@ const URL_MAP = {
   WETH: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=002",
   MATIC: "https://cryptologos.cc/logos/polygon-matic-logo.png?v=024",
   CELO: "https://cryptologos.cc/logos/celo-celo-logo.svg?v=024",
+  USDT: "https://cryptologos.cc/logos/tether-usdt-logo.png?v=024",
 };
 
 interface Props {

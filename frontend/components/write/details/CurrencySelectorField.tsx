@@ -9,6 +9,7 @@ import {
 import { Field, FieldProps } from "formik";
 
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
+import useDemoMode from "../../../hooks/useDemoMode";
 import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
 import { TokenChoice } from "../../designSystem/TokenChoice";
 
@@ -36,11 +37,12 @@ export function CurrencySelectorField() {
   );
 }
 
-function CurrencySelector({
-  setFieldValue,
-  value,
-}: CurrencySelectorProps) {
-  const options: CheqCurrency[] = ["NATIVE", "DAI", "WETH"];
+function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
+  const isDemoMode = useDemoMode();
+  let options: CheqCurrency[];
+  isDemoMode
+    ? (options = ["NATIVE", "DAI", "USDC", "USDT", "WETH"])
+    : (options = ["NATIVE", "DAI", "WETH"]);
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "framework",

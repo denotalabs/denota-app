@@ -20,7 +20,6 @@ import { useRouter } from "next/router";
 import { ReactNode, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
-  MdInfoOutline,
   MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
@@ -58,12 +57,11 @@ const LinkItems: Array<LinkItemProps> = [
 
   { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
-    name: "Documentation",
+    name: "Docs",
     icon: MdOutlineDescription,
     href: "https://denota.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80",
     isExternal: true,
   },
-  { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
