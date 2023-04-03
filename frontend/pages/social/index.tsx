@@ -45,7 +45,7 @@ const nullResult1 = {
   title: "almaraz.eth",
   items: [
     {
-      title: "1/6/2023 | 0xrafi.eth → almaraz.eth",
+      title: "3/6/2023 | 0xrafi.eth → almaraz.eth",
       description: "Invoice | 0.11 rBTC | PAID",
     },
   ],
