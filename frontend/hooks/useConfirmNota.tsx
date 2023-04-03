@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useCheqContext } from "../context/CheqsContext";
 import { useNotaForm } from "../context/NotaFormProvider";
+import { useAxelarBridge } from "./modules/useAxelarBridge";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEscrow } from "./modules/useEscrow";
 import { useEmail } from "./useEmail";
@@ -95,6 +96,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
   const { writeCheq: writeEscrowCheq } = useEscrow();
 
+  const { writeCheq: writeCrosschain } = useAxelarBridge();
+
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete
     // To enable:
@@ -127,17 +130,32 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         let txHash = "";
         switch (notaFormValues.module) {
           case "direct":
-            txHash = await writeDirectPayCheq({
-              dueDate: notaFormValues.dueDate,
-              tokenAddress,
-              amountWei,
-              address: notaFormValues.address,
-              instantWei: transferWei,
-              ipfsHash: notaFormValues.ipfsHash ?? "",
-              isInvoice: notaFormValues.mode === "invoice",
-              imageUrl: notaFormValues.imageUrl ?? "",
-            });
+            if (
+              blockchainState.chainId === "0xaef3" &&
+              notaFormValues.mode === "pay"
+            ) {
+              txHash = await writeCrosschain({
+                tokenAddress,
+                amountWei,
+                address: notaFormValues.address,
+                ipfsHash: notaFormValues.ipfsHash ?? "",
+                imageUrl: notaFormValues.imageUrl ?? "",
+              });
+            } else {
+              txHash = await writeDirectPayCheq({
+                dueDate: notaFormValues.dueDate,
+                tokenAddress,
+                amountWei,
+                address: notaFormValues.address,
+                instantWei: transferWei,
+                ipfsHash: notaFormValues.ipfsHash ?? "",
+                isInvoice: notaFormValues.mode === "invoice",
+                imageUrl: notaFormValues.imageUrl ?? "",
+              });
+            }
+
             break;
+
           case "escrow":
             txHash = await writeEscrowCheq({
               tokenAddress,
@@ -210,10 +228,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     toast,
     refreshWithDelay,
     onSuccess,
-    writeDirectPayCheq,
+    writeEscrowCheq,
     tokenAddress,
     transferWei,
-    writeEscrowCheq,
+    writeCrosschain,
+    writeDirectPayCheq,
     sendEmail,
   ]);
 

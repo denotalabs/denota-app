@@ -67,6 +67,62 @@ dataSources:
           handler: handleDirectPayment
       file: mapping.ts
   - kind: ethereum/contract
+    name: DirectPayAxelar
+    network: mumbai
+    source:
+      address: "0xed9B684c481F5b20A1f5bEeA5E458d92f7D1b2BC"
+      abi: DirectPayAxelar
+      startBlock: 33483535
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Cheq  # Cheqs
+        - Transfer  # Write/Transfers
+        - Escrow  # Fund/Cash
+        - ERC20  # ERC20s that have interacted with the protocol
+        - Account  # Accounts that have interacted with CheqRegistrar
+        - DirectSend  # Payment modules
+        - DirectPayModule
+        - DirectPayData
+        # - DirectPayData
+      abis:
+        - name: DirectPayAxelar
+          file: ../frontend-abi/AxelarDirectPay.sol/AxelarDirectPay.json
+      eventHandlers:
+        - event: PaymentCreated(uint256,string,uint256,address,address,uint256,uint256)
+          handler: handleDirectPaymentAxelar
+      file: mapping.ts
+  - kind: ethereum/contract
+    name: BridgeSender
+    network: mumbai
+    source:
+      address: "0x89A545bC5f783F18F3a0AC3E92c78E03a14CC69c"
+      abi: BridgeSender
+      startBlock: 33483535
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Cheq  # Cheqs
+        - Transfer  # Write/Transfers
+        - Escrow  # Fund/Cash
+        - ERC20  # ERC20s that have interacted with the protocol
+        - Account  # Accounts that have interacted with CheqRegistrar
+        - DirectSend  # Payment modules
+        - DirectPayModule
+        - DirectPayData
+        # - DirectPayData
+      abis:
+        - name: BridgeSender
+          file: ../frontend-abi/BridgeSender.sol/CheqBridgeSender.json
+      eventHandlers:
+        - event: PaymentCreated(string,uint256,uint256,address,address,uint256,string)
+          handler: handleAxelarOutgoing
+      file: mapping.ts
+  - kind: ethereum/contract
     name: ReversibleRelease
     network: mumbai
     source:

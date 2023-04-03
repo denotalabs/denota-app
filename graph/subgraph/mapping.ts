@@ -18,6 +18,9 @@ import { PaymentCreated as DirectPaymentCreatedEvent } from "../subgraph/generat
 
 import { PaymentCreated as ReversiblePaymentCreatedEvent } from "../subgraph/generated/ReversibleRelease/ReversibleRelease";
 
+import { PaymentCreated as DirectPaymentBridgeEvent } from "../subgraph/generated/BridgeSender/BridgeSender";
+import { PaymentCreated as DirectPaymentAxelarCreatedEvent } from "../subgraph/generated/DirectPayAxelar/DirectPayAxelar";
+
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
   newAccount.save();
@@ -26,7 +29,6 @@ function saveNewAccount(account: string): Account {
 
 function saveTransaction(
   transactionHexHash: string,
-  cheqId: string,
   // TODO figure out BigInt vs bigint literal eslint issue
   // eslint-disable-next-line @typescript-eslint/ban-types
   timestamp: BigInt,
@@ -34,7 +36,7 @@ function saveTransaction(
   blockNumber: BigInt
 ): Transaction {
   // TODO not sure if the ID structure is best
-  let transaction = Transaction.load(transactionHexHash + "/" + cheqId); // OZ Uses this entity, what to use as its ID?
+  let transaction = Transaction.load(transactionHexHash); // OZ Uses this entity, what to use as its ID?
   if (transaction == null) {
     transaction = new Transaction(transactionHexHash);
     transaction.timestamp = timestamp;
@@ -65,7 +67,6 @@ export function handleWrite(event: WrittenEvent): void {
 
   const transaction = saveTransaction(
     transactionHexHash,
-    cheqId,
     event.block.timestamp,
     event.block.number
   );
@@ -79,7 +80,7 @@ export function handleWrite(event: WrittenEvent): void {
 
     if (cheq.moduleData && cheq.moduleData.endsWith("/direct")) {
       const directPayData = DirectPayData.load(cheq.moduleData);
-      if (directPayData) {
+      if (directPayData && directPayData.status != "PAID") {
         if (event.params.instant > BigInt.fromI32(0)) {
           directPayData.status = "PAID";
           directPayData.fundedTransaction = transaction.id;
@@ -157,6 +158,110 @@ export function handleDirectPayment(event: DirectPaymentCreatedEvent): void {
   newCheq.save();
 }
 
+export function handleDirectPaymentAxelar(
+  event: DirectPaymentAxelarCreatedEvent
+): void {
+  const sender = event.params.debtor.toHexString();
+  const creditor = event.params.creditor.toHexString();
+  const debtor = event.params.debtor.toHexString();
+
+  let creditorAccount = Account.load(creditor);
+  let debtorAccount = Account.load(debtor);
+  creditorAccount =
+    creditorAccount == null ? saveNewAccount(creditor) : creditorAccount;
+  debtorAccount =
+    debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
+
+  const cheqId = event.params.cheqId.toString();
+
+  const directPay = new DirectPayData(cheqId + "/direct");
+  directPay.creditor = creditorAccount.id;
+  directPay.debtor = debtorAccount.id;
+  directPay.amount = event.params.amount;
+  directPay.dueDate = BigInt.fromI32(0);
+  directPay.status = "PAID";
+  if (sender == creditor) {
+    directPay.isInvoice = true;
+  } else {
+    directPay.isInvoice = false;
+  }
+  directPay.isCrossChain = true;
+  directPay.sourceChain = event.params.sourceChainId;
+  directPay.destChain = event.params.destChainId;
+  directPay.save();
+
+  const newCheq = new Cheq(cheqId);
+  const cheqTimestamp = event.block.timestamp;
+  newCheq.timestamp = cheqTimestamp;
+  newCheq.createdAt = cheqTimestamp;
+  newCheq.uri = event.params.memoHash.toString();
+  if (sender == creditor) {
+    newCheq.receiver = debtorAccount.id;
+  } else {
+    newCheq.receiver = creditorAccount.id;
+  }
+  newCheq.sender = sender;
+  newCheq.moduleData = directPay.id;
+  newCheq.save();
+}
+
+export function handleAxelarOutgoing(event: DirectPaymentBridgeEvent): void {
+  const sender = event.transaction.from.toHexString();
+  const creditor = event.params.creditor.toHexString();
+  const debtor = event.params.debtor.toHexString();
+  const transactionHexHash = event.transaction.hash.toHex();
+
+  let creditorAccount = Account.load(creditor);
+  let debtorAccount = Account.load(debtor);
+  creditorAccount =
+    creditorAccount == null ? saveNewAccount(creditor) : creditorAccount;
+  debtorAccount =
+    debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
+
+  const cheqId = event.transaction.hash.toHex();
+
+  const transaction = saveTransaction(
+    transactionHexHash,
+    event.block.timestamp,
+    event.block.number
+  );
+
+  const directPay = new DirectPayData(cheqId + "/direct");
+  directPay.creditor = creditorAccount.id;
+  directPay.debtor = debtorAccount.id;
+  directPay.amount = event.params.amount;
+  directPay.dueDate = BigInt.fromI32(0);
+  directPay.status = "PAID";
+  if (sender == creditor) {
+    directPay.isInvoice = true;
+  } else {
+    directPay.isInvoice = false;
+  }
+  directPay.isCrossChain = true;
+  directPay.sourceChain = event.params.chainId;
+  if (event.params.destinationChain == "Polygon") {
+    directPay.destChain = BigInt.fromI32(80001);
+  }
+  directPay.save();
+
+  const newCheq = new Cheq(transactionHexHash + "/crosschain");
+  const cheqTimestamp = event.block.timestamp;
+  newCheq.timestamp = cheqTimestamp;
+  newCheq.createdAt = cheqTimestamp;
+  newCheq.uri = event.params.memoHash.toString();
+  if (sender == creditor) {
+    newCheq.receiver = debtorAccount.id;
+  } else {
+    newCheq.receiver = creditorAccount.id;
+  }
+  newCheq.owner = creditorAccount.id;
+  newCheq.erc20 = "0x0000000000000000000000000000000000000000"; // TODO: use right token
+  newCheq.sender = sender;
+  newCheq.moduleData = directPay.id;
+  newCheq.createdTransaction = transaction.id;
+  newCheq.save();
+}
+
 export function handleReversiblePayment(
   event: ReversiblePaymentCreatedEvent
 ): void {
@@ -230,7 +335,6 @@ export function handleFund(event: FundedEvent): void {
   }
   const transaction = saveTransaction(
     transactionHexHash,
-    cheqId,
     event.block.timestamp,
     event.block.number
   );
@@ -286,7 +390,6 @@ export function handleCash(event: CashedEvent): void {
   // Load transaction
   const transaction = saveTransaction(
     transactionHexHash,
-    cheqId,
     event.block.timestamp,
     event.block.number
   );

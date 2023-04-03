@@ -7,37 +7,50 @@ import {IAxelarGasService} from "axelarnetwork/interfaces/IAxelarGasService.sol"
 import "../CheqRegistrar.sol";
 
 contract CheqBridgeReceiver is AxelarExecutable {
-    string public value;
-    string public sourceChain;
-    string public sourceAddress;
     IAxelarGasService public immutable gasReceiver;
     CheqRegistrar public cheq;
+    address public directPayAxelar;
+
+    error OnlyGateway();
 
     constructor(
         address gateway_,
         address gasReceiver_,
-        CheqRegistrar _cheq
+        CheqRegistrar _cheq,
+        address _directPayAxelar
     ) AxelarExecutable(gateway_) {
         gasReceiver = IAxelarGasService(gasReceiver_);
         cheq = _cheq;
+        directPayAxelar = _directPayAxelar;
     }
 
     function _execute(
-        string calldata sourceChain_,
-        string calldata sourceAddress_,
+        string calldata /*sourceChain_*/,
+        string calldata /*sourceAddress_*/,
         bytes calldata payload_
     ) internal override {
         (
-            bool _isInvoice,
-            string memory _uriToken,
-            IERC20 _token,
+            uint256 sourceChain,
             uint256 amount,
-            address recipient
-        ) = abi.decode(payload_, (bool, string, IERC20, uint256, address));
-        if (_isInvoice) {
-            // write invoice
-        } else {
-            // write cheq
-        }
+            address _token,
+            address owner,
+            address sender,
+            string memory imageURI,
+            string memory memoHash
+        ) = abi.decode(
+                payload_,
+                (uint256, uint256, address, address, address, string, string)
+            );
+
+        bytes memory modulePayload = abi.encode(
+            amount,
+            sourceChain,
+            address(cheq),
+            imageURI,
+            memoHash,
+            sender
+        );
+
+        cheq.write(_token, 0, 0, owner, directPayAxelar, modulePayload);
     }
 }

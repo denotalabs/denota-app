@@ -11,6 +11,7 @@ import { useColorMode } from "@chakra-ui/react";
 import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
 
+import BridgeSender from "../frontend-abi/BridgeSender.sol/CheqBridgeSender.json";
 import CheqRegistrar from "../frontend-abi/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {
@@ -42,6 +43,7 @@ interface BlockchainDataInterface {
   userDaiBalanceRaw: BigNumber;
   userWethBalanceRaw: BigNumber;
   walletBalanceRaw: BigNumber;
+  axelarBridgeSender: null | ethers.Contract;
 }
 
 interface BlockchainDataContextInterface {
@@ -56,6 +58,7 @@ const defaultBlockchainState = {
   cheq: null,
   dai: null,
   weth: null,
+  axelarBridgeSender: null,
   daiAllowance: BigNumber.from(0),
   wethAllowance: BigNumber.from(0),
   registrarAddress: "",
@@ -133,9 +136,16 @@ export const BlockchainDataProvider = memo(
         } else {
           // Load contracts
           const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
+
           const cheq = new ethers.Contract(
             contractMapping.registrar,
             CheqRegistrar.abi,
+            signer
+          );
+
+          const axelarBridgeSender = new ethers.Contract(
+            contractMapping.bridgeSender,
+            BridgeSender.abi,
             signer
           );
 
@@ -178,13 +188,14 @@ export const BlockchainDataProvider = memo(
             cheq,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
-            graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
+            graphUrl: deployedChainInfo.graphTestUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
             escrowAddress: contractMapping.escrow, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
             walletBalance: ethers.utils.formatUnits(walletBalance),
             userDaiBalanceRaw: userDaiBalance,
             userWethBalanceRaw: userWethBalance,
             walletBalanceRaw: walletBalance,
+            axelarBridgeSender,
           });
           setIsInitializing(false);
         }

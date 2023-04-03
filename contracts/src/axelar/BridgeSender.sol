@@ -7,40 +7,61 @@ import {IAxelarGateway} from "axelarnetwork/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "axelarnetwork/interfaces/IAxelarGasService.sol";
 import "../CheqRegistrar.sol";
 
+/**
+ * @title CheqBridgeSender
+ * @dev
+ */
 contract CheqBridgeSender is AxelarExecutable {
-    string public value;
-    string public sourceChain;
-    string public sourceAddress;
-    IAxelarGasService public immutable gasReceiver;
-    CheqRegistrar public cheq;
+    event PaymentCreated(
+        string memoHash,
+        uint256 amount,
+        uint256 timestamp,
+        address creditor,
+        address debtor,
+        uint256 chainId,
+        string destinationChain
+    );
+
+    IAxelarGasService public immutable gasReceiver; // The same on all chains (minus Aurora)
+    error SendFailed();
 
     constructor(
         address gateway_,
-        address gasReceiver_,
-        CheqRegistrar _cheq
+        address gasReceiver_
     ) AxelarExecutable(gateway_) {
         gasReceiver = IAxelarGasService(gasReceiver_);
-        cheq = _cheq;
     }
 
-    function createRemoteCheq(
-        IERC20 _token,
+    function createRemoteNota(
+        address token,
         uint256 amount,
-        address recipient,
+        address owner,
+        string calldata memoURI_,
+        string calldata imageURI_,
         string calldata destinationChain,
-        string calldata destinationAddress,
-        string calldata uriToken_
+        string calldata destinationAddress
     ) external payable {
-        require(_token.transfer(recipient, amount), "Transfer failed");
+        if (token == address(0)) {
+            require(msg.value >= amount, "Incorrect value");
+            (bool sent, ) = owner.call{value: amount}("");
+            if (!sent) revert SendFailed();
+        } else {
+            require(IERC20(token).transfer(owner, amount), "Transfer failed");
+        }
+
+        // write data
         bytes memory payload = abi.encode(
-            true,
-            uriToken_,
-            _token,
+            block.chainid,
             amount,
-            recipient
+            token,
+            owner,
+            msg.sender,
+            imageURI_,
+            memoURI_
         );
         if (msg.value > 0) {
-            gasReceiver.payNativeGasForContractCall{value: msg.value}(
+            // Question: How to determine how much gas to pay??
+            gasReceiver.payNativeGasForContractCall{value: msg.value - amount}(
                 address(this),
                 destinationChain,
                 destinationAddress,
@@ -49,32 +70,15 @@ contract CheqBridgeSender is AxelarExecutable {
             );
         }
         gateway.callContract(destinationChain, destinationAddress, payload);
-    }
 
-    function createRemoteInvoice(
-        IERC20 _token,
-        uint256 amount,
-        address recipient,
-        string calldata destinationChain,
-        string calldata destinationAddress,
-        string calldata uriToken_
-    ) external payable {
-        bytes memory payload = abi.encode(
-            false,
-            uriToken_,
-            _token,
+        emit PaymentCreated(
+            memoURI_,
             amount,
-            recipient
+            block.timestamp,
+            owner,
+            msg.sender,
+            block.chainid,
+            destinationChain
         );
-        if (msg.value > 0) {
-            gasReceiver.payNativeGasForContractCall{value: msg.value}(
-                address(this),
-                destinationChain,
-                destinationAddress,
-                payload,
-                msg.sender
-            );
-        }
-        gateway.callContract(destinationChain, destinationAddress, payload);
     }
 }
