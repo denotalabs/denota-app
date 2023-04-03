@@ -40,6 +40,7 @@ export function CurrencySelectorField() {
 function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
   const isDemoMode = useDemoMode();
   let options: CheqCurrency[];
+  // TODO add support for USDT, etc (and NFTs)
   isDemoMode
     ? (options = ["NATIVE", "DAI", "USDC", "USDT", "WETH"])
     : (options = ["NATIVE", "DAI", "WETH"]);

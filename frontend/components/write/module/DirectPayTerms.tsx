@@ -53,6 +53,7 @@ export function DirectPayTerms({ isInvoice }: Props) {
             )}
           </Field>
         )}
+        {/* Actually support Axelar cross-chain and send this via formik field */}
         <HStack spacing={5}>
           <Checkbox
             isChecked={isChecked}
