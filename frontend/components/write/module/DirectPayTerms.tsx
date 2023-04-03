@@ -13,12 +13,14 @@ import {
 } from "@chakra-ui/react";
 import { Field, FieldProps } from "formik";
 import { ChangeEvent, useState } from "react";
+import useDemoMode from "../../../hooks/useDemoMode";
 
 interface Props {
   isInvoice: boolean;
 }
 
 export function DirectPayTerms({ isInvoice }: Props) {
+  const isDemoMode = useDemoMode();
   const [isChecked, setIsChecked] = useState(false);
 
   const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -53,14 +55,16 @@ export function DirectPayTerms({ isInvoice }: Props) {
             )}
           </Field>
         )}
-        {/* Actually support Axelar cross-chain and send this via formik field */}
-        <HStack spacing={5}>
-          <Checkbox isChecked={isChecked} onChange={handleCheckboxChange}>
-            <Text fontSize="lg" color="cheqPurple.100">
-              Mint cross-chain on Polygon with Axelar
-            </Text>
-          </Checkbox>
-        </HStack>
+        {/* TODO Actually support Axelar cross-chain and send this via formik field */}
+        {isDemoMode && (
+          <HStack spacing={5}>
+            <Checkbox isChecked={isChecked} onChange={handleCheckboxChange}>
+              <Text fontSize="lg" color="cheqPurple.100">
+                Mint cross-chain on Polygon with Axelar
+              </Text>
+            </Checkbox>
+          </HStack>
+        )}
       </Stack>
     </Flex>
   );
