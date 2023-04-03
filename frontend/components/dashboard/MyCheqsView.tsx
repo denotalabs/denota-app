@@ -23,7 +23,7 @@ function MyCheqsView() {
     <VStack
       width="95%" // Changed for demo
       p={6}
-      borderRadius="10px"
+      borderRadius="30px"
       gap={6}
       align="stretch"
       bg="brand.100"
