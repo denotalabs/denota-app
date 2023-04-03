@@ -1,4 +1,4 @@
-import { Field } from "formik";
+import { Field, FieldProps } from "formik";
 
 import { FormControl, FormErrorMessage, Input } from "@chakra-ui/react";
 import { ethers } from "ethers";
@@ -36,13 +36,17 @@ function AccountField({ fieldName, placeholder, isRequired = true }: Props) {
 
   return (
     <Field name={fieldName} validate={validateAddress}>
-      {({ field, form: { errors, touched } }: any) => {
+      {({ field, form: { errors, touched } }: FieldProps) => {
         return (
           <FormControl
-            isInvalid={errors[fieldName] && (touched[fieldName] || hasStarted)}
+            isInvalid={Boolean(
+              errors[fieldName] && (touched[fieldName] || hasStarted)
+            )}
           >
             <Input {...field} placeholder={placeholder} />
-            <FormErrorMessage>{errors[fieldName]}</FormErrorMessage>
+            <FormErrorMessage>
+              {errors[fieldName] && errors[fieldName].toString()}
+            </FormErrorMessage>
           </FormControl>
         );
       }}

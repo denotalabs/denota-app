@@ -14,7 +14,7 @@ export type PaymentTermsFormValues = {
   inspection: number;
   module: string;
   dueDate: string;
-  milestones: any[];
+  milestones: string[];
 };
 
 const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {

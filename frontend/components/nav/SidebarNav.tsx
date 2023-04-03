@@ -20,10 +20,10 @@ import { useRouter } from "next/router";
 import { ReactNode, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
-  MdInfoOutline,
   MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
+  MdOutlineGroup,
   MdOutlinePerson,
   MdSwapHoriz,
 } from "react-icons/md";
@@ -47,15 +47,21 @@ const LinkItems: Array<LinkItemProps> = [
     isExternal: false,
   },
   { name: "New Nota", icon: MdOutlineAdd, href: "/send", isExternal: false },
-  { name: "Social", icon: MdOutlinePerson, href: "/social", isExternal: false },
+  {
+    name: "Contacts",
+    icon: MdOutlinePerson,
+    href: "/contacts",
+    isExternal: false,
+  },
+  { name: "Social", icon: MdOutlineGroup, href: "/social", isExternal: false },
+
   { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
-    name: "Documentation",
+    name: "Docs",
     icon: MdOutlineDescription,
     href: "https://denota.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80",
     isExternal: true,
   },
-  { name: "About", icon: MdInfoOutline, href: "#", isExternal: false },
 ];
 
 export default function SidebarNav({ children }: { children: ReactNode }) {
@@ -95,7 +101,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   const isDemoMode = useDemoMode();
   const filteredLinkItems = isDemoMode
     ? LinkItems
-    : LinkItems.filter((link) => link.name !== "Social");
+    : LinkItems.filter((link) => link.name !== "Social" && link.name !== "Contacts");
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}
