@@ -8,10 +8,10 @@ import {IAxelarGasService} from "axelarnetwork/interfaces/IAxelarGasService.sol"
 import "../CheqRegistrar.sol";
 
 /**
- * @title CheqBridgeSender
+ * @title BridgeSender
  * @dev
  */
-contract CheqBridgeSender is AxelarExecutable {
+contract BridgeSender is AxelarExecutable {
     event PaymentCreated(
         string memoHash,
         uint256 amount,

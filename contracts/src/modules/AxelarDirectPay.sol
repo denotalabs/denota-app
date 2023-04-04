@@ -4,14 +4,14 @@ pragma solidity ^0.8.16;
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
-import {CheqBridgeReceiver} from "../axelar/BridgeReceiver.sol";
+import {BridgeReceiver} from "../axelar/BridgeReceiver.sol";
 
 /**
  * @title AxelarDirectPay
  * @dev Module that allows direct payments to be made on one chain and the Nota being minted on the other (this) chain.
  */
 contract AxelarDirectPay is ModuleBase {
-    CheqBridgeReceiver private bridgeReceiver;
+    BridgeReceiver private bridgeReceiver;
 
     struct Payment {
         uint256 amount; // Value that was sent on the other chain
@@ -55,7 +55,7 @@ contract AxelarDirectPay is ModuleBase {
         address registrar,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI,
-        CheqBridgeReceiver _bridgeReceiver
+        BridgeReceiver _bridgeReceiver
     ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
         bridgeReceiver = _bridgeReceiver;

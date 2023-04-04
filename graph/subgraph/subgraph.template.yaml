@@ -117,7 +117,7 @@ dataSources:
         # - DirectPayData
       abis:
         - name: BridgeSender
-          file: ../frontend-abi/BridgeSender.sol/CheqBridgeSender.json
+          file: ../frontend-abi/BridgeSender.sol/BridgeSender.json
       eventHandlers:
         - event: PaymentCreated(string,uint256,uint256,address,address,uint256,string)
           handler: handleAxelarOutgoing

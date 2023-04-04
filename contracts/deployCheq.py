@@ -214,7 +214,7 @@ def deploy_axelar(existing_addresses, chain, rpc_key_flags, registrar):
 
     # BridgeSender
     if not existing_addresses[chain]["bridgeSender"]:
-        axelarBridgeSender_path = "src/axelar/BridgeSender.sol:CheqBridgeSender"
+        axelarBridgeSender_path = "src/axelar/BridgeSender.sol:BridgeSender"
         result = eth_call(
             f'forge create {axelarBridgeSender_path} --constructor-args {gateway} {gas_station} {rpc_key_flags}', "BridgeSender deployment failed")
         axelarBridgeSender = extract_address(result.stdout)
@@ -224,7 +224,7 @@ def deploy_axelar(existing_addresses, chain, rpc_key_flags, registrar):
 
     # BridgeReceiver
     if not existing_addresses[chain]["bridgeReceiver"]:
-        axelarBridgeReceiver_path = "src/axelar/bridgeReceiver.sol:CheqBridgeReceiver"
+        axelarBridgeReceiver_path = "src/axelar/bridgeReceiver.sol:BridgeReceiver"
         result = eth_call(
             f'forge create {axelarBridgeReceiver_path} --constructor-args {gateway} {gas_station} {registrar} {direct_pay_axelar} {rpc_key_flags}', "BridgeReceiver deployment failed")
         axelarBridgeReceiver = extract_address(result.stdout)

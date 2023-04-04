@@ -6,7 +6,7 @@ import {IAxelarGateway} from "axelarnetwork/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "axelarnetwork/interfaces/IAxelarGasService.sol";
 import "../CheqRegistrar.sol";
 
-contract CheqBridgeReceiver is AxelarExecutable {
+contract BridgeReceiver is AxelarExecutable {
     IAxelarGasService public immutable gasReceiver;
     CheqRegistrar public cheq;
     address public directPayAxelar;

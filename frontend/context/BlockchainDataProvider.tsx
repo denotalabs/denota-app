@@ -11,7 +11,7 @@ import { useColorMode } from "@chakra-ui/react";
 import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
 
-import BridgeSender from "../frontend-abi/BridgeSender.sol/CheqBridgeSender.json";
+import BridgeSender from "../frontend-abi/BridgeSender.sol/BridgeSender.json";
 import CheqRegistrar from "../frontend-abi/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {
