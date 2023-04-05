@@ -57,7 +57,7 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <NotaContext.Provider
       value={{
-        notas: notas,
+        notas,
         refresh,
         isLoading,
         setNotaField,
