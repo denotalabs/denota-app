@@ -14,7 +14,7 @@ import { useFormikContext } from "formik";
 import { useCallback, useEffect } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
-import { CheqCurrency } from "../../designSystem/CurrencyIcon";
+import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import { PaymentTermsFormValues } from "./PaymentTermsStep";
 
 export function MilestoneTerms() {
@@ -72,7 +72,7 @@ export function MilestoneTerms() {
       })}
       <Text textAlign="right" textColor={errors.milestones ? "red" : undefined}>
         Total amount must add up to {notaFormValues.amount}{" "}
-        {displayNameForCurrency(notaFormValues.token as CheqCurrency)}
+        {displayNameForCurrency(notaFormValues.token as NotaCurrency)}
       </Text>
       <FormControl>
         <FormLabel noOfLines={1} flexShrink={0} mb={3}>

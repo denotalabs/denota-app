@@ -12,7 +12,7 @@ Steps to deploy to a new chain:
 
 2. Append chain:rpc to environment/ethereum in docker-compose.yml
 
-3. Run python3 deployCheq [privateKey] [chain]
+3. Run python3 deployDenota [privateKey] [chain]
 
 4. Run export GQL_HOST=server && export GRAPH_CHAIN=chain && make graph-deploy-remote
 (Optionally, add new make command for the chain)

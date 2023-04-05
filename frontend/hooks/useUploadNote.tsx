@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useCallback } from "react";
 
-const CHEQ_NOTE_SERVICE_URL_LOCAL = "http://127.0.0.1:3001/lighthouse";
+const METADATA_SERVICE_URL_LOCAL = "http://127.0.0.1:3001/lighthouse";
 
-const CHEQ_NOTE_SERVICE = "https://denota.klymr.me/nft-lighthouse";
+const METADATA_SERVICE = "https://denota.klymr.me/nft-lighthouse";
 
 interface NotaMetadata {
   desc?: string;
@@ -46,7 +46,7 @@ export const useUploadMetadata = () => {
     }
 
     try {
-      const resp = await axios.post(CHEQ_NOTE_SERVICE, notaFormValues, config);
+      const resp = await axios.post(METADATA_SERVICE, notaFormValues, config);
       console.log(resp.data);
       return {
         ipfsHash: resp.data.key as string,

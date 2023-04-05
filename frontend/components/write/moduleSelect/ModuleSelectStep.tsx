@@ -21,11 +21,10 @@ interface Props extends ScreenProps {
   showTerms: boolean;
 }
 
-const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
-  const isDemoMode = useDemoMode();
-
+const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   const { next } = useStep();
   const { updateNotaFormValues, notaFormValues } = useNotaForm();
+  const isDemoMode = useDemoMode();
 
   const currentDate = useMemo(() => {
     const d = new Date();
@@ -163,4 +162,4 @@ const CheqModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   );
 };
 
-export default CheqModuleSelectStep;
+export default ModuleSelectStep;

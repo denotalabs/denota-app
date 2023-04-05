@@ -13,10 +13,10 @@ interface Props {
   inspector?: string;
 }
 
-export const useEscrow = () => {
+export const useEscrowNota = () => {
   const { blockchainState } = useBlockchainData();
 
-  const writeCheq = useCallback(
+  const writeNota = useCallback(
     async ({
       tokenAddress,
       amountWei,
@@ -47,7 +47,7 @@ export const useEscrow = () => {
           ? escrowedWei
           : BigNumber.from(0);
 
-      const tx = await blockchainState.cheq?.write(
+      const tx = await blockchainState.notaRegistrar?.write(
         tokenAddress, //currency
         escrowedWei, //escrowed
         0, //instant
@@ -61,10 +61,10 @@ export const useEscrow = () => {
     },
     [
       blockchainState.account,
-      blockchainState.cheq,
+      blockchainState.notaRegistrar,
       blockchainState.escrowAddress,
     ]
   );
 
-  return { writeCheq };
+  return { writeNota };
 };

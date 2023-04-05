@@ -12,6 +12,7 @@ import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
 
 import BridgeSender from "../frontend-abi/BridgeSender.sol/BridgeSender.json";
+// TODO: remove references to cheq from contracts
 import CheqRegistrar from "../frontend-abi/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {
@@ -31,7 +32,7 @@ interface BlockchainDataInterface {
   registrarAddress: string;
   userDaiBalance: string;
   userWethBalance: string;
-  cheq: null | ethers.Contract;
+  notaRegistrar: null | ethers.Contract;
   directPayAddress: string;
   escrowAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
@@ -55,7 +56,7 @@ interface BlockchainDataContextInterface {
 
 const defaultBlockchainState = {
   account: "",
-  cheq: null,
+  notaRegistrar: null,
   dai: null,
   weth: null,
   axelarBridgeSender: null,
@@ -136,8 +137,7 @@ export const BlockchainDataProvider = memo(
         } else {
           // Load contracts
           const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
-
-          const cheq = new ethers.Contract(
+          const notaRegistrar = new ethers.Contract(
             contractMapping.registrar,
             CheqRegistrar.abi,
             signer
@@ -185,7 +185,7 @@ export const BlockchainDataProvider = memo(
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: firstBlockExplorer,
-            cheq,
+            notaRegistrar,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node

@@ -87,7 +87,7 @@ const MetadataStep: React.FC<ScreenProps> = () => {
                   py={2}
                   onChange={(e) => setHasConsented(e.target.checked)}
                 >
-                  I agree to Cheq's{" "}
+                  I agree to Denota's{" "}
                   <Link
                     isExternal
                     textDecoration={"underline"}

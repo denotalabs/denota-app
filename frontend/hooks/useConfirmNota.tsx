@@ -2,11 +2,11 @@ import { useToast } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
-import { useCheqContext } from "../context/CheqsContext";
 import { useNotaForm } from "../context/NotaFormProvider";
+import { useNotaContext } from "../context/NotasContext";
 import { useAxelarBridge } from "./modules/useAxelarBridge";
 import { useDirectPay } from "./modules/useDirectPay";
-import { useEscrow } from "./modules/useEscrow";
+import { useEscrowNota } from "./modules/useEscrowNota";
 import { useEmail } from "./useEmail";
 
 interface Props {
@@ -45,7 +45,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const transferWei =
     notaFormValues.mode === "invoice" ? BigNumber.from(0) : amountWei;
 
-  const { refreshWithDelay } = useCheqContext();
+  const { refreshWithDelay } = useNotaContext();
 
   const tokenAddress = useMemo(() => {
     switch (notaFormValues.token) {
@@ -92,11 +92,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     token?.functions,
   ]);
 
-  const { writeCheq: writeDirectPayCheq } = useDirectPay();
+  const { writeNota: writeDirectPay } = useDirectPay();
 
-  const { writeCheq: writeEscrowCheq } = useEscrow();
+  const { writeNota: writeEscrow } = useEscrowNota();
 
-  const { writeCheq: writeCrosschain } = useAxelarBridge();
+  const { writeNota: writeCrosschain } = useAxelarBridge();
 
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete
@@ -143,7 +143,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
                 imageUrl: notaFormValues.imageUrl ?? "",
               });
             } else {
-              txHash = await writeDirectPayCheq({
+              txHash = await writeDirectPay({
                 dueDate: notaFormValues.dueDate,
                 tokenAddress,
                 amountWei,
@@ -158,7 +158,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             break;
 
           case "escrow":
-            txHash = await writeEscrowCheq({
+            txHash = await writeEscrow({
               tokenAddress,
               amountWei,
               address: notaFormValues.address,
@@ -189,7 +189,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         const message =
           notaFormValues.mode === "invoice"
             ? "Invoice created"
-            : "Cheq created";
+            : "Nota created";
         toast({
           title: "Transaction succeeded",
           description: message,
@@ -230,11 +230,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     toast,
     refreshWithDelay,
     onSuccess,
-    writeEscrowCheq,
+    writeEscrow,
     tokenAddress,
     transferWei,
     writeCrosschain,
-    writeDirectPayCheq,
+    writeDirectPay,
     sendEmail,
   ]);
 

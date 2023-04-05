@@ -2,30 +2,30 @@ import { useToast } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
 import { useCallback } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
-import { useCheqContext } from "../context/CheqsContext";
+import { useNotaContext } from "../context/NotasContext";
 
 interface Props {
-  cheqId: string;
+  notaId: string;
   amountWei: BigNumber;
   to: string;
   message: string;
 }
 
-export const useCashCheq = () => {
+export const useCashNota = () => {
   const { blockchainState } = useBlockchainData();
   const toast = useToast();
-  const { refreshWithDelay } = useCheqContext();
+  const { refreshWithDelay } = useNotaContext();
 
-  const cashCheq = useCallback(
-    async ({ cheqId, amountWei, to, message }: Props) => {
+  const cashNota = useCallback(
+    async ({ notaId, amountWei, to, message }: Props) => {
       try {
         const payload = ethers.utils.defaultAbiCoder.encode(
           ["address"],
           [blockchainState.account]
         );
 
-        const tx = await blockchainState.cheq?.cash(
-          cheqId,
+        const tx = await blockchainState.notaRegistrar?.cash(
+          notaId,
           amountWei,
           to,
           payload
@@ -49,8 +49,13 @@ export const useCashCheq = () => {
         });
       }
     },
-    [blockchainState.account, blockchainState.cheq, toast]
+    [
+      blockchainState.account,
+      blockchainState.notaRegistrar,
+      refreshWithDelay,
+      toast,
+    ]
   );
 
-  return { cashCheq };
+  return { cashNota };
 };

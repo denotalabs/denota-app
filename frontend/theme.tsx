@@ -5,22 +5,22 @@ const config: ThemeConfig = {
   useSystemColorMode: false,
 };
 
-const cheqTheme = extendTheme({
+const notaTheme = extendTheme({
   config,
   components: {
     Checkbox: {
       baseStyle: {
         control: {
           _checked: {
-            bg: "cheqPurple.100",
-            borderColor: "cheqPurple.100",
+            bg: "notaPurple.100",
+            borderColor: "notaPurple.100",
             color: "white",
             _hover: {
-              bg: "cheqPurple.100",
+              bg: "notaPurple.100",
             },
           },
           _hover: {
-            borderColor: "cheqPurple.100",
+            borderColor: "notaPurple.100",
           },
         },
       },
@@ -44,12 +44,12 @@ const cheqTheme = extendTheme({
       500: "#282D59",
       600: "#141A29",
     },
-    cheqPurple: {
+    notaPurple: {
       100: "#7476D3",
     },
   },
 });
 
-const customTheme = cheqTheme;
+const customTheme = notaTheme;
 
 export default customTheme;

@@ -20,7 +20,7 @@ interface Props {
 export const useAxelarBridge = () => {
   const { blockchainState } = useBlockchainData();
 
-  const writeCheq = useCallback(
+  const writeNota = useCallback(
     async ({ tokenAddress, amountWei, address, ipfsHash, imageUrl }: Props) => {
       const api = new AxelarQueryAPI({ environment: Environment.TESTNET });
 
@@ -55,5 +55,5 @@ export const useAxelarBridge = () => {
     [blockchainState.axelarBridgeSender]
   );
 
-  return { writeCheq };
+  return { writeNota };
 };

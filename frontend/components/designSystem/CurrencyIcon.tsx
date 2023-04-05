@@ -2,7 +2,7 @@ import { Image } from "@chakra-ui/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { deployedChains } from "../../context/chainInfo";
 
-export type CheqCurrency = "DAI" | "USDC" | "WETH" | "USDT" | "NATIVE";
+export type NotaCurrency = "DAI" | "USDC" | "WETH" | "USDT" | "NATIVE";
 
 type URLKey = "MATIC" | "CELO" | "USDC" | "DAI" | "WETH" | "USDT";
 
@@ -16,7 +16,7 @@ const URL_MAP = {
 };
 
 interface Props {
-  currency: CheqCurrency;
+  currency: NotaCurrency;
   sourceChainHex?: string;
 }
 
