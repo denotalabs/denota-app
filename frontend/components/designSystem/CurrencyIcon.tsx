@@ -1,5 +1,6 @@
 import { Image } from "@chakra-ui/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import { deployedChains } from "../../context/chainInfo";
 
 export type CheqCurrency = "DAI" | "USDC" | "WETH" | "USDT" | "NATIVE";
 
@@ -16,35 +17,34 @@ const URL_MAP = {
 
 interface Props {
   currency: CheqCurrency;
+  sourceChainHex?: string;
 }
 
-function CurrencyIcon({ currency }: Props) {
+function CurrencyIcon({ currency, sourceChainHex }: Props) {
   const { blockchainState } = useBlockchainData();
 
   let currencyKey: URLKey;
 
   if (currency === "NATIVE") {
-    if (
-      !(
-        blockchainState.nativeCurrenySymbol === "MATIC" ||
-        blockchainState.nativeCurrenySymbol === "CELO"
-      )
-    ) {
-      return <></>;
+    if (sourceChainHex) {
+      currencyKey = deployedChains[sourceChainHex].nativeCurrency
+        .symbol as URLKey;
+    } else {
+      if (
+        !(
+          blockchainState.nativeCurrenySymbol === "MATIC" ||
+          blockchainState.nativeCurrenySymbol === "CELO"
+        )
+      ) {
+        return <></>;
+      }
+      currencyKey = blockchainState.nativeCurrenySymbol;
     }
-    currencyKey = blockchainState.nativeCurrenySymbol;
   } else {
     currencyKey = currency;
   }
 
-  return (
-    <Image
-      borderRadius="full"
-      boxSize="20px"
-      src={URL_MAP[currencyKey]}
-      alt="USDC"
-    />
-  );
+  return <Image boxSize="20px" src={URL_MAP[currencyKey]} alt="USDC" />;
 }
 
 export default CurrencyIcon;

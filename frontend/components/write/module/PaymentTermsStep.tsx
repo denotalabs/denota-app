@@ -41,12 +41,14 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
           milestones: notaFormValues.milestones
             ? notaFormValues.milestones.split(",")
             : [notaFormValues.amount],
+          axelarEnabled: notaFormValues.axelarEnabled ?? false,
         }}
         onSubmit={(values) => {
           updateNotaFormValues({
             milestones: values.milestones.join(","),
             dueDate: values.dueDate,
             auditor: values.auditor,
+            axelarEnabled: values.axelarEnabled ? "true" : undefined,
           });
           next?.();
         }}

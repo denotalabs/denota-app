@@ -12,7 +12,8 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { Field, FieldProps } from "formik";
-import { ChangeEvent, useState } from "react";
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
+import { useNotaForm } from "../../../context/NotaFormProvider";
 import useDemoMode from "../../../hooks/useDemoMode";
 
 interface Props {
@@ -21,11 +22,9 @@ interface Props {
 
 export function DirectPayTerms({ isInvoice }: Props) {
   const isDemoMode = useDemoMode();
-  const [isChecked, setIsChecked] = useState(false);
 
-  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(e.target.checked);
-  };
+  const { notaFormValues } = useNotaForm();
+  const { blockchainState } = useBlockchainData();
 
   return (
     <Flex flexWrap={"wrap"} direction={"column"}>
@@ -55,16 +54,22 @@ export function DirectPayTerms({ isInvoice }: Props) {
             )}
           </Field>
         )}
-        {/* TODO Actually support Axelar cross-chain and send this via formik field */}
-        {isDemoMode && (
-          <HStack spacing={5}>
-            <Checkbox isChecked={isChecked} onChange={handleCheckboxChange}>
-              <Text fontSize="lg" color="cheqPurple.100">
-                Mint cross-chain on Polygon with Axelar
-              </Text>
-            </Checkbox>
-          </HStack>
-        )}
+        {/* Axelar only supported for Celo direct payments */}
+        {isDemoMode &&
+          notaFormValues.mode === "pay" &&
+          blockchainState.chainId === "0xaef3" && (
+            <HStack spacing={5}>
+              <Field name="axelarEnabled">
+                {({ field }: FieldProps) => (
+                  <Checkbox defaultChecked={field.value} {...field}>
+                    <Text fontSize="lg" color="cheqPurple.100">
+                      Mint cross-chain on Polygon with Axelar
+                    </Text>
+                  </Checkbox>
+                )}
+              </Field>
+            </HStack>
+          )}
       </Stack>
     </Flex>
   );
