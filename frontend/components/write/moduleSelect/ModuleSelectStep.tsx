@@ -12,6 +12,7 @@ import {
 import { Form, Formik } from "formik";
 import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import useDemoMode from "../../../hooks/useDemoMode";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ModuleTerms from "../module/ModuleTerms";
@@ -22,7 +23,8 @@ interface Props extends ScreenProps {
 
 const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   const { next } = useStep();
-  const { appendFormData, formData } = useNotaForm();
+  const { updateNotaFormValues, notaFormValues } = useNotaForm();
+  const isDemoMode = useDemoMode();
 
   const currentDate = useMemo(() => {
     const d = new Date();
@@ -42,7 +44,9 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
         }}
         mb={4}
       >
-        <Card variant={formData.module === "direct" ? "filled" : "outline"}>
+        <Card
+          variant={notaFormValues.module === "direct" ? "filled" : "outline"}
+        >
           <CardHeader>
             <Heading size="md"> Direct Pay</Heading>
           </CardHeader>
@@ -52,7 +56,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           <CardFooter>
             <Button
               onClick={() => {
-                appendFormData({
+                updateNotaFormValues({
                   module: "direct",
                 });
                 if (!showTerms) {
@@ -64,7 +68,9 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        <Card variant={formData.module === "escrow" ? "filled" : "outline"}>
+        <Card
+          variant={notaFormValues.module === "escrow" ? "filled" : "outline"}
+        >
           <CardHeader>
             <Heading size="md">Escrow</Heading>
           </CardHeader>
@@ -74,7 +80,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           <CardFooter>
             <Button
               onClick={() => {
-                appendFormData({
+                updateNotaFormValues({
                   module: "escrow",
                 });
                 if (!showTerms) {
@@ -86,7 +92,9 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        <Card variant="outline">
+        <Card
+          variant={notaFormValues.module === "milestone" ? "filled" : "outline"}
+        >
           <CardHeader>
             <Heading size="md"> Milestones</Heading>
           </CardHeader>
@@ -94,31 +102,58 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             <Text>Funds are released on completion of milestones </Text>
           </CardBody>
           <CardFooter>
-            <Button isDisabled>Coming Soon</Button>
+            <Button
+              isDisabled={!isDemoMode}
+              onClick={() => {
+                updateNotaFormValues({
+                  module: "milestone",
+                });
+                if (!showTerms) {
+                  next?.();
+                }
+              }}
+            >
+              {isDemoMode ? "Select" : "Coming Soon"}
+            </Button>
           </CardFooter>
         </Card>
       </SimpleGrid>
-      {showTerms && formData.module && (
+      {showTerms && notaFormValues.module && (
         <Formik
           initialValues={{
-            inspection: formData.inspection
-              ? Number(formData.inspection)
+            inspection: notaFormValues.inspection
+              ? Number(notaFormValues.inspection)
               : 604800,
-            module: formData.module ?? "direct",
-            dueDate: formData.dueDate ?? currentDate,
-            auditor: formData.auditor ?? "",
+            module: notaFormValues.module ?? "direct",
+            dueDate: notaFormValues.dueDate ?? currentDate,
+            auditor: notaFormValues.auditor ?? "",
+            milestones: notaFormValues.milestones
+              ? notaFormValues.milestones.split(",")
+              : [notaFormValues.amount],
+            axelarEnabled: notaFormValues.axelarEnabled ?? false,
           }}
-          onSubmit={() => {
+          onSubmit={(values) => {
+            updateNotaFormValues({
+              milestones: values.milestones.join(","),
+              dueDate: values.dueDate,
+              auditor: values.auditor,
+              axelarEnabled: values.axelarEnabled ? "true" : undefined,
+            });
             next?.();
           }}
         >
           {(props) => (
             <Form>
               <ModuleTerms
-                module={formData.module}
-                isInvoice={formData.mode === "invoice"}
+                module={notaFormValues.module}
+                isInvoice={notaFormValues.mode === "invoice"}
               />
-              <RoundedButton type="submit">{"Next"}</RoundedButton>
+              <RoundedButton
+                isDisabled={props.errors.milestones !== undefined}
+                type="submit"
+              >
+                {"Next"}
+              </RoundedButton>
             </Form>
           )}
         </Formik>

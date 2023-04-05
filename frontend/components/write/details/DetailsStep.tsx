@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import { Box, Button, useToast } from "@chakra-ui/react";
+import { Box, Button, Collapse, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useState } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
@@ -7,8 +7,8 @@ import { useUploadMetadata } from "../../../hooks/useUploadNote";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import MetadataBox from "../metadata/MetadataBox";
-import CurrencySelectorV2 from "./CurrencySelector";
-import DetailsBox from "./DetailsBox";
+import AccountDetails from "./AccountDetails";
+import PaymentDetails from "./PaymentDetails";
 
 interface Props extends ScreenProps {
   isInvoice: boolean;
@@ -24,10 +24,10 @@ export type DetailsStepFormValues = {
 
 const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
   const { next } = useStep();
-  const { formData, file, appendFormData, setFile } = useNotaForm();
+  const { notaFormValues, file, updateNotaFormValues, setFile } = useNotaForm();
   const { upload } = useUploadMetadata();
 
-  let initialMode = formData.mode;
+  let initialMode = notaFormValues.mode;
 
   if (initialMode === undefined) {
     initialMode = isInvoice ? "invoice" : "pay";
@@ -41,14 +41,14 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          token: formData.token ?? "NATIVE",
-          amount: formData.amount ?? undefined,
-          address: formData.address ?? "",
+          token: notaFormValues.token ?? "NATIVE",
+          amount: notaFormValues.amount ?? undefined,
+          address: notaFormValues.address ?? "",
           mode: initialMode,
-          note: formData.note ?? "",
-          email: formData.email ?? "",
+          note: notaFormValues.note ?? "",
+          email: notaFormValues.email ?? "",
           file: file,
-          tags: formData.tags ?? "",
+          tags: notaFormValues.tags ?? "",
         }}
         onSubmit={async (values, actions) => {
           const hasMetadata = values.note || values.file || values.tags;
@@ -56,9 +56,9 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
             actions.setSubmitting(true);
 
             const metadataChanged =
-              formData.note !== values.note ||
+              notaFormValues.note !== values.note ||
               values.file?.name !== file?.name ||
-              formData.tags !== values.tags;
+              notaFormValues.tags !== values.tags;
 
             if (metadataChanged) {
               const result = await upload(
@@ -77,7 +77,7 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
                   isClosable: true,
                 });
               } else {
-                appendFormData({
+                updateNotaFormValues({
                   ipfsHash,
                   imageUrl,
                 });
@@ -85,7 +85,7 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
             }
           }
 
-          appendFormData({
+          updateNotaFormValues({
             note: values.note,
             email: values.email,
             tags: values.tags,
@@ -107,12 +107,15 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
             props.values.amount;
           return (
             <Form>
-              <CurrencySelectorV2></CurrencySelectorV2>
-              <DetailsBox
-                isInvoice={isInvoice}
+              <PaymentDetails
                 token={props.values.token}
                 mode={props.values.mode}
-              ></DetailsBox>
+              />
+              <AccountDetails
+                onSelectContact={(address) => {
+                  props.setFieldValue("address", address);
+                }}
+              />
               {showMetadata && (
                 <>
                   <Button
@@ -128,13 +131,11 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
                   >
                     Metadata Options
                   </Button>
-                  {isOpen ? (
+                  <Collapse in={isOpen} animateOpacity>
                     <Box my={5}>
                       <MetadataBox />
                     </Box>
-                  ) : (
-                    <></>
-                  )}
+                  </Collapse>
                 </>
               )}
 

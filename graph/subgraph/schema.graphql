@@ -131,6 +131,9 @@ type DirectPayData implements ModuleData @entity {
   status: DirectPayStatus
   fundedTransaction: Transaction
   fundedTimestamp: BigInt
+  isCrossChain: Boolean
+  sourceChain: BigInt 
+  destChain: BigInt
 }
 
 enum EscrowStatus {

@@ -4,7 +4,6 @@ import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {Events} from "./libraries/Events.sol";
-import {DataTypes} from "./libraries/DataTypes.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 
 // Idea Registrar could take different fees from different modules. Business related ones would be charged but not social ones?

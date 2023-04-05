@@ -3,6 +3,10 @@ import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
+import {
+  chainInfoForChainId,
+  chainNumberToChainHex,
+} from "../context/chainInfo";
 
 interface Props {
   notaField: string;
@@ -57,6 +61,10 @@ export interface Nota {
   moduleData: EscrowModuleData | DirectPayModuleData;
   inspector?: string;
   isInspector: boolean;
+  isCrossChain: boolean;
+  sourceChainName?: string;
+  sourceChainHex?: string;
+  destChain?: string;
 }
 
 const convertExponent = (amountExact: number) => {
@@ -170,6 +178,19 @@ export const useNotas = ({ notaField }: Props) => {
         };
       }
 
+      const sourceChainHex = gqlNota.moduleData.sourceChain
+        ? chainNumberToChainHex(Number(gqlNota.moduleData.sourceChain))
+        : undefined;
+
+      const sourceChainName = gqlNota.moduleData.sourceChain
+        ? chainInfoForChainId(Number(gqlNota.moduleData.sourceChain))
+            .displayName
+        : undefined;
+
+      const destChain = gqlNota.moduleData.sourceChain
+        ? chainInfoForChainId(Number(gqlNota.moduleData.destChain)).displayName
+        : undefined;
+
       return {
         id: gqlNota.id as string,
         amount: convertExponent(gqlNota.moduleData.amount as number),
@@ -200,6 +221,10 @@ export const useNotas = ({ notaField }: Props) => {
           ? (gqlNota.inspector?.id as string)
           : undefined,
         isInspector,
+        isCrossChain: gqlNota.moduleData.isCrossChain,
+        sourceChainName,
+        destChain,
+        sourceChainHex,
       };
     },
     [blockchainState.account, currencyForTokenId]
@@ -238,6 +263,9 @@ export const useNotas = ({ notaField }: Props) => {
           amount
           fundedTimestamp
           isInvoice
+          isCrossChain
+          sourceChain
+          destChain
           fundedTransaction {
             id
           }

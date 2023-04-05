@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useNotaForm } from "../context/NotaFormProvider";
 import { useNotaContext } from "../context/NotasContext";
+import { useAxelarBridge } from "./modules/useAxelarBridge";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEscrow } from "./modules/useEscrow";
 import { useEmail } from "./useEmail";
@@ -15,14 +16,16 @@ interface Props {
 export const useConfirmNota = ({ onSuccess }: Props) => {
   const toast = useToast();
 
-  const { formData } = useNotaForm();
+  const { notaFormValues } = useNotaForm();
   const { blockchainState } = useBlockchainData();
 
   const { sendEmail } = useEmail();
-  const [needsApproval, setNeedsApproval] = useState(formData.mode === "pay");
+  const [needsApproval, setNeedsApproval] = useState(
+    notaFormValues.mode === "pay"
+  );
 
   const token = useMemo(() => {
-    switch (formData.token) {
+    switch (notaFormValues.token) {
       case "DAI":
         return blockchainState.dai;
       case "WETH":
@@ -30,22 +33,22 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       default:
         return null;
     }
-  }, [blockchainState.dai, blockchainState.weth, formData.token]);
+  }, [blockchainState.dai, blockchainState.weth, notaFormValues.token]);
 
   const amountWei = useMemo(() => {
-    if (!formData.amount || isNaN(parseFloat(formData.amount))) {
+    if (!notaFormValues.amount || isNaN(parseFloat(notaFormValues.amount))) {
       return BigNumber.from(0);
     }
-    return ethers.utils.parseEther(formData.amount);
-  }, [formData]);
+    return ethers.utils.parseEther(notaFormValues.amount);
+  }, [notaFormValues]);
 
   const transferWei =
-    formData.mode === "invoice" ? BigNumber.from(0) : amountWei;
+    notaFormValues.mode === "invoice" ? BigNumber.from(0) : amountWei;
 
   const { refreshWithDelay } = useNotaContext();
 
   const tokenAddress = useMemo(() => {
-    switch (formData.token) {
+    switch (notaFormValues.token) {
       case "DAI":
         return blockchainState.dai?.address ?? "";
       case "WETH":
@@ -58,7 +61,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   }, [
     blockchainState.dai?.address,
     blockchainState.weth?.address,
-    formData.token,
+    notaFormValues.token,
   ]);
 
   useEffect(() => {
@@ -77,14 +80,14 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         }
       }
     };
-    if (formData.mode === "pay") {
+    if (notaFormValues.mode === "pay") {
       fetchAllowance();
     }
   }, [
     amountWei,
     blockchainState.account,
     blockchainState.registrarAddress,
-    formData.mode,
+    notaFormValues.mode,
     token,
     token?.functions,
   ]);
@@ -92,6 +95,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { writeCheq: writeDirectPayCheq } = useDirectPay();
 
   const { writeCheq: writeEscrowCheq } = useEscrow();
+
+  const { writeCheq: writeCrosschain } = useAxelarBridge();
 
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete
@@ -123,29 +128,45 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     } else {
       try {
         let txHash = "";
-        switch (formData.module) {
+        switch (notaFormValues.module) {
           case "direct":
-            txHash = await writeDirectPayCheq({
-              dueDate: formData.dueDate,
-              tokenAddress,
-              amountWei,
-              address: formData.address,
-              instantWei: transferWei,
-              ipfsHash: formData.ipfsHash,
-              isInvoice: formData.mode === "invoice",
-              imageUrl: formData.imageUrl,
-            });
+            if (
+              blockchainState.chainId === "0xaef3" &&
+              notaFormValues.mode === "pay" &&
+              notaFormValues.axelarEnabled
+            ) {
+              txHash = await writeCrosschain({
+                tokenAddress,
+                amountWei,
+                address: notaFormValues.address,
+                ipfsHash: notaFormValues.ipfsHash ?? "",
+                imageUrl: notaFormValues.imageUrl ?? "",
+              });
+            } else {
+              txHash = await writeDirectPayCheq({
+                dueDate: notaFormValues.dueDate,
+                tokenAddress,
+                amountWei,
+                address: notaFormValues.address,
+                instantWei: transferWei,
+                ipfsHash: notaFormValues.ipfsHash ?? "",
+                isInvoice: notaFormValues.mode === "invoice",
+                imageUrl: notaFormValues.imageUrl ?? "",
+              });
+            }
+
             break;
+
           case "escrow":
             txHash = await writeEscrowCheq({
               tokenAddress,
               amountWei,
-              address: formData.address,
+              address: notaFormValues.address,
               escrowedWei: transferWei,
-              ipfsHash: formData.ipfsHash,
-              isInvoice: formData.mode === "invoice",
-              inspector: formData.auditor,
-              imageUrl: formData.imageUrl,
+              ipfsHash: notaFormValues.ipfsHash ?? "",
+              isInvoice: notaFormValues.mode === "invoice",
+              inspector: notaFormValues.auditor,
+              imageUrl: notaFormValues.imageUrl ?? "",
             });
             break;
 
@@ -153,20 +174,22 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             break;
         }
 
-        if (txHash && formData.email) {
+        if (txHash && notaFormValues.email) {
           await sendEmail({
-            email: formData.email,
+            email: notaFormValues.email,
             txHash,
             network: blockchainState.chainId,
-            token: formData.token,
-            amount: formData.amount,
+            token: notaFormValues.token,
+            amount: notaFormValues.amount,
             module: "direct",
-            isInvoice: formData.mode === "invoice",
+            isInvoice: notaFormValues.mode === "invoice",
           });
         }
 
         const message =
-          formData.mode === "invoice" ? "Invoice created" : "Cheq created";
+          notaFormValues.mode === "invoice"
+            ? "Invoice created"
+            : "Cheq created";
         toast({
           title: "Transaction succeeded",
           description: message,
@@ -193,23 +216,25 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     blockchainState.registrarAddress,
     blockchainState.chainId,
     amountWei,
-    formData.module,
-    formData.email,
-    formData.mode,
-    formData.dueDate,
-    formData.address,
-    formData.ipfsHash,
-    formData.imageUrl,
-    formData.auditor,
-    formData.token,
-    formData.amount,
+    notaFormValues.module,
+    notaFormValues.email,
+    notaFormValues.mode,
+    notaFormValues.axelarEnabled,
+    notaFormValues.address,
+    notaFormValues.ipfsHash,
+    notaFormValues.auditor,
+    notaFormValues.imageUrl,
+    notaFormValues.dueDate,
+    notaFormValues.token,
+    notaFormValues.amount,
     toast,
     refreshWithDelay,
     onSuccess,
-    writeDirectPayCheq,
+    writeEscrowCheq,
     tokenAddress,
     transferWei,
-    writeEscrowCheq,
+    writeCrosschain,
+    writeDirectPayCheq,
     sendEmail,
   ]);
 

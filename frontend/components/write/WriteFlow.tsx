@@ -53,7 +53,7 @@ export function WriteStepperDesktop({ onClose, isInvoice }: Props) {
       ></DetailsStep>
       <ModuleSelectStep
         screenKey="moduleSelect"
-        screenTitle="Payment Term"
+        screenTitle="Payment Terms"
         showTerms={true}
       />
       <ConfirmStep

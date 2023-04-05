@@ -1,6 +1,7 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
@@ -16,7 +17,7 @@ interface Props {
 
 function NotaDetails({ cheq }: Props) {
   const { blockchainState } = useBlockchainData();
-
+  const { explorer } = blockchainState;
   const [note, setNote] = useState<string | undefined>(undefined);
   const [file, setFile] = useState<string | undefined>(undefined);
   const [tags, setTags] = useState<string[] | undefined>(undefined);
@@ -67,6 +68,27 @@ function NotaDetails({ cheq }: Props) {
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
         <VStack gap={0}>
+          {cheq.isCrossChain && (
+            <VStack mt={2}>
+              <Image
+                src="/logos/axelar-logo.svg"
+                alt="axelar"
+                width={20}
+                height={20}
+                unoptimized={true}
+              />
+              <Text mt={3} fontSize="lg">
+                Cross-chain Nota
+              </Text>
+              <Text mt={3}>Powered by Axelar</Text>
+            </VStack>
+          )}
+          {cheq.sourceChainName && (
+            <DetailsRow title="Source Chain" value={cheq.sourceChainName} />
+          )}
+          {cheq.destChain && (
+            <DetailsRow title="Destination Chain" value={cheq.destChain} />
+          )}
           <DetailsRow
             title="Payer"
             value={formatAddress(cheq.payer)}
@@ -90,13 +112,13 @@ function NotaDetails({ cheq }: Props) {
           <DetailsRow
             title="Created On"
             value={cheq.createdTransaction.date.toDateString()}
-            link={`${blockchainState.explorer}${cheq.createdTransaction.hash}`}
+            link={`${explorer}${cheq.createdTransaction.hash}`}
           />
           {cheq.fundedTransaction && (
             <DetailsRow
               title="Funded Date"
               value={cheq.fundedTransaction.date.toDateString()}
-              link={`${blockchainState.explorer}${cheq.fundedTransaction.hash}`}
+              link={`${explorer}${cheq.fundedTransaction.hash}`}
             />
           )}
           <DetailsRow
@@ -104,7 +126,10 @@ function NotaDetails({ cheq }: Props) {
             value={
               String(cheq.amount) +
               " " +
-              displayNameForCurrency(cheq.token as CheqCurrency)
+              displayNameForCurrency(
+                cheq.token as CheqCurrency,
+                cheq.sourceChainHex
+              )
             }
           />
           <DetailsRow

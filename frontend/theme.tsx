@@ -7,6 +7,25 @@ const config: ThemeConfig = {
 
 const cheqTheme = extendTheme({
   config,
+  components: {
+    Checkbox: {
+      baseStyle: {
+        control: {
+          _checked: {
+            bg: "cheqPurple.100",
+            borderColor: "cheqPurple.100",
+            color: "white",
+            _hover: {
+              bg: "cheqPurple.100",
+            },
+          },
+          _hover: {
+            borderColor: "cheqPurple.100",
+          },
+        },
+      },
+    },
+  },
   fonts: {
     body: `DM Sans, sans-serif`,
     heading: `DM Sans, sans-serif`,
@@ -14,6 +33,9 @@ const cheqTheme = extendTheme({
   },
   shadows: { outline: "0 !important" },
   colors: {
+    success: {
+      100: "#4A90E2",
+    },
     brand: {
       100: "#0E111B",
       200: "#5981F3",

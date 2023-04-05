@@ -52,7 +52,7 @@ Run ```npm run solhint``` for linting to see Solidity warnings and errors.
 Use ```npm run prettier:ts``` and ```npm run prettier:solidity``` to manually format TypeScript and Solidity.
 These commands are automatically run pre-push via [Husky](https://github.com/typicode/husky) Git hooks.
 
-## Cheq subgraph (local)
+## Subgraph (local)
 
 Install [Docker](https://docs.docker.com/desktop/install/mac-install/)
 

@@ -11,7 +11,7 @@ interface Props {
 }
 
 function ConfirmDetails({ isInvoice }: Props) {
-  const { formData } = useNotaForm();
+  const { notaFormValues } = useNotaForm();
   const { formatAddress } = useFormatAddress();
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
@@ -21,24 +21,26 @@ function ConfirmDetails({ isInvoice }: Props) {
       <VStack>
         <DetailsRow
           title="Client address"
-          value={formatAddress(formData.address)}
+          value={formatAddress(notaFormValues.address)}
         />
         <DetailsRow
           title="Payment Amount"
           value={
-            formData.amount +
+            notaFormValues.amount +
             " " +
-            displayNameForCurrency(formData.token as CheqCurrency)
+            displayNameForCurrency(notaFormValues.token as CheqCurrency)
           }
         />
-        {formData.module === "direct" && isInvoice && (
-          <DetailsRow title="Due Date" value={formData.dueDate} />
+        {notaFormValues.module === "direct" && isInvoice && (
+          <DetailsRow title="Due Date" value={notaFormValues.dueDate} />
         )}
-        {formData.module === "escrow" && (
+        {notaFormValues.module === "escrow" && (
           <DetailsRow
             title="Inspector"
             value={
-              formData.auditor ? formatAddress(formData.auditor) : "Self-signed"
+              notaFormValues.auditor
+                ? formatAddress(notaFormValues.auditor)
+                : "Self-signed"
             }
           />
         )}

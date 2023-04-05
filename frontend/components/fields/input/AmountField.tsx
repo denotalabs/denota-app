@@ -1,4 +1,4 @@
-import { Field } from "formik";
+import { Field, FieldProps } from "formik";
 
 import {
   FormControl,
@@ -49,14 +49,14 @@ function AmountField({ token, mode }: Props) {
   }
   return (
     <Field name="amount" validate={validateAmount}>
-      {({ field, form: { setFieldValue, errors, touched, values } }: any) => {
+      {({ field, form: { setFieldValue, errors, values } }: FieldProps) => {
         return (
           <FormControl isInvalid={errors.amount && hasStarted}>
             <NumberInput
               {...field}
               onChange={(val) => setFieldValue(field.name, val)}
               precision={2}
-              step={0.1}
+              step={1}
               min={0}
               value={values.amount}
               // TODO add max, set by user's balance
@@ -67,7 +67,9 @@ function AmountField({ token, mode }: Props) {
                 <NumberDecrementStepper />
               </NumberInputStepper>
             </NumberInput>
-            <FormErrorMessage>{errors.amount}</FormErrorMessage>
+            <FormErrorMessage>
+              {errors.amount && errors.amount.toString()}
+            </FormErrorMessage>
           </FormControl>
         );
       }}

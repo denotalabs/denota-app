@@ -170,6 +170,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     blockchainState.registrarAddress,
     cheq.amountRaw,
     cheq.id,
+    cheq.moduleData.module,
     needsApproval,
     onClose,
     refreshWithDelay,
