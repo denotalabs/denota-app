@@ -13,7 +13,7 @@ interface Props {
 }
 
 function ApproveAndPay({ nota, onClose }: Props) {
-  // TODO: support optimistic updates in useCheqs
+  // TODO: support optimistic updates in useNotas
   const { refreshWithDelay } = useNotaContext();
 
   const toast = useToast();
@@ -121,7 +121,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         await tx.wait();
         setNeedsApproval(false);
       } else {
-        const cheqId = Number(nota.id);
+        const notaId = Number(nota.id);
         const amount = BigNumber.from(nota.amountRaw);
         const msgValue =
           tokenAddress === "0x0000000000000000000000000000000000000000"
@@ -136,7 +136,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         const escrowAmount = nota.moduleData.module === "escrow" ? amount : 0;
 
         const tx = await blockchainState.registrar?.fund(
-          cheqId,
+          notaId,
           escrowAmount, // escrow
           instantAmount, // instant
           payload,

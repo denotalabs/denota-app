@@ -47,7 +47,7 @@ const TOOLTIP_MESSAGE_MAP = {
   awaiting_escrow: "waiting for payer to escrow funds",
 };
 
-function NotaCard({ nota: cheq }: Props) {
+function NotaCard({ nota }: Props) {
   const hashCode = (s: string) =>
     s.split("").reduce((a, b) => {
       a = (a << 5) - a + b.charCodeAt(0);
@@ -64,15 +64,15 @@ function NotaCard({ nota: cheq }: Props) {
     ["#6D4C41", "#E6B8B89F"],
   ];
 
-  const generateCheqGradient = (cheq: Nota): string => {
-    const { id, amount, sender, receiver } = cheq;
+  const generateNotaGradient = (nota: Nota): string => {
+    const { id, amount, sender, receiver } = nota;
     const hash = hashCode(`${id}${amount}${sender}${receiver}`);
     const colorIndex = Math.abs(hash) % GRADIENT_COLORS.length;
     const [startColor, endColor] = GRADIENT_COLORS[colorIndex];
     return `linear-gradient(180deg, ${startColor}, ${endColor})`;
   };
 
-  const { createdTransaction } = cheq;
+  const { createdTransaction } = nota;
 
   const createdLocaleDate = useMemo(() => {
     return createdTransaction.date.toLocaleDateString();
@@ -92,7 +92,7 @@ function NotaCard({ nota: cheq }: Props) {
   const { formatAddress } = useFormatAddress();
 
   const icon = useMemo(() => {
-    switch (cheq.moduleData.status) {
+    switch (nota.moduleData.status) {
       case "paid":
         return <MdOutlineDoneAll color="white" size={20} />;
       case "payable":
@@ -110,10 +110,10 @@ function NotaCard({ nota: cheq }: Props) {
       default:
         return <MdOutlineHourglassEmpty color="white" size={20} />;
     }
-  }, [cheq.moduleData.status]);
+  }, [nota.moduleData.status]);
 
   const iconColor = useMemo(() => {
-    switch (cheq.moduleData.status) {
+    switch (nota.moduleData.status) {
       case "paid":
         return "#00C28E";
       case "released":
@@ -131,36 +131,36 @@ function NotaCard({ nota: cheq }: Props) {
       default:
         return "#4A67ED";
     }
-  }, [cheq.moduleData.status]);
-  const gradient = generateCheqGradient(cheq);
+  }, [nota.moduleData.status]);
+  const gradient = generateNotaGradient(nota);
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
-  const { cash: cashCheq } = useCashNota();
+  const { cash: cash } = useCashNota();
 
   const handleRelease = useCallback(async () => {
     setCashingInProgress(true);
-    await cashCheq({
-      notaId: cheq.id,
-      amountWei: cheq.amountRaw,
-      to: cheq.payee,
+    await cash({
+      notaId: nota.id,
+      amountWei: nota.amountRaw,
+      to: nota.payee,
       message: "Payment released",
     });
     setCashingInProgress(false);
-  }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payee]);
+  }, [cash, nota.amountRaw, nota.id, nota.payee]);
 
   const handleVoid = useCallback(async () => {
     setCashingInProgress(true);
-    await cashCheq({
-      notaId: cheq.id,
-      amountWei: cheq.amountRaw,
-      to: cheq.payer,
+    await cash({
+      notaId: nota.id,
+      amountWei: nota.amountRaw,
+      to: nota.payer,
       message: "Payment voided",
     });
     setCashingInProgress(false);
-  }, [cashCheq, cheq.amountRaw, cheq.id, cheq.payer]);
+  }, [cash, nota.amountRaw, nota.id, nota.payer]);
 
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
@@ -182,7 +182,7 @@ function NotaCard({ nota: cheq }: Props) {
               {createdLocaleDate}
             </Text>
             <Tooltip
-              label={TOOLTIP_MESSAGE_MAP[cheq.moduleData.status]}
+              label={TOOLTIP_MESSAGE_MAP[nota.moduleData.status]}
               aria-label="status tooltip"
               placement="bottom"
               bg="brand.100"
@@ -206,7 +206,7 @@ function NotaCard({ nota: cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formatAddress(cheq.payer)}
+              {formatAddress(nota.payer)}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -215,19 +215,19 @@ function NotaCard({ nota: cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formatAddress(cheq.payee)}
+              {formatAddress(nota.payee)}
             </Text>
           </HStack>
 
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
-              {cheq.amount}{" "}
-              {displayNameForCurrency(cheq.token, cheq.sourceChainHex)}
+              {nota.amount}{" "}
+              {displayNameForCurrency(nota.token, nota.sourceChainHex)}
             </Text>
 
             <CurrencyIcon
-              currency={cheq.token}
-              sourceChainHex={cheq.sourceChainHex}
+              currency={nota.token}
+              sourceChainHex={nota.sourceChainHex}
             />
           </HStack>
         </Flex>
@@ -235,7 +235,7 @@ function NotaCard({ nota: cheq }: Props) {
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
             <ButtonGroup>
-              {cheq.moduleData.status === "payable" ? (
+              {nota.moduleData.status === "payable" ? (
                 <Button
                   variant="outline"
                   w="min(40vw, 100px)"
@@ -246,7 +246,7 @@ function NotaCard({ nota: cheq }: Props) {
                   Pay
                 </Button>
               ) : null}
-              {cheq.moduleData.status === "releasable" ? (
+              {nota.moduleData.status === "releasable" ? (
                 <Menu>
                   <MenuButton disabled={cashingInProgress} as={Button} minW={0}>
                     Options {cashingInProgress ? <Spinner size="xs" /> : null}
@@ -272,9 +272,9 @@ function NotaCard({ nota: cheq }: Props) {
       <DetailsModal
         isOpen={isDetailsOpen}
         onClose={onCloseDetails}
-        nota={cheq}
+        nota={nota}
       />
-      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} nota={cheq} />
+      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} nota={nota} />
     </GridItem>
   );
 }

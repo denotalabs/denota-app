@@ -17,12 +17,7 @@ import { Nota } from "../../hooks/useNotas";
 import NotaCard from "./NotaCard";
 
 function MyNotas() {
-  const {
-    notas,
-    refresh,
-    setNotaField: setCheqField,
-    isLoading,
-  } = useNotaContext();
+  const { notas, refresh, setNotaField, isLoading } = useNotaContext();
 
   return (
     <VStack
@@ -39,7 +34,7 @@ function MyNotas() {
           minW={0}
           w="120px"
           onChange={(event) => {
-            setCheqField(event.target.value);
+            setNotaField(event.target.value);
           }}
           focusBorderColor="clear"
         >
@@ -110,8 +105,8 @@ function MyNotasGrid({ notas }: GridProps) {
       borderRadius="10px"
       p={{ md: "0", lg: "4" }}
     >
-      {notas.map((cheq) => {
-        return <NotaCard key={cheq.id} nota={cheq} />;
+      {notas.map((nota) => {
+        return <NotaCard key={nota.id} nota={nota} />;
       })}
     </Grid>
   );
