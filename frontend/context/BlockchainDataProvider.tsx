@@ -12,6 +12,7 @@ import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
 
 import BridgeSender from "../frontend-abi/BridgeSender.sol/BridgeSender.json";
+// TODO: remove references to cheq from contracts
 import CheqRegistrar from "../frontend-abi/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {

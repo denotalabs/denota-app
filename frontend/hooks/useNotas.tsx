@@ -298,6 +298,7 @@ export const useNotas = ({ notaField }: Props) => {
       `;
 
       // TODO: pagination
+      // TODO: remove references to cheq from the graph schema
       const tokenQuery = `
       query accounts($account: String ){
         accounts(where: { id: $account }, first: 1)  {
