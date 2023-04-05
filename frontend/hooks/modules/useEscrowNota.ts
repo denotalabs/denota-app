@@ -13,10 +13,10 @@ interface Props {
   inspector?: string;
 }
 
-export const useEscrow = () => {
+export const useEscrowNota = () => {
   const { blockchainState } = useBlockchainData();
 
-  const write = useCallback(
+  const writeNota = useCallback(
     async ({
       tokenAddress,
       amountWei,
@@ -66,5 +66,5 @@ export const useEscrow = () => {
     ]
   );
 
-  return { write };
+  return { writeNota };
 };

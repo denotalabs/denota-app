@@ -16,7 +16,7 @@ export const useCashNota = () => {
   const toast = useToast();
   const { refreshWithDelay } = useNotaContext();
 
-  const cash = useCallback(
+  const cashNota = useCallback(
     async ({ notaId, amountWei, to, message }: Props) => {
       try {
         const payload = ethers.utils.defaultAbiCoder.encode(
@@ -57,5 +57,5 @@ export const useCashNota = () => {
     ]
   );
 
-  return { cash };
+  return { cashNota };
 };

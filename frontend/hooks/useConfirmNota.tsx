@@ -6,7 +6,7 @@ import { useNotaForm } from "../context/NotaFormProvider";
 import { useNotaContext } from "../context/NotasContext";
 import { useAxelarBridge } from "./modules/useAxelarBridge";
 import { useDirectPay } from "./modules/useDirectPay";
-import { useEscrow } from "./modules/useEscrow";
+import { useEscrowNota } from "./modules/useEscrowNota";
 import { useEmail } from "./useEmail";
 
 interface Props {
@@ -92,11 +92,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     token?.functions,
   ]);
 
-  const { write: writeDirectPay } = useDirectPay();
+  const { writeNota: writeDirectPay } = useDirectPay();
 
-  const { write: writeEscrow } = useEscrow();
+  const { writeNota: writeEscrow } = useEscrowNota();
 
-  const { write: writeCrosschain } = useAxelarBridge();
+  const { writeNota: writeCrosschain } = useAxelarBridge();
 
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete

@@ -14,7 +14,7 @@ interface Props extends ScreenProps {
   isInvoice: boolean;
 }
 
-const ConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
+const ConfirmNotaStep: React.FC<Props> = ({ isInvoice }: Props) => {
   const { notaFormValues } = useNotaForm();
   const { needsApproval, approveAmount, writeNota } = useConfirmNota({
     onSuccess: () => {
@@ -66,4 +66,4 @@ const ConfirmStep: React.FC<Props> = ({ isInvoice }: Props) => {
   );
 };
 
-export default ConfirmStep;
+export default ConfirmNotaStep;
