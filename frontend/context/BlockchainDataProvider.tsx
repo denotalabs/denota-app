@@ -32,7 +32,7 @@ interface BlockchainDataInterface {
   registrarAddress: string;
   userDaiBalance: string;
   userWethBalance: string;
-  registrar: null | ethers.Contract;
+  notaRegistrar: null | ethers.Contract;
   directPayAddress: string;
   escrowAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
@@ -56,7 +56,7 @@ interface BlockchainDataContextInterface {
 
 const defaultBlockchainState = {
   account: "",
-  registrar: null,
+  notaRegistrar: null,
   dai: null,
   weth: null,
   axelarBridgeSender: null,
@@ -137,7 +137,7 @@ export const BlockchainDataProvider = memo(
         } else {
           // Load contracts
           const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
-          const registrar = new ethers.Contract(
+          const notaRegistrar = new ethers.Contract(
             contractMapping.registrar,
             CheqRegistrar.abi,
             signer
@@ -185,7 +185,7 @@ export const BlockchainDataProvider = memo(
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: firstBlockExplorer,
-            registrar,
+            notaRegistrar,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node

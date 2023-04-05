@@ -135,7 +135,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         const instantAmount = nota.moduleData.module === "direct" ? amount : 0;
         const escrowAmount = nota.moduleData.module === "escrow" ? amount : 0;
 
-        const tx = await blockchainState.registrar?.fund(
+        const tx = await blockchainState.notaRegistrar?.fund(
           notaId,
           escrowAmount, // escrow
           instantAmount, // instant
@@ -166,7 +166,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
     }
   }, [
     blockchainState.account,
-    blockchainState.registrar,
+    blockchainState.notaRegistrar,
     blockchainState.registrarAddress,
     nota.amountRaw,
     nota.id,

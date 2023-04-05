@@ -47,7 +47,7 @@ export const useEscrowNota = () => {
           ? escrowedWei
           : BigNumber.from(0);
 
-      const tx = await blockchainState.registrar?.write(
+      const tx = await blockchainState.notaRegistrar?.write(
         tokenAddress, //currency
         escrowedWei, //escrowed
         0, //instant
@@ -61,7 +61,7 @@ export const useEscrowNota = () => {
     },
     [
       blockchainState.account,
-      blockchainState.registrar,
+      blockchainState.notaRegistrar,
       blockchainState.escrowAddress,
     ]
   );
