@@ -1,7 +1,7 @@
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
+import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import {
   chainInfoForChainId,
@@ -49,7 +49,7 @@ export interface Nota {
   sender: string;
   receiver: string;
   owner: string;
-  token: CheqCurrency;
+  token: NotaCurrency;
   isInvoice: boolean;
   createdTransaction: NotaTransaction;
   fundedTransaction: NotaTransaction | null;
@@ -86,7 +86,7 @@ export const useNotas = ({ notaField }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const currencyForTokenId = useCallback(
-    (tokenAddress: string): CheqCurrency => {
+    (tokenAddress: string): NotaCurrency => {
       switch (tokenAddress) {
         case blockchainState.dai?.address.toLowerCase():
           return "DAI";

@@ -10,12 +10,12 @@ import { Field, FieldProps } from "formik";
 
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
 import useDemoMode from "../../../hooks/useDemoMode";
-import CurrencyIcon, { CheqCurrency } from "../../designSystem/CurrencyIcon";
+import CurrencyIcon, { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import { TokenChoice } from "../../designSystem/TokenChoice";
 
 interface CurrencySelectorProps {
-  setFieldValue: (field: string, value: CheqCurrency) => void;
-  value: CheqCurrency;
+  setFieldValue: (field: string, value: NotaCurrency) => void;
+  value: NotaCurrency;
 }
 
 export function CurrencySelectorField() {
@@ -39,7 +39,7 @@ export function CurrencySelectorField() {
 
 function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
   const isDemoMode = useDemoMode();
-  let options: CheqCurrency[];
+  let options: NotaCurrency[];
   // TODO add support for USDT, etc (and NFTs)
   isDemoMode
     ? (options = ["NATIVE", "DAI", "USDC", "USDT", "WETH"])
@@ -48,7 +48,7 @@ function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "framework",
     defaultValue: value,
-    onChange: (val: CheqCurrency) => {
+    onChange: (val: NotaCurrency) => {
       setFieldValue("token", val);
     },
   });

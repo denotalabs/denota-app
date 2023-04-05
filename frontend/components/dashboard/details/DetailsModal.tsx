@@ -10,25 +10,25 @@ import ViewOnOpenSeaButton from "./ViewOnOpenSeaButton";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  cheq: Nota;
+  nota: Nota;
 }
 
 function DetailsModal(props: Props) {
   const { blockchainState } = useBlockchainData();
   const { explorer, chainId, registrarAddress } = blockchainState;
-  const { cheq } = props;
+  const { nota } = props;
   return (
     <SimpleModal {...props}>
-      <NotaDetails cheq={props.cheq} />
+      <NotaDetails nota={props.nota} />
       {chainId === MUMBAI_ADDRESS && (
         <Center>
           <HStack spacing={4}>
             <ViewOnOpenSeaButton
-              id={cheq.id}
+              id={nota.id}
               registrarAddress={registrarAddress}
             />
             <ShareToLensButton
-              text={`I just created a nota payment NFT! View my nota here: ${explorer}${props.cheq.createdTransaction.hash}`}
+              text={`I just created a nota payment NFT! View my nota here: ${explorer}${props.nota.createdTransaction.hash}`}
               url="https://denota.xyz"
               via="denota"
             />

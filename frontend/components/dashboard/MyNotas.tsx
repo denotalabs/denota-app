@@ -80,7 +80,7 @@ function MyNotasGrid({ notas }: GridProps) {
       <Center>
         <Text fontWeight={600} fontSize={"xl"} textAlign="center" pb={6}>
           <Button
-            bg="cheqPurple.100"
+            bg="notaPurple.100"
             w="min(40vw, 200px)"
             onClick={() => {
               router.push("/send", undefined, { shallow: true });

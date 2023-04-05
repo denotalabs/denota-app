@@ -7,15 +7,15 @@ import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
 import { Nota } from "../../../hooks/useNotas";
-import { CheqCurrency } from "../../designSystem/CurrencyIcon";
+import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
-  cheq: Nota;
+  nota: Nota;
 }
 
-function NotaDetails({ cheq }: Props) {
+function NotaDetails({ nota }: Props) {
   const { blockchainState } = useBlockchainData();
   const { explorer } = blockchainState;
   const [note, setNote] = useState<string | undefined>(undefined);
@@ -28,8 +28,8 @@ function NotaDetails({ cheq }: Props) {
   useEffect(() => {
     async function fetchData() {
       try {
-        if (cheq.uri) {
-          const NOTE_URL = `https://gateway.lighthouse.storage/ipfs/${cheq.uri}`;
+        if (nota.uri) {
+          const NOTE_URL = `https://gateway.lighthouse.storage/ipfs/${nota.uri}`;
           const resp = await axios.get(NOTE_URL);
           setNote(resp.data.description);
           setTags(resp.data.tags);
@@ -50,25 +50,25 @@ function NotaDetails({ cheq }: Props) {
       }
     }
     fetchData();
-  }, [cheq.uri]);
+  }, [nota.uri]);
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
   const { formatAddress } = useFormatAddress();
 
   const moduleName = useMemo(() => {
-    switch (cheq.moduleData.module) {
+    switch (nota.moduleData.module) {
       case "escrow":
         return "Escrow";
       case "direct":
         return "Direct Pay";
     }
-  }, [cheq.moduleData.module]);
+  }, [nota.moduleData.module]);
 
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
         <VStack gap={0}>
-          {cheq.isCrossChain && (
+          {nota.isCrossChain && (
             <VStack mt={2}>
               <Image
                 src="/logos/axelar-logo.svg"
@@ -83,52 +83,52 @@ function NotaDetails({ cheq }: Props) {
               <Text mt={3}>Powered by Axelar</Text>
             </VStack>
           )}
-          {cheq.sourceChainName && (
-            <DetailsRow title="Source Chain" value={cheq.sourceChainName} />
+          {nota.sourceChainName && (
+            <DetailsRow title="Source Chain" value={nota.sourceChainName} />
           )}
-          {cheq.destChain && (
-            <DetailsRow title="Destination Chain" value={cheq.destChain} />
+          {nota.destChain && (
+            <DetailsRow title="Destination Chain" value={nota.destChain} />
           )}
           <DetailsRow
             title="Payer"
-            value={formatAddress(cheq.payer)}
-            copyValue={!cheq.isPayer ? cheq.payer : undefined}
+            value={formatAddress(nota.payer)}
+            copyValue={!nota.isPayer ? nota.payer : undefined}
           />
           <DetailsRow
             title="Recipient"
-            value={formatAddress(cheq.payee)}
-            copyValue={!cheq.isPayer ? undefined : cheq.payee}
+            value={formatAddress(nota.payee)}
+            copyValue={!nota.isPayer ? undefined : nota.payee}
           />
-          {cheq.inspector && (
+          {nota.inspector && (
             <DetailsRow
               title="Inspector"
-              value={formatAddress(cheq.inspector)}
-              copyValue={!cheq.isInspector ? undefined : cheq.payee}
+              value={formatAddress(nota.inspector)}
+              copyValue={!nota.isInspector ? undefined : nota.payee}
             />
           )}
-          {cheq.dueDate && cheq.isInvoice && (
-            <DetailsRow title="Due Date" value={cheq.dueDate.toDateString()} />
+          {nota.dueDate && nota.isInvoice && (
+            <DetailsRow title="Due Date" value={nota.dueDate.toDateString()} />
           )}
           <DetailsRow
             title="Created On"
-            value={cheq.createdTransaction.date.toDateString()}
-            link={`${explorer}${cheq.createdTransaction.hash}`}
+            value={nota.createdTransaction.date.toDateString()}
+            link={`${explorer}${nota.createdTransaction.hash}`}
           />
-          {cheq.fundedTransaction && (
+          {nota.fundedTransaction && (
             <DetailsRow
               title="Funded Date"
-              value={cheq.fundedTransaction.date.toDateString()}
-              link={`${explorer}${cheq.fundedTransaction.hash}`}
+              value={nota.fundedTransaction.date.toDateString()}
+              link={`${explorer}${nota.fundedTransaction.hash}`}
             />
           )}
           <DetailsRow
             title="Payment Amount"
             value={
-              String(cheq.amount) +
+              String(nota.amount) +
               " " +
               displayNameForCurrency(
-                cheq.token as CheqCurrency,
-                cheq.sourceChainHex
+                nota.token as NotaCurrency,
+                nota.sourceChainHex
               )
             }
           />
@@ -139,7 +139,7 @@ function NotaDetails({ cheq }: Props) {
           />
         </VStack>
       </RoundedBox>
-      {cheq.uri &&
+      {nota.uri &&
         (!isLoading ? (
           <>
             {note && (

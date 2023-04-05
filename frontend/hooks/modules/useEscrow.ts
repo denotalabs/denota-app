@@ -16,7 +16,7 @@ interface Props {
 export const useEscrow = () => {
   const { blockchainState } = useBlockchainData();
 
-  const writeCheq = useCallback(
+  const write = useCallback(
     async ({
       tokenAddress,
       amountWei,
@@ -66,5 +66,5 @@ export const useEscrow = () => {
     ]
   );
 
-  return { writeCheq };
+  return { write };
 };

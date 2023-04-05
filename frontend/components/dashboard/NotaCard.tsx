@@ -138,12 +138,12 @@ function NotaCard({ nota: cheq }: Props) {
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
-  const { cashCheq } = useCashNota();
+  const { cash: cashCheq } = useCashNota();
 
   const handleRelease = useCallback(async () => {
     setCashingInProgress(true);
     await cashCheq({
-      cheqId: cheq.id,
+      notaId: cheq.id,
       amountWei: cheq.amountRaw,
       to: cheq.payee,
       message: "Payment released",
@@ -154,7 +154,7 @@ function NotaCard({ nota: cheq }: Props) {
   const handleVoid = useCallback(async () => {
     setCashingInProgress(true);
     await cashCheq({
-      cheqId: cheq.id,
+      notaId: cheq.id,
       amountWei: cheq.amountRaw,
       to: cheq.payer,
       message: "Payment voided",
@@ -272,9 +272,9 @@ function NotaCard({ nota: cheq }: Props) {
       <DetailsModal
         isOpen={isDetailsOpen}
         onClose={onCloseDetails}
-        cheq={cheq}
+        nota={cheq}
       />
-      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
+      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} nota={cheq} />
     </GridItem>
   );
 }

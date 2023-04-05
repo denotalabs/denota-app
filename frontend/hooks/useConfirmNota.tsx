@@ -92,11 +92,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     token?.functions,
   ]);
 
-  const { writeCheq: writeDirectPayCheq } = useDirectPay();
+  const { write: writeDirectPay } = useDirectPay();
 
-  const { writeCheq: writeEscrowCheq } = useEscrow();
+  const { write: writeEscrow } = useEscrow();
 
-  const { writeCheq: writeCrosschain } = useAxelarBridge();
+  const { write: writeCrosschain } = useAxelarBridge();
 
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete
@@ -143,7 +143,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
                 imageUrl: notaFormValues.imageUrl ?? "",
               });
             } else {
-              txHash = await writeDirectPayCheq({
+              txHash = await writeDirectPay({
                 dueDate: notaFormValues.dueDate,
                 tokenAddress,
                 amountWei,
@@ -158,7 +158,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             break;
 
           case "escrow":
-            txHash = await writeEscrowCheq({
+            txHash = await writeEscrow({
               tokenAddress,
               amountWei,
               address: notaFormValues.address,
@@ -189,7 +189,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         const message =
           notaFormValues.mode === "invoice"
             ? "Invoice created"
-            : "Cheq created";
+            : "Nota created";
         toast({
           title: "Transaction succeeded",
           description: message,
@@ -230,11 +230,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     toast,
     refreshWithDelay,
     onSuccess,
-    writeEscrowCheq,
+    writeEscrow,
     tokenAddress,
     transferWei,
     writeCrosschain,
-    writeDirectPayCheq,
+    writeDirectPay,
     sendEmail,
   ]);
 

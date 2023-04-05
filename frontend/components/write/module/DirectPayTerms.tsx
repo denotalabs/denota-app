@@ -62,7 +62,7 @@ export function DirectPayTerms({ isInvoice }: Props) {
               <Field name="axelarEnabled">
                 {({ field }: FieldProps) => (
                   <Checkbox defaultChecked={field.value} {...field}>
-                    <Text fontSize="lg" color="cheqPurple.100">
+                    <Text fontSize="lg" color="notaPurple.100">
                       Mint cross-chain on Polygon with Axelar
                     </Text>
                   </Checkbox>

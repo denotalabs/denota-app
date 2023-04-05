@@ -5,7 +5,7 @@ import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useNotaContext } from "../context/NotasContext";
 
 interface Props {
-  cheqId: string;
+  notaId: string;
   amountWei: BigNumber;
   to: string;
   message: string;
@@ -16,8 +16,8 @@ export const useCashNota = () => {
   const toast = useToast();
   const { refreshWithDelay } = useNotaContext();
 
-  const cashCheq = useCallback(
-    async ({ cheqId, amountWei, to, message }: Props) => {
+  const cash = useCallback(
+    async ({ notaId, amountWei, to, message }: Props) => {
       try {
         const payload = ethers.utils.defaultAbiCoder.encode(
           ["address"],
@@ -25,7 +25,7 @@ export const useCashNota = () => {
         );
 
         const tx = await blockchainState.registrar?.cash(
-          cheqId,
+          notaId,
           amountWei,
           to,
           payload
@@ -57,5 +57,5 @@ export const useCashNota = () => {
     ]
   );
 
-  return { cashCheq };
+  return { cash };
 };

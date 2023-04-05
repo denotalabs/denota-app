@@ -2,7 +2,7 @@ import { VStack } from "@chakra-ui/react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
-import { CheqCurrency } from "../../designSystem/CurrencyIcon";
+import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
@@ -28,7 +28,7 @@ function ConfirmDetails({ isInvoice }: Props) {
           value={
             notaFormValues.amount +
             " " +
-            displayNameForCurrency(notaFormValues.token as CheqCurrency)
+            displayNameForCurrency(notaFormValues.token as NotaCurrency)
           }
         />
         {notaFormValues.module === "direct" && isInvoice && (
