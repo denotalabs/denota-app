@@ -128,6 +128,14 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     } else {
       try {
         let txHash = "";
+
+        // Use lighthouse url while we investigate lighthouse IPFS issue
+        const lighthouseUrl = !notaFormValues.imageUrl
+          ? ""
+          : `https://gateway.lighthouse.storage/ipfs/${
+              notaFormValues.imageUrl.split("ipfs://")[1]
+            }`;
+
         switch (notaFormValues.module) {
           case "direct":
             if (
@@ -140,7 +148,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
                 amountWei,
                 address: notaFormValues.address,
                 ipfsHash: notaFormValues.ipfsHash ?? "",
-                imageUrl: notaFormValues.imageUrl ?? "",
+                imageUrl: lighthouseUrl,
               });
             } else {
               txHash = await writeDirectPay({
@@ -151,7 +159,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
                 instantWei: transferWei,
                 ipfsHash: notaFormValues.ipfsHash ?? "",
                 isInvoice: notaFormValues.mode === "invoice",
-                imageUrl: notaFormValues.imageUrl ?? "",
+                imageUrl: lighthouseUrl,
               });
             }
 
