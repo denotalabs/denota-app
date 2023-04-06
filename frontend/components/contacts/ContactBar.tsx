@@ -74,6 +74,9 @@ const ContactBar = ({ onSelectContact }: ContactBarProps) => {
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
+      // Prevent form submission
+      event.preventDefault();
+
       handleSearch();
     }
   };
