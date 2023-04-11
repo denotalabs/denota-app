@@ -15,9 +15,7 @@ import {
   contractMappingForChainId,
   setProvider,
 } from "@denota-labs/denota-sdk";
-import BridgeSender from "../frontend-abi/BridgeSender.sol/BridgeSender.json";
 // TODO: remove references to cheq from contracts
-import CheqRegistrar from "../frontend-abi/CheqRegistrar.sol/CheqRegistrar.json";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {
   ChainInfo,
@@ -35,7 +33,6 @@ interface BlockchainDataInterface {
   registrarAddress: string;
   userDaiBalance: string;
   userWethBalance: string;
-  notaRegistrar: null | ethers.Contract;
   directPayAddress: string;
   escrowAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
@@ -47,7 +44,6 @@ interface BlockchainDataInterface {
   userDaiBalanceRaw: BigNumber;
   userWethBalanceRaw: BigNumber;
   walletBalanceRaw: BigNumber;
-  axelarBridgeSender: null | ethers.Contract;
 }
 
 interface BlockchainDataContextInterface {
@@ -59,7 +55,6 @@ interface BlockchainDataContextInterface {
 
 const defaultBlockchainState = {
   account: "",
-  notaRegistrar: null,
   dai: null,
   weth: null,
   axelarBridgeSender: null,
@@ -141,17 +136,6 @@ export const BlockchainDataProvider = memo(
         } else {
           // Load contracts
           const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
-          const notaRegistrar = new ethers.Contract(
-            contractMapping.registrar,
-            CheqRegistrar.abi,
-            signer
-          );
-
-          const axelarBridgeSender = new ethers.Contract(
-            "contractMapping.bridgeSender",
-            BridgeSender.abi,
-            signer
-          );
 
           const weth = new ethers.Contract(
             contractMapping.weth,
@@ -189,7 +173,6 @@ export const BlockchainDataProvider = memo(
             userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
             userWethBalance: ethers.utils.formatUnits(userWethBalance),
             explorer: firstBlockExplorer,
-            notaRegistrar,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
@@ -199,7 +182,6 @@ export const BlockchainDataProvider = memo(
             userDaiBalanceRaw: userDaiBalance,
             userWethBalanceRaw: userWethBalance,
             walletBalanceRaw: walletBalance,
-            axelarBridgeSender,
           });
           setIsInitializing(false);
         }
