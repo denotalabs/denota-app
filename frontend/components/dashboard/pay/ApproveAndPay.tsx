@@ -122,7 +122,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         await tx.wait();
         setNeedsApproval(false);
       } else {
-        await fund({ cheqId: nota.id });
+        await fund({ notaId: nota.id });
         toast({
           title: "Transaction succeeded",
           description: "Invoice paid",

@@ -143,7 +143,7 @@ function NotaCard({ nota }: Props) {
   const handleRelease = useCallback(async () => {
     setCashingInProgress(true);
     await release({
-      cheqId: nota.id,
+      notaId: nota.id,
     });
     setCashingInProgress(false);
   }, [nota.id, release]);
@@ -151,7 +151,7 @@ function NotaCard({ nota }: Props) {
   const handleVoid = useCallback(async () => {
     setCashingInProgress(true);
     await reverse({
-      cheqId: nota.id,
+      notaId: nota.id,
     });
     setCashingInProgress(false);
   }, [nota.id, reverse]);

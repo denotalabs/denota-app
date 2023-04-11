@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { useNotaContext } from "../context/NotasContext";
 
 interface Props {
-  cheqId: string;
+  notaId: string;
 }
 
 export const useCashNota = () => {
@@ -12,9 +12,9 @@ export const useCashNota = () => {
   const { refreshWithDelay } = useNotaContext();
 
   const release = useCallback(
-    async ({ cheqId }: Props) => {
+    async ({ notaId }: Props) => {
       try {
-        await cash({ cheqId, type: "release" });
+        await cash({ notaId, type: "release" });
         toast({
           title: "Transaction succeeded",
           description: "Payment released",
@@ -37,9 +37,9 @@ export const useCashNota = () => {
   );
 
   const reverse = useCallback(
-    async ({ cheqId }: Props) => {
+    async ({ notaId }: Props) => {
       try {
-        await cash({ cheqId, type: "reversal" });
+        await cash({ notaId, type: "reversal" });
         toast({
           title: "Transaction succeeded",
           description: "Payment voided",
