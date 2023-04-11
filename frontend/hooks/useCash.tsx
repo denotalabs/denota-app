@@ -7,7 +7,7 @@ interface Props {
   cheqId: string;
 }
 
-export const useCash = () => {
+export const useCashNota = () => {
   const toast = useToast();
   const { refreshWithDelay } = useNotaContext();
 

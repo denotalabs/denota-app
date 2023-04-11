@@ -24,7 +24,7 @@ import {
   MdOutlineHourglassEmpty,
   MdOutlineLock,
 } from "react-icons/md";
-import { useCash } from "../../hooks/useCash";
+import { useCashNota } from "../../hooks/useCash";
 import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
 import { Nota } from "../../hooks/useNotas";
@@ -138,7 +138,7 @@ function NotaCard({ nota }: Props) {
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
-  const { release, reverse } = useCash();
+  const { release, reverse } = useCashNota();
 
   const handleRelease = useCallback(async () => {
     setCashingInProgress(true);
