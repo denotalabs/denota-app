@@ -1,18 +1,22 @@
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheqCurrency } from "../components/designSystem/CurrencyIcon";
+import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
+import {
+  chainInfoForChainId,
+  chainNumberToChainHex,
+} from "../context/chainInfo";
 
 interface Props {
-  cheqField: string;
+  notaField: string;
 }
 
-export interface CheqDates {
+export interface NotaDates {
   created: Date;
 }
 
-export interface CheqTransaction {
+export interface NotaTransaction {
   date: Date;
   hash: string;
 }
@@ -38,17 +42,17 @@ export interface DirectPayModuleData {
   module: "direct";
 }
 
-export interface Cheq {
+export interface Nota {
   id: string;
   amount: number;
   amountRaw: BigNumber;
   sender: string;
   receiver: string;
   owner: string;
-  token: CheqCurrency;
+  token: NotaCurrency;
   isInvoice: boolean;
-  createdTransaction: CheqTransaction;
-  fundedTransaction: CheqTransaction | null;
+  createdTransaction: NotaTransaction;
+  fundedTransaction: NotaTransaction | null;
   isPayer: boolean;
   uri: string;
   payer: string;
@@ -57,6 +61,10 @@ export interface Cheq {
   moduleData: EscrowModuleData | DirectPayModuleData;
   inspector?: string;
   isInspector: boolean;
+  isCrossChain: boolean;
+  sourceChainName?: string;
+  sourceChainHex?: string;
+  destChain?: string;
 }
 
 const convertExponent = (amountExact: number) => {
@@ -64,21 +72,21 @@ const convertExponent = (amountExact: number) => {
   return Number(BigInt(amountExact) / BigInt(10 ** 16)) / 100;
 };
 
-export const useCheqs = ({ cheqField }: Props) => {
+export const useNotas = ({ notaField }: Props) => {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
-  const [cheqsReceived, setCheqReceived] = useState<Cheq[] | undefined>(
+  const [notasReceived, setNotasReceived] = useState<Nota[] | undefined>(
     undefined
   );
-  const [cheqsSent, setCheqsSent] = useState<Cheq[] | undefined>(undefined);
-  const [cheqsInspected, setCheqsInspected] = useState<Cheq[] | undefined>(
+  const [notasSent, setNotaSent] = useState<Nota[] | undefined>(undefined);
+  const [notasInspected, setNotasInspected] = useState<Nota[] | undefined>(
     undefined
   );
 
   const [isLoading, setIsLoading] = useState(false);
 
   const currencyForTokenId = useCallback(
-    (tokenAddress: string): CheqCurrency => {
+    (tokenAddress: string): NotaCurrency => {
       switch (tokenAddress) {
         case blockchainState.dai?.address.toLowerCase():
           return "DAI";
@@ -92,42 +100,42 @@ export const useCheqs = ({ cheqField }: Props) => {
   );
 
   const mapField = useCallback(
-    (gqlCheq: any) => {
-      const createdTx = gqlCheq.createdTransaction.id;
+    (gqlNota: any) => {
+      const createdTx = gqlNota.createdTransaction.id;
 
-      const isInvoice = gqlCheq.moduleData.isInvoice;
+      const isInvoice = gqlNota.moduleData.isInvoice;
 
-      const fundedDate = gqlCheq.moduleData.fundedTimestamp
-        ? new Date(Number(gqlCheq.moduleData.fundedTimestamp) * 1000)
+      const fundedDate = gqlNota.moduleData.fundedTimestamp
+        ? new Date(Number(gqlNota.moduleData.fundedTimestamp) * 1000)
         : null;
 
-      const fundedTx = gqlCheq.moduleData.fundedTransaction
-        ? gqlCheq.moduleData.fundedTransaction.id
+      const fundedTx = gqlNota.moduleData.fundedTransaction
+        ? gqlNota.moduleData.fundedTransaction.id
         : null;
 
       const payer = isInvoice
-        ? (gqlCheq.receiver.id as string)
-        : (gqlCheq.sender.id as string);
+        ? (gqlNota.receiver.id as string)
+        : (gqlNota.sender.id as string);
 
       const payee = isInvoice
-        ? (gqlCheq.sender.id as string)
-        : (gqlCheq.receiver.id as string);
+        ? (gqlNota.sender.id as string)
+        : (gqlNota.receiver.id as string);
 
       const isPayer = payer === blockchainState.account.toLowerCase();
 
       const isInspector =
-        gqlCheq.inspector?.id === blockchainState.account.toLowerCase();
+        gqlNota.inspector?.id === blockchainState.account.toLowerCase();
 
       let dueDate: Date | undefined = undefined;
 
-      if (gqlCheq.moduleData.dueDate) {
-        dueDate = new Date(Number(gqlCheq.moduleData.dueDate) * 1000);
+      if (gqlNota.moduleData.dueDate) {
+        dueDate = new Date(Number(gqlNota.moduleData.dueDate) * 1000);
       }
 
       let moduleData: EscrowModuleData | DirectPayModuleData;
 
-      if (gqlCheq.moduleData.__typename === "DirectPayData") {
-        const status = gqlCheq.moduleData.status;
+      if (gqlNota.moduleData.__typename === "DirectPayData") {
+        const status = gqlNota.moduleData.status;
         let viewerStatus: DirectPayStatus = "awaiting_payment";
         if (status === "AWAITING_PAYMENT") {
           if (isPayer) {
@@ -139,8 +147,8 @@ export const useCheqs = ({ cheqField }: Props) => {
           viewerStatus = "paid";
         }
         moduleData = { module: "direct", status: viewerStatus };
-      } else if (gqlCheq.moduleData.__typename === "ReversiblePaymentData") {
-        const status = gqlCheq.moduleData.status;
+      } else if (gqlNota.moduleData.__typename === "ReversiblePaymentData") {
+        const status = gqlNota.moduleData.status;
         let viewerStatus: EscrowStatus = "awaiting_escrow";
         switch (status) {
           case "AWAITING_ESCROW":
@@ -166,20 +174,33 @@ export const useCheqs = ({ cheqField }: Props) => {
         moduleData = {
           module: "escrow",
           status: viewerStatus,
-          isSelfSigned: gqlCheq.moduleData.isSelfSigned,
+          isSelfSigned: gqlNota.moduleData.isSelfSigned,
         };
       }
 
+      const sourceChainHex = gqlNota.moduleData.sourceChain
+        ? chainNumberToChainHex(Number(gqlNota.moduleData.sourceChain))
+        : undefined;
+
+      const sourceChainName = gqlNota.moduleData.sourceChain
+        ? chainInfoForChainId(Number(gqlNota.moduleData.sourceChain))
+            .displayName
+        : undefined;
+
+      const destChain = gqlNota.moduleData.sourceChain
+        ? chainInfoForChainId(Number(gqlNota.moduleData.destChain)).displayName
+        : undefined;
+
       return {
-        id: gqlCheq.id as string,
-        amount: convertExponent(gqlCheq.moduleData.amount as number),
-        amountRaw: BigNumber.from(gqlCheq.moduleData.amount),
-        token: currencyForTokenId(gqlCheq.erc20.id),
-        receiver: gqlCheq.receiver.id as string,
-        sender: gqlCheq.sender.id as string,
-        owner: gqlCheq.owner.id as string,
+        id: gqlNota.id as string,
+        amount: convertExponent(gqlNota.moduleData.amount as number),
+        amountRaw: BigNumber.from(gqlNota.moduleData.amount),
+        token: currencyForTokenId(gqlNota.erc20.id),
+        receiver: gqlNota.receiver.id as string,
+        sender: gqlNota.sender.id as string,
+        owner: gqlNota.owner.id as string,
         createdTransaction: {
-          date: new Date(Number(gqlCheq.timestamp) * 1000),
+          date: new Date(Number(gqlNota.timestamp) * 1000),
           hash: createdTx,
         },
         fundedTransaction:
@@ -190,16 +211,20 @@ export const useCheqs = ({ cheqField }: Props) => {
               }
             : null,
         isInvoice,
-        uri: gqlCheq.uri,
+        uri: gqlNota.uri,
         isPayer,
         payer,
         payee,
         dueDate,
         moduleData,
-        inspector: gqlCheq.inspector
-          ? (gqlCheq.inspector?.id as string)
+        inspector: gqlNota.inspector
+          ? (gqlNota.inspector?.id as string)
           : undefined,
         isInspector,
+        isCrossChain: gqlNota.moduleData.isCrossChain,
+        sourceChainName,
+        destChain,
+        sourceChainHex,
       };
     },
     [blockchainState.account, currencyForTokenId]
@@ -238,6 +263,9 @@ export const useCheqs = ({ cheqField }: Props) => {
           amount
           fundedTimestamp
           isInvoice
+          isCrossChain
+          sourceChain
+          destChain
           fundedTransaction {
             id
           }
@@ -270,6 +298,7 @@ export const useCheqs = ({ cheqField }: Props) => {
       `;
 
       // TODO: pagination
+      // TODO: remove references to cheq from the graph schema
       const tokenQuery = `
       query accounts($account: String ){
         accounts(where: { id: $account }, first: 1)  {
@@ -300,22 +329,22 @@ export const useCheqs = ({ cheqField }: Props) => {
         .then((data) => {
           console.log({ data });
           if (data["data"]["accounts"][0]) {
-            const gqlCheqsSent = data["data"]["accounts"][0][
+            const gqlNotasSent = data["data"]["accounts"][0][
               "cheqsSent"
             ] as any[];
-            const gqlCheqsReceived = data["data"]["accounts"][0][
+            const gqlNotasReceived = data["data"]["accounts"][0][
               "cheqsReceived"
             ] as any[];
-            const gqlCheqsInspected = data["data"]["accounts"][0][
+            const gqlNotasInspected = data["data"]["accounts"][0][
               "cheqsInspected"
             ] as any[];
-            setCheqsSent(gqlCheqsSent.map(mapField));
-            setCheqReceived(gqlCheqsReceived.map(mapField));
-            setCheqsInspected(gqlCheqsInspected.map(mapField));
+            setNotaSent(gqlNotasSent.map(mapField));
+            setNotasReceived(gqlNotasReceived.map(mapField));
+            setNotasInspected(gqlNotasInspected.map(mapField));
           } else {
-            setCheqsSent([]);
-            setCheqReceived([]);
-            setCheqsInspected([]);
+            setNotaSent([]);
+            setNotasReceived([]);
+            setNotasInspected([]);
           }
           setIsLoading(false);
         })
@@ -330,27 +359,27 @@ export const useCheqs = ({ cheqField }: Props) => {
     refresh();
   }, [refresh, account]);
 
-  const cheqs = useMemo(() => {
+  const notas = useMemo(() => {
     if (
-      cheqsReceived === undefined ||
-      cheqsSent === undefined ||
-      cheqsInspected === undefined ||
+      notasReceived === undefined ||
+      notasSent === undefined ||
+      notasInspected === undefined ||
       isLoading
     ) {
       return undefined;
     }
-    const nonSelfSigned = cheqsInspected.filter(
-      (cheq: Cheq) =>
-        cheq.moduleData.module === "escrow" && !cheq.moduleData.isSelfSigned
+    const nonSelfSigned = notasInspected.filter(
+      (nota: Nota) =>
+        nota.moduleData.module === "escrow" && !nota.moduleData.isSelfSigned
     );
-    switch (cheqField) {
+    switch (notaField) {
       case "cheqsSent":
-        return cheqsSent;
+        return notasSent;
       case "cheqsReceived":
-        return cheqsReceived;
+        return notasReceived;
       default:
-        return cheqsReceived
-          .concat(cheqsSent)
+        return notasReceived
+          .concat(notasSent)
           .concat(nonSelfSigned)
           .sort((a, b) => {
             return (
@@ -359,7 +388,7 @@ export const useCheqs = ({ cheqField }: Props) => {
             );
           });
     }
-  }, [cheqField, cheqsInspected, cheqsReceived, cheqsSent, isLoading]);
+  }, [notaField, notasInspected, notasReceived, notasSent, isLoading]);
 
-  return { cheqs, refresh };
+  return { notas, refresh };
 };

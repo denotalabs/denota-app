@@ -12,18 +12,18 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { MdOutlineAdd } from "react-icons/md";
-import { useCheqContext } from "../../context/CheqsContext";
-import { Cheq } from "../../hooks/useCheqs";
-import CheqCardV2 from "./CheqCardV2";
+import { useNotaContext } from "../../context/NotasContext";
+import { Nota } from "../../hooks/useNotas";
+import NotaCard from "./NotaCard";
 
-function MyCheqsView() {
-  const { cheqs, refresh, setCheqField, isLoading } = useCheqContext();
+function MyNotas() {
+  const { notas, refresh, setNotaField, isLoading } = useNotaContext();
 
   return (
     <VStack
-      width="100%"
+      width="95%" // Changed for demo
       p={6}
-      borderRadius="10px"
+      borderRadius="30px"
       gap={6}
       align="stretch"
       bg="brand.100"
@@ -34,7 +34,7 @@ function MyCheqsView() {
           minW={0}
           w="120px"
           onChange={(event) => {
-            setCheqField(event.target.value);
+            setNotaField(event.target.value);
           }}
           focusBorderColor="clear"
         >
@@ -50,19 +50,19 @@ function MyCheqsView() {
         />
       </HStack>
 
-      <CheqGrid cheqs={isLoading ? undefined : cheqs} />
+      <MyNotasGrid notas={isLoading ? undefined : notas} />
     </VStack>
   );
 }
 
-interface CheqGridProps {
-  cheqs: Cheq[] | undefined;
+interface GridProps {
+  notas: Nota[] | undefined;
 }
 
-function CheqGrid({ cheqs }: CheqGridProps) {
+function MyNotasGrid({ notas }: GridProps) {
   const router = useRouter();
 
-  if (cheqs === undefined) {
+  if (notas === undefined) {
     return (
       <Center flexDirection={"column"} w="100%" px={5}>
         <Spinner size="xl" />
@@ -70,12 +70,12 @@ function CheqGrid({ cheqs }: CheqGridProps) {
     );
   }
 
-  if (cheqs.length === 0) {
+  if (notas.length === 0) {
     return (
       <Center>
         <Text fontWeight={600} fontSize={"xl"} textAlign="center" pb={6}>
           <Button
-            bg="cheqPurple.100"
+            bg="notaPurple.100"
             w="min(40vw, 200px)"
             onClick={() => {
               router.push("/send", undefined, { shallow: true });
@@ -105,11 +105,11 @@ function CheqGrid({ cheqs }: CheqGridProps) {
       borderRadius="10px"
       p={{ md: "0", lg: "4" }}
     >
-      {cheqs.map((cheq) => {
-        return <CheqCardV2 key={cheq.id} cheq={cheq} />;
+      {notas.map((nota) => {
+        return <NotaCard key={nota.id} nota={nota} />;
       })}
     </Grid>
   );
 }
 
-export default MyCheqsView;
+export default MyNotas;

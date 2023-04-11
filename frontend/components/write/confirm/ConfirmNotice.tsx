@@ -58,7 +58,7 @@ function ConfirmNotice({ isInvoice, module }: Props) {
           {moduleDescription}
         </Text>
         <Text fontWeight={600} fontSize={"md"} textAlign="center">
-          {"A Cheq NFT is issued for tracking"}
+          {"A nota NFT is issued for tracking"}
         </Text>
       </Center>
     </RoundedBox>

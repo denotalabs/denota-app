@@ -3,19 +3,19 @@ import { fund } from "@denota-labs/denota-sdk";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { useCheqContext } from "../../../context/CheqsContext";
-import { Cheq } from "../../../hooks/useCheqs";
+import { useNotaContext } from "../../../context/NotasContext";
+import { Nota } from "../../../hooks/useNotas";
 import RoundedBox from "../../designSystem/RoundedBox";
 import RoundedButton from "../../designSystem/RoundedButton";
 
 interface Props {
-  cheq: Cheq;
+  nota: Nota;
   onClose: () => void;
 }
 
-function ApproveAndPay({ cheq, onClose }: Props) {
-  // TODO: support optimistic updates in useCheqs
-  const { refreshWithDelay } = useCheqContext();
+function ApproveAndPay({ nota, onClose }: Props) {
+  // TODO: support optimistic updates in useNotas
+  const { refreshWithDelay } = useNotaContext();
 
   const toast = useToast();
 
@@ -26,7 +26,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
   const token = useMemo(() => {
-    switch (cheq.token) {
+    switch (nota.token) {
       case "DAI":
         return blockchainState.dai;
       case "WETH":
@@ -34,10 +34,23 @@ function ApproveAndPay({ cheq, onClose }: Props) {
       default:
         return null;
     }
-  }, [blockchainState.dai, blockchainState.weth, cheq.token]);
+  }, [blockchainState.dai, blockchainState.weth, nota.token]);
+
+  const tokenAddress = useMemo(() => {
+    switch (nota.token) {
+      case "DAI":
+        return blockchainState.dai?.address ?? "";
+      case "WETH":
+        return blockchainState.weth?.address ?? "";
+      case "NATIVE":
+        return "0x0000000000000000000000000000000000000000";
+      default:
+        return "";
+    }
+  }, [blockchainState.dai?.address, blockchainState.weth?.address, nota.token]);
 
   const tokenBalance = useMemo(() => {
-    switch (cheq.token) {
+    switch (nota.token) {
       case "DAI":
         return blockchainState.userDaiBalanceRaw;
       case "WETH":
@@ -51,12 +64,12 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     blockchainState.userDaiBalanceRaw,
     blockchainState.userWethBalanceRaw,
     blockchainState.walletBalanceRaw,
-    cheq.token,
+    nota.token,
   ]);
 
   const insufficientBalance = useMemo(() => {
-    return cheq.amountRaw.sub(tokenBalance) > BigNumber.from(0);
-  }, [cheq.amountRaw, tokenBalance]);
+    return nota.amountRaw.sub(tokenBalance) > BigNumber.from(0);
+  }, [nota.amountRaw, tokenBalance]);
 
   useEffect(() => {
     const fetchAllowance = async () => {
@@ -67,7 +80,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
           blockchainState.account,
           blockchainState.registrarAddress
         );
-        if (cheq.amountRaw.sub(tokenAllowance[0]) > BigNumber.from(0)) {
+        if (nota.amountRaw.sub(tokenAllowance[0]) > BigNumber.from(0)) {
           setNeedsApproval(true);
         } else {
           setNeedsApproval(false);
@@ -78,7 +91,7 @@ function ApproveAndPay({ cheq, onClose }: Props) {
   }, [
     blockchainState.account,
     blockchainState.registrarAddress,
-    cheq.amountRaw,
+    nota.amountRaw,
     token,
     token?.functions,
   ]);
@@ -88,10 +101,10 @@ function ApproveAndPay({ cheq, onClose }: Props) {
       return "Insufficient funds";
     }
     if (needsApproval) {
-      return "Approve " + cheq.token;
+      return "Approve " + nota.token;
     }
     return "Pay";
-  }, [cheq.token, insufficientBalance, needsApproval]);
+  }, [nota.token, insufficientBalance, needsApproval]);
 
   const handlePay = useCallback(async () => {
     setIsLoading(true);
@@ -104,12 +117,12 @@ function ApproveAndPay({ cheq, onClose }: Props) {
         // );
         const tx = await token?.functions.approve(
           blockchainState.registrarAddress,
-          cheq.amountRaw
+          nota.amountRaw
         );
         await tx.wait();
         setNeedsApproval(false);
       } else {
-        await fund({ cheqId: cheq.id });
+        await fund({ cheqId: nota.id });
         toast({
           title: "Transaction succeeded",
           description: "Invoice paid",
@@ -133,8 +146,8 @@ function ApproveAndPay({ cheq, onClose }: Props) {
     }
   }, [
     blockchainState.registrarAddress,
-    cheq.amountRaw,
-    cheq.id,
+    nota.amountRaw,
+    nota.id,
     needsApproval,
     onClose,
     refreshWithDelay,
@@ -143,13 +156,13 @@ function ApproveAndPay({ cheq, onClose }: Props) {
   ]);
 
   const moduleInfo = useMemo(() => {
-    switch (cheq.moduleData.module) {
+    switch (nota.moduleData.module) {
       case "direct":
         return "Funds will be released immediately";
       case "escrow":
         return "Funds will be held in escrow";
     }
-  }, [cheq.moduleData.module]);
+  }, [nota.moduleData.module]);
 
   return (
     <Box w="100%" p={4}>

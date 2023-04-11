@@ -15,7 +15,7 @@ interface Props {
 export const useDirectPay = () => {
   const { blockchainState } = useBlockchainData();
 
-  const writeCheq = useCallback(
+  const writeNota = useCallback(
     async ({
       dueDate,
       token,
@@ -43,5 +43,5 @@ export const useDirectPay = () => {
     [blockchainState.account]
   );
 
-  return { writeCheq };
+  return { writeNota };
 };

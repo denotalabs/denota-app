@@ -1,7 +1,7 @@
 import { HStack, VStack } from "@chakra-ui/react";
 import { NotaFormProvider } from "../../context/NotaFormProvider";
 import Stepper from "../designSystem/stepper/Stepper";
-import ConfirmStep from "./confirm/ConfirmStep";
+import ConfirmNotaStep from "./confirm/ConfirmNotaStep";
 import DetailsStep from "./details/DetailsStep";
 import MetadataStep from "./metadata/MetadataStep";
 import PaymentTermsStep from "./module/PaymentTermsStep";
@@ -12,7 +12,7 @@ interface Props {
   isInvoice: boolean;
 }
 
-export function WriteCheqFlow({ onClose, isInvoice }: Props) {
+export function WriteNotaFlow({ onClose, isInvoice }: Props) {
   return (
     <NotaFormProvider>
       <VStack
@@ -53,14 +53,14 @@ export function WriteStepperDesktop({ onClose, isInvoice }: Props) {
       ></DetailsStep>
       <ModuleSelectStep
         screenKey="moduleSelect"
-        screenTitle="Payment Term"
+        screenTitle="Payment Terms"
         showTerms={true}
       />
-      <ConfirmStep
+      <ConfirmNotaStep
         screenKey="confirm"
         screenTitle="Confirm"
         isInvoice={isInvoice}
-      ></ConfirmStep>
+      ></ConfirmNotaStep>
     </Stepper>
   );
 }
@@ -88,13 +88,13 @@ export function WriteStepperMobile({ onClose, isInvoice }: Props) {
         screenTitle="Payment Terms"
         isInvoice={isInvoice}
       ></PaymentTermsStep>
-      <ConfirmStep
+      <ConfirmNotaStep
         screenKey="confirm"
         screenTitle="Confirm"
         isInvoice={isInvoice}
-      ></ConfirmStep>
+      ></ConfirmNotaStep>
     </Stepper>
   );
 }
 
-export default WriteCheqFlow;
+export default WriteNotaFlow;

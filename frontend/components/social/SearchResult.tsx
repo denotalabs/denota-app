@@ -24,8 +24,8 @@ function SearchResult({ title, items }: Props) {
       <Text fontSize="lg">{title}</Text>
 
       <Box pl={6}>
-        {items.map((item) => {
-          return <SearchResultItem {...item} />;
+        {items.map((item, index) => {
+          return <SearchResultItem key={index} {...item} />;
         })}
       </Box>
     </RoundedBox>

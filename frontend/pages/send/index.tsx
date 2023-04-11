@@ -1,6 +1,6 @@
 import { Center, Spinner } from "@chakra-ui/react";
 import NewUserScreen from "../../components/dashboard/NewUserScreen";
-import WriteCheqFlow from "../../components/write/WriteCheqFlow";
+import WriteNotaFlow from "../../components/write/WriteNotaFlow";
 import { WrongChain } from "../../components/WrongChain";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
@@ -24,7 +24,7 @@ function SendPage() {
     <NewUserScreen />
   ) : (
     <Center w="100%" h="100%">
-      <WriteCheqFlow isInvoice={true} />
+      <WriteNotaFlow isInvoice={true} />
     </Center>
   );
 }

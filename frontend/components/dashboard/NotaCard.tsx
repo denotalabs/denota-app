@@ -25,15 +25,15 @@ import {
   MdOutlineLock,
 } from "react-icons/md";
 import { useCash } from "../../hooks/useCash";
-import { Cheq } from "../../hooks/useCheqs";
 import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
+import { Nota } from "../../hooks/useNotas";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
 interface Props {
-  cheq: Cheq;
+  nota: Nota;
 }
 
 const TOOLTIP_MESSAGE_MAP = {
@@ -47,7 +47,7 @@ const TOOLTIP_MESSAGE_MAP = {
   awaiting_escrow: "waiting for payer to escrow funds",
 };
 
-function CheqCardV2({ cheq }: Props) {
+function NotaCard({ nota }: Props) {
   const hashCode = (s: string) =>
     s.split("").reduce((a, b) => {
       a = (a << 5) - a + b.charCodeAt(0);
@@ -64,15 +64,15 @@ function CheqCardV2({ cheq }: Props) {
     ["#6D4C41", "#E6B8B89F"],
   ];
 
-  const generateCheqGradient = (cheq: Cheq): string => {
-    const { id, amount, sender, receiver } = cheq;
+  const generateNotaGradient = (nota: Nota): string => {
+    const { id, amount, sender, receiver } = nota;
     const hash = hashCode(`${id}${amount}${sender}${receiver}`);
     const colorIndex = Math.abs(hash) % GRADIENT_COLORS.length;
     const [startColor, endColor] = GRADIENT_COLORS[colorIndex];
     return `linear-gradient(180deg, ${startColor}, ${endColor})`;
   };
 
-  const { createdTransaction } = cheq;
+  const { createdTransaction } = nota;
 
   const createdLocaleDate = useMemo(() => {
     return createdTransaction.date.toLocaleDateString();
@@ -92,7 +92,7 @@ function CheqCardV2({ cheq }: Props) {
   const { formatAddress } = useFormatAddress();
 
   const icon = useMemo(() => {
-    switch (cheq.moduleData.status) {
+    switch (nota.moduleData.status) {
       case "paid":
         return <MdOutlineDoneAll color="white" size={20} />;
       case "payable":
@@ -110,10 +110,10 @@ function CheqCardV2({ cheq }: Props) {
       default:
         return <MdOutlineHourglassEmpty color="white" size={20} />;
     }
-  }, [cheq.moduleData.status]);
+  }, [nota.moduleData.status]);
 
   const iconColor = useMemo(() => {
-    switch (cheq.moduleData.status) {
+    switch (nota.moduleData.status) {
       case "paid":
         return "#00C28E";
       case "released":
@@ -131,8 +131,8 @@ function CheqCardV2({ cheq }: Props) {
       default:
         return "#4A67ED";
     }
-  }, [cheq.moduleData.status]);
-  const gradient = generateCheqGradient(cheq);
+  }, [nota.moduleData.status]);
+  const gradient = generateNotaGradient(nota);
 
   const { displayNameForCurrency } = useCurrencyDisplayName();
 
@@ -143,18 +143,18 @@ function CheqCardV2({ cheq }: Props) {
   const handleRelease = useCallback(async () => {
     setCashingInProgress(true);
     await release({
-      cheqId: cheq.id,
+      cheqId: nota.id,
     });
     setCashingInProgress(false);
-  }, [cheq.id, release]);
+  }, [nota.id, release]);
 
   const handleVoid = useCallback(async () => {
     setCashingInProgress(true);
     await reverse({
-      cheqId: cheq.id,
+      cheqId: nota.id,
     });
     setCashingInProgress(false);
-  }, [cheq.id, reverse]);
+  }, [nota.id, reverse]);
 
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
@@ -176,7 +176,7 @@ function CheqCardV2({ cheq }: Props) {
               {createdLocaleDate}
             </Text>
             <Tooltip
-              label={TOOLTIP_MESSAGE_MAP[cheq.moduleData.status]}
+              label={TOOLTIP_MESSAGE_MAP[nota.moduleData.status]}
               aria-label="status tooltip"
               placement="bottom"
               bg="brand.100"
@@ -200,7 +200,7 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formatAddress(cheq.payer)}
+              {formatAddress(nota.payer)}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -209,23 +209,27 @@ function CheqCardV2({ cheq }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formatAddress(cheq.payee)}
+              {formatAddress(nota.payee)}
             </Text>
           </HStack>
 
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
-              {cheq.amount} {displayNameForCurrency(cheq.token)}
+              {nota.amount}{" "}
+              {displayNameForCurrency(nota.token, nota.sourceChainHex)}
             </Text>
 
-            <CurrencyIcon currency={cheq.token} />
+            <CurrencyIcon
+              currency={nota.token}
+              sourceChainHex={nota.sourceChainHex}
+            />
           </HStack>
         </Flex>
 
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
             <ButtonGroup>
-              {cheq.moduleData.status === "payable" ? (
+              {nota.moduleData.status === "payable" ? (
                 <Button
                   variant="outline"
                   w="min(40vw, 100px)"
@@ -236,7 +240,7 @@ function CheqCardV2({ cheq }: Props) {
                   Pay
                 </Button>
               ) : null}
-              {cheq.moduleData.status === "releasable" ? (
+              {nota.moduleData.status === "releasable" ? (
                 <Menu>
                   <MenuButton disabled={cashingInProgress} as={Button} minW={0}>
                     Options {cashingInProgress ? <Spinner size="xs" /> : null}
@@ -262,11 +266,11 @@ function CheqCardV2({ cheq }: Props) {
       <DetailsModal
         isOpen={isDetailsOpen}
         onClose={onCloseDetails}
-        cheq={cheq}
+        nota={nota}
       />
-      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} cheq={cheq} />
+      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} nota={nota} />
     </GridItem>
   );
 }
 
-export default CheqCardV2;
+export default NotaCard;

@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import NewUserModal from "../nux/NewUserModal";
 import { WrongChain } from "../WrongChain";
-import MyCheqsView from "./MyCheqsView";
+import MyNotas from "./MyNotas";
 import NewUserScreen from "./NewUserScreen";
 
 function HomeScreen() {
@@ -52,7 +52,7 @@ function HomeScreenContent() {
     <Center flexDirection={"column"} width="100%" p={{ base: "4", lg: "0" }}>
       <NewUserModal isOpen={isNuxOpen} onClose={onCloseNux} />
       <br />
-      <MyCheqsView />
+      <MyNotas />
     </Center>
   );
 }
