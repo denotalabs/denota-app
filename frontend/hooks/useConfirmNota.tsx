@@ -145,10 +145,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             ) {
               txHash = await writeCrosschain({
                 tokenAddress,
-                amountWei,
+                amount: notaFormValues.amount,
                 address: notaFormValues.address,
                 ipfsHash: notaFormValues.ipfsHash ?? "",
                 imageUrl: lighthouseUrl,
+                token: notaFormValues.token,
               });
             } else {
               txHash = await writeDirectPay({

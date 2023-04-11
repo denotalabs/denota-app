@@ -24,7 +24,7 @@ import {
   MdOutlineHourglassEmpty,
   MdOutlineLock,
 } from "react-icons/md";
-import { useCashNota } from "../../hooks/useCash";
+import { useCashNota } from "../../hooks/useCashNota";
 import { useCurrencyDisplayName } from "../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
 import { Nota } from "../../hooks/useNotas";

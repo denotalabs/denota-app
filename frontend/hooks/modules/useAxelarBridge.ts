@@ -1,58 +1,32 @@
-import {
-  AxelarQueryAPI,
-  CHAINS,
-  Environment,
-} from "@axelar-network/axelarjs-sdk";
-import { BigNumber } from "ethers";
+import { write } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
-import { useBlockchainData } from "../../context/BlockchainDataProvider";
-import { ContractAddressMapping } from "../../context/contractAddresses";
 
 interface Props {
   dueDate?: string;
   tokenAddress: string;
-  amountWei: BigNumber;
+  amount: string;
   address: string;
   ipfsHash: string;
   imageUrl: string;
+  token: string;
 }
 
 export const useAxelarBridge = () => {
-  const { blockchainState } = useBlockchainData();
-
   const writeNota = useCallback(
-    async ({ tokenAddress, amountWei, address, ipfsHash, imageUrl }: Props) => {
-      const api = new AxelarQueryAPI({ environment: Environment.TESTNET });
-
-      const axelarFeeString = await api.estimateGasFee(
-        CHAINS.TESTNET["CELO"],
-        CHAINS.TESTNET["POLYGON"],
-        "CELO",
-        300000, // gas limit
-        1.2 // gas multiplier
-      );
-
-      const axelarFee = BigNumber.from(axelarFeeString);
-
-      const msgValue =
-        tokenAddress === "0x0000000000000000000000000000000000000000"
-          ? amountWei.add(axelarFee)
-          : axelarFee;
-
-      const tx = await blockchainState.axelarBridgeSender?.createRemoteNota(
-        tokenAddress, //currency
-        amountWei, //amount
-        address, //owner
-        ipfsHash,
-        imageUrl,
-        "Polygon", //destinationChain
-        ContractAddressMapping.mumbai.bridgeReceiver,
-        { value: msgValue }
-      );
-      const receipt = await tx.wait();
-      return receipt.transactionHash;
+    async ({ token, amount, address, ipfsHash, imageUrl }: Props) => {
+      const receipt = await write({
+        module: {
+          moduleName: "crosschain",
+          creditor: address,
+          ipfsHash,
+          imageHash: imageUrl,
+        },
+        amount: Number(amount),
+        currency: token,
+      });
+      return receipt;
     },
-    [blockchainState.axelarBridgeSender]
+    []
   );
 
   return { writeNota };
