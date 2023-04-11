@@ -148,7 +148,7 @@ export const BlockchainDataProvider = memo(
           );
 
           const axelarBridgeSender = new ethers.Contract(
-            contractMapping.bridgeSender,
+            "contractMapping.bridgeSender",
             BridgeSender.abi,
             signer
           );

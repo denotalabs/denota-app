@@ -1,7 +1,7 @@
 import { useToast } from "@chakra-ui/react";
 import { cash } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
-import { useCheqContext } from "../context/CheqsContext";
+import { useNotaContext } from "../context/NotasContext";
 
 interface Props {
   cheqId: string;
@@ -9,7 +9,7 @@ interface Props {
 
 export const useCash = () => {
   const toast = useToast();
-  const { refreshWithDelay } = useCheqContext();
+  const { refreshWithDelay } = useNotaContext();
 
   const release = useCallback(
     async ({ cheqId }: Props) => {
