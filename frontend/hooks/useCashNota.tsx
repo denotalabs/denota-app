@@ -11,7 +11,7 @@ export const useCashNota = () => {
   const toast = useToast();
   const { refreshWithDelay } = useNotaContext();
 
-  const release = useCallback(
+  const releaseNota = useCallback(
     async ({ notaId }: Props) => {
       try {
         await cash({ notaId, type: "release" });
@@ -36,7 +36,7 @@ export const useCashNota = () => {
     [refreshWithDelay, toast]
   );
 
-  const reverse = useCallback(
+  const reverseNota = useCallback(
     async ({ notaId }: Props) => {
       try {
         await cash({ notaId, type: "reversal" });
@@ -61,5 +61,5 @@ export const useCashNota = () => {
     [refreshWithDelay, toast]
   );
 
-  return { release, reverse };
+  return { releaseNota, reverseNota };
 };
