@@ -1,5 +1,6 @@
 import { Box, Text, useToast } from "@chakra-ui/react";
-import { BigNumber, ethers } from "ethers";
+import { fund } from "@denota-labs/denota-sdk";
+import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaContext } from "../../../context/NotasContext";
@@ -121,28 +122,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         await tx.wait();
         setNeedsApproval(false);
       } else {
-        const notaId = Number(nota.id);
-        const amount = BigNumber.from(nota.amountRaw);
-        const msgValue =
-          tokenAddress === "0x0000000000000000000000000000000000000000"
-            ? amount
-            : BigNumber.from(0);
-        const payload = ethers.utils.defaultAbiCoder.encode(
-          ["address"],
-          [blockchainState.account]
-        );
-
-        const instantAmount = nota.moduleData.module === "direct" ? amount : 0;
-        const escrowAmount = nota.moduleData.module === "escrow" ? amount : 0;
-
-        const tx = await blockchainState.notaRegistrar?.fund(
-          notaId,
-          escrowAmount, // escrow
-          instantAmount, // instant
-          payload,
-          { value: msgValue }
-        );
-        await tx.wait();
+        await fund({ notaId: nota.id });
         toast({
           title: "Transaction succeeded",
           description: "Invoice paid",
@@ -165,18 +145,14 @@ function ApproveAndPay({ nota, onClose }: Props) {
       setIsLoading(false);
     }
   }, [
-    blockchainState.account,
-    blockchainState.notaRegistrar,
     blockchainState.registrarAddress,
     nota.amountRaw,
     nota.id,
-    nota.moduleData.module,
     needsApproval,
     onClose,
     refreshWithDelay,
     toast,
     token?.functions,
-    tokenAddress,
   ]);
 
   const moduleInfo = useMemo(() => {

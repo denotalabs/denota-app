@@ -145,21 +145,21 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             ) {
               txHash = await writeCrosschain({
                 tokenAddress,
-                amountWei,
+                amount: notaFormValues.amount,
                 address: notaFormValues.address,
                 ipfsHash: notaFormValues.ipfsHash ?? "",
                 imageUrl: lighthouseUrl,
+                token: notaFormValues.token,
               });
             } else {
               txHash = await writeDirectPay({
                 dueDate: notaFormValues.dueDate,
-                tokenAddress,
-                amountWei,
+                amount: notaFormValues.amount,
                 address: notaFormValues.address,
-                instantWei: transferWei,
                 ipfsHash: notaFormValues.ipfsHash ?? "",
                 isInvoice: notaFormValues.mode === "invoice",
                 imageUrl: lighthouseUrl,
+                token: notaFormValues.token,
               });
             }
 
@@ -167,10 +167,9 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
           case "escrow":
             txHash = await writeEscrow({
-              tokenAddress,
-              amountWei,
+              token: notaFormValues.token,
+              amount: notaFormValues.amount,
               address: notaFormValues.address,
-              escrowedWei: transferWei,
               ipfsHash: notaFormValues.ipfsHash ?? "",
               isInvoice: notaFormValues.mode === "invoice",
               inspector: notaFormValues.auditor,
@@ -240,7 +239,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     onSuccess,
     writeEscrow,
     tokenAddress,
-    transferWei,
     writeCrosschain,
     writeDirectPay,
     sendEmail,

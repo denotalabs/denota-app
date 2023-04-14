@@ -1,12 +1,11 @@
-import { BigNumber, ethers } from "ethers";
+import { write } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 interface Props {
-  tokenAddress: string;
-  amountWei: BigNumber;
+  token: string;
+  amount: string;
   address: string;
-  escrowedWei: BigNumber;
   ipfsHash: string;
   imageUrl: string;
   isInvoice: boolean;
@@ -18,52 +17,30 @@ export const useEscrowNota = () => {
 
   const writeNota = useCallback(
     async ({
-      tokenAddress,
-      amountWei,
+      token,
+      amount,
       address,
-      escrowedWei,
       ipfsHash,
       isInvoice,
       inspector,
       imageUrl,
     }: Props) => {
-      const debtor = isInvoice ? address : blockchainState.account;
-      const notaInspector = inspector ?? debtor;
-
-      const payload = ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "address", "uint256", "string", "string"],
-        [
-          address,
-          notaInspector,
-          blockchainState.account,
-          amountWei,
+      const receipt = await write({
+        amount: Number(amount),
+        currency: token,
+        module: {
+          moduleName: "reversibleRelease",
+          type: isInvoice ? "invoice" : "payment",
+          creditor: isInvoice ? blockchainState.account : address,
+          debitor: isInvoice ? address : blockchainState.account,
           ipfsHash,
-          imageUrl,
-        ]
-      );
-      const msgValue =
-        tokenAddress === "0x0000000000000000000000000000000000000000" &&
-        !isInvoice
-          ? escrowedWei
-          : BigNumber.from(0);
-
-      const tx = await blockchainState.notaRegistrar?.write(
-        tokenAddress, //currency
-        escrowedWei, //escrowed
-        0, //instant
-        isInvoice ? blockchainState.account : address, //owner
-        blockchainState.escrowAddress, //module
-        payload, //moduleWriteData
-        { value: msgValue }
-      );
-      const receipt = await tx.wait();
-      return receipt.transactionHash;
+          imageHash: imageUrl,
+          inspector,
+        },
+      });
+      return receipt;
     },
-    [
-      blockchainState.account,
-      blockchainState.notaRegistrar,
-      blockchainState.escrowAddress,
-    ]
+    [blockchainState.account]
   );
 
   return { writeNota };
