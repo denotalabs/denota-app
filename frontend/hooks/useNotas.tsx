@@ -82,8 +82,15 @@ export const useNotas = ({ notaField }: Props) => {
   const [notasInspected, setNotasInspected] = useState<Nota[] | undefined>(
     undefined
   );
+  const [optimisticNotas, setOptimisticNotas] = useState<Nota[] | undefined>(
+    undefined
+  );
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const addOptimisticNota = useCallback((nota: Nota) => {
+    setOptimisticNotas((notas) => [...notas, nota]);
+  }, []);
 
   const currencyForTokenId = useCallback(
     (tokenAddress: string): NotaCurrency => {
@@ -359,6 +366,30 @@ export const useNotas = ({ notaField }: Props) => {
     refresh();
   }, [refresh, account]);
 
+  const notasSentIncludingOptimistic = useMemo(() => {
+    const sentNotaIds = notasSent.reduce((prev, nota) => {
+      return [...prev, nota.id];
+    }, []);
+    const optimisticNotasFiltered = optimisticNotas.filter(
+      (nota) =>
+        !sentNotaIds.includes(nota.id) &&
+        nota.sender === blockchainState.account
+    );
+    return optimisticNotasFiltered.concat(notasSent);
+  }, [blockchainState.account, notasSent, optimisticNotas]);
+
+  const notasReceivedIncludingOptimistic = useMemo(() => {
+    const receivedNotaIds = notasReceived.reduce((prev, nota) => {
+      return [...prev, nota.id];
+    }, []);
+    const optimisticNotasFiltered = optimisticNotas.filter(
+      (nota) =>
+        !receivedNotaIds.includes(nota.id) &&
+        nota.sender === blockchainState.account
+    );
+    return optimisticNotasFiltered.concat(notasReceived);
+  }, [blockchainState.account, notasReceived, optimisticNotas]);
+
   const notas = useMemo(() => {
     if (
       notasReceived === undefined ||
@@ -374,12 +405,12 @@ export const useNotas = ({ notaField }: Props) => {
     );
     switch (notaField) {
       case "cheqsSent":
-        return notasSent;
+        return notasSentIncludingOptimistic;
       case "cheqsReceived":
-        return notasReceived;
+        return notasReceivedIncludingOptimistic;
       default:
-        return notasReceived
-          .concat(notasSent)
+        return notasReceivedIncludingOptimistic
+          .concat(notasSentIncludingOptimistic)
           .concat(nonSelfSigned)
           .sort((a, b) => {
             return (
@@ -388,7 +419,15 @@ export const useNotas = ({ notaField }: Props) => {
             );
           });
     }
-  }, [notaField, notasInspected, notasReceived, notasSent, isLoading]);
+  }, [
+    notasReceived,
+    notasSent,
+    notasInspected,
+    isLoading,
+    notaField,
+    notasSentIncludingOptimistic,
+    notasReceivedIncludingOptimistic,
+  ]);
 
-  return { notas, refresh };
+  return { notas, refresh, addOptimisticNota };
 };
