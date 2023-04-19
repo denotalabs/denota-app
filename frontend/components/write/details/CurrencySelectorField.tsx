@@ -22,7 +22,10 @@ export function CurrencySelectorField() {
   return (
     <Field name="token">
       {({ form: { errors, touched, setFieldValue, values } }: FieldProps) => (
-        <FormControl isInvalid={Boolean(errors.name && touched.name)}>
+        <FormControl
+          maxW="100%"
+          isInvalid={Boolean(errors.name && touched.name)}
+        >
           <FormLabel mb={2}>Select Asset</FormLabel>
           <CurrencySelector
             setFieldValue={setFieldValue}
@@ -57,7 +60,7 @@ function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
 
   const group = getRootProps();
   return (
-    <HStack {...group}>
+    <HStack flexWrap="wrap" {...group} maxW="100%" minW={0} rowGap={3}>
       {options.map((value) => {
         const radio = getRadioProps({ value });
         return (
