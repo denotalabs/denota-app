@@ -60,7 +60,7 @@ function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
 
   const group = getRootProps();
   return (
-    <HStack flexWrap="wrap" {...group} maxW="100%" minW={0} rowGap={3}>
+    <HStack flexWrap="wrap" {...group} maxW="100%" rowGap={3}>
       {options.map((value) => {
         const radio = getRadioProps({ value });
         return (
