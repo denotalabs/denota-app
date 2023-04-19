@@ -10,9 +10,11 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { ethers } from "ethers";
+import { useFormikContext } from "formik";
 import React, { useState } from "react";
 import { MdCheck, MdContacts, MdSearch } from "react-icons/md";
 
+import { DetailsStepFormValues } from "../write/details/DetailsStep";
 import AddressBookModal from "./AddressBookModal";
 // import useENSResolver from "../../hooks/useENSResolver";
 interface ContactBarProps {
@@ -20,7 +22,9 @@ interface ContactBarProps {
 }
 
 const ContactBar = ({ onSelectContact }: ContactBarProps) => {
-  const [selectedAddress, setSelectedAddress] = useState("");
+  const { values } = useFormikContext<DetailsStepFormValues>();
+
+  const [selectedAddress, setSelectedAddress] = useState(values.address);
   const [selectedName, setSelectedName] = useState("");
 
   const [searchText, setSearchText] = useState("");
