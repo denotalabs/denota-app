@@ -21,7 +21,7 @@ function StepperHeader({ onClose, back, currentIndex, title }: Props) {
       ) : (
         <Box h="40px" w="40px" />
       )}
-      <Text fontWeight={600} fontSize={"xl"} mb={4}>
+      <Text fontWeight={600} fontSize={"xl"} textAlign="center" mb={4}>
         {title}
       </Text>
       {onClose ? (

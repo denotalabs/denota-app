@@ -22,6 +22,7 @@ export function WriteNotaFlow({ onClose, isInvoice }: Props) {
         px={4}
         borderRadius="30px"
         display={{ base: "flex", md: "none" }}
+        maxW="100%"
       >
         <WriteStepperMobile onClose={onClose} isInvoice={isInvoice} />
       </VStack>
