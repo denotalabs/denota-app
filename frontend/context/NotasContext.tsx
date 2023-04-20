@@ -139,7 +139,9 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
         isPayer,
         isInspector,
         createdTransaction: { hash: createdHash, date: new Date() },
-        fundedTransaction: null, //FIX
+        fundedTransaction: isInvoice
+          ? null
+          : { hash: createdHash, date: new Date() },
         moduleData,
       };
       addOptimistic(nota);
