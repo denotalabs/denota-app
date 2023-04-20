@@ -125,7 +125,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       setNeedsApproval(false);
     } else {
       try {
-        let txHash = "";
+        let receipt: { txHash: string; notaId: string };
 
         // Use lighthouse url while we investigate lighthouse IPFS issue
         const lighthouseUrl = !notaFormValues.imageUrl
@@ -143,7 +143,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         switch (notaFormValues.module) {
           case "direct":
             if (isCrossChain) {
-              txHash = await writeCrosschain({
+              receipt = await writeCrosschain({
                 tokenAddress,
                 amount: notaFormValues.amount,
                 address: notaFormValues.address,
@@ -152,7 +152,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
                 token: notaFormValues.token,
               });
             } else {
-              txHash = await writeDirectPay({
+              receipt = await writeDirectPay({
                 dueDate: notaFormValues.dueDate,
                 amount: notaFormValues.amount,
                 address: notaFormValues.address,
@@ -166,7 +166,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             break;
 
           case "escrow":
-            txHash = await writeEscrow({
+            receipt = await writeEscrow({
               token: notaFormValues.token,
               amount: notaFormValues.amount,
               address: notaFormValues.address,
@@ -187,8 +187,10 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           ? blockchainState.account
           : notaFormValues.address;
 
+        console.log({ receipt });
+
         addOptimisticNota({
-          id: "TODO",
+          id: receipt.notaId,
           amount: Number(notaFormValues.amount),
           sender: blockchainState.account,
           receiver: notaFormValues.address,
@@ -196,15 +198,15 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           owner,
           token: notaFormValues.token as NotaCurrency,
           isCrossChain,
-          createdHash: txHash,
+          createdHash: receipt.txHash,
           module: notaFormValues.module as "direct" | "escrow",
           uri: notaFormValues.ipfsHash,
         });
 
-        if (txHash && notaFormValues.email) {
+        if (receipt.txHash && notaFormValues.email) {
           await sendEmail({
             email: notaFormValues.email,
-            txHash,
+            txHash: receipt.txHash,
             network: blockchainState.chainId,
             token: notaFormValues.token,
             amount: notaFormValues.amount,
