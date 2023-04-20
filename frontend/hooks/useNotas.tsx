@@ -82,9 +82,7 @@ export const useNotas = ({ notaField }: Props) => {
   const [notasInspected, setNotasInspected] = useState<Nota[] | undefined>(
     undefined
   );
-  const [optimisticNotas, setOptimisticNotas] = useState<Nota[] | undefined>(
-    undefined
-  );
+  const [optimisticNotas, setOptimisticNotas] = useState<Nota[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -306,9 +304,9 @@ export const useNotas = ({ notaField }: Props) => {
 
       // TODO: pagination
       // TODO: remove references to cheq from the graph schema
-      const tokenQuery = `
+      const tokenQuery = gql`
       query accounts($account: String ){
-        accounts(where: { id: $account }, first: 1)  {
+        account(id: $account)  {
           cheqsSent(orderBy: createdAt, orderDirection: desc) {
             ${tokenFields}
           }
@@ -328,21 +326,19 @@ export const useNotas = ({ notaField }: Props) => {
       });
       client
         .query({
-          query: gql(tokenQuery),
+          query: tokenQuery,
           variables: {
             account: account.toLowerCase(),
           },
         })
         .then((data) => {
           console.log({ data });
-          if (data["data"]["accounts"][0]) {
-            const gqlNotasSent = data["data"]["accounts"][0][
-              "cheqsSent"
-            ] as any[];
-            const gqlNotasReceived = data["data"]["accounts"][0][
+          if (data["data"]["account"]) {
+            const gqlNotasSent = data["data"]["account"]["cheqsSent"] as any[];
+            const gqlNotasReceived = data["data"]["account"][
               "cheqsReceived"
             ] as any[];
-            const gqlNotasInspected = data["data"]["accounts"][0][
+            const gqlNotasInspected = data["data"]["account"][
               "cheqsInspected"
             ] as any[];
             setNotaSent(gqlNotasSent.map(mapField));
