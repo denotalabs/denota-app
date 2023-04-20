@@ -367,6 +367,10 @@ export const useNotas = ({ notaField }: Props) => {
   }, [refresh, account]);
 
   const notasSentIncludingOptimistic = useMemo(() => {
+    if (notasSent === undefined) {
+      return undefined;
+    }
+
     const sentNotaIds = notasSent.reduce((prev, nota) => {
       return [...prev, nota.id];
     }, []);
@@ -379,6 +383,10 @@ export const useNotas = ({ notaField }: Props) => {
   }, [blockchainState.account, notasSent, optimisticNotas]);
 
   const notasReceivedIncludingOptimistic = useMemo(() => {
+    if (notasReceived === undefined) {
+      return undefined;
+    }
+
     const receivedNotaIds = notasReceived.reduce((prev, nota) => {
       return [...prev, nota.id];
     }, []);
