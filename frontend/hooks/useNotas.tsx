@@ -370,11 +370,13 @@ export const useNotas = ({ notaField }: Props) => {
     const sentNotaIds = notasSent.reduce((prev, nota) => {
       return [...prev, nota.id];
     }, []);
+
     const optimisticNotasFiltered = optimisticNotas.filter(
       (nota) =>
         !sentNotaIds.includes(nota.id) &&
         nota.sender === blockchainState.account
     );
+
     return optimisticNotasFiltered.concat(notasSent);
   }, [blockchainState.account, notasSent, optimisticNotas]);
 
@@ -386,6 +388,7 @@ export const useNotas = ({ notaField }: Props) => {
     const receivedNotaIds = notasReceived.reduce((prev, nota) => {
       return [...prev, nota.id];
     }, []);
+
     const optimisticNotasFiltered = optimisticNotas.filter(
       (nota) =>
         !receivedNotaIds.includes(nota.id) &&
