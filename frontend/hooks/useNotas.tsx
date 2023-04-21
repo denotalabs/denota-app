@@ -82,8 +82,13 @@ export const useNotas = ({ notaField }: Props) => {
   const [notasInspected, setNotasInspected] = useState<Nota[] | undefined>(
     undefined
   );
+  const [optimisticNotas, setOptimisticNotas] = useState<Nota[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const addOptimisticNota = useCallback((nota: Nota) => {
+    setOptimisticNotas((notas) => [...notas, nota]);
+  }, []);
 
   const currencyForTokenId = useCallback(
     (tokenAddress: string): NotaCurrency => {
@@ -299,9 +304,9 @@ export const useNotas = ({ notaField }: Props) => {
 
       // TODO: pagination
       // TODO: remove references to cheq from the graph schema
-      const tokenQuery = `
+      const tokenQuery = gql`
       query accounts($account: String ){
-        accounts(where: { id: $account }, first: 1)  {
+        account(id: $account)  {
           cheqsSent(orderBy: createdAt, orderDirection: desc) {
             ${tokenFields}
           }
@@ -321,21 +326,19 @@ export const useNotas = ({ notaField }: Props) => {
       });
       client
         .query({
-          query: gql(tokenQuery),
+          query: tokenQuery,
           variables: {
             account: account.toLowerCase(),
           },
         })
         .then((data) => {
           console.log({ data });
-          if (data["data"]["accounts"][0]) {
-            const gqlNotasSent = data["data"]["accounts"][0][
-              "cheqsSent"
-            ] as any[];
-            const gqlNotasReceived = data["data"]["accounts"][0][
+          if (data["data"]["account"]) {
+            const gqlNotasSent = data["data"]["account"]["cheqsSent"] as any[];
+            const gqlNotasReceived = data["data"]["account"][
               "cheqsReceived"
             ] as any[];
-            const gqlNotasInspected = data["data"]["accounts"][0][
+            const gqlNotasInspected = data["data"]["account"][
               "cheqsInspected"
             ] as any[];
             setNotaSent(gqlNotasSent.map(mapField));
@@ -359,6 +362,41 @@ export const useNotas = ({ notaField }: Props) => {
     refresh();
   }, [refresh, account]);
 
+  const notasSentIncludingOptimistic = useMemo(() => {
+    if (notasSent === undefined) {
+      return undefined;
+    }
+
+    const sentNotaIds = notasSent.reduce((prev, nota) => {
+      return [...prev, nota.id];
+    }, []);
+
+    const optimisticNotasFiltered = optimisticNotas.filter(
+      (nota) =>
+        !sentNotaIds.includes(nota.id) &&
+        nota.sender === blockchainState.account
+    );
+
+    return optimisticNotasFiltered.concat(notasSent);
+  }, [blockchainState.account, notasSent, optimisticNotas]);
+
+  const notasReceivedIncludingOptimistic = useMemo(() => {
+    if (notasReceived === undefined) {
+      return undefined;
+    }
+
+    const receivedNotaIds = notasReceived.reduce((prev, nota) => {
+      return [...prev, nota.id];
+    }, []);
+
+    const optimisticNotasFiltered = optimisticNotas.filter(
+      (nota) =>
+        !receivedNotaIds.includes(nota.id) &&
+        nota.receiver === blockchainState.account
+    );
+    return optimisticNotasFiltered.concat(notasReceived);
+  }, [blockchainState.account, notasReceived, optimisticNotas]);
+
   const notas = useMemo(() => {
     if (
       notasReceived === undefined ||
@@ -374,12 +412,12 @@ export const useNotas = ({ notaField }: Props) => {
     );
     switch (notaField) {
       case "cheqsSent":
-        return notasSent;
+        return notasSentIncludingOptimistic;
       case "cheqsReceived":
-        return notasReceived;
+        return notasReceivedIncludingOptimistic;
       default:
-        return notasReceived
-          .concat(notasSent)
+        return notasReceivedIncludingOptimistic
+          .concat(notasSentIncludingOptimistic)
           .concat(nonSelfSigned)
           .sort((a, b) => {
             return (
@@ -388,7 +426,15 @@ export const useNotas = ({ notaField }: Props) => {
             );
           });
     }
-  }, [notaField, notasInspected, notasReceived, notasSent, isLoading]);
+  }, [
+    notasReceived,
+    notasSent,
+    notasInspected,
+    isLoading,
+    notaField,
+    notasSentIncludingOptimistic,
+    notasReceivedIncludingOptimistic,
+  ]);
 
-  return { notas, refresh };
+  return { notas, refresh, addOptimisticNota };
 };
