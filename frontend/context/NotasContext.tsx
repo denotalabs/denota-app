@@ -21,7 +21,7 @@ interface NotasContextInterface {
   refreshWithDelay: () => void;
   isLoading: boolean;
   setNotaField: (notaField: string) => void;
-  addOptimisticNota: (props: OptimisticNotaProps) => void;
+  createLocalNota: (props: OptimisticNotaProps) => void;
 }
 
 interface OptimisticNotaProps {
@@ -51,7 +51,7 @@ export const NotaContext = createContext<NotasContextInterface>({
   refreshWithDelay: () => {
     return;
   },
-  addOptimisticNota: () => {
+  createLocalNota: () => {
     return;
   },
 });
@@ -61,11 +61,9 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoadingInternal, setIsLoadingInternal] = useState(false);
   const { blockchainState } = useBlockchainData();
 
-  const {
-    notas,
-    refresh,
-    addOptimisticNota: addOptimistic,
-  } = useNotas({ notaField: notaField });
+  const { notas, refresh, addOptimisticNota } = useNotas({
+    notaField: notaField,
+  });
 
   const setNotaField = useCallback((notaField: string) => {
     setNotaFieldInternal(notaField);
@@ -86,7 +84,7 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
     return isLoadingInternal;
   }, [notas, isLoadingInternal]);
 
-  const addOptimisticNota = useCallback(
+  const createLocalNota = useCallback(
     ({
       id,
       amount,
@@ -144,9 +142,9 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
           : { hash: createdHash, date: new Date() },
         moduleData,
       };
-      addOptimistic(nota);
+      addOptimisticNota(nota);
     },
-    [addOptimistic, blockchainState.account]
+    [addOptimisticNota, blockchainState.account]
   );
 
   return (
@@ -157,7 +155,7 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
         isLoading,
         setNotaField,
         refreshWithDelay,
-        addOptimisticNota,
+        createLocalNota,
       }}
     >
       {children}

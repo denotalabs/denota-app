@@ -43,7 +43,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     return ethers.utils.parseEther(notaFormValues.amount);
   }, [notaFormValues]);
 
-  const { addOptimisticNota } = useNotaContext();
+  const { createLocalNota } = useNotaContext();
 
   const tokenAddress = useMemo(() => {
     switch (notaFormValues.token) {
@@ -187,9 +187,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           ? blockchainState.account
           : notaFormValues.address;
 
-        console.log({ receipt });
-
-        addOptimisticNota({
+        // It takes a few seconds for the graph to pick up the new nota so go ahead and add it locally
+        createLocalNota({
           id: receipt.notaId,
           amount: Number(notaFormValues.amount),
           sender: blockchainState.account,
@@ -256,7 +255,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.email,
     notaFormValues.auditor,
     notaFormValues.dueDate,
-    addOptimisticNota,
+    createLocalNota,
     toast,
     onSuccess,
     writeEscrow,
