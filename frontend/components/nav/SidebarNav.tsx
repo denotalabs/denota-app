@@ -59,7 +59,7 @@ const LinkItems: Array<LinkItemProps> = [
   {
     name: "Docs",
     icon: MdOutlineDescription,
-    href: "https://denota.notion.site/What-is-Denota-Protocol-9c18517ed13b4644bc8c796d7427aa80",
+    href: "https://denota.gitbook.io/denota-sdk/",
     isExternal: true,
   },
 ];
@@ -101,7 +101,9 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   const isDemoMode = useDemoMode();
   const filteredLinkItems = isDemoMode
     ? LinkItems
-    : LinkItems.filter((link) => link.name !== "Social" && link.name !== "Contacts");
+    : LinkItems.filter(
+        (link) => link.name !== "Social" && link.name !== "Contacts"
+      );
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}
