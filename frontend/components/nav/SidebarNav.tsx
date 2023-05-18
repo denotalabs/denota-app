@@ -21,6 +21,7 @@ import { ReactNode, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
   MdOutlineAdd,
+  MdOutlineArchive,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
   MdOutlineGroup,
@@ -54,7 +55,7 @@ const LinkItems: Array<LinkItemProps> = [
     isExternal: false,
   },
   { name: "Social", icon: MdOutlineGroup, href: "/social", isExternal: false },
-
+  { name: "Batch", icon: MdOutlineArchive, href: "/batch", isExternal: false },
   { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
     name: "Docs",
