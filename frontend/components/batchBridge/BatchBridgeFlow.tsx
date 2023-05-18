@@ -19,7 +19,10 @@ export function BatchBridgeFlow({ onClose }: Props) {
       spacing={0}
     >
       <Stepper onClose={onClose}>
-        <UploadCSVStep screenTitle={"Upload"} screenKey="upload" />
+        <UploadCSVStep
+          screenTitle="Upload a CSV to get started"
+          screenKey="upload"
+        />
         <BridgeStep screenTitle="Bridge" screenKey="bridge" />
         <DisperseStep screenTitle="Disperse" screenKey="disperse" />
       </Stepper>

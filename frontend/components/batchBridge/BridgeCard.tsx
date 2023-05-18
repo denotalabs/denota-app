@@ -23,8 +23,10 @@ function BridgeCard({ chain }: Props) {
       pb={3}
     >
       <VStack gap={3}>
-        <Text>3000 USDC to {chain}</Text>
-        <Text>
+        <Text fontSize="xl" fontWeight={800}>
+          3000 USDC to {chain}
+        </Text>
+        <Text fontSize="sm">
           {chain == "Gnosis"
             ? "(Lifi, 10 USDC fee, ~15 min)"
             : "(Squid, 15 USDT fee, ~20 min)"}
