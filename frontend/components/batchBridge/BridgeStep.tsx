@@ -1,15 +1,15 @@
-import { Box } from "@chakra-ui/react";
-import RoundedButton from "../designSystem/RoundedButton";
-import { ScreenProps, useStep } from "../designSystem/stepper/Stepper";
+import { Box, Text, VStack } from "@chakra-ui/react";
+import { ScreenProps } from "../designSystem/stepper/Stepper";
+import BridgeCard from "./BridgeCard";
 
 const BridgeStep: React.FC<ScreenProps> = () => {
-  const { next } = useStep();
-
   return (
     <Box w="100%" p={4}>
-      <RoundedButton mt={2} type="submit" onClick={next}>
-        {"Next"}
-      </RoundedButton>
+      <VStack>
+        <Text>Your transaction will require 2 bridge transfers</Text>
+        <BridgeCard chain="Gnosis" />
+        <BridgeCard chain="ETH" />
+      </VStack>
     </Box>
   );
 };
