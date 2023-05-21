@@ -1,4 +1,4 @@
-import { Box, Button, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack } from "@chakra-ui/react";
 import { useStep } from "../designSystem/stepper/Stepper";
 
 interface Props {
@@ -31,15 +31,6 @@ function BridgeCard({ chain }: Props) {
             ? "(Lifi, 10 USDC fee, ~15 min)"
             : "(Squid, 15 USDT fee, ~20 min)"}
         </Text>
-        <Button
-          variant="outline"
-          w="min(40vw, 100px)"
-          borderRadius={5}
-          colorScheme="white"
-          onClick={next}
-        >
-          Bridge now
-        </Button>
       </VStack>
     </Box>
   );
