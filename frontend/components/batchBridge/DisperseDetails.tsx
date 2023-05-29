@@ -1,17 +1,34 @@
 import { Text, VStack } from "@chakra-ui/react";
+import { useMemo } from "react";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import {
+  chainInfoForChainId,
+  chainNumberToChainHex,
+} from "../../context/chainInfo";
+import { switchNetwork } from "../../context/SwitchNetwork";
 import DetailsRow from "../designSystem/DetailsRow";
 import RoundedBox from "../designSystem/RoundedBox";
 import RoundedButton from "../designSystem/RoundedButton";
 
 interface Props {
-  chain: string;
+  chainId: number;
 }
-function DisperseDetails({ chain }: Props) {
+function DisperseDetails({ chainId }: Props) {
+  const { blockchainState, connectWallet } = useBlockchainData();
+
+  const isCorrectChain = useMemo(() => {
+    return blockchainState.chainId === chainNumberToChainHex(chainId);
+  }, [blockchainState.chainId, chainId]);
+
+  const chainName = useMemo(() => {
+    return chainInfoForChainId(chainId).displayName;
+  }, [chainId]);
+
   return (
     <VStack>
       <RoundedBox mb={5} padding={6}>
         <Text fontWeight={600} fontSize={"lg"} textAlign="center">
-          You dispersing 5000 USDC and 1000 BOB on {chain}
+          You dispersing 5000 USDC and 1000 BOB on {chainName}
         </Text>
       </RoundedBox>
 
@@ -22,8 +39,16 @@ function DisperseDetails({ chain }: Props) {
         </VStack>
       </RoundedBox>
 
-      <RoundedButton mt={2} type="submit">
-        {"Confirm"}
+      <RoundedButton
+        mt={2}
+        type="submit"
+        onClick={async () => {
+          await switchNetwork(chainNumberToChainHex(chainId));
+          // Force reload chain
+          connectWallet?.();
+        }}
+      >
+        {isCorrectChain ? "Confirm" : `Switch to ${chainName}`}
       </RoundedButton>
     </VStack>
   );
