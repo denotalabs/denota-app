@@ -33,9 +33,6 @@ function DisperseDetails({ chainId }: Props) {
     if (isConfirmed) {
       return "Confirmed";
     }
-    if (!isCorrectChain) {
-      return;
-    }
     return isCorrectChain ? "Confirm" : `Switch to ${chainName}`;
   }, [chainName, isConfirmed, isCorrectChain]);
 
