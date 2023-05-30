@@ -16,7 +16,6 @@ import {
   setProvider,
 } from "@denota-labs/denota-sdk";
 // TODO: remove references to cheq from contracts
-import { useRouter } from "next/router";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import {
   ChainInfo,
@@ -93,8 +92,6 @@ export const BlockchainDataProvider = memo(
 
     const { colorMode } = useColorMode();
 
-    const router = useRouter();
-
     const connectWalletWeb3Modal = useCallback(async () => {
       const safeAppWeb3Modal = new SafeAppWeb3Modal({
         cacheProvider: true, // optional
@@ -120,13 +117,13 @@ export const BlockchainDataProvider = memo(
         const { chainId } = await provider.getNetwork();
 
         window.ethereum?.on("chainChanged", () => {
-          if (router.asPath !== "/batch/") {
+          if (window.location.pathname !== "/batch/") {
             document.location.reload();
           }
         });
 
         window.ethereum?.on("accountsChanged", () => {
-          if (router.asPath !== "/batch/") {
+          if (window.location.pathname !== "/batch/") {
             document.location.reload();
           }
         });

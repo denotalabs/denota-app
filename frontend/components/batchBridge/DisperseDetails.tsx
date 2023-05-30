@@ -25,7 +25,7 @@ function DisperseDetails({ chainId }: Props) {
   }, [chainId]);
 
   return (
-    <VStack>
+    <VStack w="100%">
       <RoundedBox mb={5} padding={6}>
         <Text fontWeight={600} fontSize={"lg"} textAlign="center">
           You dispersing 5000 USDC and 1000 BOB on {chainName}
