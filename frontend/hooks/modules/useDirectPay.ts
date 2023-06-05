@@ -28,14 +28,13 @@ export const useDirectPay = () => {
       const receipt = await write({
         amount: Number(amount),
         currency: token,
+        metadata: { type: "uploaded", ipfsHash, imageUrl },
         module: {
           moduleName: "direct",
           type: isInvoice ? "invoice" : "payment",
           creditor: isInvoice ? blockchainState.account : address,
           debitor: isInvoice ? address : blockchainState.account,
           dueDate,
-          ipfsHash,
-          imageHash: imageUrl,
         },
       });
       return receipt;
