@@ -135,7 +135,11 @@ function NotaDetails({ nota }: Props) {
           <DetailsRow
             title="Module"
             value={moduleName}
-            tooltip="Funds are released immediately upon payment"
+            tooltip={
+              moduleName === "Escrow"
+                ? "Funds are held in escrow until released by the payer"
+                : "Funds are released immediately upon payment"
+            }
           />
         </VStack>
       </RoundedBox>
