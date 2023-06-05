@@ -28,13 +28,12 @@ export const useEscrowNota = () => {
       const receipt = await write({
         amount: Number(amount),
         currency: token,
+        metadata: { type: "uploaded", ipfsHash, imageUrl },
         module: {
           moduleName: "reversibleRelease",
           type: isInvoice ? "invoice" : "payment",
           creditor: isInvoice ? blockchainState.account : address,
           debitor: isInvoice ? address : blockchainState.account,
-          ipfsHash,
-          imageHash: imageUrl,
           inspector,
         },
       });

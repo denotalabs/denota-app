@@ -32,46 +32,46 @@ const AddressBookModal = ({
   const [searchText, setSearchText] = useState("");
 
   const mockAddressBookData = [
-    { name: "Alice", address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" },
+    { name: "Alice", address: "0x45203ac010BfcFA28f0C3eB63B3984f6012cddaf" },
     {
       name: "Amir Ali (Blockchain Consultant)",
-      address: "0x2f40F73644f8C99A39c28ccD057998b352F4A4D4",
+      address: "0x91663f613945C9F90CC2b74328Db44441D993172",
     },
     {
       name: "Dai Nguyen (Solidity Developer)",
-      address: "0x0f0D7Bc00f1272045D5C81E3a5D5BC5b57Be0667",
+      address: "0xBAEc7Dd8a88a7A7f0c513269311ac1D9FcE7fbED",
     },
     {
       name: "Juanita Perez (Smart Contract Developer)",
-      address: "0x52C9b1c3b3a6dd287C7dE0c0f87B303CA4696b37",
+      address: "0x4304aE586D81aCEe9dDbD06E0a0072b0F983B6Dd",
     },
     {
       name: "Katarina Ivanova (Crypto Investor)",
-      address: "0x4ABaa7ACc2a012d5AF5c139f2C8f711C1FBb13D7",
+      address: "0xf5576Ce68309Bda80005ddfcC8d3f2Cd6A2dA0C7",
     },
     {
       name: "Luna Patel (Crypto Journalist)",
-      address: "0xC74A1d9Db9c8a2A0A5eD72A53c123A18De8cFE5B",
+      address: "0x8a91C6eA9afF17E300e61d8ddc121488041b700a",
     },
     {
       name: "Moinul Ahmed (Blockchain Developer)",
-      address: "0x6c1b6FEbF6f0A6C161013dCDDc8fA9369BfB064E",
+      address: "0x6A6D1198E3291Ff30f9A4484623e2C23CCcC265D",
     },
     {
-        name: "Rafi",
-        address: "0x374E4F9EF906F3e51df1b3305936Ec18A6797748",
+      name: "Rafi",
+      address: "0x167813E0D6958BCF30a1cEbEE53aE0C57677c963",
     },
     {
       name: "Santiago Garcia (Smart Contract Auditor)",
-      address: "0x8C42eF2b481E6b0211A365CdC6B82c6AEC69Afb7",
+      address: "0x603e8d7C59a88162A665581028430F5F598e3893",
     },
     {
       name: "Sophie Lee (DeFi Product Manager)",
-      address: "0x89f9b16B8396F1bF92cDd30760c6C98D826EfD27",
+      address: "0x3367aabd758F0a3A00B6845C9Cb162C2A90edD25",
     },
     {
       name: "Zohaib Lunda (MakerDAO Contributor)",
-      address: "0x176c17C81AeF19E7692a648b01f6a30C6D823157",
+      address: "0x309326c866F3Fc07CBb26A7BC87D04328D8a5A04",
     },
   ];
 

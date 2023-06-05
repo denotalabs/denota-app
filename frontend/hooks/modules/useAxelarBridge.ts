@@ -15,11 +15,10 @@ export const useAxelarBridge = () => {
   const writeNota = useCallback(
     async ({ token, amount, address, ipfsHash, imageUrl }: Props) => {
       const receipt = await write({
+        metadata: { type: "uploaded", ipfsHash, imageUrl },
         module: {
           moduleName: "crosschain",
           creditor: address,
-          ipfsHash,
-          imageHash: imageUrl,
         },
         amount: Number(amount),
         currency: token,
