@@ -64,6 +64,15 @@ function NotaDetails({ nota }: Props) {
     }
   }, [nota.moduleData.module]);
 
+  const moduleDesc = useMemo(() => {
+    switch (nota.moduleData.module) {
+      case "escrow":
+        return "Funds are held in escrow until released by the payer";
+      case "direct":
+        return "Funds are released immediately upon payment";
+    }
+  }, [nota.moduleData.module]);
+
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
@@ -132,11 +141,7 @@ function NotaDetails({ nota }: Props) {
               )
             }
           />
-          <DetailsRow
-            title="Module"
-            value={moduleName}
-            tooltip="Funds are released immediately upon payment"
-          />
+          <DetailsRow title="Module" value={moduleName} tooltip={moduleDesc} />
         </VStack>
       </RoundedBox>
       {nota.uri &&
