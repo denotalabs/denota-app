@@ -23,6 +23,10 @@ const BridgeStep: React.FC<ScreenProps> = () => {
     const outputMap = {};
 
     for (const chain of chains) {
+      // TODO: skip origin chain
+      // TODO: skip if dest chain already has sufficient balance
+      // TODO: show indicator if no bridging required
+
       const rows = bridgeData[chain];
       for (const row of rows) {
         const tokenChainKey = row.token + "|" + chain;
