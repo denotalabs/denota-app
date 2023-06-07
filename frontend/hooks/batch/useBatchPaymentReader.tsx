@@ -7,7 +7,7 @@ interface CsvData {
   token: string;
 }
 
-interface DataMap {
+export interface DataMap {
   [dest_chain: string]: CsvData[];
 }
 

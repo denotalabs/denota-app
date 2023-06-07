@@ -1,5 +1,6 @@
 import { InputGroup, Text, VStack } from "@chakra-ui/react";
 import { ChangeEvent, useRef } from "react";
+import { useNotaForm } from "../../context/NotaFormProvider";
 import useBatchPaymentReader from "../../hooks/batch/useBatchPaymentReader";
 import RoundedButton from "../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../designSystem/stepper/Stepper";
@@ -14,10 +15,12 @@ const UploadCSVStep: React.FC<ScreenProps> = () => {
     inputRef.current?.click();
   };
 
+  const { updateNotaFormValues } = useNotaForm();
+
   const handleChange = async (value: ChangeEvent<HTMLInputElement>) => {
     if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
       const data = await handleFileRead(value.target.files?.[0]);
-      console.log(data);
+      updateNotaFormValues({ data });
       next();
     }
   };

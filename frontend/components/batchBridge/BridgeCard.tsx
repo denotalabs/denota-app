@@ -1,13 +1,12 @@
 import { Box, Text, VStack } from "@chakra-ui/react";
-import { useStep } from "../designSystem/stepper/Stepper";
 
 interface Props {
   chain: string;
+  token: string;
+  amount: number;
 }
 
-function BridgeCard({ chain }: Props) {
-  const { next } = useStep();
-
+function BridgeCard({ chain, token, amount }: Props) {
   return (
     <Box
       w="285px"
@@ -24,7 +23,7 @@ function BridgeCard({ chain }: Props) {
     >
       <VStack gap={3}>
         <Text fontSize="xl" fontWeight={800}>
-          3000 USDC to {chain}
+          {amount} {token} to {chain}
         </Text>
         <Text fontSize="sm">
           {chain == "Gnosis"

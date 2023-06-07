@@ -1,10 +1,11 @@
 import { createContext, useCallback, useContext, useState } from "react";
 
-export type StringMap = { [key: string]: string };
+// TODO: make more type safe
+export type DataMap = { [key: string]: any };
 
 export interface ExportNotaFormContext {
-  notaFormValues: StringMap;
-  updateNotaFormValues: (data: StringMap) => void;
+  notaFormValues: DataMap;
+  updateNotaFormValues: (data: DataMap) => void;
   file?: File;
   setFile?: (file: File) => void;
 }
@@ -20,10 +21,10 @@ export const NotaFormProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [notaFormValues, setFormData] = useState<StringMap>({});
+  const [notaFormValues, setFormData] = useState<DataMap>({});
   const [file, setFile] = useState<File | undefined>(undefined);
 
-  const updateNotaFormValues = useCallback((data: StringMap) => {
+  const updateNotaFormValues = useCallback((data: DataMap) => {
     setFormData((notaFormValues) => ({
       ...notaFormValues,
       ...data,
