@@ -44,6 +44,7 @@ interface BlockchainDataInterface {
   userDaiBalanceRaw: BigNumber;
   userWethBalanceRaw: BigNumber;
   walletBalanceRaw: BigNumber;
+  disperse: null | ethers.Contract;
 }
 
 interface BlockchainDataContextInterface {
@@ -74,6 +75,7 @@ const defaultBlockchainState = {
   userDaiBalanceRaw: BigNumber.from(0),
   userWethBalanceRaw: BigNumber.from(0),
   walletBalanceRaw: BigNumber.from(0),
+  disperse: null,
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -157,6 +159,13 @@ export const BlockchainDataProvider = memo(
             signer
           );
 
+          // TODO: update address and ABI
+          const disperse = new ethers.Contract(
+            contractMapping.dai,
+            erc20.abi,
+            signer
+          );
+
           const walletBalance = await provider.getBalance(account);
 
           const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
@@ -191,6 +200,7 @@ export const BlockchainDataProvider = memo(
             userDaiBalanceRaw: userDaiBalance,
             userWethBalanceRaw: userWethBalance,
             walletBalanceRaw: walletBalance,
+            disperse,
           });
           setIsInitializing(false);
         }

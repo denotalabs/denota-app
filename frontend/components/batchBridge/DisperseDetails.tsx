@@ -7,14 +7,17 @@ import {
   chainNumberToChainHex,
 } from "../../context/chainInfo";
 import { switchNetwork } from "../../context/SwitchNetwork";
+import { CsvData } from "../../hooks/batch/useBatchPaymentReader";
+import useDisperse from "../../hooks/batch/useDisperse";
 import DetailsRow from "../designSystem/DetailsRow";
 import RoundedBox from "../designSystem/RoundedBox";
 import RoundedButton from "../designSystem/RoundedButton";
 
 interface Props {
   chainId: number;
+  data: CsvData[];
 }
-function DisperseDetails({ chainId }: Props) {
+function DisperseDetails({ chainId, data }: Props) {
   const { blockchainState, connectWallet } = useBlockchainData();
 
   const isCorrectChain = useMemo(() => {
@@ -36,6 +39,9 @@ function DisperseDetails({ chainId }: Props) {
     return isCorrectChain ? "Confirm" : `Switch to ${chainName}`;
   }, [chainName, isConfirmed, isCorrectChain]);
 
+  const { disperseTokens } = useDisperse();
+
+  // TODO: populate with correct data
   return (
     <VStack w="100%" bg="brand.600" borderRadius="md" pt={6}>
       <RoundedBox mb={5} px={6}>
@@ -76,7 +82,12 @@ function DisperseDetails({ chainId }: Props) {
             // Force reload chain
             connectWallet?.();
           } else {
-            setIsConfirmed(true);
+            try {
+              await disperseTokens({ data });
+              setIsConfirmed(true);
+            } catch (error) {
+              console.log(error);
+            }
           }
         }}
       >
