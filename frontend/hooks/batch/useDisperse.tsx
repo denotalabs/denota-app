@@ -17,6 +17,7 @@ const useDisperse = () => {
         data.map((val) => val.recipient),
       ];
 
+      // TODO: map token to address
       const tx = await blockchainState.disperse.disperse(
         tokens,
         recipients,
