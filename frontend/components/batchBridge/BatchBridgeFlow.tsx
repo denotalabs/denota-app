@@ -1,4 +1,5 @@
 import { VStack } from "@chakra-ui/react";
+import { NotaFormProvider } from "../../context/NotaFormProvider";
 import Stepper from "../designSystem/stepper/Stepper";
 import BridgeStep from "./BridgeStep";
 import DisperseStep from "./DisperseStep";
@@ -18,14 +19,16 @@ export function BatchBridgeFlow({ onClose }: Props) {
       borderRadius="30px"
       spacing={0}
     >
-      <Stepper onClose={onClose}>
-        <UploadCSVStep
-          screenTitle="Upload a CSV to get started"
-          screenKey="upload"
-        />
-        <BridgeStep screenTitle="Bridge" screenKey="bridge" />
-        <DisperseStep screenTitle="Disperse" screenKey="disperse" />
-      </Stepper>
+      <NotaFormProvider>
+        <Stepper onClose={onClose}>
+          <UploadCSVStep
+            screenTitle="Upload a CSV to get started"
+            screenKey="upload"
+          />
+          <BridgeStep screenTitle="Bridge" screenKey="bridge" />
+          <DisperseStep screenTitle="Disperse" screenKey="disperse" />
+        </Stepper>
+      </NotaFormProvider>
     </VStack>
   );
 }

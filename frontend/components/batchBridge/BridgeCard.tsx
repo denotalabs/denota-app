@@ -1,19 +1,18 @@
 import { Box, Text, VStack } from "@chakra-ui/react";
-import { useStep } from "../designSystem/stepper/Stepper";
 
 interface Props {
-  chain: string;
+  chainDisplayName: string;
+  token: string;
+  amount: number;
 }
 
-function BridgeCard({ chain }: Props) {
-  const { next } = useStep();
-
+function BridgeCard({ chainDisplayName, token, amount }: Props) {
   return (
     <Box
       w="285px"
       h="160px"
       bg={
-        chain === "Gnosis"
+        chainDisplayName === "Gnosis"
           ? "linear-gradient(180deg, #6E7C9A, #202C4F)"
           : "linear-gradient(180deg, #343C9B, #292D5D)"
       }
@@ -23,11 +22,11 @@ function BridgeCard({ chain }: Props) {
       pb={3}
     >
       <VStack gap={3}>
-        <Text fontSize="xl" fontWeight={800}>
-          3000 USDC to {chain}
+        <Text fontSize="xl" textAlign="center" fontWeight={800}>
+          {amount} {token} to {chainDisplayName}
         </Text>
         <Text fontSize="sm">
-          {chain == "Gnosis"
+          {chainDisplayName == "Gnosis"
             ? "(Lifi, 10 USDC fee, ~15 min)"
             : "(Squid, 15 USDT fee, ~20 min)"}
         </Text>
