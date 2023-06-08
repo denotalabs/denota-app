@@ -1,5 +1,10 @@
 import { Box, Text, VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import {
+  chainInfoForChainId,
+  chainNumberToChainHex,
+} from "../../context/chainInfo";
 import { useNotaForm } from "../../context/NotaFormProvider";
 import { DataMap } from "../../hooks/batch/useBatchPaymentReader";
 import RoundedButton from "../designSystem/RoundedButton";
@@ -7,7 +12,7 @@ import { ScreenProps, useStep } from "../designSystem/stepper/Stepper";
 import BridgeCard from "./BridgeCard";
 
 interface BridgeDestinations {
-  chain: string;
+  chainDisplayName: string;
   token: string;
   amount: number;
 }
@@ -15,6 +20,7 @@ interface BridgeDestinations {
 const BridgeStep: React.FC<ScreenProps> = () => {
   const { next } = useStep();
   const { notaFormValues } = useNotaForm();
+  const { blockchainState } = useBlockchainData();
 
   const bridgeDestinations = useMemo(() => {
     const bridgeData = notaFormValues.data as DataMap;
@@ -29,12 +35,14 @@ const BridgeStep: React.FC<ScreenProps> = () => {
 
       const rows = bridgeData[chain];
       for (const row of rows) {
-        const tokenChainKey = row.token + "|" + chain;
+        if (blockchainState.chainId !== chainNumberToChainHex(Number(chain))) {
+          const tokenChainKey = row.token + "|" + chain;
 
-        if (tokenChainKey in outputMap) {
-          outputMap[tokenChainKey] += row.amount;
-        } else {
-          outputMap[tokenChainKey] = row.amount;
+          if (tokenChainKey in outputMap) {
+            outputMap[tokenChainKey] += row.amount;
+          } else {
+            outputMap[tokenChainKey] = row.amount;
+          }
         }
       }
     }
@@ -44,12 +52,17 @@ const BridgeStep: React.FC<ScreenProps> = () => {
     const outputList: BridgeDestinations[] = [];
 
     for (const tokenChain of tokenChainKeys) {
-      const [token, chain] = tokenChain.split("|");
-      outputList.push({ token, chain, amount: outputMap[tokenChain] });
+      const [token, chainId] = tokenChain.split("|");
+      const chainDisplayName = chainInfoForChainId(Number(chainId)).displayName;
+      outputList.push({
+        token,
+        chainDisplayName,
+        amount: outputMap[tokenChain],
+      });
     }
 
     return outputList;
-  }, [notaFormValues.data]);
+  }, [blockchainState.chainId, notaFormValues.data]);
 
   return (
     <Box w="100%" p={4}>

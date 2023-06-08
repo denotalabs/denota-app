@@ -99,7 +99,11 @@ export const BlockchainDataProvider = memo(
         theme: colorMode,
       });
       const web3ModalConnection = await safeAppWeb3Modal.connect();
-      setProvider({ type: "web3", web3Connection: web3ModalConnection });
+      try {
+        setProvider({ type: "web3", web3Connection: web3ModalConnection });
+      } catch (error) {
+        console.log(error);
+      }
       const provider = new ethers.providers.Web3Provider(web3ModalConnection);
       const signer = provider.getSigner(); //console.log(provider)
       const account = await signer.getAddress(); //console.log(account)
