@@ -43,7 +43,7 @@ const BridgeStep: React.FC<ScreenProps> = () => {
 
     const outputList: BridgeDestinations[] = [];
 
-    for (const tokenChain in tokenChainKeys) {
+    for (const tokenChain of tokenChainKeys) {
       const [token, chain] = tokenChain.split("|");
       outputList.push({ token, chain, amount: outputMap[tokenChain] });
     }
@@ -57,8 +57,8 @@ const BridgeStep: React.FC<ScreenProps> = () => {
         <Text fontSize="xl" mb={2}>
           Your transaction will require 2 bridge transfers
         </Text>
-        {bridgeDestinations.map((bridgeDestination) => (
-          <BridgeCard {...bridgeDestination} />
+        {bridgeDestinations.map((bridgeDestination, index) => (
+          <BridgeCard key={index} {...bridgeDestination} />
         ))}
         <RoundedButton mt={2} onClick={next}>
           {"Bridge Now"}
