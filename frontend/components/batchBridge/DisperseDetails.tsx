@@ -71,6 +71,8 @@ function DisperseDetails({ chainId, data }: Props) {
     return tokenStrings[0] || "";
   }, [data]);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
     <VStack w="100%" bg="brand.600" borderRadius="md" pt={6}>
       <RoundedBox mb={5} px={6}>
@@ -110,18 +112,21 @@ function DisperseDetails({ chainId, data }: Props) {
         mt={2}
         type="submit"
         isDisabled={isConfirmed}
+        isLoading={isLoading}
         onClick={async () => {
           if (!isCorrectChain) {
             await switchNetwork(chainNumberToChainHex(chainId));
             // Force reload chain
             connectWallet?.();
           } else {
+            setIsLoading(true);
             try {
               await disperseTokens({ data });
               setIsConfirmed(true);
             } catch (error) {
               console.log(error);
             }
+            setIsLoading(false);
           }
         }}
       >
