@@ -68,7 +68,7 @@ const BridgeStep: React.FC<ScreenProps> = () => {
     <Box w="100%" p={4}>
       <VStack gap={3}>
         <Text fontSize="xl" mb={2}>
-          Your transaction will require 2 bridge transfers
+          {`Your transaction will require ${bridgeDestinations.length} bridge transfers`}
         </Text>
         {bridgeDestinations.map((bridgeDestination, index) => (
           <BridgeCard key={index} {...bridgeDestination} />

@@ -17,8 +17,8 @@ import Image from "next/image";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { deployedChains } from "../../context/chainInfo";
 import { switchNetwork } from "../../context/SwitchNetwork";
-import StyledMenuItem from "../designSystem/StyledMenuItem";
 import useDemoMode from "../../hooks/useDemoMode";
+import StyledMenuItem from "../designSystem/StyledMenuItem";
 
 export default function ChainSwitcher() {
   const isDemoMode = useDemoMode();
@@ -31,6 +31,8 @@ export default function ChainSwitcher() {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const { connectWallet } = useBlockchainData();
+
   const handleSelectChain = async (chain: {
     displayName: string;
     chainId: string;
@@ -39,6 +41,11 @@ export default function ChainSwitcher() {
   }) => {
     setIsOpen(false);
     await switchNetwork(chain.chainId);
+
+    // Batch screen doesn't reload the page so force blockchain data refresh here
+    if (window.location.pathname === "/batch/") {
+      connectWallet?.();
+    }
   };
   if (account === "" || isInitializing) return <></>;
   return (
@@ -77,7 +84,7 @@ export default function ChainSwitcher() {
           <StyledMenuItem
             key={chain.chainId}
             onClick={() => handleSelectChain(chain)}
-            isDisabled={(!isDemoMode) && chain.isDisabled}
+            isDisabled={!isDemoMode && chain.isDisabled}
           >
             <Flex alignItems="center">
               <Image
