@@ -6,7 +6,7 @@ import {
   chainNumberToChainHex,
 } from "../../context/chainInfo";
 import { useNotaForm } from "../../context/NotaFormProvider";
-import { DataMap } from "../../hooks/batch/useBatchPaymentReader";
+import { BatchDataMap } from "../../hooks/batch/useBatchPaymentReader";
 import RoundedButton from "../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../designSystem/stepper/Stepper";
 import BridgeCard from "./BridgeCard";
@@ -23,7 +23,7 @@ const BridgeStep: React.FC<ScreenProps> = () => {
   const { blockchainState } = useBlockchainData();
 
   const bridgeDestinations = useMemo(() => {
-    const bridgeData = notaFormValues.data as DataMap;
+    const bridgeData = notaFormValues.data as BatchDataMap;
     const chains = Object.keys(bridgeData);
 
     const outputMap = {};
@@ -39,9 +39,9 @@ const BridgeStep: React.FC<ScreenProps> = () => {
           const tokenChainKey = row.token + "|" + chain;
 
           if (tokenChainKey in outputMap) {
-            outputMap[tokenChainKey] += row.amount;
+            outputMap[tokenChainKey] += row.value;
           } else {
-            outputMap[tokenChainKey] = row.amount;
+            outputMap[tokenChainKey] = row.value;
           }
         }
       }
@@ -68,7 +68,7 @@ const BridgeStep: React.FC<ScreenProps> = () => {
     <Box w="100%" p={4}>
       <VStack gap={3}>
         <Text fontSize="xl" mb={2}>
-          Your transaction will require 2 bridge transfers
+          {`Your transaction will require ${bridgeDestinations.length} bridge transfers`}
         </Text>
         {bridgeDestinations.map((bridgeDestination, index) => (
           <BridgeCard key={index} {...bridgeDestination} />

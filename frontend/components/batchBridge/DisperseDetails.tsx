@@ -7,14 +7,18 @@ import {
   chainNumberToChainHex,
 } from "../../context/chainInfo";
 import { switchNetwork } from "../../context/SwitchNetwork";
+import { CsvData } from "../../hooks/batch/useBatchPaymentReader";
+import useDisperse from "../../hooks/batch/useDisperse";
+import { useFormatAddress } from "../../hooks/useFormatAddress";
 import DetailsRow from "../designSystem/DetailsRow";
 import RoundedBox from "../designSystem/RoundedBox";
 import RoundedButton from "../designSystem/RoundedButton";
 
 interface Props {
   chainId: number;
+  data: CsvData[];
 }
-function DisperseDetails({ chainId }: Props) {
+function DisperseDetails({ chainId, data }: Props) {
   const { blockchainState, connectWallet } = useBlockchainData();
 
   const isCorrectChain = useMemo(() => {
@@ -36,11 +40,44 @@ function DisperseDetails({ chainId }: Props) {
     return isCorrectChain ? "Confirm" : `Switch to ${chainName}`;
   }, [chainName, isConfirmed, isCorrectChain]);
 
+  const { disperseTokens } = useDisperse();
+
+  const { formatAddress } = useFormatAddress();
+
+  const tokenTotals = useMemo(() => {
+    // Initialize an empty object to store token totals
+    const totals: { [token: string]: number } = {};
+
+    // Iterate over data and accumulate totals
+    data.forEach(({ value, token }) => {
+      if (totals[token]) {
+        totals[token] += value;
+      } else {
+        totals[token] = value;
+      }
+    });
+
+    // Convert totals object to an array of strings
+    const tokenStrings = Object.entries(totals).map(
+      ([token, value]) => `${value} ${token}`
+    );
+
+    // Construct final string with "and" before the last item
+    if (tokenStrings.length > 1) {
+      const last = tokenStrings.pop();
+      return `${tokenStrings.join(", ")}, and ${last}`;
+    }
+
+    return tokenStrings[0] || "";
+  }, [data]);
+
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
     <VStack w="100%" bg="brand.600" borderRadius="md" pt={6}>
       <RoundedBox mb={5} px={6}>
         <Text fontWeight={600} fontSize={"lg"} textAlign="center">
-          You dispersing 5000 USDC and 1000 BOB on {chainName}
+          You dispersing {tokenTotals} on {chainName}
         </Text>
       </RoundedBox>
       <Button
@@ -60,8 +97,13 @@ function DisperseDetails({ chainId }: Props) {
       {isOpen && (
         <RoundedBox px={6}>
           <VStack>
-            <DetailsRow title="0x123..456" value="10 USDC" />
-            <DetailsRow title="0x123..456" value="10 USDC" />
+            {data.map((row, index) => (
+              <DetailsRow
+                key={index}
+                title={formatAddress(row.recipient)}
+                value={`${row.value} ${row.token}`}
+              />
+            ))}
           </VStack>
         </RoundedBox>
       )}
@@ -70,13 +112,21 @@ function DisperseDetails({ chainId }: Props) {
         mt={2}
         type="submit"
         isDisabled={isConfirmed}
+        isLoading={isLoading}
         onClick={async () => {
           if (!isCorrectChain) {
             await switchNetwork(chainNumberToChainHex(chainId));
             // Force reload chain
             connectWallet?.();
           } else {
-            setIsConfirmed(true);
+            setIsLoading(true);
+            try {
+              await disperseTokens({ data });
+              setIsConfirmed(true);
+            } catch (error) {
+              console.log(error);
+            }
+            setIsLoading(false);
           }
         }}
       >
