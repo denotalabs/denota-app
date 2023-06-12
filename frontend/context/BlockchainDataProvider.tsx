@@ -17,6 +17,7 @@ import {
 } from "@denota-labs/denota-sdk";
 // TODO: remove references to cheq from contracts
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
+import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
   ChainInfo,
   chainInfoForChainId,
@@ -159,10 +160,9 @@ export const BlockchainDataProvider = memo(
             signer
           );
 
-          // TODO: update address and ABI
           const disperse = new ethers.Contract(
-            contractMapping.dai,
-            erc20.abi,
+            "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
+            MultiDisperse.abi,
             signer
           );
 

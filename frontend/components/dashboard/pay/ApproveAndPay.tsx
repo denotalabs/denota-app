@@ -36,19 +36,6 @@ function ApproveAndPay({ nota, onClose }: Props) {
     }
   }, [blockchainState.dai, blockchainState.weth, nota.token]);
 
-  const tokenAddress = useMemo(() => {
-    switch (nota.token) {
-      case "DAI":
-        return blockchainState.dai?.address ?? "";
-      case "WETH":
-        return blockchainState.weth?.address ?? "";
-      case "NATIVE":
-        return "0x0000000000000000000000000000000000000000";
-      default:
-        return "";
-    }
-  }, [blockchainState.dai?.address, blockchainState.weth?.address, nota.token]);
-
   const tokenBalance = useMemo(() => {
     switch (nota.token) {
       case "DAI":

@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import { useTokenAddress } from "../useTokenAddress";
 import { CsvData } from "./useBatchPaymentReader";
 
 interface Props {
@@ -9,10 +10,12 @@ interface Props {
 const useDisperse = () => {
   const { blockchainState } = useBlockchainData();
 
+  const { addressForToken } = useTokenAddress();
+
   const disperseTokens = useCallback(
     async ({ data }: Props) => {
       const [tokens, values, recipients] = [
-        data.map((val) => val.token),
+        data.map((val) => addressForToken(val.token)),
         data.map((val) => val.value),
         data.map((val) => val.recipient),
       ];
@@ -26,7 +29,7 @@ const useDisperse = () => {
       const receipt = await tx.wait();
       return receipt.transactionHash;
     },
-    [blockchainState.disperse]
+    [addressForToken, blockchainState.disperse]
   );
 
   return { disperseTokens };
