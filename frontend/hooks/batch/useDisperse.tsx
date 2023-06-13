@@ -1,53 +1,127 @@
-import { ethers } from "ethers";
-import { useCallback } from "react";
+import { BigNumber, ethers } from "ethers";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import {
+  chainInfoForChainId,
+  chainNumberToChainHex,
+} from "../../context/chainInfo";
 import { useTokenAddress } from "../useTokenAddress";
 import { CsvData } from "./useBatchPaymentReader";
 
 interface Props {
+  chainId: number;
   data: CsvData[];
 }
 
-const useDisperse = () => {
+const useDisperse = ({ data, chainId }: Props) => {
   const { blockchainState } = useBlockchainData();
 
   const { getTokenAddress, getTokenContract } = useTokenAddress();
 
-  const disperseTokens = useCallback(
-    async ({ data }: Props) => {
-      const [tokens, values, recipients] = [
-        data.map((val) => getTokenAddress(val.token)),
-        data.map((val) => ethers.utils.parseEther(String(val.value))),
-        data.map((val) => val.recipient),
-      ];
+  const [requiredApprovals, setRequiredApprovals] = useState([]);
 
-      // const infinite = BigNumber.from(
-      //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      // );
+  const isCorrectChain = useMemo(() => {
+    return blockchainState.chainId === chainNumberToChainHex(chainId);
+  }, [blockchainState.chainId, chainId]);
 
-      // const approval1 = await getTokenContract("DAI")?.functions.approve(
-      //   "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
-      //   infinite
-      // );
+  const chainName = useMemo(() => {
+    return chainInfoForChainId(chainId).displayName;
+  }, [chainId]);
 
-      // const approval2 = await getTokenContract("WETH")?.functions.approve(
-      //   "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
-      //   infinite
-      // );
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
-      // TODO: map token to address
+  const uniqueTokens = useMemo(() => {
+    const tokens = data.map((item) => item.token);
+    const uniqueTokens = Array.from(new Set(tokens));
+    return uniqueTokens;
+  }, [data]);
+
+  const [tokens, values, recipients] = useMemo(
+    () => [
+      data.map((val) => getTokenAddress(val.token)),
+      data.map((val) => ethers.utils.parseEther(String(val.value))),
+      data.map((val) => val.recipient),
+    ],
+    [data, getTokenAddress]
+  );
+
+  const infinite = BigNumber.from(
+    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  );
+
+  useEffect(() => {
+    const fetchAllowance = async () => {
+      for (const token of uniqueTokens) {
+        const tokenAllowance = await getTokenContract(
+          token
+        )?.functions.allowance(
+          blockchainState.account,
+          blockchainState.disperse.address
+        );
+
+        if (
+          tokenAllowance[0] <
+          BigNumber.from(
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          )
+        ) {
+          setRequiredApprovals((current) => [...current, token]);
+        }
+      }
+    };
+    fetchAllowance();
+  }, [
+    blockchainState.account,
+    blockchainState.disperse.address,
+    blockchainState.registrarAddress,
+    getTokenContract,
+    requiredApprovals,
+    tokens,
+    uniqueTokens,
+  ]);
+
+  const buttonTitle = useMemo(() => {
+    if (isConfirmed) {
+      return "Confirmed";
+    }
+    if (!isCorrectChain) {
+      return `Switch to ${chainName}`;
+    }
+    if (requiredApprovals.length !== 0) {
+      return `Approve ${requiredApprovals[0]}`;
+    }
+    return "Confirm";
+  }, [chainName, isConfirmed, isCorrectChain, requiredApprovals]);
+
+  const disperseTokens = useCallback(async () => {
+    if (requiredApprovals.length > 0) {
+      const approvalToken = requiredApprovals.shift();
+      const approval = await getTokenContract(approvalToken)?.functions.approve(
+        blockchainState.disperse.address,
+        infinite
+      );
+      await approval.wait();
+    } else {
       const tx = await blockchainState.disperse.disperse(
         tokens,
         recipients,
         values
       );
       const receipt = await tx.wait();
+      setIsConfirmed(true);
       return receipt.transactionHash;
-    },
-    [getTokenAddress, blockchainState.disperse]
-  );
+    }
+  }, [
+    requiredApprovals,
+    getTokenContract,
+    infinite,
+    blockchainState.disperse,
+    tokens,
+    recipients,
+    values,
+  ]);
 
-  return { disperseTokens };
+  return { disperseTokens, buttonTitle, isCorrectChain };
 };
 
 export default useDisperse;

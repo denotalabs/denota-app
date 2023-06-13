@@ -19,11 +19,7 @@ interface Props {
   data: CsvData[];
 }
 function DisperseDetails({ chainId, data }: Props) {
-  const { blockchainState, connectWallet } = useBlockchainData();
-
-  const isCorrectChain = useMemo(() => {
-    return blockchainState.chainId === chainNumberToChainHex(chainId);
-  }, [blockchainState.chainId, chainId]);
+  const { connectWallet } = useBlockchainData();
 
   const chainName = useMemo(() => {
     return chainInfoForChainId(chainId).displayName;
@@ -33,14 +29,10 @@ function DisperseDetails({ chainId, data }: Props) {
 
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const buttonTitle = useMemo(() => {
-    if (isConfirmed) {
-      return "Confirmed";
-    }
-    return isCorrectChain ? "Confirm" : `Switch to ${chainName}`;
-  }, [chainName, isConfirmed, isCorrectChain]);
-
-  const { disperseTokens } = useDisperse();
+  const { disperseTokens, buttonTitle, isCorrectChain } = useDisperse({
+    data,
+    chainId,
+  });
 
   const { formatAddress } = useFormatAddress();
 
@@ -121,7 +113,7 @@ function DisperseDetails({ chainId, data }: Props) {
           } else {
             setIsLoading(true);
             try {
-              await disperseTokens({ data });
+              await disperseTokens();
               setIsConfirmed(true);
             } catch (error) {
               console.log(error);
