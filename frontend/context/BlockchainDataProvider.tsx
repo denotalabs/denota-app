@@ -103,7 +103,10 @@ export const BlockchainDataProvider = memo(
       });
       const web3ModalConnection = await safeAppWeb3Modal.connect();
       try {
-        setProvider({ type: "web3", web3Connection: web3ModalConnection });
+        await setProvider({
+          type: "web3",
+          web3Connection: web3ModalConnection,
+        });
       } catch (error) {
         console.log(error);
       }
@@ -160,6 +163,7 @@ export const BlockchainDataProvider = memo(
             signer
           );
 
+          // TODO: handle on different contract on different chains
           const disperse = new ethers.Contract(
             "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
             MultiDisperse.abi,

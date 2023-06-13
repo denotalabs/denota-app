@@ -26,7 +26,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.mode === "pay"
   );
 
-  const { addressForToken } = useTokenAddress();
+  const { getTokenAddress: addressForToken } = useTokenAddress();
 
   const token = useMemo(() => {
     switch (notaFormValues.token) {

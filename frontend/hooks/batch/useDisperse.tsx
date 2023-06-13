@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { useCallback } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { useTokenAddress } from "../useTokenAddress";
@@ -10,15 +11,29 @@ interface Props {
 const useDisperse = () => {
   const { blockchainState } = useBlockchainData();
 
-  const { addressForToken } = useTokenAddress();
+  const { getTokenAddress, getTokenContract } = useTokenAddress();
 
   const disperseTokens = useCallback(
     async ({ data }: Props) => {
       const [tokens, values, recipients] = [
-        data.map((val) => addressForToken(val.token)),
-        data.map((val) => val.value),
+        data.map((val) => getTokenAddress(val.token)),
+        data.map((val) => ethers.utils.parseEther(String(val.value))),
         data.map((val) => val.recipient),
       ];
+
+      // const infinite = BigNumber.from(
+      //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      // );
+
+      // const approval1 = await getTokenContract("DAI")?.functions.approve(
+      //   "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
+      //   infinite
+      // );
+
+      // const approval2 = await getTokenContract("WETH")?.functions.approve(
+      //   "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
+      //   infinite
+      // );
 
       // TODO: map token to address
       const tx = await blockchainState.disperse.disperse(
@@ -29,7 +44,7 @@ const useDisperse = () => {
       const receipt = await tx.wait();
       return receipt.transactionHash;
     },
-    [addressForToken, blockchainState.disperse]
+    [getTokenAddress, blockchainState.disperse]
   );
 
   return { disperseTokens };

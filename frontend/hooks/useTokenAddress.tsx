@@ -4,7 +4,7 @@ import { useBlockchainData } from "../context/BlockchainDataProvider";
 export const useTokenAddress = () => {
   const { blockchainState } = useBlockchainData();
 
-  const addressForToken = useCallback(
+  const getTokenAddress = useCallback(
     (token: string) => {
       switch (token) {
         case "DAI":
@@ -20,5 +20,19 @@ export const useTokenAddress = () => {
     [blockchainState.dai, blockchainState.weth]
   );
 
-  return { addressForToken };
+  const getTokenContract = useCallback(
+    (token: string) => {
+      switch (token) {
+        case "DAI":
+          return blockchainState.dai;
+        case "WETH":
+          return blockchainState.weth;
+        default:
+          return undefined;
+      }
+    },
+    [blockchainState.dai, blockchainState.weth]
+  );
+
+  return { getTokenAddress, getTokenContract };
 };
