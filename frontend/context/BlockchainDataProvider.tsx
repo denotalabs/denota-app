@@ -19,6 +19,7 @@ import {
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
+  batchContractMappingForChainId,
   ChainInfo,
   chainInfoForChainId,
   chainNumberToChainHex,
@@ -163,9 +164,10 @@ export const BlockchainDataProvider = memo(
             signer
           );
 
-          // TODO: handle on different contract on different chains
+          const batchContract = batchContractMappingForChainId(chainId);
+
           const disperse = new ethers.Contract(
-            "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
+            batchContract,
             MultiDisperse.abi,
             signer
           );

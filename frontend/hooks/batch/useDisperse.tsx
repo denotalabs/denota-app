@@ -46,8 +46,6 @@ const useDisperse = ({ data, chainId }: Props) => {
     [data, getTokenAddress]
   );
 
-  console.log({ requiredApprovals });
-
   useEffect(() => {
     const fetchAllowance = async () => {
       const uniqueTokens = Object.keys(tokenValues);
