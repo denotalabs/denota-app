@@ -5,7 +5,7 @@ import {
   chainInfoForChainId,
   chainNumberToChainHex,
 } from "../../context/chainInfo";
-import { useTokenAddress } from "../useTokenAddress";
+import { useTokens } from "../useTokens";
 import { CsvData } from "./useBatchPaymentReader";
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 const useDisperse = ({ data, chainId }: Props) => {
   const { blockchainState } = useBlockchainData();
 
-  const { getTokenAddress, getTokenContract } = useTokenAddress();
+  const { getTokenAddress, getTokenContract } = useTokens();
 
   const [requiredApprovals, setRequiredApprovals] = useState([]);
 
@@ -43,10 +43,6 @@ const useDisperse = ({ data, chainId }: Props) => {
       data.map((val) => val.recipient),
     ],
     [data, getTokenAddress]
-  );
-
-  const infinite = BigNumber.from(
-    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
   );
 
   useEffect(() => {
@@ -98,7 +94,9 @@ const useDisperse = ({ data, chainId }: Props) => {
       const approvalToken = requiredApprovals.shift();
       const approval = await getTokenContract(approvalToken)?.functions.approve(
         blockchainState.disperse.address,
-        infinite
+        BigNumber.from(
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        )
       );
       await approval.wait();
     } else {
@@ -114,7 +112,6 @@ const useDisperse = ({ data, chainId }: Props) => {
   }, [
     requiredApprovals,
     getTokenContract,
-    infinite,
     blockchainState.disperse,
     tokens,
     recipients,

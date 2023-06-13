@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 
-export const useTokenAddress = () => {
+export const useTokens = () => {
   const { blockchainState } = useBlockchainData();
 
   const getTokenAddress = useCallback(

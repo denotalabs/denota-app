@@ -9,7 +9,7 @@ import { useAxelarBridge } from "./modules/useAxelarBridge";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEscrowNota } from "./modules/useEscrowNota";
 import { useEmail } from "./useEmail";
-import { useTokenAddress } from "./useTokenAddress";
+import { useTokens } from "./useTokens";
 
 interface Props {
   onSuccess?: () => void;
@@ -26,7 +26,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.mode === "pay"
   );
 
-  const { getTokenAddress: addressForToken } = useTokenAddress();
+  const { getTokenAddress: addressForToken } = useTokens();
 
   const token = useMemo(() => {
     switch (notaFormValues.token) {
