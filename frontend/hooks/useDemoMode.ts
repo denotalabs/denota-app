@@ -15,7 +15,7 @@ const useDemoMode = () => {
     return demoWallets.includes(account);
   }, [account]);
 
-  return true;
+  return isDemoWallet;
 };
 
 export default useDemoMode;
