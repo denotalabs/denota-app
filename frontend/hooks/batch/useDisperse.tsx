@@ -46,9 +46,12 @@ const useDisperse = ({ data, chainId }: Props) => {
     [data, getTokenAddress]
   );
 
+  console.log({ requiredApprovals });
+
   useEffect(() => {
     const fetchAllowance = async () => {
       const uniqueTokens = Object.keys(tokenValues);
+      const requiredApprovals = [];
       for (const token of uniqueTokens) {
         const tokenAllowance = await getTokenContract(
           token
@@ -56,24 +59,27 @@ const useDisperse = ({ data, chainId }: Props) => {
           blockchainState.account,
           blockchainState.disperse.address
         );
-
         if (
-          tokenAllowance[0] <
-          ethers.utils.parseEther(String(tokenValues[token]))
+          tokenAllowance[0].lt(
+            ethers.utils.parseEther(String(tokenValues[token]))
+          )
         ) {
-          setRequiredApprovals((current) => [...current, token]);
+          requiredApprovals.push(token);
         }
       }
+      setRequiredApprovals(requiredApprovals);
     };
-    fetchAllowance();
+
+    if (isCorrectChain) {
+      fetchAllowance();
+    }
   }, [
     blockchainState.account,
     blockchainState.disperse.address,
     blockchainState.registrarAddress,
     getTokenContract,
-    requiredApprovals,
+    isCorrectChain,
     tokenValues,
-    tokens,
   ]);
 
   const buttonTitle = useMemo(() => {
@@ -91,7 +97,8 @@ const useDisperse = ({ data, chainId }: Props) => {
 
   const handleConfirm = useCallback(async () => {
     if (requiredApprovals.length > 0) {
-      const approvalToken = requiredApprovals.shift();
+      const approvalToken = requiredApprovals[0];
+      setRequiredApprovals(requiredApprovals.slice(1));
       const approval = await getTokenContract(approvalToken)?.functions.approve(
         blockchainState.disperse.address,
         BigNumber.from(
