@@ -30,10 +30,11 @@ const useDisperse = ({ data, chainId }: Props) => {
 
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const uniqueTokens = useMemo(() => {
-    const tokens = data.map((item) => item.token);
-    const uniqueTokens = Array.from(new Set(tokens));
-    return uniqueTokens;
+  const tokenValues = useMemo(() => {
+    return data.reduce((acc, item) => {
+      acc[item.token] = (acc[item.token] || 0) + item.value;
+      return acc;
+    }, {} as { [key: string]: number });
   }, [data]);
 
   const [tokens, values, recipients] = useMemo(
@@ -47,6 +48,7 @@ const useDisperse = ({ data, chainId }: Props) => {
 
   useEffect(() => {
     const fetchAllowance = async () => {
+      const uniqueTokens = Object.keys(tokenValues);
       for (const token of uniqueTokens) {
         const tokenAllowance = await getTokenContract(
           token
@@ -57,9 +59,7 @@ const useDisperse = ({ data, chainId }: Props) => {
 
         if (
           tokenAllowance[0] <
-          BigNumber.from(
-            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          )
+          ethers.utils.parseEther(String(tokenValues[token]))
         ) {
           setRequiredApprovals((current) => [...current, token]);
         }
@@ -72,8 +72,8 @@ const useDisperse = ({ data, chainId }: Props) => {
     blockchainState.registrarAddress,
     getTokenContract,
     requiredApprovals,
+    tokenValues,
     tokens,
-    uniqueTokens,
   ]);
 
   const buttonTitle = useMemo(() => {
