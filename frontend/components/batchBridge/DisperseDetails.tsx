@@ -27,12 +27,11 @@ function DisperseDetails({ chainId, data }: Props) {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const [isConfirmed, setIsConfirmed] = useState(false);
-
-  const { disperseTokens, buttonTitle, isCorrectChain } = useDisperse({
-    data,
-    chainId,
-  });
+  const { handleConfirm, buttonTitle, isCorrectChain, isConfirmed } =
+    useDisperse({
+      data,
+      chainId,
+    });
 
   const { formatAddress } = useFormatAddress();
 
@@ -113,8 +112,7 @@ function DisperseDetails({ chainId, data }: Props) {
           } else {
             setIsLoading(true);
             try {
-              await disperseTokens();
-              setIsConfirmed(true);
+              await handleConfirm();
             } catch (error) {
               console.log(error);
             }

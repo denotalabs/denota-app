@@ -89,7 +89,7 @@ const useDisperse = ({ data, chainId }: Props) => {
     return "Confirm";
   }, [chainName, isConfirmed, isCorrectChain, requiredApprovals]);
 
-  const disperseTokens = useCallback(async () => {
+  const handleConfirm = useCallback(async () => {
     if (requiredApprovals.length > 0) {
       const approvalToken = requiredApprovals.shift();
       const approval = await getTokenContract(approvalToken)?.functions.approve(
@@ -118,7 +118,12 @@ const useDisperse = ({ data, chainId }: Props) => {
     values,
   ]);
 
-  return { disperseTokens, buttonTitle, isCorrectChain };
+  return {
+    handleConfirm,
+    buttonTitle,
+    isCorrectChain,
+    isConfirmed,
+  };
 };
 
 export default useDisperse;
