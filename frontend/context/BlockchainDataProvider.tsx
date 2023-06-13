@@ -17,7 +17,9 @@ import {
 } from "@denota-labs/denota-sdk";
 // TODO: remove references to cheq from contracts
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
+import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
+  batchContractMappingForChainId,
   ChainInfo,
   chainInfoForChainId,
   chainNumberToChainHex,
@@ -102,7 +104,10 @@ export const BlockchainDataProvider = memo(
       });
       const web3ModalConnection = await safeAppWeb3Modal.connect();
       try {
-        setProvider({ type: "web3", web3Connection: web3ModalConnection });
+        await setProvider({
+          type: "web3",
+          web3Connection: web3ModalConnection,
+        });
       } catch (error) {
         console.log(error);
       }
@@ -159,10 +164,11 @@ export const BlockchainDataProvider = memo(
             signer
           );
 
-          // TODO: update address and ABI
+          const batchContract = batchContractMappingForChainId(chainId);
+
           const disperse = new ethers.Contract(
-            contractMapping.dai,
-            erc20.abi,
+            batchContract,
+            MultiDisperse.abi,
             signer
           );
 

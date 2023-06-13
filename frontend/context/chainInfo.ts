@@ -108,3 +108,12 @@ export const deployedChains: Record<string, ChainInfo> = {
     graphTestUrl: "",
   },
 };
+
+export const batchContractMappingForChainId = (chainId: number) => {
+  switch (chainId) {
+    case 80001:
+      return "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5";
+    default:
+      return undefined;
+  }
+};

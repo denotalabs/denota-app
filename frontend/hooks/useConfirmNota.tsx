@@ -9,6 +9,7 @@ import { useAxelarBridge } from "./modules/useAxelarBridge";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEscrowNota } from "./modules/useEscrowNota";
 import { useEmail } from "./useEmail";
+import { useTokens } from "./useTokens";
 
 interface Props {
   onSuccess?: () => void;
@@ -24,6 +25,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const [needsApproval, setNeedsApproval] = useState(
     notaFormValues.mode === "pay"
   );
+
+  const { getTokenAddress: addressForToken } = useTokens();
 
   const token = useMemo(() => {
     switch (notaFormValues.token) {
@@ -46,21 +49,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { createLocalNota } = useNotaContext();
 
   const tokenAddress = useMemo(() => {
-    switch (notaFormValues.token) {
-      case "DAI":
-        return blockchainState.dai?.address ?? "";
-      case "WETH":
-        return blockchainState.weth?.address ?? "";
-      case "NATIVE":
-        return "0x0000000000000000000000000000000000000000";
-      default:
-        return "";
-    }
-  }, [
-    blockchainState.dai?.address,
-    blockchainState.weth?.address,
-    notaFormValues.token,
-  ]);
+    return addressForToken(notaFormValues.token);
+  }, [addressForToken, notaFormValues.token]);
 
   useEffect(() => {
     const fetchAllowance = async () => {
