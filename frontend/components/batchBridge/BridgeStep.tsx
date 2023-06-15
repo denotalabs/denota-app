@@ -15,6 +15,7 @@ interface BridgeDestinations {
   chainDisplayName: string;
   token: string;
   amount: number;
+  chainId: number;
 }
 
 const BridgeStep: React.FC<ScreenProps> = () => {
@@ -29,7 +30,6 @@ const BridgeStep: React.FC<ScreenProps> = () => {
     const outputMap = {};
 
     for (const chain of chains) {
-      // TODO: skip origin chain
       // TODO: skip if dest chain already has sufficient balance
       // TODO: show indicator if no bridging required
 
@@ -54,10 +54,12 @@ const BridgeStep: React.FC<ScreenProps> = () => {
     for (const tokenChain of tokenChainKeys) {
       const [token, chainId] = tokenChain.split("|");
       const chainDisplayName = chainInfoForChainId(Number(chainId)).displayName;
+
       outputList.push({
         token,
         chainDisplayName,
         amount: outputMap[tokenChain],
+        chainId: Number(chainId),
       });
     }
 
@@ -74,7 +76,7 @@ const BridgeStep: React.FC<ScreenProps> = () => {
           <BridgeCard key={index} {...bridgeDestination} />
         ))}
         <RoundedButton mt={2} onClick={next}>
-          {"Bridge Now"}
+          {"Next"}
         </RoundedButton>
       </VStack>
     </Box>
