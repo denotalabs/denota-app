@@ -20,7 +20,10 @@ function BridgeCard({ chainDisplayName, token, amount, chainId }: Props) {
   );
 
   // TODO: figure out token address on dest chain
-  const jumperLink = `https://jumper.exchange/?fromAmount=${amount}&fromChain=${blockchainState.chainId}&fromToken=${tokenAddress}&toChain=${chainId}&toToken=${tokenAddress}`;
+  const jumperLink = `https://jumper.exchange/?fromAmount=${amount}&fromChain=${parseInt(
+    blockchainState.chainId,
+    16
+  )}&fromToken=${tokenAddress}&toChain=${chainId}&toToken=${tokenAddress}`;
 
   const [wasOpened, setWasOpened] = useState(false);
 
@@ -42,11 +45,6 @@ function BridgeCard({ chainDisplayName, token, amount, chainId }: Props) {
         <Text fontSize="xl" textAlign="center" fontWeight={800}>
           {amount} {token} to {chainDisplayName}
         </Text>
-        <Text fontSize="sm">
-          {chainDisplayName == "Gnosis"
-            ? "(Lifi, 10 USDC fee, ~15 min)"
-            : "(Squid, 15 USDT fee, ~20 min)"}
-        </Text>
         {wasOpened && <Text fontSize="sm">You opened this link</Text>}
         <Button
           variant="outline"
@@ -54,6 +52,7 @@ function BridgeCard({ chainDisplayName, token, amount, chainId }: Props) {
           borderRadius={5}
           colorScheme="white"
           onClick={() => {
+            console.log({ jumperLink });
             setWasOpened(true);
             window.open(jumperLink, "_blank");
           }}
