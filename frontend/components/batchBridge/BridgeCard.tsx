@@ -1,4 +1,5 @@
-import { Box, Button, Text, VStack } from "@chakra-ui/react";
+import { CheckIcon } from "@chakra-ui/icons";
+import { Box, Button, HStack, Text, VStack } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { useTokens } from "../../hooks/useTokens";
@@ -30,7 +31,7 @@ function BridgeCard({ chainDisplayName, token, amount, chainId }: Props) {
   return (
     <Box
       w="285px"
-      h="160px"
+      h="180px"
       bg={
         chainDisplayName === "Gnosis"
           ? "linear-gradient(180deg, #6E7C9A, #202C4F)"
@@ -45,7 +46,6 @@ function BridgeCard({ chainDisplayName, token, amount, chainId }: Props) {
         <Text fontSize="xl" textAlign="center" fontWeight={800}>
           {amount} {token} to {chainDisplayName}
         </Text>
-        {wasOpened && <Text fontSize="sm">You opened this link</Text>}
         <Button
           variant="outline"
           w="min(40vw, 100px)"
@@ -59,6 +59,12 @@ function BridgeCard({ chainDisplayName, token, amount, chainId }: Props) {
         >
           Bridge now
         </Button>
+        {wasOpened && (
+          <HStack>
+            <Text fontSize="sm">You opened this link</Text>
+            <CheckIcon boxSize={4} />
+          </HStack>
+        )}
       </VStack>
     </Box>
   );
