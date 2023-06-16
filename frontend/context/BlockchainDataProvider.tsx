@@ -16,6 +16,7 @@ import {
   setProvider,
 } from "@denota-labs/denota-sdk";
 // TODO: remove references to cheq from contracts
+import { LiFi } from "@lifi/sdk";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
@@ -47,6 +48,7 @@ interface BlockchainDataInterface {
   userWethBalanceRaw: BigNumber;
   walletBalanceRaw: BigNumber;
   disperse: null | ethers.Contract;
+  lifi: null | LiFi;
 }
 
 interface BlockchainDataContextInterface {
@@ -78,6 +80,7 @@ const defaultBlockchainState = {
   userWethBalanceRaw: BigNumber.from(0),
   walletBalanceRaw: BigNumber.from(0),
   disperse: null,
+  lifi: null,
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -164,6 +167,8 @@ export const BlockchainDataProvider = memo(
             signer
           );
 
+          const lifi = new LiFi({ integrator: "denota" });
+
           const batchContract = batchContractMappingForChainId(chainId);
 
           const disperse = new ethers.Contract(
@@ -207,6 +212,7 @@ export const BlockchainDataProvider = memo(
             userWethBalanceRaw: userWethBalance,
             walletBalanceRaw: walletBalance,
             disperse,
+            lifi,
           });
           setIsInitializing(false);
         }

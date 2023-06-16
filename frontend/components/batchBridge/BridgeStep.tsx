@@ -15,7 +15,7 @@ interface BridgeDestinations {
   chainDisplayName: string;
   token: string;
   amount: number;
-  chainId: number;
+  toChainId: number;
 }
 
 const BridgeStep: React.FC<ScreenProps> = () => {
@@ -59,7 +59,7 @@ const BridgeStep: React.FC<ScreenProps> = () => {
         token,
         chainDisplayName,
         amount: outputMap[tokenChain],
-        chainId: Number(chainId),
+        toChainId: Number(chainId),
       });
     }
 
