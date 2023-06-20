@@ -107,6 +107,22 @@ export const deployedChains: Record<string, ChainInfo> = {
     graphUrl: "",
     graphTestUrl: "",
   },
+  "0x89": {
+    displayName: "Polygon",
+    name: "Polygon",
+    chainId: "0x89",
+    logoSrc: "/logos/polygon-logo.svg",
+    nativeCurrency: {
+      name: "Matic",
+      symbol: "MATIC",
+      decimals: 18,
+    },
+    blockExplorerUrls: ["https://mumbai.polygonscan.com/tx/"],
+    rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+    graphUrl: "https://denota.klymr.me/graph/mumbai",
+    graphTestUrl:
+      "http://ec2-3-236-30-211.compute-1.amazonaws.com:8000/subgraphs/name/CheqRegistrar/mumbai",
+  },
 };
 
 export const batchContractMappingForChainId = (chainId: number) => {
