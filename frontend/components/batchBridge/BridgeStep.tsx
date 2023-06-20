@@ -55,7 +55,7 @@ const BridgeStep: React.FC<ScreenProps> = () => {
       const [token, chainId] = tokenChain.split("|");
       const chainInfo = chainInfoForChainId(Number(chainId));
       const chainDisplayName = chainInfo
-        ? chainInfoForChainId(Number(chainId)).displayName
+        ? chainInfo.displayName
         : "UNRECOGNIZED CHAIN";
 
       outputList.push({

@@ -110,7 +110,7 @@ export const deployedChains: Record<string, ChainInfo> = {
   "0x89": {
     displayName: "Polygon",
     name: "Polygon",
-    chainId: "0x13881",
+    chainId: "0x89",
     logoSrc: "/logos/polygon-logo.svg",
     nativeCurrency: {
       name: "Matic",
