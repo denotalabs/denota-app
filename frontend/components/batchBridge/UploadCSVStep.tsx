@@ -19,9 +19,14 @@ const UploadCSVStep: React.FC<ScreenProps> = () => {
 
   const handleChange = async (value: ChangeEvent<HTMLInputElement>) => {
     if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
-      const data = await handleFileRead(value.target.files?.[0]);
-      updateNotaFormValues({ data });
-      next();
+      try {
+        const data = await handleFileRead(value.target.files?.[0]);
+        updateNotaFormValues({ data });
+        next();
+      } catch (e) {
+        console.log(e);
+        inputRef.current.value = "";
+      }
     }
   };
 

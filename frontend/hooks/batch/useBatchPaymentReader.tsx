@@ -1,3 +1,4 @@
+import { useToast } from "@chakra-ui/react";
 import Papa from "papaparse";
 import { useCallback, useState } from "react";
 
@@ -13,6 +14,16 @@ export interface BatchDataMap {
 
 const useBatchPaymentReader = () => {
   const [data, setData] = useState<BatchDataMap>({});
+  const toast = useToast();
+
+  const showError = useCallback(() => {
+    toast({
+      title: "There was an error reading the CSV. Please check the format",
+      status: "error",
+      duration: 6000,
+      isClosable: true,
+    });
+  }, [toast]);
 
   const handleFileRead = useCallback(
     async (file: File): Promise<BatchDataMap> => {
@@ -32,6 +43,7 @@ const useBatchPaymentReader = () => {
                 typeof dest_chain !== "string" ||
                 typeof token !== "string"
               ) {
+                showError();
                 reject("Invalid data in row: " + JSON.stringify(row));
                 return;
               }
@@ -39,6 +51,7 @@ const useBatchPaymentReader = () => {
               const amountNumber = parseFloat(amount);
 
               if (isNaN(amountNumber)) {
+                showError();
                 reject("Invalid amount in row: " + JSON.stringify(row));
                 return;
               }
@@ -58,6 +71,7 @@ const useBatchPaymentReader = () => {
             resolve(dataMap);
           },
           error: (error) => {
+            showError();
             console.error("Error:", error);
             reject(error);
           },
