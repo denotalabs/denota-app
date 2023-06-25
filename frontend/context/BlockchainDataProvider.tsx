@@ -103,17 +103,10 @@ export const BlockchainDataProvider = memo(
         theme: colorMode,
       });
       const web3ModalConnection = await safeAppWeb3Modal.connect();
-      try {
-        await setProvider({
-          type: "web3",
-          web3Connection: web3ModalConnection,
-        });
-      } catch (error) {
-        console.log(error);
-      }
       const provider = new ethers.providers.Web3Provider(web3ModalConnection);
       const signer = provider.getSigner(); //console.log(provider)
       const account = await signer.getAddress(); //console.log(account)
+
       return [provider, signer, account] as [
         ethers.providers.Web3Provider,
         ethers.providers.JsonRpcSigner,
@@ -126,6 +119,15 @@ export const BlockchainDataProvider = memo(
       try {
         const [provider, signer, account] = await connectWalletWeb3Modal(); // console.log(provider, signer, account)
         const { chainId } = await provider.getNetwork();
+
+        try {
+          await setProvider({
+            signer,
+            chainId,
+          });
+        } catch (error) {
+          console.log(error);
+        }
 
         window.ethereum?.on("chainChanged", () => {
           if (window.location.pathname !== "/batch/") {
