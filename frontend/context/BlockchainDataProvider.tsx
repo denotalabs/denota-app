@@ -129,6 +129,8 @@ export const BlockchainDataProvider = memo(
           console.log(error);
         }
 
+        //
+
         window.ethereum?.on("chainChanged", () => {
           if (window.location.pathname !== "/batch/") {
             document.location.reload();
