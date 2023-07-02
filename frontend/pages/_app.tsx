@@ -10,7 +10,7 @@ import GoogleAnalytics from "../context/GoogleAnalytics";
 import { NotasProvider } from "../context/NotasContext";
 import customTheme from "../theme";
 
-const INFURA_KEY = "";
+const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
 
 const ethereumRopsten = {
   id: "0x3",
