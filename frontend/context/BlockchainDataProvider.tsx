@@ -8,7 +8,6 @@ import React, {
 } from "react";
 
 import { useColorMode } from "@chakra-ui/react";
-import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import { BigNumber, ethers } from "ethers";
 
 import {
@@ -16,6 +15,9 @@ import {
   setProvider,
 } from "@denota-labs/denota-sdk";
 // TODO: remove references to cheq from contracts
+import type { WalletState } from "@web3-onboard/core";
+import { useConnectWallet, useWallets } from "@web3-onboard/react";
+
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
@@ -24,7 +26,15 @@ import {
   chainInfoForChainId,
   chainNumberToChainHex,
 } from "./chainInfo";
-import { providerOptions } from "./providerOptions";
+
+const MAINNET_RPC_URL =
+  "https://mainnet.infura.io/v3/8dc8e24d803744ef9523f87cdc02c665";
+
+function delay(milliseconds) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}
 
 interface BlockchainDataInterface {
   account: string;
@@ -96,14 +106,23 @@ export const BlockchainDataProvider = memo(
 
     const { colorMode } = useColorMode();
 
+    const [{ wallet }, connect, disconnect, updateBalances, setWalletModules] =
+      useConnectWallet();
+    const connectedWallets = useWallets();
+
     const connectWalletWeb3Modal = useCallback(async () => {
-      const safeAppWeb3Modal = new SafeAppWeb3Modal({
-        cacheProvider: true, // optional
-        providerOptions, // required
-        theme: colorMode,
-      });
-      const web3ModalConnection = await safeAppWeb3Modal.connect();
-      const provider = new ethers.providers.Web3Provider(web3ModalConnection);
+      let wallet: WalletState;
+
+      if (connectedWallets[0]) {
+        wallet = connectedWallets[0];
+      } else {
+        const wallets = await connect();
+        wallet = wallets[0];
+      }
+      const provider = new ethers.providers.Web3Provider(
+        wallet.provider,
+        "any"
+      );
       const signer = provider.getSigner(); //console.log(provider)
       const account = await signer.getAddress(); //console.log(account)
 
@@ -112,7 +131,7 @@ export const BlockchainDataProvider = memo(
         ethers.providers.JsonRpcSigner,
         string
       ];
-    }, [colorMode]);
+    }, [connect, connectedWallets]);
 
     const loadBlockchainData = useCallback(async () => {
       setIsInitializing(true);
@@ -220,16 +239,16 @@ export const BlockchainDataProvider = memo(
     }, [connectWalletWeb3Modal]);
 
     useEffect(() => {
-      const safeAppWeb3Modal = new SafeAppWeb3Modal({
-        cacheProvider: true, // optional
-        providerOptions, // required
-      });
-      if (safeAppWeb3Modal.cachedProvider) {
+      console.log({ connectedWallets, wallet });
+      if (!connectedWallets) {
+        return;
+      }
+      if (connectedWallets[0]) {
         loadBlockchainData();
       } else {
         setIsInitializing(false);
       }
-    }, [loadBlockchainData]);
+    }, [connectedWallets, loadBlockchainData]);
 
     return (
       <BlockchainDataContext.Provider
