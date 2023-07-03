@@ -27,15 +27,6 @@ import {
   chainNumberToChainHex,
 } from "./chainInfo";
 
-const MAINNET_RPC_URL =
-  "https://mainnet.infura.io/v3/8dc8e24d803744ef9523f87cdc02c665";
-
-function delay(milliseconds) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
-}
-
 interface BlockchainDataInterface {
   account: string;
   dai: null | ethers.Contract;
@@ -239,7 +230,6 @@ export const BlockchainDataProvider = memo(
     }, [connectWalletWeb3Modal]);
 
     useEffect(() => {
-      console.log({ connectedWallets, wallet });
       if (!connectedWallets) {
         return;
       }

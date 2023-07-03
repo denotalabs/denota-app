@@ -1,7 +1,10 @@
 import { Box, ChakraProvider } from "@chakra-ui/react";
 import "@fontsource/dm-sans/index.css";
+import coinbaseModule from "@web3-onboard/coinbase";
+import gnosisModule from "@web3-onboard/gnosis";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { init, Web3OnboardProvider } from "@web3-onboard/react";
+import walletConnectModule from "@web3-onboard/walletconnect";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import SidebarNav from "../components/nav/SidebarNav";
@@ -10,24 +13,31 @@ import GoogleAnalytics from "../context/GoogleAnalytics";
 import { NotasProvider } from "../context/NotasContext";
 import customTheme from "../theme";
 
-const INFURA_KEY = process.env.NEXT_PUBLIC_INFURA_KEY;
+const gnosis = gnosisModule();
 
-const ethereumRopsten = {
-  id: "0x3",
-  token: "rETH",
-  label: "Ethereum Ropsten",
-  rpcUrl: `https://ropsten.infura.io/v3/${INFURA_KEY}`,
+const coinbase = coinbaseModule();
+
+const walletConnect = walletConnectModule({
+  version: 2,
+  projectId: "f6bd6e2911b56f5ac3bc8b2d0e2d7ad5", //TODO: update
+});
+
+const celoTestnet = {
+  id: "0xaef3",
+  token: "CELO",
+  label: "Celo Alfajores",
+  rpcUrl: `https://alfajores-forno.celo-testnet.org`,
 };
 
-const polygonMainnet = {
+const polygonTestnet = {
   id: "0x89",
   token: "MATIC",
   label: "Polygon",
-  rpcUrl: "https://matic-mainnet.chainstacklabs.com",
+  rpcUrl: "https://rpc-mumbai.maticvigil.com",
 };
 
-const chains = [ethereumRopsten, polygonMainnet];
-const wallets = [injectedModule()];
+const chains = [celoTestnet, polygonTestnet];
+const wallets = [injectedModule(), coinbase, gnosis, walletConnect];
 
 const web3Onboard = init({
   wallets,
@@ -51,6 +61,7 @@ const web3Onboard = init({
       enabled: false,
     },
   },
+  theme: "dark",
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
