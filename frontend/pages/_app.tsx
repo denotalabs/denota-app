@@ -19,7 +19,7 @@ const coinbase = coinbaseModule();
 
 const walletConnect = walletConnectModule({
   version: 2,
-  projectId: "f6bd6e2911b56f5ac3bc8b2d0e2d7ad5", //TODO: update
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_ID,
 });
 
 const celoTestnet = {
