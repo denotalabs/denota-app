@@ -7,7 +7,6 @@ import React, {
   useState,
 } from "react";
 
-import { useColorMode } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
 
 import {
@@ -95,10 +94,7 @@ export const BlockchainDataProvider = memo(
     const [isInitializing, setIsInitializing] = useState(true);
     const [isWrongChain, setIsWrongChain] = useState(false);
 
-    const { colorMode } = useColorMode();
-
-    const [{ wallet }, connect, disconnect, updateBalances, setWalletModules] =
-      useConnectWallet();
+    const [, connect] = useConnectWallet();
     const connectedWallets = useWallets();
 
     const connectWalletWeb3Modal = useCallback(async () => {
