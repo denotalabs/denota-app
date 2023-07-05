@@ -73,27 +73,27 @@ const useDisperse = ({ data, chainId }: Props) => {
     }
   }, [
     blockchainState.account,
-    blockchainState.disperse.address,
+    blockchainState.disperse,
     blockchainState.registrarAddress,
     getTokenContract,
     isCorrectChain,
     tokenValues,
   ]);
 
-  const buttonTitle = useMemo(() => {
+  const [buttonTitle, buttonDisabled] = useMemo(() => {
     if (isConfirmed) {
-      return "Confirmed";
+      return ["Confirmed", true];
     }
     if (!isCorrectChain) {
-      return `Switch to ${chainName}`;
+      return [`Switch to ${chainName}`, false];
     }
     if (!blockchainState.disperse) {
-      return `Chain unsupported. Coming soon.`;
+      return [`Chain unsupported. Coming soon.`, true];
     }
     if (requiredApprovals.length !== 0) {
-      return `Approve ${requiredApprovals[0]}`;
+      return [`Approve ${requiredApprovals[0]}`, false];
     }
-    return "Confirm";
+    return ["Confirm", false];
   }, [
     blockchainState.disperse,
     chainName,
@@ -137,6 +137,7 @@ const useDisperse = ({ data, chainId }: Props) => {
     buttonTitle,
     isCorrectChain,
     isConfirmed,
+    buttonDisabled,
   };
 };
 
