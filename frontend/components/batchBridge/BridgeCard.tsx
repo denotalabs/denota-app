@@ -8,23 +8,27 @@ interface Props {
   chainDisplayName: string;
   token: string;
   amount: number;
-  chainId: number;
+  toChainId: number;
 }
 
-function BridgeCard({ chainDisplayName, token, amount, chainId }: Props) {
+function BridgeCard({ chainDisplayName, token, amount, toChainId }: Props) {
   const { getTokenAddress } = useTokens();
   const { blockchainState } = useBlockchainData();
 
-  const tokenAddress = useMemo(
-    () => getTokenAddress(token),
-    [getTokenAddress, token]
+  const fromChainId = parseInt(blockchainState.chainId, 16);
+
+  const fromTokenAddress = useMemo(
+    () => getTokenAddress(token, fromChainId),
+    [fromChainId, getTokenAddress, token]
+  );
+
+  const toTokenAddress = useMemo(
+    () => getTokenAddress(token, toChainId),
+    [getTokenAddress, toChainId, token]
   );
 
   // TODO: figure out token address on dest chain
-  const jumperLink = `https://jumper.exchange/?fromAmount=${amount}&fromChain=${parseInt(
-    blockchainState.chainId,
-    16
-  )}&fromToken=${tokenAddress}&toChain=${chainId}&toToken=${tokenAddress}`;
+  const jumperLink = `https://jumper.exchange/?fromAmount=${amount}&fromChain=${fromChainId}&fromToken=${fromTokenAddress}&toChain=${toChainId}&toToken=${toTokenAddress}`;
 
   const [wasOpened, setWasOpened] = useState(false);
 
