@@ -38,7 +38,7 @@ export const deployedChains: Record<string, ChainInfo> = {
       decimals: 18,
     },
     blockExplorerUrls: ["https://mumbai.polygonscan.com/tx/"],
-    rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
+    rpcUrls: ["https://polygon-mumbai-bor.publicnode.com/"],
     graphUrl: "https://denota.klymr.me/graph/mumbai",
     graphTestUrl:
       "http://ec2-3-236-30-211.compute-1.amazonaws.com:8000/subgraphs/name/CheqRegistrar/mumbai",

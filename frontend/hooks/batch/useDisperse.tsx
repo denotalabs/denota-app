@@ -87,11 +87,20 @@ const useDisperse = ({ data, chainId }: Props) => {
     if (!isCorrectChain) {
       return `Switch to ${chainName}`;
     }
+    if (!blockchainState.disperse) {
+      return `Chain unsupported. Coming soon.`;
+    }
     if (requiredApprovals.length !== 0) {
       return `Approve ${requiredApprovals[0]}`;
     }
     return "Confirm";
-  }, [chainName, isConfirmed, isCorrectChain, requiredApprovals]);
+  }, [
+    blockchainState.disperse,
+    chainName,
+    isConfirmed,
+    isCorrectChain,
+    requiredApprovals,
+  ]);
 
   const handleConfirm = useCallback(async () => {
     if (requiredApprovals.length > 0) {
