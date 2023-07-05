@@ -19,7 +19,7 @@ interface Props {
   data: CsvData[];
 }
 function DisperseDetails({ chainId, data }: Props) {
-  const { connectWallet } = useBlockchainData();
+  const { connectWallet, blockchainState } = useBlockchainData();
 
   const chainName = useMemo(() => {
     return chainInfoForChainId(chainId).displayName;
@@ -27,11 +27,16 @@ function DisperseDetails({ chainId, data }: Props) {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { handleConfirm, buttonTitle, isCorrectChain, isConfirmed } =
-    useDisperse({
-      data,
-      chainId,
-    });
+  const {
+    handleConfirm,
+    buttonTitle,
+    isCorrectChain,
+    isConfirmed,
+    buttonDisabled,
+  } = useDisperse({
+    data,
+    chainId,
+  });
 
   const { formatAddress } = useFormatAddress();
 
@@ -102,7 +107,7 @@ function DisperseDetails({ chainId, data }: Props) {
       <RoundedButton
         mt={2}
         type="submit"
-        isDisabled={isConfirmed}
+        isDisabled={buttonDisabled}
         isLoading={isLoading}
         onClick={async () => {
           if (!isCorrectChain) {

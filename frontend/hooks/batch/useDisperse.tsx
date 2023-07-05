@@ -1,3 +1,4 @@
+import { useToast } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
@@ -30,6 +31,8 @@ const useDisperse = ({ data, chainId }: Props) => {
 
   const [isConfirmed, setIsConfirmed] = useState(false);
 
+  const toast = useToast();
+
   const tokenValues = useMemo(() => {
     return data.reduce((acc, item) => {
       acc[item.token] = (acc[item.token] || 0) + item.value;
@@ -48,6 +51,9 @@ const useDisperse = ({ data, chainId }: Props) => {
 
   useEffect(() => {
     const fetchAllowance = async () => {
+      if (!blockchainState.disperse) {
+        return;
+      }
       const uniqueTokens = Object.keys(tokenValues);
       const requiredApprovals = [];
       for (const token of uniqueTokens) {
@@ -73,25 +79,34 @@ const useDisperse = ({ data, chainId }: Props) => {
     }
   }, [
     blockchainState.account,
-    blockchainState.disperse.address,
+    blockchainState.disperse,
     blockchainState.registrarAddress,
     getTokenContract,
     isCorrectChain,
     tokenValues,
   ]);
 
-  const buttonTitle = useMemo(() => {
+  const [buttonTitle, buttonDisabled] = useMemo(() => {
     if (isConfirmed) {
-      return "Confirmed";
+      return ["Confirmed", true];
     }
     if (!isCorrectChain) {
-      return `Switch to ${chainName}`;
+      return [`Switch to ${chainName}`, false];
+    }
+    if (!blockchainState.disperse) {
+      return [`Chain unsupported. Coming soon.`, true];
     }
     if (requiredApprovals.length !== 0) {
-      return `Approve ${requiredApprovals[0]}`;
+      return [`Approve ${requiredApprovals[0]}`, false];
     }
-    return "Confirm";
-  }, [chainName, isConfirmed, isCorrectChain, requiredApprovals]);
+    return ["Confirm", false];
+  }, [
+    blockchainState.disperse,
+    chainName,
+    isConfirmed,
+    isCorrectChain,
+    requiredApprovals,
+  ]);
 
   const handleConfirm = useCallback(async () => {
     if (requiredApprovals.length > 0) {
@@ -105,14 +120,24 @@ const useDisperse = ({ data, chainId }: Props) => {
       );
       await approval.wait();
     } else {
-      const tx = await blockchainState.disperse.disperse(
-        tokens,
-        recipients,
-        values
-      );
-      const receipt = await tx.wait();
-      setIsConfirmed(true);
-      return receipt.transactionHash;
+      try {
+        const tx = await blockchainState.disperse.disperse(
+          tokens,
+          recipients,
+          values
+        );
+        const receipt = await tx.wait();
+        setIsConfirmed(true);
+        return receipt.transactionHash;
+      } catch (error) {
+        toast({
+          title: "Error sending tokens. Check your wallet balance",
+          status: "error",
+          duration: 1000,
+          isClosable: true,
+        });
+        console.log(error);
+      }
     }
   }, [
     requiredApprovals,
@@ -121,6 +146,7 @@ const useDisperse = ({ data, chainId }: Props) => {
     tokens,
     recipients,
     values,
+    toast,
   ]);
 
   return {
@@ -128,6 +154,7 @@ const useDisperse = ({ data, chainId }: Props) => {
     buttonTitle,
     isCorrectChain,
     isConfirmed,
+    buttonDisabled,
   };
 };
 
