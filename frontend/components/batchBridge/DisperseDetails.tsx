@@ -1,5 +1,9 @@
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import { Button, Text, VStack } from "@chakra-ui/react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExternalLinkIcon,
+} from "@chakra-ui/icons";
+import { Button, Link, Text, VStack } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
@@ -27,18 +31,15 @@ function DisperseDetails({ chainId, data }: Props) {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const {
-    handleConfirm,
-    buttonTitle,
-    isCorrectChain,
-    isConfirmed,
-    buttonDisabled,
-  } = useDisperse({
-    data,
-    chainId,
-  });
+  const { handleConfirm, buttonTitle, isCorrectChain, buttonDisabled } =
+    useDisperse({
+      data,
+      chainId,
+    });
 
   const { formatAddress } = useFormatAddress();
+
+  const [txHash, setTxHash] = useState<string | null>(null);
 
   const tokenTotals = useMemo(() => {
     // Initialize an empty object to store token totals
@@ -90,6 +91,14 @@ function DisperseDetails({ chainId, data }: Props) {
         Recipients
       </Button>
 
+      {txHash && (
+        <Link href={`${blockchainState.explorer}${txHash}`} isExternal>
+          <Text>
+            View on block explorer <ExternalLinkIcon mb={1} />
+          </Text>
+        </Link>
+      )}
+
       {isOpen && (
         <RoundedBox px={6}>
           <VStack>
@@ -117,7 +126,8 @@ function DisperseDetails({ chainId, data }: Props) {
           } else {
             setIsLoading(true);
             try {
-              await handleConfirm();
+              const txHash = await handleConfirm();
+              setTxHash(txHash);
             } catch (error) {
               console.log(error);
             }

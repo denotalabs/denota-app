@@ -34,7 +34,7 @@ const UploadCSVStep: React.FC<ScreenProps> = () => {
     <VStack w="100%" p={4}>
       <Text textAlign="center">Format:</Text>
       <Text textAlign="center" pb={5} fontWeight={600}>
-        payee,amount,token,dest_chainId
+        payee,amount,token,dest_chain
       </Text>
       <InputGroup onClick={handleClick}>
         <input

@@ -128,6 +128,12 @@ const useDisperse = ({ data, chainId }: Props) => {
         );
         const receipt = await tx.wait();
         setIsConfirmed(true);
+        toast({
+          title: "Transaction confirmed",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
         return receipt.transactionHash;
       } catch (error) {
         toast({
