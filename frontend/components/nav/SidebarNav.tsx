@@ -102,9 +102,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   const isDemoMode = useDemoMode();
   const filteredLinkItems = isDemoMode
     ? LinkItems
-    : LinkItems.filter(
-        (link) => !["Social", "Contacts", "Batch"].includes(link.name)
-      );
+    : LinkItems.filter((link) => !["Social", "Contacts"].includes(link.name));
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}
