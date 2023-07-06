@@ -44,7 +44,7 @@ const addToken = async (tokenAddress: string, symbol: string) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

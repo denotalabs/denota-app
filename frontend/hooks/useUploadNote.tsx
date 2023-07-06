@@ -53,7 +53,7 @@ export const useUploadMetadata = () => {
         imageUrl: resp.data.imageUrl as string,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return { ipfsHash: undefined, imageUrl: undefined };
     }
   }, []);

@@ -63,6 +63,10 @@ const useDisperse = ({ data, chainId }: Props) => {
           blockchainState.account,
           blockchainState.disperse.address
         );
+        if (!tokenAllowance) {
+          console.error("token not found");
+          return;
+        }
         if (
           tokenAllowance[0].lt(
             ethers.utils.parseEther(String(tokenValues[token]))
@@ -142,7 +146,7 @@ const useDisperse = ({ data, chainId }: Props) => {
           duration: 1000,
           isClosable: true,
         });
-        console.log(error);
+        console.error(error);
       }
     }
   }, [
