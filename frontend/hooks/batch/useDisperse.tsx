@@ -95,14 +95,14 @@ const useDisperse = ({ data, chainId }: Props) => {
   ]);
 
   const [buttonTitle, buttonDisabled] = useMemo(() => {
-    if (containsUnrecognizedToken) {
-      return ["Token not recognized", true];
-    }
     if (isConfirmed) {
       return ["Transaction successful", true];
     }
     if (!isCorrectChain) {
       return [`Switch to ${chainName}`, false];
+    }
+    if (containsUnrecognizedToken) {
+      return ["Token not recognized", true];
     }
     if (!blockchainState.disperse) {
       return [`Chain unsupported. Coming soon.`, true];
