@@ -95,14 +95,14 @@ const useDisperse = ({ data, chainId }: Props) => {
   ]);
 
   const [buttonTitle, buttonDisabled] = useMemo(() => {
-    if (containsUnrecognizedToken) {
-      return ["Token not recognized", true];
-    }
     if (isConfirmed) {
       return ["Transaction successful", true];
     }
     if (!isCorrectChain) {
       return [`Switch to ${chainName}`, false];
+    }
+    if (containsUnrecognizedToken) {
+      return ["Token not recognized", true];
     }
     if (!blockchainState.disperse) {
       return [`Chain unsupported. Coming soon.`, true];
@@ -123,14 +123,27 @@ const useDisperse = ({ data, chainId }: Props) => {
   const handleConfirm = useCallback(async () => {
     if (requiredApprovals.length > 0) {
       const approvalToken = requiredApprovals[0];
-      setRequiredApprovals(requiredApprovals.slice(1));
-      const approval = await getTokenContract(approvalToken)?.functions.approve(
-        blockchainState.disperse.address,
-        BigNumber.from(
-          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-        )
-      );
-      await approval.wait();
+
+      try {
+        const approval = await getTokenContract(
+          approvalToken
+        )?.functions.approve(
+          blockchainState.disperse.address,
+          BigNumber.from(
+            "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+          )
+        );
+        await approval.wait();
+        setRequiredApprovals(requiredApprovals.slice(1));
+      } catch (error) {
+        toast({
+          title: "Error approving tokens. Please try again",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+        console.error(error);
+      }
     } else {
       try {
         const tx = await blockchainState.disperse.disperse(
@@ -151,7 +164,7 @@ const useDisperse = ({ data, chainId }: Props) => {
         toast({
           title: "Error sending tokens. Check your wallet balance",
           status: "error",
-          duration: 1000,
+          duration: 5000,
           isClosable: true,
         });
         console.error(error);
