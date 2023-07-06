@@ -134,6 +134,7 @@ const useDisperse = ({ data, chainId }: Props) => {
           )
         );
         await approval.wait();
+        setRequiredApprovals(requiredApprovals.slice(1));
       } catch (error) {
         toast({
           title: "Error approving tokens. Please try again",
