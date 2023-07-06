@@ -63,7 +63,7 @@ const useBatchPaymentReader = () => {
               dataMap[dest_chain].push({
                 recipient: payee,
                 value: amountNumber,
-                token,
+                token: token.toUpperCase(),
               });
             }
 

@@ -49,6 +49,10 @@ const useDisperse = ({ data, chainId }: Props) => {
     [data, getTokenAddress]
   );
 
+  const containsUnrecognizedToken = useMemo(() => {
+    return tokens.includes("");
+  }, [tokens]);
+
   useEffect(() => {
     const fetchAllowance = async () => {
       if (!blockchainState.disperse) {
@@ -91,8 +95,11 @@ const useDisperse = ({ data, chainId }: Props) => {
   ]);
 
   const [buttonTitle, buttonDisabled] = useMemo(() => {
+    if (containsUnrecognizedToken) {
+      return ["Token not recognized", true];
+    }
     if (isConfirmed) {
-      return ["Confirmed", true];
+      return ["Transaction successful", true];
     }
     if (!isCorrectChain) {
       return [`Switch to ${chainName}`, false];
@@ -107,6 +114,7 @@ const useDisperse = ({ data, chainId }: Props) => {
   }, [
     blockchainState.disperse,
     chainName,
+    containsUnrecognizedToken,
     isConfirmed,
     isCorrectChain,
     requiredApprovals,
