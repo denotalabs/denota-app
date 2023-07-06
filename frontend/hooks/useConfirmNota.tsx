@@ -218,7 +218,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
         onSuccess?.();
       } catch (error) {
-        console.log(error);
+        console.error(error);
         toast({
           title: "Transaction failed",
           status: "error",

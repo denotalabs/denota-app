@@ -129,7 +129,7 @@ function DisperseDetails({ chainId, data }: Props) {
               const txHash = await handleConfirm();
               setTxHash(txHash);
             } catch (error) {
-              console.log(error);
+              console.error(error);
             }
             setIsLoading(false);
           }

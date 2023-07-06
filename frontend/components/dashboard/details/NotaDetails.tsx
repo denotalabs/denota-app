@@ -45,7 +45,7 @@ function NotaDetails({ nota }: Props) {
         }
       } catch (error) {
         setNote("Error fetching note");
-        console.log(error);
+        console.error(error);
         setIsLoading(false);
       }
     }

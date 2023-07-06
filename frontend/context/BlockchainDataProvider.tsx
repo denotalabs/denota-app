@@ -126,7 +126,7 @@ export const BlockchainDataProvider = memo(
             chainId,
           });
         } catch (error) {
-          console.log(error);
+          console.error(error);
         }
 
         window.ethereum?.on("chainChanged", () => {

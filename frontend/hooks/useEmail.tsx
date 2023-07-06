@@ -36,7 +36,7 @@ export const useEmail = () => {
           module,
         });
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     },
     []
