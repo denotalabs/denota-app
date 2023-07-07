@@ -1,8 +1,16 @@
-import { CheckIcon } from "@chakra-ui/icons";
-import { Box, Button, HStack, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Text, VStack } from "@chakra-ui/react";
+import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { useTokens } from "../../hooks/useTokens";
+import { LifiWidget } from "../LifiWidget";
+export const LiFiWidgetNext = dynamic(
+  () => import("../LifiWidget").then((module) => module.LifiWidget) as any,
+  {
+    ssr: false,
+    loading: () => <></>,
+  }
+);
 
 interface Props {
   chainDisplayName: string;
@@ -35,7 +43,6 @@ function BridgeCard({ chainDisplayName, token, amount, toChainId }: Props) {
   return (
     <Box
       w="285px"
-      h="180px"
       bg={
         chainDisplayName === "Gnosis"
           ? "linear-gradient(180deg, #6E7C9A, #202C4F)"
@@ -56,19 +63,13 @@ function BridgeCard({ chainDisplayName, token, amount, toChainId }: Props) {
           borderRadius={5}
           colorScheme="white"
           onClick={() => {
-            console.log({ jumperLink });
             setWasOpened(true);
-            window.open(jumperLink, "_blank");
+            // window.open(jumperLink, "_blank");
           }}
         >
           Bridge now
         </Button>
-        {wasOpened && (
-          <HStack>
-            <Text fontSize="sm">You opened this link</Text>
-            <CheckIcon boxSize={4} />
-          </HStack>
-        )}
+        {wasOpened && <LifiWidget />}
       </VStack>
     </Box>
   );
