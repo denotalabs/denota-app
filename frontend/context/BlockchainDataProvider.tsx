@@ -156,6 +156,7 @@ export const BlockchainDataProvider = memo(
             ...defaultBlockchainState,
             account,
             chainId: chainNumberToChainHex(chainId),
+            signer,
           });
         } else {
           // Load contracts
