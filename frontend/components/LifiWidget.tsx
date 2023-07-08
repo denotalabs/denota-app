@@ -7,18 +7,22 @@ import {
 import { useMemo } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 
-export const LifiWidget = () => {
+export interface LifiWidgetProps {
+  fromChain: number;
+  toChain: number;
+  fromToken: string;
+  toToken: string;
+  fromAmount: number;
+}
+
+export const LifiWidget = (props: LifiWidgetProps) => {
   const { blockchainState } = useBlockchainData();
 
   const widgetConfig: WidgetConfig = useMemo((): WidgetConfig => {
     return {
       // TODO: configure
-      fromChain: 137,
-      toChain: 10,
-      fromToken: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-      toToken: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-      fromAmount: 10,
-      variant: "expandable" as WidgetVariant,
+      ...props,
+      variant: "default" as WidgetVariant,
       subvariant: "default",
       walletManagement: {
         signer: blockchainState.signer,
