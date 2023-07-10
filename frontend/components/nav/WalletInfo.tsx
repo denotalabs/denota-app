@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useClipboard } from "@chakra-ui/hooks";
 import {
@@ -11,7 +11,6 @@ import {
   SmallCloseIcon,
 } from "@chakra-ui/icons";
 import { useBreakpointValue } from "@chakra-ui/react";
-import { SafeAppWeb3Modal } from "@safe-global/safe-apps-web3modal";
 import jazzicon from "jazzicon-ts";
 
 import {
@@ -26,8 +25,8 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 
+import { useConnectWallet } from "@web3-onboard/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
-import { providerOptions } from "../../context/providerOptions";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
 
 const addToken = async (tokenAddress: string, symbol: string) => {
@@ -48,15 +47,6 @@ const addToken = async (tokenAddress: string, symbol: string) => {
   }
 };
 
-const logout = (providerOptions: any) => {
-  const safeAppWeb3Modal = new SafeAppWeb3Modal({
-    cacheProvider: true, // optional
-    providerOptions, // required
-  });
-  safeAppWeb3Modal.clearCachedProvider();
-  window.location.reload();
-};
-
 export default function WalletInfo() {
   const { isInitializing, connectWallet, blockchainState } =
     useBlockchainData();
@@ -67,6 +57,13 @@ export default function WalletInfo() {
   const { onCopy } = useClipboard(blockchainState.account);
 
   const isMobile = useBreakpointValue({ base: true, md: false });
+
+  const [{ wallet }, , disconnect] = useConnectWallet();
+
+  const logout = useCallback(async () => {
+    await disconnect(wallet);
+    window.location.reload();
+  }, [disconnect, wallet]);
 
   useEffect(() => {
     const element = avatarRef.current;
@@ -170,7 +167,7 @@ export default function WalletInfo() {
           </StyledMenuItem>
           <StyledMenuItem
             onClick={() => {
-              logout(providerOptions);
+              logout();
             }}
           >
             <SmallCloseIcon mr={2} />

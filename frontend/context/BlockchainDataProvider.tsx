@@ -226,7 +226,11 @@ export const BlockchainDataProvider = memo(
     }, [connectWalletWeb3Modal]);
 
     useEffect(() => {
-      if (!connectedWallets) {
+      const lastWallet = localStorage.getItem(
+        "onboard.js:last_connected_wallet"
+      );
+      if (lastWallet && lastWallet !== "[]" && !connectedWallets[0]) {
+        // There is a wallet but onboardJS hasn't loaded it yet. Stay in the loading state
         return;
       }
       if (connectedWallets[0]) {
