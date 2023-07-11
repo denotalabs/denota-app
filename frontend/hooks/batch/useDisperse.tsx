@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
@@ -17,7 +17,7 @@ interface Props {
 const useDisperse = ({ data, chainId }: Props) => {
   const { blockchainState } = useBlockchainData();
 
-  const { getTokenAddress, getTokenContract } = useTokens();
+  const { getTokenAddress, getTokenContract, parseTokenValue } = useTokens();
 
   const [requiredApprovals, setRequiredApprovals] = useState([]);
 
@@ -42,11 +42,11 @@ const useDisperse = ({ data, chainId }: Props) => {
 
   const [tokens, values, recipients] = useMemo(
     () => [
-      data.map((val) => getTokenAddress(val.token)),
-      data.map((val) => ethers.utils.parseEther(String(val.value))),
+      data.map((val) => getTokenAddress(val.token, chainId)),
+      data.map((val) => parseTokenValue(val.token, val.value)),
       data.map((val) => val.recipient),
     ],
-    [data, getTokenAddress]
+    [chainId, data, getTokenAddress, parseTokenValue]
   );
 
   const containsUnrecognizedToken = useMemo(() => {
@@ -62,7 +62,8 @@ const useDisperse = ({ data, chainId }: Props) => {
       const requiredApprovals = [];
       for (const token of uniqueTokens) {
         const tokenAllowance = await getTokenContract(
-          token
+          token,
+          chainId
         )?.functions.allowance(
           blockchainState.account,
           blockchainState.disperse.address
@@ -71,11 +72,7 @@ const useDisperse = ({ data, chainId }: Props) => {
           console.error("token not found");
           return;
         }
-        if (
-          tokenAllowance[0].lt(
-            ethers.utils.parseEther(String(tokenValues[token]))
-          )
-        ) {
+        if (tokenAllowance[0].lt(parseTokenValue(token, tokenValues[token]))) {
           requiredApprovals.push(token);
         }
       }
@@ -89,8 +86,10 @@ const useDisperse = ({ data, chainId }: Props) => {
     blockchainState.account,
     blockchainState.disperse,
     blockchainState.registrarAddress,
+    chainId,
     getTokenContract,
     isCorrectChain,
+    parseTokenValue,
     tokenValues,
   ]);
 
@@ -126,7 +125,8 @@ const useDisperse = ({ data, chainId }: Props) => {
 
       try {
         const approval = await getTokenContract(
-          approvalToken
+          approvalToken,
+          chainId
         )?.functions.approve(
           blockchainState.disperse.address,
           BigNumber.from(
@@ -173,11 +173,12 @@ const useDisperse = ({ data, chainId }: Props) => {
   }, [
     requiredApprovals,
     getTokenContract,
+    chainId,
     blockchainState.disperse,
+    toast,
     tokens,
     recipients,
     values,
-    toast,
   ]);
 
   return {
