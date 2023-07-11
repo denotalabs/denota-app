@@ -35,6 +35,21 @@ export const useTokens = () => {
     [blockchainState]
   );
 
+  const parseTokenValue = useCallback((token: string, value: number) => {
+    switch (token) {
+      case "WETH":
+        return ethers.utils.parseEther(String(value));
+      case "DAI":
+        return ethers.utils.parseUnits(String(value), 18);
+      case "USDC":
+        return ethers.utils.parseUnits(String(value), 6);
+      case "NATIVE":
+        return ethers.utils.parseEther(String(value));
+      default:
+        return "";
+    }
+  }, []);
+
   const getTokenContract = useCallback(
     (token: string, chainId?: number) => {
       switch (true) {
@@ -85,5 +100,5 @@ export const useTokens = () => {
     [blockchainState.dai, blockchainState.signer, blockchainState.weth]
   );
 
-  return { getTokenAddress, getTokenContract };
+  return { getTokenAddress, getTokenContract, parseTokenValue };
 };

@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
@@ -17,7 +17,7 @@ interface Props {
 const useDisperse = ({ data, chainId }: Props) => {
   const { blockchainState } = useBlockchainData();
 
-  const { getTokenAddress, getTokenContract } = useTokens();
+  const { getTokenAddress, getTokenContract, parseTokenValue } = useTokens();
 
   const [requiredApprovals, setRequiredApprovals] = useState([]);
 
@@ -43,10 +43,10 @@ const useDisperse = ({ data, chainId }: Props) => {
   const [tokens, values, recipients] = useMemo(
     () => [
       data.map((val) => getTokenAddress(val.token)),
-      data.map((val) => ethers.utils.parseEther(String(val.value))),
+      data.map((val) => parseTokenValue(val.token, val.value)),
       data.map((val) => val.recipient),
     ],
-    [data, getTokenAddress]
+    [data, getTokenAddress, parseTokenValue]
   );
 
   const containsUnrecognizedToken = useMemo(() => {
@@ -71,11 +71,7 @@ const useDisperse = ({ data, chainId }: Props) => {
           console.error("token not found");
           return;
         }
-        if (
-          tokenAllowance[0].lt(
-            ethers.utils.parseEther(String(tokenValues[token]))
-          )
-        ) {
+        if (tokenAllowance[0].lt(parseTokenValue(token, tokenValues[token]))) {
           requiredApprovals.push(token);
         }
       }
@@ -91,6 +87,7 @@ const useDisperse = ({ data, chainId }: Props) => {
     blockchainState.registrarAddress,
     getTokenContract,
     isCorrectChain,
+    parseTokenValue,
     tokenValues,
   ]);
 
