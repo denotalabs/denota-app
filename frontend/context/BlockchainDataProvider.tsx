@@ -157,11 +157,20 @@ export const BlockchainDataProvider = memo(
         const contractMapping = contractMappingForChainId(chainId);
         const deployedChainInfo: ChainInfo = chainInfoForChainId(chainId);
 
+        const batchContract = batchContractMappingForChainId(chainId);
+
+        const disperse = new ethers.Contract(
+          batchContract,
+          MultiDisperse.abi,
+          signer
+        );
+
         if (contractMapping === undefined || deployedChainInfo == undefined) {
           setIsInitializing(false);
           setIsWrongChain(true);
           setBlockchainState({
             ...defaultBlockchainState,
+            disperse,
             account,
             chainId: chainNumberToChainHex(chainId),
             signer,
@@ -178,14 +187,6 @@ export const BlockchainDataProvider = memo(
           const dai = new ethers.Contract(
             contractMapping.dai,
             erc20.abi,
-            signer
-          );
-
-          const batchContract = batchContractMappingForChainId(chainId);
-
-          const disperse = new ethers.Contract(
-            batchContract,
-            MultiDisperse.abi,
             signer
           );
 
