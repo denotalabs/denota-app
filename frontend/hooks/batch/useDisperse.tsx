@@ -42,11 +42,11 @@ const useDisperse = ({ data, chainId }: Props) => {
 
   const [tokens, values, recipients] = useMemo(
     () => [
-      data.map((val) => getTokenAddress(val.token)),
+      data.map((val) => getTokenAddress(val.token, chainId)),
       data.map((val) => parseTokenValue(val.token, val.value)),
       data.map((val) => val.recipient),
     ],
-    [data, getTokenAddress, parseTokenValue]
+    [chainId, data, getTokenAddress, parseTokenValue]
   );
 
   const containsUnrecognizedToken = useMemo(() => {
@@ -62,7 +62,8 @@ const useDisperse = ({ data, chainId }: Props) => {
       const requiredApprovals = [];
       for (const token of uniqueTokens) {
         const tokenAllowance = await getTokenContract(
-          token
+          token,
+          chainId
         )?.functions.allowance(
           blockchainState.account,
           blockchainState.disperse.address
@@ -85,6 +86,7 @@ const useDisperse = ({ data, chainId }: Props) => {
     blockchainState.account,
     blockchainState.disperse,
     blockchainState.registrarAddress,
+    chainId,
     getTokenContract,
     isCorrectChain,
     parseTokenValue,
@@ -123,7 +125,8 @@ const useDisperse = ({ data, chainId }: Props) => {
 
       try {
         const approval = await getTokenContract(
-          approvalToken
+          approvalToken,
+          chainId
         )?.functions.approve(
           blockchainState.disperse.address,
           BigNumber.from(
@@ -170,11 +173,12 @@ const useDisperse = ({ data, chainId }: Props) => {
   }, [
     requiredApprovals,
     getTokenContract,
+    chainId,
     blockchainState.disperse,
+    toast,
     tokens,
     recipients,
     values,
-    toast,
   ]);
 
   return {
