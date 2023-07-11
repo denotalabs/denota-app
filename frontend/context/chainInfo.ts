@@ -174,6 +174,22 @@ export const deployedChains: Record<string, ChainInfo> = {
   },
 };
 
+export const chainNumberForChainName = (chainName: string) => {
+  const chainNameUpperCase = chainName.toUpperCase();
+  switch (chainNameUpperCase) {
+    case "ETH":
+      return 1;
+    case "ETHEREUM":
+      return 1;
+    case "MAINNET":
+      return 1;
+    case "POLYGON":
+      return 137;
+    default:
+      return 0;
+  }
+};
+
 export const batchContractMappingForChainId = (chainId: number) => {
   switch (chainId) {
     case 80001:

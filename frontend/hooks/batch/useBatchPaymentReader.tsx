@@ -1,6 +1,7 @@
 import { useToast } from "@chakra-ui/react";
 import Papa from "papaparse";
 import { useCallback, useState } from "react";
+import { chainNumberForChainName } from "../../context/chainInfo";
 
 export interface CsvData {
   recipient: string;
@@ -56,11 +57,15 @@ const useBatchPaymentReader = () => {
                 return;
               }
 
-              if (!dataMap[dest_chain]) {
-                dataMap[dest_chain] = [];
+              const destChainId = isNaN(parseInt(dest_chain))
+                ? chainNumberForChainName(dest_chain)
+                : parseInt(dest_chain);
+
+              if (!dataMap[destChainId]) {
+                dataMap[destChainId] = [];
               }
 
-              dataMap[dest_chain].push({
+              dataMap[destChainId].push({
                 recipient: payee,
                 value: amountNumber,
                 token: token.toUpperCase(),
