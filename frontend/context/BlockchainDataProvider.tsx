@@ -26,6 +26,14 @@ import {
   chainNumberToChainHex,
 } from "./chainInfo";
 
+import { MetaMaskInpageProvider } from "@metamask/providers";
+
+declare global {
+  interface Window {
+    ethereum?: MetaMaskInpageProvider;
+  }
+}
+
 interface BlockchainDataInterface {
   account: string;
   dai: null | ethers.Contract;
