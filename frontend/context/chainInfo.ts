@@ -178,6 +178,8 @@ export const batchContractMappingForChainId = (chainId: number) => {
   switch (chainId) {
     case 80001:
       return "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5";
+    case 137:
+      return "0x657eb9F744E49e6b31c42335C1662287d34465D4";
     default:
       return undefined;
   }
