@@ -126,8 +126,8 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
               <Image
                 src="/logos/denota-logo-text.svg"
                 alt="denota logo text"
-                width={400}
-                height={40}
+                width={100}
+                height={20}
                 unoptimized={true}
               />
               <Center>
