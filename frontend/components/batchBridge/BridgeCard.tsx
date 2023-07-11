@@ -1,8 +1,16 @@
-import { CheckIcon } from "@chakra-ui/icons";
-import { Box, Button, HStack, Text, VStack } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { Box, Button, Spinner, Text, VStack } from "@chakra-ui/react";
+import dynamic from "next/dynamic";
+import { ComponentType, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { useTokens } from "../../hooks/useTokens";
+import { LifiWidgetProps } from "../LifiWidget";
+export const LiFiWidgetNext: ComponentType<LifiWidgetProps> = dynamic(
+  () => import("../LifiWidget").then((module) => module.LifiWidget) as any,
+  {
+    ssr: false,
+    loading: () => <Spinner size="md" />,
+  }
+);
 
 interface Props {
   chainDisplayName: string;
@@ -11,31 +19,35 @@ interface Props {
   toChainId: number;
 }
 
-function BridgeCard({ chainDisplayName, token, amount, toChainId }: Props) {
+function BridgeCard({
+  chainDisplayName,
+  token,
+  amount,
+  toChainId: toChain,
+}: Props) {
   const { getTokenAddress } = useTokens();
   const { blockchainState } = useBlockchainData();
 
-  const fromChainId = parseInt(blockchainState.chainId, 16);
+  const fromChain = parseInt(blockchainState.chainId, 16);
 
-  const fromTokenAddress = useMemo(
-    () => getTokenAddress(token, fromChainId),
-    [fromChainId, getTokenAddress, token]
+  const fromToken = useMemo(
+    () => getTokenAddress(token, fromChain),
+    [fromChain, getTokenAddress, token]
   );
 
-  const toTokenAddress = useMemo(
-    () => getTokenAddress(token, toChainId),
-    [getTokenAddress, toChainId, token]
+  const toToken = useMemo(
+    () => getTokenAddress(token, toChain),
+    [getTokenAddress, toChain, token]
   );
 
   // TODO: figure out token address on dest chain
-  const jumperLink = `https://jumper.exchange/?fromAmount=${amount}&fromChain=${fromChainId}&fromToken=${fromTokenAddress}&toChain=${toChainId}&toToken=${toTokenAddress}`;
+  const jumperLink = `https://jumper.exchange/?fromAmount=${amount}&fromChain=${fromChain}&fromToken=${fromToken}&toChain=${toChain}&toToken=${toToken}`;
 
-  const [wasOpened, setWasOpened] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Box
-      w="285px"
-      h="180px"
+      w="500px"
       bg={
         chainDisplayName === "Gnosis"
           ? "linear-gradient(180deg, #6E7C9A, #202C4F)"
@@ -52,22 +64,24 @@ function BridgeCard({ chainDisplayName, token, amount, toChainId }: Props) {
         </Text>
         <Button
           variant="outline"
-          w="min(40vw, 100px)"
+          w="min(45vw, 150px)"
           borderRadius={5}
           colorScheme="white"
           onClick={() => {
-            console.log({ jumperLink });
-            setWasOpened(true);
-            window.open(jumperLink, "_blank");
+            setIsOpen(!isOpen);
+            // window.open(jumperLink, "_blank");
           }}
         >
-          Bridge now
+          {isOpen ? "Hide" : "Show"} widget
         </Button>
-        {wasOpened && (
-          <HStack>
-            <Text fontSize="sm">You opened this link</Text>
-            <CheckIcon boxSize={4} />
-          </HStack>
+        {isOpen && (
+          <LiFiWidgetNext
+            fromChain={fromChain}
+            toChain={toChain}
+            fromToken={fromToken}
+            toToken={toToken}
+            fromAmount={amount}
+          />
         )}
       </VStack>
     </Box>

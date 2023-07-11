@@ -26,6 +26,14 @@ import {
   chainNumberToChainHex,
 } from "./chainInfo";
 
+import { MetaMaskInpageProvider } from "@metamask/providers";
+
+declare global {
+  interface Window {
+    ethereum?: MetaMaskInpageProvider;
+  }
+}
+
 interface BlockchainDataInterface {
   account: string;
   dai: null | ethers.Contract;
@@ -156,6 +164,7 @@ export const BlockchainDataProvider = memo(
             ...defaultBlockchainState,
             account,
             chainId: chainNumberToChainHex(chainId),
+            signer,
           });
         } else {
           // Load contracts
