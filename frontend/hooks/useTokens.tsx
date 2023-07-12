@@ -52,7 +52,6 @@ export const useTokens = () => {
 
   const getTokenContract = useCallback(
     (token: string, chainId?: number) => {
-      console.log({ token, chainId });
       switch (true) {
         case chainId === 137 && token === "WETH":
           return new ethers.Contract(
