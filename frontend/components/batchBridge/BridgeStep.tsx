@@ -93,7 +93,8 @@ const BridgeStep: React.FC<ScreenProps> = () => {
           ))
         ) : (
           <Button
-            colorScheme="blue"
+            bg="brand.300"
+            color="brand.200"
             onClick={() => {
               switchToOriginChain();
             }}

@@ -197,6 +197,6 @@ export const batchContractMappingForChainId = (chainId: number) => {
     case 137:
       return "0x657eb9F744E49e6b31c42335C1662287d34465D4";
     default:
-      return undefined;
+      return "";
   }
 };

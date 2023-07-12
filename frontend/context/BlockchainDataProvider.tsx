@@ -129,6 +129,12 @@ export const BlockchainDataProvider = memo(
     }, [connect, connectedWallets]);
 
     const loadBlockchainData = useCallback(async () => {
+      if (
+        connectedWallets &&
+        connectedWallets[0].chains[0].id === blockchainState.chainId
+      ) {
+        return;
+      }
       setIsInitializing(true);
       try {
         const [provider, signer, account] = await connectWalletWeb3Modal(); // console.log(provider, signer, account)
@@ -140,7 +146,7 @@ export const BlockchainDataProvider = memo(
             chainId,
           });
         } catch (error) {
-          console.error(error);
+          console.log(error);
         }
 
         window.ethereum?.on("chainChanged", () => {
@@ -159,11 +165,9 @@ export const BlockchainDataProvider = memo(
 
         const batchContract = batchContractMappingForChainId(chainId);
 
-        const disperse = new ethers.Contract(
-          batchContract,
-          MultiDisperse.abi,
-          signer
-        );
+        const disperse = batchContract
+          ? new ethers.Contract(batchContract, MultiDisperse.abi, signer)
+          : null;
 
         if (contractMapping === undefined || deployedChainInfo == undefined) {
           setIsInitializing(false);
