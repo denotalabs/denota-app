@@ -166,7 +166,7 @@ export const deployedChains: Record<string, ChainInfo> = {
       symbol: "MATIC",
       decimals: 18,
     },
-    blockExplorerUrls: ["https://mumbai.polygonscan.com/tx/"],
+    blockExplorerUrls: ["https://polygonscan.com/tx/"],
     rpcUrls: ["https://rpc-mumbai.maticvigil.com/"],
     graphUrl: "https://denota.klymr.me/graph/mumbai",
     graphTestUrl:

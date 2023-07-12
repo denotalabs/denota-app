@@ -122,7 +122,7 @@ function DisperseDetails({ chainId, data }: Props) {
           if (!isCorrectChain) {
             await switchNetwork(chainNumberToChainHex(chainId));
             // Force reload chain
-            connectWallet?.();
+            await connectWallet?.();
           } else {
             setIsLoading(true);
             try {

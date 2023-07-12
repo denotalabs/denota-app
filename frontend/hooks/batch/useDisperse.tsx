@@ -15,7 +15,7 @@ interface Props {
 }
 
 const useDisperse = ({ data, chainId }: Props) => {
-  const { blockchainState } = useBlockchainData();
+  const { blockchainState, isInitializing } = useBlockchainData();
 
   const { getTokenAddress, getTokenContract, parseTokenValue } = useTokens();
 
@@ -55,25 +55,33 @@ const useDisperse = ({ data, chainId }: Props) => {
 
   useEffect(() => {
     const fetchAllowance = async () => {
-      if (!blockchainState.disperse) {
+      if (!blockchainState.disperse || isInitializing) {
         return;
       }
       const uniqueTokens = Object.keys(tokenValues);
       const requiredApprovals = [];
       for (const token of uniqueTokens) {
-        const tokenAllowance = await getTokenContract(
-          token,
-          chainId
-        )?.functions.allowance(
-          blockchainState.account,
-          blockchainState.disperse.address
-        );
-        if (!tokenAllowance) {
-          console.error("token not found");
-          return;
-        }
-        if (tokenAllowance[0].lt(parseTokenValue(token, tokenValues[token]))) {
+        try {
+          const tokenAllowance = await getTokenContract(
+            token,
+            chainId
+          )?.functions.allowance(
+            blockchainState.account,
+            blockchainState.disperse.address
+          );
+
+          if (!tokenAllowance) {
+            console.error("token not found");
+            return;
+          }
+          if (
+            tokenAllowance[0].lt(parseTokenValue(token, tokenValues[token]))
+          ) {
+            requiredApprovals.push(token);
+          }
+        } catch (error) {
           requiredApprovals.push(token);
+          console.error(error);
         }
       }
       setRequiredApprovals(requiredApprovals);
@@ -89,6 +97,7 @@ const useDisperse = ({ data, chainId }: Props) => {
     chainId,
     getTokenContract,
     isCorrectChain,
+    isInitializing,
     parseTokenValue,
     tokenValues,
   ]);
