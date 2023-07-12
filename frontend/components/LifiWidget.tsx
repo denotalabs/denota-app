@@ -20,7 +20,6 @@ export const LifiWidget = (props: LifiWidgetProps) => {
 
   const widgetConfig: WidgetConfig = useMemo((): WidgetConfig => {
     return {
-      // TODO: configure
       ...props,
       variant: "default" as WidgetVariant,
       subvariant: "default",
