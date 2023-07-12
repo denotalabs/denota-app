@@ -1,11 +1,13 @@
-import { Box, Text, VStack } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { Box, Button, Text, VStack } from "@chakra-ui/react";
+import { useCallback, useMemo } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
   chainInfoForChainId,
   chainNumberToChainHex,
+  deployedChains,
 } from "../../context/chainInfo";
 import { useNotaForm } from "../../context/NotaFormProvider";
+import { switchNetwork } from "../../context/SwitchNetwork";
 import { BatchDataMap } from "../../hooks/batch/useBatchPaymentReader";
 import RoundedButton from "../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../designSystem/stepper/Stepper";
@@ -22,6 +24,16 @@ const BridgeStep: React.FC<ScreenProps> = () => {
   const { next } = useStep();
   const { notaFormValues } = useNotaForm();
   const { blockchainState } = useBlockchainData();
+
+  const originChainId = notaFormValues.originChainId as string;
+
+  const originChainName = useMemo(() => {
+    return deployedChains[originChainId].displayName;
+  }, [originChainId]);
+
+  const switchToOriginChain = useCallback(async () => {
+    await switchNetwork(originChainId);
+  }, [originChainId]);
 
   const bridgeDestinations = useMemo(() => {
     const bridgeData = notaFormValues.data as BatchDataMap;
@@ -75,9 +87,21 @@ const BridgeStep: React.FC<ScreenProps> = () => {
         <Text fontSize="xl" mb={2}>
           {`Your transaction will require ${bridgeDestinations.length} bridge transfers`}
         </Text>
-        {bridgeDestinations.map((bridgeDestination, index) => (
-          <BridgeCard key={index} {...bridgeDestination} />
-        ))}
+        {originChainId === blockchainState.chainId ? (
+          bridgeDestinations.map((bridgeDestination, index) => (
+            <BridgeCard key={index} {...bridgeDestination} />
+          ))
+        ) : (
+          <Button
+            bg="brand.300"
+            color="brand.200"
+            onClick={() => {
+              switchToOriginChain();
+            }}
+          >
+            {`Switch back to ${originChainName}`}
+          </Button>
+        )}
         <RoundedButton mt={2} onClick={next}>
           {"Next"}
         </RoundedButton>

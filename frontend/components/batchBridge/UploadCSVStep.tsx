@@ -1,5 +1,6 @@
 import { InputGroup, Text, VStack } from "@chakra-ui/react";
 import { ChangeEvent, useRef } from "react";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../context/NotaFormProvider";
 import useBatchPaymentReader from "../../hooks/batch/useBatchPaymentReader";
 import RoundedButton from "../designSystem/RoundedButton";
@@ -15,13 +16,15 @@ const UploadCSVStep: React.FC<ScreenProps> = () => {
     inputRef.current?.click();
   };
 
+  const { blockchainState } = useBlockchainData();
+
   const { updateNotaFormValues } = useNotaForm();
 
   const handleChange = async (value: ChangeEvent<HTMLInputElement>) => {
     if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
       try {
         const data = await handleFileRead(value.target.files?.[0]);
-        updateNotaFormValues({ data });
+        updateNotaFormValues({ data, originChainId: blockchainState.chainId });
         next();
       } catch (e) {
         console.log(e);
