@@ -6,12 +6,14 @@ import {
   Grid,
   HStack,
   IconButton,
+  Link,
   Select,
   Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { createColumnHelper } from "@tanstack/react-table";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNotaContext } from "../../context/NotasContext";
@@ -20,6 +22,7 @@ import NotaCard from "./NotaCard";
 import { DataTable } from "./table/NotaTable";
 
 type TableNota = {
+  paymentId: string;
   date: string;
   amount: number;
   factor: number;
@@ -30,6 +33,7 @@ type TableNota = {
 
 const data: TableNota[] = [
   {
+    paymentId: "1",
     date: "7/10",
     amount: 100,
     factor: 25.4,
@@ -38,6 +42,7 @@ const data: TableNota[] = [
     riskScore: 50,
   },
   {
+    paymentId: "2",
     date: "8/1",
     amount: 150,
     factor: 30.48,
@@ -46,6 +51,7 @@ const data: TableNota[] = [
     riskScore: 25,
   },
   {
+    paymentId: "3",
     date: "9/13",
     amount: 175,
     factor: 0.91444,
@@ -59,11 +65,18 @@ const columnHelper = createColumnHelper<TableNota>();
 
 const columns = [
   columnHelper.accessor("date", {
-    cell: (info) => info.getValue(),
+    cell: (info) => (
+      <PaymentId
+        paymentId={info.row.original.paymentId}
+        date={info.getValue()}
+      />
+    ),
     header: "Date",
   }),
   columnHelper.accessor("userId", {
-    cell: (info) => info.getValue(),
+    cell: (info) => {
+      return <UserId userId={info.getValue()} />;
+    },
     header: "User ID",
   }),
   columnHelper.accessor("amount", {
@@ -105,6 +118,43 @@ const columns = [
     },
   }),
 ];
+
+interface PaymentIdProps {
+  paymentId: string;
+  date: string;
+}
+
+function PaymentId({ paymentId, date }: PaymentIdProps) {
+  return (
+    <Link
+      fontWeight={600}
+      fontSize={"lg"}
+      href={`/payments/${paymentId}`}
+      pb={3}
+      as={NextLink}
+    >
+      {date}
+    </Link>
+  );
+}
+
+interface UserIdProps {
+  userId: string;
+}
+
+function UserId({ userId }: UserIdProps) {
+  return (
+    <Link
+      fontWeight={600}
+      fontSize={"lg"}
+      href={`/users/${userId}`}
+      as={NextLink}
+      pb={3}
+    >
+      {userId}
+    </Link>
+  );
+}
 
 function MyNotas() {
   const { notas, refresh, setNotaField, isLoading } = useNotaContext();
