@@ -1,13 +1,9 @@
-import { RepeatIcon } from "@chakra-ui/icons";
 import {
   Button,
   ButtonGroup,
   Center,
   Grid,
-  HStack,
-  IconButton,
   Link,
-  Select,
   Spinner,
   Text,
   VStack,
@@ -168,27 +164,6 @@ function MyNotas() {
       align="stretch"
       bg="brand.100"
     >
-      <HStack gap={2} justifyContent="space-between">
-        <Select
-          defaultValue={"all"}
-          minW={0}
-          w="120px"
-          onChange={(event) => {
-            setNotaField(event.target.value);
-          }}
-          focusBorderColor="clear"
-        >
-          <option value="all">All</option>
-          <option value="cheqsReceived">Received</option>
-          <option value="cheqsSent">Sent</option>
-        </Select>
-        <IconButton
-          size="lg"
-          aria-label="refresh"
-          icon={<RepeatIcon />}
-          onClick={refresh}
-        />
-      </HStack>
       <DataTable columns={columns} data={data} />
 
       {/* <MyNotasGrid notas={isLoading ? undefined : notas} /> */}
