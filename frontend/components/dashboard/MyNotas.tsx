@@ -55,6 +55,15 @@ const data: TableNota[] = [
     paymentStatus: "Pending",
     riskScore: 35,
   },
+  {
+    paymentId: "4",
+    date: "9/15",
+    amount: 275,
+    factor: 0.91444,
+    userId: "111122",
+    paymentStatus: "Requested",
+    riskScore: 35,
+  },
 ];
 
 const columnHelper = createColumnHelper<TableNota>();
@@ -87,33 +96,52 @@ const columns = [
     cell: (info) => info.getValue(),
     header: "Payment status",
   }),
-  columnHelper.accessor("factor", {
-    cell: (info) => (
-      <ButtonGroup flexWrap={"wrap"}>
-        <Button
-          variant="outline"
-          w="min(40vw, 100px)"
-          borderRadius={5}
-          colorScheme="teal"
-        >
-          Clawback
-        </Button>
-        <Button
-          variant="outline"
-          w="min(40vw, 100px)"
-          borderRadius={5}
-          colorScheme="teal"
-        >
-          Release
-        </Button>
-      </ButtonGroup>
-    ),
+  columnHelper.accessor("paymentStatus", {
+    cell: (info) => <ActionButtons status={info.getValue()} />,
     header: "Actions",
-    meta: {
-      isNumeric: true,
-    },
   }),
 ];
+
+interface ActionProps {
+  status: string;
+}
+
+function ActionButtons({ status }: ActionProps) {
+  switch (status) {
+    case "Pending":
+      return (
+        <ButtonGroup flexWrap={"wrap"}>
+          <Button
+            variant="outline"
+            w="min(40vw, 100px)"
+            borderRadius={5}
+            colorScheme="teal"
+          >
+            Clawback
+          </Button>
+          <Button
+            variant="outline"
+            w="min(40vw, 100px)"
+            borderRadius={5}
+            colorScheme="teal"
+          >
+            Release
+          </Button>
+        </ButtonGroup>
+      );
+    case "Requested":
+      return (
+        <Button
+          variant="outline"
+          w="min(40vw, 100px)"
+          borderRadius={5}
+          colorScheme="teal"
+        >
+          Approve
+        </Button>
+      );
+  }
+}
 
 interface PaymentIdProps {
   paymentId: string;
