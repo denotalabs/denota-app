@@ -44,7 +44,12 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/",
     isExternal: false,
   },
-  { name: "New Nota", icon: MdOutlineAdd, href: "/send", isExternal: false },
+  {
+    name: "New Withdrawal",
+    icon: MdOutlineAdd,
+    href: "/send",
+    isExternal: false,
+  },
   // {
   //   name: "Contacts",
   //   icon: MdOutlinePerson,

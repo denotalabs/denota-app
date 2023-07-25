@@ -24,6 +24,8 @@ type TableNota = {
   amount: number;
   factor: number;
   userId: string;
+  paymentStatus: string;
+  riskScore: number;
 };
 
 const data: TableNota[] = [
@@ -32,18 +34,24 @@ const data: TableNota[] = [
     amount: 100,
     factor: 25.4,
     userId: "111231",
+    paymentStatus: "Pending",
+    riskScore: 50,
   },
   {
     date: "8/1",
     amount: 150,
     factor: 30.48,
     userId: "212211",
+    paymentStatus: "Pending",
+    riskScore: 25,
   },
   {
     date: "9/13",
     amount: 175,
     factor: 0.91444,
     userId: "122112",
+    paymentStatus: "Pending",
+    riskScore: 35,
   },
 ];
 
@@ -62,9 +70,17 @@ const columns = [
     cell: (info) => info.getValue() + " USDC",
     header: "Amount",
   }),
+  columnHelper.accessor("riskScore", {
+    cell: (info) => info.getValue(),
+    header: "Risk score",
+  }),
+  columnHelper.accessor("paymentStatus", {
+    cell: (info) => info.getValue(),
+    header: "Payment status",
+  }),
   columnHelper.accessor("factor", {
     cell: (info) => (
-      <ButtonGroup>
+      <ButtonGroup flexWrap={"wrap"}>
         <Button
           variant="outline"
           w="min(40vw, 100px)"
