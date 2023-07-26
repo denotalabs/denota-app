@@ -30,7 +30,7 @@ type TableNota = {
 const data: TableNota[] = [
   {
     paymentId: "1",
-    date: "7/10",
+    date: "2023-06-31 21:59:59",
     amount: 100,
     factor: 25.4,
     userId: "111231",
@@ -39,7 +39,7 @@ const data: TableNota[] = [
   },
   {
     paymentId: "2",
-    date: "8/1",
+    date: "2023-07-10 11:34:39",
     amount: 150,
     factor: 30.48,
     userId: "212211",
@@ -48,7 +48,7 @@ const data: TableNota[] = [
   },
   {
     paymentId: "3",
-    date: "9/13",
+    date: "2023-07-08 13:16:29",
     amount: 175,
     factor: 0.91444,
     userId: "122112",
@@ -57,7 +57,7 @@ const data: TableNota[] = [
   },
   {
     paymentId: "4",
-    date: "9/15",
+    date: "2023-07-04 12:08:19",
     amount: 275,
     factor: 0.91444,
     userId: "111122",
@@ -76,7 +76,7 @@ const columns = [
         date={info.getValue()}
       />
     ),
-    header: "Date",
+    header: "Timestamp",
   }),
   columnHelper.accessor("userId", {
     cell: (info) => {
