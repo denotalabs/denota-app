@@ -1,4 +1,4 @@
-import { HStack, VStack } from "@chakra-ui/react";
+import { VStack } from "@chakra-ui/react";
 import { NotaFormProvider } from "../../context/NotaFormProvider";
 import Stepper from "../designSystem/stepper/Stepper";
 import ConfirmNotaStep from "./confirm/ConfirmNotaStep";
@@ -26,19 +26,9 @@ export function WriteNotaFlow({ onClose, isInvoice }: Props) {
       >
         <WriteStepperMobile onClose={onClose} isInvoice={isInvoice} />
       </VStack>
-      <HStack
-        justifyContent="center"
-        alignItems="start"
-        w="100%"
-        px={10}
-        h="100%"
-        gap={10}
-        display={{ base: "none", md: "flex" }}
-      >
-        <VStack w="650px" bg="brand.100" py={2} px={4} borderRadius="30px">
-          <WriteStepperDesktop onClose={onClose} isInvoice={isInvoice} />
-        </VStack>
-      </HStack>
+      <VStack w="650px" bg="brand.100" py={2} px={4} borderRadius="30px">
+        <WriteStepperDesktop onClose={onClose} isInvoice={isInvoice} />
+      </VStack>
     </NotaFormProvider>
   );
 }

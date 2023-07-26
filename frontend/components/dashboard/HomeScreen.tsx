@@ -11,7 +11,7 @@ import NewUserScreen from "./NewUserScreen";
 
 function HomeScreen() {
   return (
-    <Center alignItems={"flex-start"} width="100%" maxWidth="65rem">
+    <Center alignItems={"flex-start"} width="100%" maxWidth="80rem">
       <HomeScreenContent />
     </Center>
   );

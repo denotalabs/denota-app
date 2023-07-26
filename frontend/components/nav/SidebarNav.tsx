@@ -21,11 +21,8 @@ import { ReactNode, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
   MdOutlineAdd,
-  MdOutlineArchive,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
-  MdOutlineGroup,
-  MdOutlinePerson,
   MdSwapHoriz,
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
@@ -47,15 +44,20 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/",
     isExternal: false,
   },
-  { name: "New Nota", icon: MdOutlineAdd, href: "/send", isExternal: false },
   {
-    name: "Contacts",
-    icon: MdOutlinePerson,
-    href: "/contacts",
+    name: "New Nota",
+    icon: MdOutlineAdd,
+    href: "/send",
     isExternal: false,
   },
-  { name: "Social", icon: MdOutlineGroup, href: "/social", isExternal: false },
-  { name: "Batch", icon: MdOutlineArchive, href: "/batch", isExternal: false },
+  // {
+  //   name: "Contacts",
+  //   icon: MdOutlinePerson,
+  //   href: "/contacts",
+  //   isExternal: false,
+  // },
+  // { name: "Social", icon: MdOutlineGroup, href: "/social", isExternal: false },
+  // { name: "Batch", icon: MdOutlineArchive, href: "/batch", isExternal: false },
   { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
     name: "Docs",
