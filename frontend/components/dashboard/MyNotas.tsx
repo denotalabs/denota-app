@@ -96,8 +96,8 @@ const columns = [
     cell: (info) => info.getValue(),
     header: "Payment status",
   }),
-  columnHelper.accessor("paymentStatus", {
-    cell: (info) => <ActionButtons status={info.getValue()} />,
+  columnHelper.accessor("factor", {
+    cell: (info) => <ActionButtons status={info.row.original.paymentStatus} />,
     header: "Actions",
   }),
 ];
