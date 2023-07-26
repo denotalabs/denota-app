@@ -169,11 +169,14 @@ export const BlockchainDataProvider = memo(
           ? new ethers.Contract(batchContract, MultiDisperse.abi, signer)
           : null;
 
+        const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
+
         if (contractMapping === undefined || deployedChainInfo == undefined) {
           setIsInitializing(false);
           setIsWrongChain(true);
           setBlockchainState({
             ...defaultBlockchainState,
+            explorer: firstBlockExplorer,
             disperse,
             account,
             chainId: chainNumberToChainHex(chainId),
@@ -181,8 +184,6 @@ export const BlockchainDataProvider = memo(
           });
         } else {
           // Load contracts
-          const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
-
           const weth = new ethers.Contract(
             contractMapping.weth,
             erc20.abi,
@@ -237,7 +238,7 @@ export const BlockchainDataProvider = memo(
         window.alert("Error loading contracts");
         setIsInitializing(false);
       }
-    }, [connectWalletWeb3Modal]);
+    }, [blockchainState.chainId, connectWalletWeb3Modal, connectedWallets]);
 
     useEffect(() => {
       const lastWallet = localStorage.getItem(
