@@ -45,7 +45,7 @@ const LinkItems: Array<LinkItemProps> = [
     isExternal: false,
   },
   {
-    name: "New Withdrawal",
+    name: "New Nota",
     icon: MdOutlineAdd,
     href: "/send",
     isExternal: false,
