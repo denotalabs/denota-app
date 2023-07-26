@@ -1,9 +1,13 @@
+import { RepeatIcon } from "@chakra-ui/icons";
 import {
   Button,
   ButtonGroup,
   Center,
   Grid,
+  HStack,
+  IconButton,
   Link,
+  Select,
   Spinner,
   Text,
   VStack,
@@ -13,6 +17,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNotaContext } from "../../context/NotasContext";
+import useDemoMode from "../../hooks/useDemoMode";
 import { Nota } from "../../hooks/useNotas";
 import NotaCard from "./NotaCard";
 import { DataTable } from "./table/NotaTable";
@@ -181,7 +186,24 @@ function UserId({ userId }: UserIdProps) {
 }
 
 function MyNotas() {
+  const isDemoMode = useDemoMode();
+
   const { notas, refresh, setNotaField, isLoading } = useNotaContext();
+
+  if (isDemoMode) {
+    return (
+      <VStack
+        width="95%" // Changed for demo
+        p={6}
+        borderRadius="30px"
+        gap={6}
+        align="stretch"
+        bg="brand.100"
+      >
+        <DataTable columns={columns} data={data} />{" "}
+      </VStack>
+    );
+  }
 
   return (
     <VStack
@@ -192,9 +214,28 @@ function MyNotas() {
       align="stretch"
       bg="brand.100"
     >
-      <DataTable columns={columns} data={data} />
-
-      {/* <MyNotasGrid notas={isLoading ? undefined : notas} /> */}
+      <HStack gap={2} justifyContent="space-between">
+        <Select
+          defaultValue={"all"}
+          minW={0}
+          w="120px"
+          onChange={(event) => {
+            setNotaField(event.target.value);
+          }}
+          focusBorderColor="clear"
+        >
+          <option value="all">All</option>
+          <option value="cheqsReceived">Received</option>
+          <option value="cheqsSent">Sent</option>
+        </Select>
+        <IconButton
+          size="lg"
+          aria-label="refresh"
+          icon={<RepeatIcon />}
+          onClick={refresh}
+        />
+      </HStack>
+      <MyNotasGrid notas={isLoading ? undefined : notas} />
     </VStack>
   );
 }

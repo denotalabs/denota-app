@@ -74,7 +74,7 @@ function PaymentPage() {
         <VStack
           width="100%"
           bg="brand.100"
-          maxW="800px"
+          maxW="750px"
           py={5}
           borderRadius="30px"
           gap={4}
