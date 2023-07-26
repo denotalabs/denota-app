@@ -9,7 +9,7 @@ function InfoBox({ children, ...props }: Props) {
   return (
     <VStack
       w="650px"
-      bg="brand.100"
+      bg="brand.600"
       py={4}
       px={8}
       borderRadius="30px"
