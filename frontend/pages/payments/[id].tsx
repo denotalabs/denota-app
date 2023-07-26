@@ -21,6 +21,17 @@ interface FakePayment {
   withdrawalTx: string;
 }
 
+const defaultFakePayment = {
+  timestamp: "2023-06-31 21:59:59",
+  userId: "111231",
+  amount: "100 USDC",
+  status: "Pending",
+  riskScore: "50",
+  factoredAmount: "97.5 USDC",
+  humaPool: "123",
+  withdrawalTx: "0x123...456",
+};
+
 const fakeData: { [key: string]: FakePayment } = {
   "1": {
     timestamp: "2023-06-31 21:59:59",
@@ -67,7 +78,7 @@ const fakeData: { [key: string]: FakePayment } = {
 function PaymentPage() {
   const router = useRouter();
   const id: string = router.query.id as string;
-  const data = fakeData[id];
+  const data = fakeData[id] ? fakeData[id] : defaultFakePayment;
   return (
     <Stack width="100%">
       <Center>
