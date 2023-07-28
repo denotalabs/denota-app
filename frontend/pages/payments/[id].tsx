@@ -145,6 +145,7 @@ function PaymentPage() {
             status={updatedStatus}
             paymentId={id}
             updateStatus={updateStatus}
+            style="big"
           />
         </VStack>
       </Center>
@@ -156,9 +157,15 @@ interface ActionsProp {
   status: string;
   paymentId: string;
   updateStatus: () => void;
+  style: "big" | "small";
 }
 
-function PaymentActions({ status, paymentId, updateStatus }: ActionsProp) {
+export function PaymentActions({
+  status,
+  paymentId,
+  updateStatus,
+  style,
+}: ActionsProp) {
   const [clawbackLoading, setClawbackLoading] = useState(false);
   const [releaseLoading, setReleaseLoading] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
@@ -168,8 +175,10 @@ function PaymentActions({ status, paymentId, updateStatus }: ActionsProp) {
       return (
         <ButtonGroup>
           <Button
-            fontSize="2xl"
-            w="min(40vw, 200px)"
+            bg="brand.300"
+            color="brand.200"
+            fontSize={style === "big" ? "2xl" : "md"}
+            w={style === "big" ? "min(40vw, 200px)" : "min(40vw, 100px)"}
             borderRadius={5}
             isLoading={clawbackLoading}
             onClick={async () => {
@@ -183,8 +192,10 @@ function PaymentActions({ status, paymentId, updateStatus }: ActionsProp) {
             Clawback
           </Button>
           <Button
-            fontSize="2xl"
-            w="min(40vw, 200px)"
+            bg="brand.300"
+            color="brand.200"
+            fontSize={style === "big" ? "2xl" : "md"}
+            w={style === "big" ? "min(40vw, 200px)" : "min(40vw, 100px)"}
             borderRadius={5}
             isLoading={releaseLoading}
             onClick={async () => {
@@ -202,8 +213,10 @@ function PaymentActions({ status, paymentId, updateStatus }: ActionsProp) {
     case "Requested":
       return (
         <Button
-          fontSize="2xl"
-          w="min(40vw, 200px)"
+          bg="brand.300"
+          color="brand.200"
+          fontSize={style === "big" ? "2xl" : "md"}
+          w={style === "big" ? "min(40vw, 200px)" : "min(40vw, 100px)"}
           borderRadius={5}
           isLoading={approveLoading}
           onClick={async () => {

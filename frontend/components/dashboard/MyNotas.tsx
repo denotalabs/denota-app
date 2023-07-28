@@ -1,7 +1,6 @@
 import { RepeatIcon } from "@chakra-ui/icons";
 import {
   Button,
-  ButtonGroup,
   Center,
   Grid,
   HStack,
@@ -16,10 +15,12 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Cookies from "js-cookie";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNotaContext } from "../../context/NotasContext";
 import useDemoMode from "../../hooks/useDemoMode";
 import { Nota } from "../../hooks/useNotas";
+import { PaymentActions } from "../../pages/payments/[id]";
 import NotaCard from "./NotaCard";
 import { DataTable } from "./table/NotaTable";
 
@@ -33,7 +34,7 @@ type TableNota = {
   riskScore: number;
 };
 
-const data: TableNota[] = [
+const fakeData: TableNota[] = [
   {
     paymentId: "1",
     date: "2023-06-31 21:59:59",
@@ -91,89 +92,6 @@ const getUpdatedStatus = (originalStatus: string, paymentId: string) => {
   }
 };
 
-const columns = [
-  columnHelper.accessor("date", {
-    cell: (info) => (
-      <PaymentId
-        paymentId={info.row.original.paymentId}
-        date={info.getValue()}
-      />
-    ),
-    header: "Timestamp",
-  }),
-  columnHelper.accessor("userId", {
-    cell: (info) => {
-      return <UserId userId={info.getValue()} />;
-    },
-    header: "User ID",
-  }),
-  columnHelper.accessor("amount", {
-    cell: (info) => info.getValue() + " USDC",
-    header: "Amount",
-  }),
-  columnHelper.accessor("riskScore", {
-    cell: (info) => info.getValue(),
-    header: "Risk score",
-  }),
-  columnHelper.accessor("paymentStatus", {
-    cell: (info) =>
-      getUpdatedStatus(info.getValue(), info.row.original.paymentId),
-    header: "Payment status",
-  }),
-  columnHelper.accessor("factor", {
-    cell: (info) => (
-      <ActionButtons
-        status={getUpdatedStatus(
-          info.row.original.paymentStatus,
-          info.row.original.paymentId
-        )}
-      />
-    ),
-    header: "Actions",
-  }),
-];
-
-interface ActionProps {
-  status: string;
-}
-
-function ActionButtons({ status }: ActionProps) {
-  switch (status) {
-    case "Pending":
-      return (
-        <ButtonGroup flexWrap={"wrap"}>
-          <Button
-            variant="outline"
-            w="min(40vw, 100px)"
-            borderRadius={5}
-            colorScheme="teal"
-          >
-            Clawback
-          </Button>
-          <Button
-            variant="outline"
-            w="min(40vw, 100px)"
-            borderRadius={5}
-            colorScheme="teal"
-          >
-            Release
-          </Button>
-        </ButtonGroup>
-      );
-    case "Requested":
-      return (
-        <Button
-          variant="outline"
-          w="min(40vw, 100px)"
-          borderRadius={5}
-          colorScheme="teal"
-        >
-          Approve
-        </Button>
-      );
-  }
-}
-
 interface PaymentIdProps {
   paymentId: string;
   date: string;
@@ -215,6 +133,66 @@ function MyNotas() {
   const isDemoMode = useDemoMode();
 
   const { notas, refresh, setNotaField, isLoading } = useNotaContext();
+
+  const [data, setData] = useState<TableNota[]>([]);
+
+  const updateData = useCallback(() => {
+    setData(
+      fakeData.map((entry) => ({
+        ...entry,
+        paymentStatus: getUpdatedStatus(entry.paymentStatus, entry.paymentId),
+      }))
+    );
+  }, []);
+
+  useEffect(() => {
+    updateData();
+  }, [updateData]);
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("date", {
+        cell: (info) => (
+          <PaymentId
+            paymentId={info.row.original.paymentId}
+            date={info.getValue()}
+          />
+        ),
+        header: "Timestamp",
+      }),
+      columnHelper.accessor("userId", {
+        cell: (info) => {
+          return <UserId userId={info.getValue()} />;
+        },
+        header: "User ID",
+      }),
+      columnHelper.accessor("amount", {
+        cell: (info) => info.getValue() + " USDC",
+        header: "Amount",
+      }),
+      columnHelper.accessor("riskScore", {
+        cell: (info) => info.getValue(),
+        header: "Risk score",
+      }),
+      columnHelper.accessor("paymentStatus", {
+        cell: (info) =>
+          getUpdatedStatus(info.getValue(), info.row.original.paymentId),
+        header: "Payment status",
+      }),
+      columnHelper.accessor("factor", {
+        cell: (info) => (
+          <PaymentActions
+            status={info.row.original.paymentStatus}
+            paymentId={info.row.original.paymentId}
+            updateStatus={updateData}
+            style="small"
+          />
+        ),
+        header: "Actions",
+      }),
+    ],
+    [updateData]
+  );
 
   if (isDemoMode) {
     return (
