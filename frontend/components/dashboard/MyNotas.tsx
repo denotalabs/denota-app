@@ -13,6 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { createColumnHelper } from "@tanstack/react-table";
+import Cookies from "js-cookie";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { MdOutlineAdd } from "react-icons/md";
@@ -73,6 +74,23 @@ const data: TableNota[] = [
 
 const columnHelper = createColumnHelper<TableNota>();
 
+const getUpdatedStatus = (originalStatus: string, paymentId: string) => {
+  const cookieStatus = Cookies.get(`payments-${paymentId}`);
+
+  if (!cookieStatus) {
+    return originalStatus;
+  }
+
+  switch (cookieStatus) {
+    case "clawed-back":
+      return "Clawed Back";
+    case "released":
+      return "Released";
+    case "approved":
+      return "Pending";
+  }
+};
+
 const columns = [
   columnHelper.accessor("date", {
     cell: (info) => (
@@ -98,11 +116,19 @@ const columns = [
     header: "Risk score",
   }),
   columnHelper.accessor("paymentStatus", {
-    cell: (info) => info.getValue(),
+    cell: (info) =>
+      getUpdatedStatus(info.getValue(), info.row.original.paymentId),
     header: "Payment status",
   }),
   columnHelper.accessor("factor", {
-    cell: (info) => <ActionButtons status={info.row.original.paymentStatus} />,
+    cell: (info) => (
+      <ActionButtons
+        status={getUpdatedStatus(
+          info.row.original.paymentStatus,
+          info.row.original.paymentId
+        )}
+      />
+    ),
     header: "Actions",
   }),
 ];

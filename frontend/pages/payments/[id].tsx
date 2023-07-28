@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import InfoBox from "../../components/onramps/InfoBox";
 
@@ -85,6 +85,30 @@ function PaymentPage() {
   const router = useRouter();
   const id: string = router.query.id as string;
   const data = fakeData[id] ? fakeData[id] : defaultFakePayment;
+  const [updatedStatus, setUpdatedStatus] = useState("");
+  const updateStatus = useCallback(() => {
+    const cookieStatus = Cookies.get(`payments-${id}`);
+
+    if (!cookieStatus) {
+      setUpdatedStatus(data.status);
+    }
+    switch (cookieStatus) {
+      case "clawed-back":
+        setUpdatedStatus("Clawed Back");
+        break;
+      case "released":
+        setUpdatedStatus("Released");
+        break;
+      case "approved":
+        setUpdatedStatus("Pending");
+        break;
+    }
+  }, [data.status, id]);
+
+  useEffect(() => {
+    updateStatus();
+  }, [updateStatus]);
+
   return (
     <Stack width="100%">
       <Center>
@@ -103,7 +127,7 @@ function PaymentPage() {
             <DetailsRow title="Timestamp" value={data.timestamp} />
             <DetailsRow title="UserId" value={data.userId} />
             <DetailsRow title="Amount" value={data.amount} />
-            <DetailsRow title="Status" value={data.status} />
+            <DetailsRow title="Status" value={updatedStatus} />
             <DetailsRow title="Risk Score" value={data.riskScore} />
             <DetailsRow title="Factored Amount" value={data.factoredAmount} />
             <DetailsRow
@@ -117,7 +141,11 @@ function PaymentPage() {
               link="https://google.com"
             />
           </InfoBox>
-          <PaymentActions status={data.status} paymentId={id} />
+          <PaymentActions
+            status={updatedStatus}
+            paymentId={id}
+            updateStatus={updateStatus}
+          />
         </VStack>
       </Center>
     </Stack>
@@ -127,9 +155,10 @@ function PaymentPage() {
 interface ActionsProp {
   status: string;
   paymentId: string;
+  updateStatus: () => void;
 }
 
-function PaymentActions({ status, paymentId }: ActionsProp) {
+function PaymentActions({ status, paymentId, updateStatus }: ActionsProp) {
   const [clawbackLoading, setClawbackLoading] = useState(false);
   const [releaseLoading, setReleaseLoading] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
@@ -148,6 +177,7 @@ function PaymentActions({ status, paymentId }: ActionsProp) {
               await wait(3000);
               Cookies.set(`payments-${paymentId}`, "clawed-back");
               setClawbackLoading(false);
+              updateStatus();
             }}
           >
             Clawback
@@ -162,6 +192,7 @@ function PaymentActions({ status, paymentId }: ActionsProp) {
               await wait(3000);
               Cookies.set(`payments-${paymentId}`, "released");
               setReleaseLoading(false);
+              updateStatus();
             }}
           >
             Release
@@ -180,6 +211,7 @@ function PaymentActions({ status, paymentId }: ActionsProp) {
             await wait(3000);
             Cookies.set(`payments-${paymentId}`, "approved");
             setApproveLoading(false);
+            updateStatus();
           }}
         >
           Approve
