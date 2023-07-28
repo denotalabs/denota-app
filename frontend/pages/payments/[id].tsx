@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import InfoBox from "../../components/onramps/InfoBox";
 
@@ -109,6 +109,32 @@ function PaymentPage() {
     updateStatus();
   }, [updateStatus]);
 
+  const shouldShowWithdrawalTx = useMemo(() => {
+    switch (updatedStatus) {
+      case "Clawed Back":
+      case "Released":
+      case "Pending":
+        return true;
+    }
+    return false;
+  }, [updatedStatus]);
+
+  const shouldShowReleaseTx = useMemo(() => {
+    switch (updatedStatus) {
+      case "Released":
+        return true;
+    }
+    return false;
+  }, [updatedStatus]);
+
+  const shouldShowClawBackTx = useMemo(() => {
+    switch (updatedStatus) {
+      case "Clawed Back":
+        return true;
+    }
+    return false;
+  }, [updatedStatus]);
+
   return (
     <Stack width="100%">
       <Center>
@@ -135,11 +161,27 @@ function PaymentPage() {
               value={data.humaPool}
               link="https://google.com"
             />
-            <DetailsRow
-              title="Withdrawal TX"
-              value={data.withdrawalTx}
-              link="https://google.com"
-            />
+            {shouldShowWithdrawalTx && (
+              <DetailsRow
+                title="Withdrawal TX"
+                value={"0x123...456"}
+                link="https://google.com"
+              />
+            )}
+            {shouldShowReleaseTx && (
+              <DetailsRow
+                title="Release TX"
+                value={"0x987...345"}
+                link="https://google.com"
+              />
+            )}
+            {shouldShowClawBackTx && (
+              <DetailsRow
+                title="Clawback TX"
+                value={"0x456...321"}
+                link="https://google.com"
+              />
+            )}
           </InfoBox>
           <PaymentActions
             status={updatedStatus}
