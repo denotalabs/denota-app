@@ -6,7 +6,9 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import Cookies from "js-cookie";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import InfoBox from "../../components/onramps/InfoBox";
 
@@ -75,6 +77,10 @@ const fakeData: { [key: string]: FakePayment } = {
   },
 };
 
+function wait(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
 function PaymentPage() {
   const router = useRouter();
   const id: string = router.query.id as string;
@@ -111,7 +117,7 @@ function PaymentPage() {
               link="https://google.com"
             />
           </InfoBox>
-          <PaymentActions status={data.status} />
+          <PaymentActions status={data.status} paymentId={id} />
         </VStack>
       </Center>
     </Stack>
@@ -120,24 +126,62 @@ function PaymentPage() {
 
 interface ActionsProp {
   status: string;
+  paymentId: string;
 }
 
-function PaymentActions({ status }: ActionsProp) {
+function PaymentActions({ status, paymentId }: ActionsProp) {
+  const [clawbackLoading, setClawbackLoading] = useState(false);
+  const [releaseLoading, setReleaseLoading] = useState(false);
+  const [approveLoading, setApproveLoading] = useState(false);
+
   switch (status) {
     case "Pending":
       return (
         <ButtonGroup>
-          <Button fontSize="2xl" w="min(40vw, 200px)" borderRadius={5}>
+          <Button
+            fontSize="2xl"
+            w="min(40vw, 200px)"
+            borderRadius={5}
+            isLoading={clawbackLoading}
+            onClick={async () => {
+              setClawbackLoading(true);
+              await wait(3000);
+              Cookies.set(`payments-${paymentId}`, "clawed-back");
+              setClawbackLoading(false);
+            }}
+          >
             Clawback
           </Button>
-          <Button fontSize="2xl" w="min(40vw, 200px)" borderRadius={5}>
+          <Button
+            fontSize="2xl"
+            w="min(40vw, 200px)"
+            borderRadius={5}
+            isLoading={releaseLoading}
+            onClick={async () => {
+              setReleaseLoading(true);
+              await wait(3000);
+              Cookies.set(`payments-${paymentId}`, "released");
+              setReleaseLoading(false);
+            }}
+          >
             Release
           </Button>
         </ButtonGroup>
       );
     case "Requested":
       return (
-        <Button fontSize="2xl" w="min(40vw, 200px)" borderRadius={5}>
+        <Button
+          fontSize="2xl"
+          w="min(40vw, 200px)"
+          borderRadius={5}
+          isLoading={approveLoading}
+          onClick={async () => {
+            setApproveLoading(true);
+            await wait(3000);
+            Cookies.set(`payments-${paymentId}`, "approved");
+            setApproveLoading(false);
+          }}
+        >
           Approve
         </Button>
       );
