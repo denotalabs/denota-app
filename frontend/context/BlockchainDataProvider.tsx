@@ -129,7 +129,6 @@ export const BlockchainDataProvider = memo(
     }, [connect, connectedWallets]);
 
     const loadBlockchainData = useCallback(async () => {
-      console.log({ connectedWallets });
       if (
         connectedWallets &&
         connectedWallets.length > 0 &&
