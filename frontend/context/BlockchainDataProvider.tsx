@@ -131,6 +131,7 @@ export const BlockchainDataProvider = memo(
     const loadBlockchainData = useCallback(async () => {
       if (
         connectedWallets &&
+        connectedWallets.length > 0 &&
         connectedWallets[0].chains[0].id === blockchainState.chainId
       ) {
         return;
