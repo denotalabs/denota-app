@@ -15,9 +15,10 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Cookies from "js-cookie";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNotaContext } from "../../context/NotasContext";
+import { useOnrampNota } from "../../context/OnrampDataProvider";
 import useDemoMode from "../../hooks/useDemoMode";
 import { Nota } from "../../hooks/useNotas";
 import { PaymentActions } from "../onramps/PaymentActions";
@@ -134,20 +135,21 @@ function MyNotas() {
 
   const { notas, refresh, setNotaField, isLoading } = useNotaContext();
 
-  const [data, setData] = useState<TableNota[]>([]);
+  // const [data, setData] = useState<TableNota[]>([]);
+  const { onrampNotas: data } = useOnrampNota();
 
   const updateData = useCallback(() => {
-    setData(
-      fakeData.map((entry) => ({
-        ...entry,
-        paymentStatus: getUpdatedStatus(entry.paymentStatus, entry.paymentId),
-      }))
-    );
+    // setData(
+    //   fakeData.map((entry) => ({
+    //     ...entry,
+    //     paymentStatus: getUpdatedStatus(entry.paymentStatus, entry.paymentId),
+    //   }))
+    // );
   }, []);
 
-  useEffect(() => {
-    updateData();
-  }, [updateData]);
+  // useEffect(() => {
+  //   updateData();
+  // }, [updateData]);
 
   const columns = useMemo(
     () => [
