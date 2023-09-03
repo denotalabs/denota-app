@@ -21,4 +21,3 @@ function InfoBox({ children, ...props }: Props) {
 }
 
 export default InfoBox;
-("");

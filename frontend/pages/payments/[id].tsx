@@ -1,16 +1,10 @@
-import {
-  Button,
-  ButtonGroup,
-  Center,
-  Stack,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Center, Stack, Text, VStack } from "@chakra-ui/react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import InfoBox from "../../components/onramps/InfoBox";
+import { PaymentActions } from "../../components/onramps/PaymentActions";
 
 interface FakePayment {
   timestamp: string;
@@ -76,10 +70,6 @@ const fakeData: { [key: string]: FakePayment } = {
     withdrawalTx: "0x123...456",
   },
 };
-
-function wait(milliseconds) {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
-}
 
 function PaymentPage() {
   const router = useRouter();
@@ -193,86 +183,6 @@ function PaymentPage() {
       </Center>
     </Stack>
   );
-}
-
-interface ActionsProp {
-  status: string;
-  paymentId: string;
-  updateStatus: () => void;
-  style: "big" | "small";
-}
-
-export function PaymentActions({
-  status,
-  paymentId,
-  updateStatus,
-  style,
-}: ActionsProp) {
-  const [clawbackLoading, setClawbackLoading] = useState(false);
-  const [releaseLoading, setReleaseLoading] = useState(false);
-  const [approveLoading, setApproveLoading] = useState(false);
-
-  switch (status) {
-    case "Pending":
-      return (
-        <ButtonGroup>
-          <Button
-            bg="brand.300"
-            color="brand.200"
-            fontSize={style === "big" ? "2xl" : "md"}
-            w={style === "big" ? "min(40vw, 200px)" : "min(40vw, 100px)"}
-            borderRadius={5}
-            isLoading={clawbackLoading}
-            onClick={async () => {
-              setClawbackLoading(true);
-              await wait(3000);
-              Cookies.set(`payments-${paymentId}`, "clawed-back");
-              setClawbackLoading(false);
-              updateStatus();
-            }}
-          >
-            Clawback
-          </Button>
-          <Button
-            bg="brand.300"
-            color="brand.200"
-            fontSize={style === "big" ? "2xl" : "md"}
-            w={style === "big" ? "min(40vw, 200px)" : "min(40vw, 100px)"}
-            borderRadius={5}
-            isLoading={releaseLoading}
-            onClick={async () => {
-              setReleaseLoading(true);
-              await wait(3000);
-              Cookies.set(`payments-${paymentId}`, "released");
-              setReleaseLoading(false);
-              updateStatus();
-            }}
-          >
-            Release
-          </Button>
-        </ButtonGroup>
-      );
-    case "Requested":
-      return (
-        <Button
-          bg="brand.300"
-          color="brand.200"
-          fontSize={style === "big" ? "2xl" : "md"}
-          w={style === "big" ? "min(40vw, 200px)" : "min(40vw, 100px)"}
-          borderRadius={5}
-          isLoading={approveLoading}
-          onClick={async () => {
-            setApproveLoading(true);
-            await wait(3000);
-            Cookies.set(`payments-${paymentId}`, "approved");
-            setApproveLoading(false);
-            updateStatus();
-          }}
-        >
-          Approve
-        </Button>
-      );
-  }
 }
 
 export default PaymentPage;

@@ -20,7 +20,7 @@ import { MdOutlineAdd } from "react-icons/md";
 import { useNotaContext } from "../../context/NotasContext";
 import useDemoMode from "../../hooks/useDemoMode";
 import { Nota } from "../../hooks/useNotas";
-import { PaymentActions } from "../../pages/payments/[id]";
+import { PaymentActions } from "../onramps/PaymentActions";
 import NotaCard from "./NotaCard";
 import { DataTable } from "./table/NotaTable";
 
