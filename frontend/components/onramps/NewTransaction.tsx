@@ -36,12 +36,12 @@ function NewTransaction() {
           await wait(3000);
           addOnrampNota({
             paymentId: String(onrampNotas.length + 1),
-            date: "2023-07-04 12:08:19",
+            date: new Date().toISOString().replace("T", " ").substring(0, 19),
             amount: values.amount,
             factor: 0.91444,
             userId: "111122",
-            paymentStatus: "Pending",
-            riskScore: 35,
+            paymentStatus: "Withdrawn",
+            riskScore: Math.floor(Math.random() * 100),
           });
           toast({
             title: "Transaction succeeded",

@@ -10,27 +10,23 @@ export function wait(milliseconds) {
 interface ActionsProp {
   status: string;
   paymentId: string;
-  updateStatus: () => void;
   style: "big" | "small";
 }
 
-export function PaymentActions({
-  status,
-  paymentId,
-  updateStatus,
-  style,
-}: ActionsProp) {
-  const [clawbackLoading, setClawbackLoading] = useState(false);
-  const [releaseLoading, setReleaseLoading] = useState(false);
+export function PaymentActions({ status, paymentId, style }: ActionsProp) {
   const [approveLoading, setApproveLoading] = useState(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   switch (status) {
-    case "Pending":
+    case "Withdrawn":
       return (
         <>
-          <RecoveryModal isOpen={isOpen} onClose={onClose} />
+          <RecoveryModal
+            isOpen={isOpen}
+            onClose={onClose}
+            paymentId={paymentId}
+          />
           <ButtonGroup>
             <Button
               bg="brand.300"
@@ -38,14 +34,8 @@ export function PaymentActions({
               fontSize={style === "big" ? "2xl" : "md"}
               w={style === "big" ? "min(40vw, 200px)" : "min(40vw, 100px)"}
               borderRadius={5}
-              isLoading={clawbackLoading}
               onClick={async () => {
                 onOpen();
-                // setClawbackLoading(true);
-                // await wait(3000);
-                // Cookies.set(`payments-${paymentId}`, "clawed-back");
-                // setClawbackLoading(false);
-                // updateStatus();
               }}
             >
               Recover
@@ -67,7 +57,6 @@ export function PaymentActions({
             await wait(3000);
             Cookies.set(`payments-${paymentId}`, "approved");
             setApproveLoading(false);
-            updateStatus();
           }}
         >
           Approve

@@ -42,7 +42,7 @@ const fakeData: TableNota[] = [
     amount: 100,
     factor: 25.4,
     userId: "111231",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 50,
   },
   {
@@ -51,7 +51,7 @@ const fakeData: TableNota[] = [
     amount: 150,
     factor: 30.48,
     userId: "212211",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 25,
   },
   {
@@ -60,7 +60,7 @@ const fakeData: TableNota[] = [
     amount: 175,
     factor: 0.91444,
     userId: "122112",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 35,
   },
   {
@@ -89,7 +89,7 @@ const getUpdatedStatus = (originalStatus: string, paymentId: string) => {
     case "released":
       return "Released";
     case "approved":
-      return "Pending";
+      return "Withdrawn";
   }
 };
 
@@ -177,8 +177,7 @@ function MyNotas() {
         header: "Risk score",
       }),
       columnHelper.accessor("paymentStatus", {
-        cell: (info) =>
-          getUpdatedStatus(info.getValue(), info.row.original.paymentId),
+        cell: (info) => info.getValue(),
         header: "Payment status",
       }),
       columnHelper.accessor("factor", {
@@ -186,14 +185,13 @@ function MyNotas() {
           <PaymentActions
             status={info.row.original.paymentStatus}
             paymentId={info.row.original.paymentId}
-            updateStatus={updateData}
             style="small"
           />
         ),
         header: "Actions",
       }),
     ],
-    [updateData]
+    []
   );
 
   if (isDemoMode) {

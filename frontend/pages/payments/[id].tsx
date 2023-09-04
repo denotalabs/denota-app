@@ -6,17 +6,6 @@ import InfoBox from "../../components/onramps/InfoBox";
 import { PaymentActions } from "../../components/onramps/PaymentActions";
 import { useOnrampNota } from "../../context/OnrampDataProvider";
 
-interface FakePayment {
-  timestamp: string;
-  userId: string;
-  amount: string;
-  status: string;
-  riskScore: string;
-  factoredAmount: string;
-  humaPool: string;
-  withdrawalTx: string;
-}
-
 const defaultFakePayment = {
   paymentId: "4",
   date: "2023-07-04 12:08:19",
@@ -27,62 +16,18 @@ const defaultFakePayment = {
   riskScore: 35,
 };
 
-const fakeData: { [key: string]: FakePayment } = {
-  "1": {
-    timestamp: "2023-06-31 21:59:59",
-    userId: "111231",
-    amount: "100 USDC",
-    status: "Pending",
-    riskScore: "50",
-    factoredAmount: "97.5 USDC",
-    humaPool: "123",
-    withdrawalTx: "0x123...456",
-  },
-  "2": {
-    timestamp: "2023-07-10 11:34:39",
-    userId: "212211",
-    amount: "150 USDC",
-    status: "Pending",
-    riskScore: "25",
-    factoredAmount: "147.5 USDC",
-    humaPool: "123",
-    withdrawalTx: "0x123...456",
-  },
-  "3": {
-    timestamp: "2023-07-08 13:16:29",
-    userId: "122112",
-    amount: "175 USDC",
-    status: "Pending",
-    riskScore: "35",
-    factoredAmount: "170.0 USDC",
-    humaPool: "123",
-    withdrawalTx: "0x123...456",
-  },
-  "4": {
-    timestamp: "2023-07-04 12:08:19",
-    userId: "111122",
-    amount: "275 USDC",
-    status: "Requested",
-    riskScore: "35",
-    factoredAmount: "270.0 USDC",
-    humaPool: "123",
-    withdrawalTx: "0x123...456",
-  },
-};
-
 function PaymentPage() {
   const router = useRouter();
   const id: string = router.query.id as string;
   const { onrampNotas } = useOnrampNota();
-  const data = onrampNotas[Number(id) - 1]
-    ? onrampNotas[Number(id) - 1]
-    : defaultFakePayment;
+  const data =
+    onrampNotas.find((nota) => nota.paymentId === id) ?? defaultFakePayment;
 
   const shouldShowWithdrawalTx = useMemo(() => {
     switch (data.paymentStatus) {
       case "Clawed Back":
       case "Released":
-      case "Pending":
+      case "Withdrawn":
         return true;
     }
     return false;
@@ -121,7 +66,7 @@ function PaymentPage() {
           <InfoBox>
             <DetailsRow title="Timestamp" value={data.date} />
             <DetailsRow title="UserId" value={data.userId} />
-            <DetailsRow title="Amount" value={String(data.amount)} />
+            <DetailsRow title="Amount" value={String(data.amount) + " USDC"} />
             <DetailsRow title="Status" value={data.paymentStatus} />
             <DetailsRow title="Covered By Denota?" value="Yes" />
             <DetailsRow title="Risk Score" value={String(data.riskScore)} />
@@ -150,9 +95,6 @@ function PaymentPage() {
           <PaymentActions
             status={data.paymentStatus}
             paymentId={id}
-            updateStatus={() => {
-              console.log();
-            }}
             style="big"
           />
         </VStack>

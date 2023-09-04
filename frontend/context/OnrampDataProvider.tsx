@@ -36,7 +36,7 @@ const fakeData: OnrampNota[] = [
     amount: 100,
     factor: 25.4,
     userId: "111231",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 50,
   },
   {
@@ -45,7 +45,7 @@ const fakeData: OnrampNota[] = [
     amount: 150,
     factor: 30.48,
     userId: "212211",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 25,
   },
   {
@@ -54,7 +54,7 @@ const fakeData: OnrampNota[] = [
     amount: 175,
     factor: 0.91444,
     userId: "122112",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 35,
   },
   {
@@ -63,7 +63,7 @@ const fakeData: OnrampNota[] = [
     amount: 275,
     factor: 0.91444,
     userId: "111122",
-    paymentStatus: "Requested",
+    paymentStatus: "Withdrawn",
     riskScore: 35,
   },
 ];
