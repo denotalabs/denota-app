@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type OnrampNota = {
+export type OnrampNota = {
   paymentId: string;
   date: string;
   amount: number;
-  factor: number;
   userId: string;
   paymentStatus: string;
   riskScore: number;
+  riskFee: number;
 };
 
 // Create the context type
@@ -34,7 +34,7 @@ const fakeData: OnrampNota[] = [
     paymentId: "1",
     date: "2023-06-31 21:59:59",
     amount: 100,
-    factor: 25.4,
+    riskFee: 0.5,
     userId: "111231",
     paymentStatus: "Withdrawn",
     riskScore: 50,
@@ -43,7 +43,7 @@ const fakeData: OnrampNota[] = [
     paymentId: "2",
     date: "2023-07-10 11:34:39",
     amount: 150,
-    factor: 30.48,
+    riskFee: 0.375,
     userId: "212211",
     paymentStatus: "Withdrawn",
     riskScore: 25,
@@ -52,7 +52,7 @@ const fakeData: OnrampNota[] = [
     paymentId: "3",
     date: "2023-07-08 13:16:29",
     amount: 175,
-    factor: 0.91444,
+    riskFee: 0.6125,
     userId: "122112",
     paymentStatus: "Withdrawn",
     riskScore: 35,
@@ -61,7 +61,7 @@ const fakeData: OnrampNota[] = [
     paymentId: "4",
     date: "2023-07-04 12:08:19",
     amount: 275,
-    factor: 0.91444,
+    riskFee: 0.9625,
     userId: "111122",
     paymentStatus: "Withdrawn",
     riskScore: 35,

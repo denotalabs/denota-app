@@ -34,14 +34,15 @@ function NewTransaction() {
         onSubmit={async (values, actions) => {
           actions.setSubmitting(true);
           await wait(3000);
+          const riskScore = Math.floor(Math.random() * 100);
           addOnrampNota({
             paymentId: String(onrampNotas.length + 1),
             date: new Date().toISOString().replace("T", " ").substring(0, 19),
             amount: values.amount,
-            factor: 0.91444,
+            riskFee: values.amount * (riskScore / 10000),
             userId: "111122",
             paymentStatus: "Withdrawn",
-            riskScore: Math.floor(Math.random() * 100),
+            riskScore,
           });
           toast({
             title: "Transaction succeeded",
