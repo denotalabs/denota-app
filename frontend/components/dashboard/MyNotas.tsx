@@ -15,12 +15,13 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Cookies from "js-cookie";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNotaContext } from "../../context/NotasContext";
+import { useOnrampNota } from "../../context/OnrampDataProvider";
 import useDemoMode from "../../hooks/useDemoMode";
 import { Nota } from "../../hooks/useNotas";
-import { PaymentActions } from "../../pages/payments/[id]";
+import { PaymentActions } from "../onramps/PaymentActions";
 import NotaCard from "./NotaCard";
 import { DataTable } from "./table/NotaTable";
 
@@ -41,7 +42,7 @@ const fakeData: TableNota[] = [
     amount: 100,
     factor: 25.4,
     userId: "111231",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 50,
   },
   {
@@ -50,7 +51,7 @@ const fakeData: TableNota[] = [
     amount: 150,
     factor: 30.48,
     userId: "212211",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 25,
   },
   {
@@ -59,7 +60,7 @@ const fakeData: TableNota[] = [
     amount: 175,
     factor: 0.91444,
     userId: "122112",
-    paymentStatus: "Pending",
+    paymentStatus: "Withdrawn",
     riskScore: 35,
   },
   {
@@ -88,7 +89,7 @@ const getUpdatedStatus = (originalStatus: string, paymentId: string) => {
     case "released":
       return "Released";
     case "approved":
-      return "Pending";
+      return "Withdrawn";
   }
 };
 
@@ -134,20 +135,7 @@ function MyNotas() {
 
   const { notas, refresh, setNotaField, isLoading } = useNotaContext();
 
-  const [data, setData] = useState<TableNota[]>([]);
-
-  const updateData = useCallback(() => {
-    setData(
-      fakeData.map((entry) => ({
-        ...entry,
-        paymentStatus: getUpdatedStatus(entry.paymentStatus, entry.paymentId),
-      }))
-    );
-  }, []);
-
-  useEffect(() => {
-    updateData();
-  }, [updateData]);
+  const { onrampNotas: data } = useOnrampNota();
 
   const columns = useMemo(
     () => [
@@ -175,8 +163,7 @@ function MyNotas() {
         header: "Risk score",
       }),
       columnHelper.accessor("paymentStatus", {
-        cell: (info) =>
-          getUpdatedStatus(info.getValue(), info.row.original.paymentId),
+        cell: (info) => info.getValue(),
         header: "Payment status",
       }),
       columnHelper.accessor("factor", {
@@ -184,14 +171,13 @@ function MyNotas() {
           <PaymentActions
             status={info.row.original.paymentStatus}
             paymentId={info.row.original.paymentId}
-            updateStatus={updateData}
             style="small"
           />
         ),
         header: "Actions",
       }),
     ],
-    [updateData]
+    []
   );
 
   if (isDemoMode) {

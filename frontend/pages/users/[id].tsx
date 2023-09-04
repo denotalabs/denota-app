@@ -13,7 +13,7 @@ function UserPage() {
         <VStack
           width="100%"
           bg="brand.100"
-          maxW="750px"
+          maxW="650px"
           py={5}
           borderRadius="30px"
           gap={4}
