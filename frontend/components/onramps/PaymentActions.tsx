@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import { useState } from "react";
 import RecoveryModal from "./RecoveryModal";
 
-function wait(milliseconds) {
+export function wait(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 

@@ -1,10 +1,10 @@
 import { Center, Stack, Text, VStack } from "@chakra-ui/react";
-import Cookies from "js-cookie";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import InfoBox from "../../components/onramps/InfoBox";
 import { PaymentActions } from "../../components/onramps/PaymentActions";
+import { useOnrampNota } from "../../context/OnrampDataProvider";
 
 interface FakePayment {
   timestamp: string;
@@ -18,14 +18,13 @@ interface FakePayment {
 }
 
 const defaultFakePayment = {
-  timestamp: "2023-06-31 21:59:59",
-  userId: "111231",
-  amount: "100 USDC",
-  status: "Pending",
-  riskScore: "50",
-  factoredAmount: "97.5 USDC",
-  humaPool: "123",
-  withdrawalTx: "0x123...456",
+  paymentId: "4",
+  date: "2023-07-04 12:08:19",
+  amount: 275,
+  factor: 0.91444,
+  userId: "111122",
+  paymentStatus: "Requested",
+  riskScore: 35,
 };
 
 const fakeData: { [key: string]: FakePayment } = {
@@ -74,56 +73,36 @@ const fakeData: { [key: string]: FakePayment } = {
 function PaymentPage() {
   const router = useRouter();
   const id: string = router.query.id as string;
-  const data = fakeData[id] ? fakeData[id] : defaultFakePayment;
-  const [updatedStatus, setUpdatedStatus] = useState("");
-  const updateStatus = useCallback(() => {
-    const cookieStatus = Cookies.get(`payments-${id}`);
-
-    if (!cookieStatus) {
-      setUpdatedStatus(data.status);
-    }
-    switch (cookieStatus) {
-      case "clawed-back":
-        setUpdatedStatus("Clawed Back");
-        break;
-      case "released":
-        setUpdatedStatus("Released");
-        break;
-      case "approved":
-        setUpdatedStatus("Pending");
-        break;
-    }
-  }, [data.status, id]);
-
-  useEffect(() => {
-    updateStatus();
-  }, [updateStatus]);
+  const { onrampNotas } = useOnrampNota();
+  const data = onrampNotas[Number(id) - 1]
+    ? onrampNotas[Number(id) - 1]
+    : defaultFakePayment;
 
   const shouldShowWithdrawalTx = useMemo(() => {
-    switch (updatedStatus) {
+    switch (data.paymentStatus) {
       case "Clawed Back":
       case "Released":
       case "Pending":
         return true;
     }
     return false;
-  }, [updatedStatus]);
+  }, [data.paymentStatus]);
 
   const shouldShowReleaseTx = useMemo(() => {
-    switch (updatedStatus) {
+    switch (data.paymentStatus) {
       case "Released":
         return true;
     }
     return false;
-  }, [updatedStatus]);
+  }, [data.paymentStatus]);
 
   const shouldShowClawBackTx = useMemo(() => {
-    switch (updatedStatus) {
+    switch (data.paymentStatus) {
       case "Clawed Back":
         return true;
     }
     return false;
-  }, [updatedStatus]);
+  }, [data.paymentStatus]);
 
   return (
     <Stack width="100%">
@@ -131,7 +110,7 @@ function PaymentPage() {
         <VStack
           width="100%"
           bg="brand.100"
-          maxW="750px"
+          maxW="650px"
           py={5}
           borderRadius="30px"
           gap={4}
@@ -140,17 +119,12 @@ function PaymentPage() {
             Payment # {id}
           </Text>
           <InfoBox>
-            <DetailsRow title="Timestamp" value={data.timestamp} />
+            <DetailsRow title="Timestamp" value={data.date} />
             <DetailsRow title="UserId" value={data.userId} />
-            <DetailsRow title="Amount" value={data.amount} />
-            <DetailsRow title="Status" value={updatedStatus} />
-            <DetailsRow title="Risk Score" value={data.riskScore} />
-            <DetailsRow title="Factored Amount" value={data.factoredAmount} />
-            <DetailsRow
-              title="Huma Pool ID"
-              value={data.humaPool}
-              link="https://google.com"
-            />
+            <DetailsRow title="Amount" value={String(data.amount)} />
+            <DetailsRow title="Status" value={data.paymentStatus} />
+            <DetailsRow title="Covered By Denota?" value="Yes" />
+            <DetailsRow title="Risk Score" value={String(data.riskScore)} />
             {shouldShowWithdrawalTx && (
               <DetailsRow
                 title="Withdrawal TX"
@@ -174,9 +148,11 @@ function PaymentPage() {
             )}
           </InfoBox>
           <PaymentActions
-            status={updatedStatus}
+            status={data.paymentStatus}
             paymentId={id}
-            updateStatus={updateStatus}
+            updateStatus={() => {
+              console.log();
+            }}
             style="big"
           />
         </VStack>

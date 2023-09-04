@@ -1,10 +1,17 @@
-import { Box, HStack, Image, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Image, Text, useToast, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
+import { useOnrampNota } from "../../context/OnrampDataProvider";
 
+import { useRouter } from "next/router";
 import RoundedButton from "../designSystem/RoundedButton";
 import AmountField from "../fields/input/AmountField";
+import { wait } from "./PaymentActions";
 
 function NewTransaction() {
+  const { addOnrampNota, onrampNotas } = useOnrampNota();
+  const router = useRouter();
+  const toast = useToast();
+
   return (
     <VStack w="300px" bg="brand.100" py={5} px={4} borderRadius="30px">
       <Box w="100%" p={4}>
@@ -21,12 +28,32 @@ function NewTransaction() {
         </Text>
       </Box>
       <Formik
-        initialValues={{}}
-        onSubmit={() => {
-          console.log();
+        initialValues={{
+          amount: 10,
+        }}
+        onSubmit={async (values, actions) => {
+          actions.setSubmitting(true);
+          await wait(3000);
+          addOnrampNota({
+            paymentId: String(onrampNotas.length + 1),
+            date: "2023-07-04 12:08:19",
+            amount: values.amount,
+            factor: 0.91444,
+            userId: "111122",
+            paymentStatus: "Pending",
+            riskScore: 35,
+          });
+          toast({
+            title: "Transaction succeeded",
+            description: "Coverage added",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          router.push("/", undefined, { shallow: true });
         }}
       >
-        {() => {
+        {(props) => {
           return (
             <Form>
               <HStack gap={5}>
@@ -37,11 +64,13 @@ function NewTransaction() {
                   alt="USDC"
                 />
               </HStack>
+              <RoundedButton type="submit" isLoading={props.isSubmitting}>
+                Confirm
+              </RoundedButton>
             </Form>
           );
         }}
       </Formik>
-      <RoundedButton type="submit">Confirm</RoundedButton>
     </VStack>
   );
 }
