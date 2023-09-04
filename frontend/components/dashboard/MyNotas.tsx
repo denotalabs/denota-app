@@ -15,7 +15,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import Cookies from "js-cookie";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNotaContext } from "../../context/NotasContext";
 import { useOnrampNota } from "../../context/OnrampDataProvider";
@@ -135,21 +135,7 @@ function MyNotas() {
 
   const { notas, refresh, setNotaField, isLoading } = useNotaContext();
 
-  // const [data, setData] = useState<TableNota[]>([]);
   const { onrampNotas: data } = useOnrampNota();
-
-  const updateData = useCallback(() => {
-    // setData(
-    //   fakeData.map((entry) => ({
-    //     ...entry,
-    //     paymentStatus: getUpdatedStatus(entry.paymentStatus, entry.paymentId),
-    //   }))
-    // );
-  }, []);
-
-  // useEffect(() => {
-  //   updateData();
-  // }, [updateData]);
 
   const columns = useMemo(
     () => [
