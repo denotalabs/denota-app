@@ -10,7 +10,7 @@ const defaultFakePayment = {
   paymentId: "4",
   date: "2023-07-04 12:08:19",
   amount: 275,
-  factor: 0.91444,
+  riskFee: 0.9625,
   userId: "111122",
   paymentStatus: "Requested",
   riskScore: 35,
@@ -68,8 +68,12 @@ function PaymentPage() {
             <DetailsRow title="UserId" value={data.userId} />
             <DetailsRow title="Amount" value={String(data.amount) + " USDC"} />
             <DetailsRow title="Status" value={data.paymentStatus} />
-            <DetailsRow title="Covered By Denota?" value="Yes" />
             <DetailsRow title="Risk Score" value={String(data.riskScore)} />
+            <DetailsRow title="Covered By Denota?" value="Yes" />
+            <DetailsRow
+              title="Risk Fee"
+              value={String(data.riskFee) + " USDC"}
+            />
             {shouldShowWithdrawalTx && (
               <DetailsRow
                 title="Withdrawal TX"
