@@ -5,7 +5,7 @@ interface Props extends StyleProps {
   children: ReactNode;
 }
 
-function InfoBox({ children, ...props }: Props) {
+function DetailsBox({ children, ...props }: Props) {
   return (
     <VStack
       w="550px"
@@ -20,4 +20,4 @@ function InfoBox({ children, ...props }: Props) {
   );
 }
 
-export default InfoBox;
+export default DetailsBox;

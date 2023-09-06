@@ -1,3 +1,5 @@
+import { Box } from "@chakra-ui/react";
+import { AnimatePresence } from "framer-motion";
 import {
   Children,
   ReactElement,
@@ -6,6 +8,7 @@ import {
   useMemo,
   useReducer,
 } from "react";
+import { MotionBox } from "../../write/module/MotionBox";
 import StepperContext, { StepperReducerInterface } from "./StepperContext";
 import StepperHeader from "./StepperHeader";
 
@@ -99,7 +102,22 @@ function Stepper({ children, onClose }: StepperProps) {
         currentIndex={state.currentIndex}
         title={screenTitle}
       />
-      {state.currentScreen}
+      <AnimatePresence mode="wait">
+        <Box
+          key={(state.currentScreen as ReactElement).props.screenKey}
+          w="100%"
+        >
+          <MotionBox
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.5 }}
+            w="100%"
+          >
+            {state.currentScreen}
+          </MotionBox>
+        </Box>
+      </AnimatePresence>
     </StepperContext.Provider>
   );
 }

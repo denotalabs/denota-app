@@ -2,7 +2,7 @@ import { Center, Stack, Text, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
-import InfoBox from "../../components/onramps/InfoBox";
+import DetailsBox from "../../components/onramps/DetailsBox";
 import { PaymentActions } from "../../components/onramps/PaymentActions";
 import { useOnrampNota } from "../../context/OnrampDataProvider";
 
@@ -63,16 +63,24 @@ function PaymentPage() {
           <Text fontSize="2xl" fontWeight={600}>
             Payment # {id}
           </Text>
-          <InfoBox>
+          <DetailsBox>
             <DetailsRow title="Timestamp" value={data.date} />
             <DetailsRow title="UserId" value={data.userId} />
-            <DetailsRow title="Amount" value={String(data.amount) + " USDC"} />
+            <DetailsRow
+              title="Fiat Amount"
+              value={String(data.amount * 1.02) + " USD"}
+            />
+            <DetailsRow title="Fiat Payment Method" value="ACH" />
+            <DetailsRow
+              title="Crypto Amount"
+              value={String(data.amount) + " USDC"}
+            />
             <DetailsRow title="Status" value={data.paymentStatus} />
             <DetailsRow title="Risk Score" value={String(data.riskScore)} />
             <DetailsRow title="Covered By Denota?" value="Yes" />
             <DetailsRow
               title="Risk Fee"
-              value={String(data.riskFee) + " USDC"}
+              value={String(data.riskFee.toFixed(2)) + " USDC"}
             />
             {shouldShowWithdrawalTx && (
               <DetailsRow
@@ -95,7 +103,7 @@ function PaymentPage() {
                 link="https://google.com"
               />
             )}
-          </InfoBox>
+          </DetailsBox>
           <PaymentActions
             status={data.paymentStatus}
             paymentId={id}

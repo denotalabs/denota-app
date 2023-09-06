@@ -1,6 +1,6 @@
 import { Center, Spinner } from "@chakra-ui/react";
 import NewUserScreen from "../../components/dashboard/NewUserScreen";
-import NewTransaction from "../../components/onramps/NewTransaction";
+import { TransactionCoverageFlow } from "../../components/onramps/transactions/TransactionCoverageFlow";
 import { WrongChain } from "../../components/WrongChain";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
@@ -24,7 +24,7 @@ function SendPage() {
     <NewUserScreen />
   ) : (
     <Center w="100%" h="100%">
-      <NewTransaction />
+      <TransactionCoverageFlow />{" "}
     </Center>
   );
 }
