@@ -66,13 +66,21 @@ function PaymentPage() {
           <DetailsBox>
             <DetailsRow title="Timestamp" value={data.date} />
             <DetailsRow title="UserId" value={data.userId} />
-            <DetailsRow title="Amount" value={String(data.amount) + " USDC"} />
+            <DetailsRow
+              title="Fiat Amount"
+              value={String(data.amount * 1.02) + " USD"}
+            />
+            <DetailsRow title="Fiat Payment Method" value="ACH" />
+            <DetailsRow
+              title="Crypto Amount"
+              value={String(data.amount) + " USDC"}
+            />
             <DetailsRow title="Status" value={data.paymentStatus} />
             <DetailsRow title="Risk Score" value={String(data.riskScore)} />
             <DetailsRow title="Covered By Denota?" value="Yes" />
             <DetailsRow
               title="Risk Fee"
-              value={String(data.riskFee) + " USDC"}
+              value={String(data.riskFee.toFixed(2)) + " USDC"}
             />
             {shouldShowWithdrawalTx && (
               <DetailsRow

@@ -8,9 +8,9 @@ export function TransactionCoverageFlow() {
   return (
     <NotaFormProvider>
       <VStack
-        w="300px"
+        w="400px"
         bg="brand.100"
-        py={2}
+        py={4}
         px={4}
         borderRadius="30px"
         gap={0}

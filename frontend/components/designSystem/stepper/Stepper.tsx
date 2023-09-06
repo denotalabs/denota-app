@@ -111,11 +111,11 @@ function Stepper({ children, onClose }: StepperProps) {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5 }}
             w="100%"
           >
             {state.currentScreen}
-          </MotionBox>{" "}
+          </MotionBox>
         </Box>
       </AnimatePresence>
     </StepperContext.Provider>

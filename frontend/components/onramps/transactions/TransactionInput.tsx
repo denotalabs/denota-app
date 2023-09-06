@@ -26,7 +26,7 @@ const TransactionInput: React.FC<ScreenProps> = () => {
           onSubmit={async (values, actions) => {
             actions.setSubmitting(true);
             await wait(2000);
-            const riskScore = Math.floor(Math.random() * 100);
+            const riskScore = Math.floor(Math.random() * 50);
             updateNotaFormValues({ amount: values.amount, riskScore });
             next();
           }}

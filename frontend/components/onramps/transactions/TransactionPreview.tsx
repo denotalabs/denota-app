@@ -21,6 +21,7 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
         title="Fiat Amount"
         value={String(notaFormValues.amount * 1.02) + " USD"}
       />
+      <DetailsRow title="Fiat Payment Method" value="ACH" />
       <DetailsRow
         title="Crypto Amount"
         value={notaFormValues.amount + " USDC"}
@@ -41,7 +42,7 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
       </Text>
       <Text py={4}>
         Only the risk score is represented on chain (not the input data). The
-        risk fee for each payment is based on the risk score and market demand.
+        payment risk fee is based on the risk score and market liquidity.
       </Text>
       <RoundedButton
         isLoading={isLoading}
@@ -69,7 +70,7 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
         }}
         mt={2}
       >
-        {"Confirm"}
+        {"Add Coverage"}
       </RoundedButton>
     </Box>
   );
