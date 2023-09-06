@@ -114,6 +114,9 @@ function MyNotas() {
   );
 
   if (isDemoMode) {
+    if (!data || data.length === 0) {
+      return <></>;
+    }
     return (
       <VStack
         width="95%" // Changed for demo
