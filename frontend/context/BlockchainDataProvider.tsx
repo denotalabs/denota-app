@@ -242,18 +242,18 @@ export const BlockchainDataProvider = memo(
     }, [blockchainState.chainId, connectWalletWeb3Modal, connectedWallets]);
 
     useEffect(() => {
-      // const lastWallet = localStorage.getItem(
-      //   "onboard.js:last_connected_wallet"
-      // );
-      // if (lastWallet && lastWallet !== "[]" && !connectedWallets[0]) {
-      //   // There is a wallet but onboardJS hasn't loaded it yet. Stay in the loading state
-      //   return;
-      // }
-      // if (connectedWallets[0]) {
-      //   loadBlockchainData();
-      // } else {
-      //   setIsInitializing(false);
-      // }
+      const lastWallet = localStorage.getItem(
+        "onboard.js:last_connected_wallet"
+      );
+      if (lastWallet && lastWallet !== "[]" && !connectedWallets[0]) {
+        // There is a wallet but onboardJS hasn't loaded it yet. Stay in the loading state
+        return;
+      }
+      if (connectedWallets[0]) {
+        loadBlockchainData();
+      } else {
+        setIsInitializing(false);
+      }
     }, [connectedWallets, loadBlockchainData]);
 
     return (
