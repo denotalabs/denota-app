@@ -1,4 +1,5 @@
 import { Box, Button, Heading, Input, VStack } from "@chakra-ui/react";
+import axios from "axios";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -8,15 +9,23 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await axios.post(
+      "http://127.0.0.1:3000/signin",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       },
-      body: JSON.stringify({ email, password }),
-    });
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    const token = await response.json();
+    const token = await response.data();
 
     if (token) {
       localStorage.setItem("token", token);

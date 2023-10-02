@@ -27,7 +27,6 @@ import {
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
 import useDemoMode from "../../hooks/useDemoMode";
-import DesktopNav from "./DesktopNav";
 import { MobileNav } from "./MobileNav";
 
 interface LinkItemProps {
@@ -80,7 +79,6 @@ export default function SidebarNav({ children }: { children: ReactNode }) {
         </DrawerContent>
       </Drawer>
       <MobileNav onOpen={onOpen} />
-      <DesktopNav />
       <Box ml={{ base: 0, md: 60 }}>{children}</Box>
     </Box>
   );
