@@ -7,12 +7,7 @@ function HomeScreen() {
   return (
     <ProtectedPage>
       <Center alignItems={"flex-start"} width="100%" maxWidth="80rem">
-        <Center
-          flexDirection={"column"}
-          width="100%"
-          p={{ base: "4", lg: "0" }}
-        >
-          <br />
+        <Center flexDirection={"column"} width="100%">
           <MyNotas />
         </Center>
       </Center>
