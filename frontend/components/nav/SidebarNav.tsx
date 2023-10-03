@@ -26,7 +26,6 @@ import {
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
-import useDemoMode from "../../hooks/useDemoMode";
 
 interface LinkItemProps {
   name: string;
@@ -89,7 +88,7 @@ interface SidebarProps extends BoxProps {
 }
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
-  const isDemoMode = useDemoMode();
+  const isDemoMode = false;
   const filteredLinkItems = isDemoMode
     ? LinkItems
     : LinkItems.filter((link) => !["Social", "Contacts"].includes(link.name));
