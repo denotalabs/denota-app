@@ -8,7 +8,7 @@ import {
   useMemo,
   useReducer,
 } from "react";
-import { MotionBox } from "../../write/module/MotionBox";
+import { MotionBox } from "../MotionBox";
 import StepperContext, { StepperReducerInterface } from "./StepperContext";
 import StepperHeader from "./StepperHeader";
 

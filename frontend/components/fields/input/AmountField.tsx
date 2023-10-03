@@ -10,7 +10,6 @@ import {
   NumberInputStepper,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 
 interface Props {
   token: string;
@@ -18,32 +17,12 @@ interface Props {
 }
 
 function AmountField({ token, mode }: Props) {
-  const { blockchainState } = useBlockchainData();
   const [hasStarted, setHasStarted] = useState(false);
 
   function validateAmount(value: number) {
     setHasStarted(true);
     if (value <= 0) {
       return "Value must be greater than 0";
-    }
-    if (mode === "pay") {
-      switch (token) {
-        case "DAI":
-          if (Number(blockchainState.userDaiBalance) < value) {
-            return "Insufficient balance";
-          }
-          break;
-        case "WETH":
-          if (Number(blockchainState.userWethBalance) < value) {
-            return "Insufficient balance";
-          }
-          break;
-        case "NATIVE":
-          if (Number(blockchainState.walletBalance) < value) {
-            return "Insufficient balance";
-          }
-          break;
-      }
     }
     return undefined;
   }
