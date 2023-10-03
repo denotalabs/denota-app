@@ -1,12 +1,6 @@
-import {
-  Box,
-  Button,
-  Heading,
-  Input,
-  useToast,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Center, Input, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
+import Image from "next/image";
 import { ReactNode, useEffect, useState } from "react";
 
 interface Props {
@@ -38,7 +32,7 @@ export default function ProtectedPage({ children }: Props) {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:3000/signin",
+        "https://denota.klymr.me/signin",
         { email, password },
         {
           headers: {
@@ -93,9 +87,15 @@ export default function ProtectedPage({ children }: Props) {
           boxShadow="lg"
           bg="brand.100"
         >
-          <Box textAlign="center">
-            <Heading color="brand.200">Denota</Heading>
-          </Box>
+          <Center>
+            <Image
+              src="/logos/denota-logo-text.svg"
+              alt="denota logo text"
+              width={100}
+              height={20}
+              unoptimized={true}
+            />
+          </Center>
           <Box my={4} textAlign="left">
             <form
               onSubmit={(e) => {
