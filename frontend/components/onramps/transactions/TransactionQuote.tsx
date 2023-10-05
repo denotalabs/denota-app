@@ -51,6 +51,7 @@ const TransactionQuote: React.FC<ScreenProps> = () => {
                 });
               }
             } catch (error) {
+              console.log(error);
               toast({
                 title: "Quote error. Try refreshing page",
                 status: "error",
