@@ -1,33 +1,77 @@
 import { Box, Button, Center, Input, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import Image from "next/image";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 interface Props {
   children: ReactNode;
 }
 
+const TWO_DAYS_IN_MILLISECONDS = 172800000;
+
 export default function ProtectedPage({ children }: Props) {
   const [isLoggedIn, setIsLoggedIn] = useState<undefined | boolean>(undefined);
-
   const [buttonLoading, setButtonLoading] = useState(false);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const toast = useToast();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setIsLoggedIn(false);
-    } else {
-      // TODO: check token expiry
-      setIsLoggedIn(true);
-    }
+  const setTokenData = useCallback((data) => {
+    console.log({ data });
+    localStorage.setItem("token", data.access_token);
+    localStorage.setItem("refresh_token", data.refresh_token);
+    const expiresAt = new Date().getTime() + data.expires_in * 1000;
+    localStorage.setItem("expires_at", expiresAt.toString());
   }, []);
 
-  const handleSubmit = async () => {
+  const refreshAccessToken = useCallback(async () => {
+    const refreshToken = localStorage.getItem("refresh_token");
+
+    if (!refreshToken) {
+      setIsLoggedIn(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "https://denota.klymr.me/token/refresh",
+        { refreshToken: refreshToken },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = response.data;
+
+      if (data && data.access_token) {
+        setTokenData(data);
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setIsLoggedIn(false);
+    }
+  }, [setTokenData]);
+
+  useEffect(() => {
+    const currentTime = new Date().getTime();
+    const expiryTime = localStorage.getItem("expires_at");
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsLoggedIn((prev) => false);
+    } else if (currentTime >= parseInt(expiryTime) - TWO_DAYS_IN_MILLISECONDS) {
+      refreshAccessToken();
+    } else {
+      setIsLoggedIn((prev) => true);
+    }
+  }, [refreshAccessToken]);
+
+  const handleSubmit = useCallback(async () => {
     setButtonLoading(true);
 
     try {
@@ -41,10 +85,10 @@ export default function ProtectedPage({ children }: Props) {
         }
       );
 
-      const token = await response.data;
+      const data = response.data;
 
-      if (token) {
-        localStorage.setItem("token", token);
+      if (data && data.access_token) {
+        setTokenData(data);
         setIsLoggedIn(true);
       } else {
         toast({
@@ -64,7 +108,7 @@ export default function ProtectedPage({ children }: Props) {
       });
     }
     setButtonLoading(false);
-  };
+  }, [email, password, setTokenData, toast]);
 
   if (isLoggedIn === undefined) {
     return <></>;
