@@ -17,7 +17,6 @@ export default function ProtectedPage({ children }: Props) {
   const toast = useToast();
 
   const setTokenData = useCallback((data) => {
-    console.log({ data });
     localStorage.setItem("token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
     const expiresAt = new Date().getTime() + data.expires_in * 1000;
