@@ -1,6 +1,5 @@
 import { Box, HStack, Image, useToast, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { useOnrampNota } from "../../../context/OnrampDataProvider";
 
 import axios from "axios";
 import { useNotaForm } from "../../../context/NotaFormProvider";
@@ -9,9 +8,7 @@ import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import AmountField from "../../fields/input/AmountField";
 import TransactionTutorial from "./TransactionTutorial";
 
-const TransactionInput: React.FC<ScreenProps> = () => {
-  const { addOnrampNota, onrampNotas } = useOnrampNota();
-
+const TransactionQuote: React.FC<ScreenProps> = () => {
   const { updateNotaFormValues } = useNotaForm();
   const { next } = useStep();
   const toast = useToast();
@@ -39,7 +36,11 @@ const TransactionInput: React.FC<ScreenProps> = () => {
                 }
               );
               if (response.data) {
-                updateNotaFormValues({ amount: values.amount, riskScore });
+                updateNotaFormValues({
+                  amount: values.amount,
+                  riskScore,
+                  riskFee: response.data.quote,
+                });
                 next();
               } else {
                 toast({
@@ -82,4 +83,4 @@ const TransactionInput: React.FC<ScreenProps> = () => {
   );
 };
 
-export default TransactionInput;
+export default TransactionQuote;

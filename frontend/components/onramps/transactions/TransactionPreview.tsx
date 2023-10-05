@@ -27,14 +27,7 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
         value={notaFormValues.amount + " USDC"}
       />
       <DetailsRow title="Risk Score" value={notaFormValues.riskScore} />
-      <DetailsRow
-        title="Risk Fee"
-        value={
-          (notaFormValues.amount * (notaFormValues.riskScore / 10000)).toFixed(
-            2
-          ) + " USDC"
-        }
-      />
+      <DetailsRow title="Risk Fee" value={notaFormValues.riskFee + " USDC"} />
       <Text py={4}>
         The risk score is calculated using data about the payment, account, and
         withdrawal address. The risk score can be calculated by Denota, the
@@ -53,7 +46,7 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
             paymentId: String(onrampNotas.length + 1),
             date: new Date().toISOString().replace("T", " ").substring(0, 19),
             amount: notaFormValues.amount,
-            riskFee: notaFormValues.amount * (notaFormValues.riskScore / 10000),
+            riskFee: notaFormValues.riskFee,
             userId: "111122",
             paymentStatus: "Withdrawn",
             riskScore: notaFormValues.riskScore,
