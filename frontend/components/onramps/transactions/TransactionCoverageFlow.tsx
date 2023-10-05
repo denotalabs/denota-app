@@ -1,8 +1,8 @@
 import { VStack } from "@chakra-ui/react";
 import { NotaFormProvider } from "../../../context/NotaFormProvider";
 import Stepper from "../../designSystem/stepper/Stepper";
-import TransactionInput from "./TransactionInput";
 import TransactionPreview from "./TransactionPreview";
+import TransactionQuote from "./TransactionQuote";
 
 export function TransactionCoverageFlow() {
   return (
@@ -16,7 +16,7 @@ export function TransactionCoverageFlow() {
         gap={0}
       >
         <Stepper>
-          <TransactionInput
+          <TransactionQuote
             screenKey="input"
             screenTitle="Simulate Transaction"
           />

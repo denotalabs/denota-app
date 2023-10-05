@@ -1,19 +1,17 @@
-import { Box, HStack, Image, VStack } from "@chakra-ui/react";
+import { Box, HStack, Image, useToast, VStack } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { useOnrampNota } from "../../../context/OnrampDataProvider";
 
+import axios from "axios";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import AmountField from "../../fields/input/AmountField";
-import { wait } from "../PaymentActions";
 import TransactionTutorial from "./TransactionTutorial";
 
-const TransactionInput: React.FC<ScreenProps> = () => {
-  const { addOnrampNota, onrampNotas } = useOnrampNota();
-
+const TransactionQuote: React.FC<ScreenProps> = () => {
   const { updateNotaFormValues } = useNotaForm();
   const { next } = useStep();
+  const toast = useToast();
 
   return (
     <Box gap={2} px={4} w="100%">
@@ -25,10 +23,41 @@ const TransactionInput: React.FC<ScreenProps> = () => {
           }}
           onSubmit={async (values, actions) => {
             actions.setSubmitting(true);
-            await wait(2000);
             const riskScore = Math.floor(Math.random() * 50);
-            updateNotaFormValues({ amount: values.amount, riskScore });
-            next();
+            try {
+              const response = await axios.post(
+                "https://denota.klymr.me/quote",
+                { paymentAmount: values.amount, riskScore: riskScore },
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: localStorage.getItem("token"),
+                  },
+                }
+              );
+              if (response.data) {
+                updateNotaFormValues({
+                  amount: values.amount,
+                  riskScore,
+                  riskFee: response.data.quote,
+                });
+                next();
+              } else {
+                toast({
+                  title: "Quote error. Try refreshing page",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                });
+              }
+            } catch (error) {
+              toast({
+                title: "Quote error. Try refreshing page",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+              });
+            }
           }}
         >
           {(props) => {
@@ -54,4 +83,4 @@ const TransactionInput: React.FC<ScreenProps> = () => {
   );
 };
 
-export default TransactionInput;
+export default TransactionQuote;
