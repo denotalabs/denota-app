@@ -1,4 +1,5 @@
 import { Box, Text, useToast } from "@chakra-ui/react";
+import axios from "axios";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
@@ -6,7 +7,6 @@ import { useOnrampNota } from "../../../context/OnrampDataProvider";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps } from "../../designSystem/stepper/Stepper";
-import { wait } from "../PaymentActions";
 
 const TransactionPreview: React.FC<ScreenProps> = () => {
   const router = useRouter();
@@ -44,25 +44,59 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
         isLoading={isLoading}
         onClick={async () => {
           setIsLoading(true);
-          await wait(2000);
-          addOnrampNota({
-            paymentId: String(onrampNotas.length + 1),
-            date: new Date().toISOString().replace("T", " ").substring(0, 19),
-            amount: notaFormValues.amount,
-            riskFee: notaFormValues.riskFee,
-            userId: "111122",
-            paymentStatus: "Withdrawn",
-            riskScore: notaFormValues.riskScore,
-          });
-          toast({
-            title: "Transaction succeeded",
-            description: "Coverage added",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-          setIsLoading(false);
-          router.push("/", undefined, { shallow: true });
+          try {
+            const response = await axios.post(
+              "https://denota.klymr.me/nota",
+              {
+                paymentAmount: notaFormValues.amount,
+                riskScore: notaFormValues.riskScore,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: localStorage.getItem("token"),
+                },
+              }
+            );
+
+            if (response.data) {
+              addOnrampNota({
+                paymentId: String(onrampNotas.length + 1),
+                date: new Date()
+                  .toISOString()
+                  .replace("T", " ")
+                  .substring(0, 19),
+                amount: notaFormValues.amount,
+                riskFee: notaFormValues.riskFee,
+                userId: "111122",
+                paymentStatus: "Withdrawn",
+                riskScore: notaFormValues.riskScore,
+              });
+              toast({
+                title: "Transaction succeeded",
+                description: "Coverage added",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+              });
+              setIsLoading(false);
+              router.push("/", undefined, { shallow: true });
+            } else {
+              toast({
+                title: "Error creating coverage",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+              });
+            }
+          } catch (error) {
+            toast({
+              title: "Error creating coverage",
+              status: "error",
+              duration: 3000,
+              isClosable: true,
+            });
+          }
         }}
         mt={2}
       >
