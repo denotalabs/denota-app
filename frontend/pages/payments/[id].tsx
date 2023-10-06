@@ -38,6 +38,10 @@ function PaymentPage() {
     return false;
   }, [data.recoveryStatus]);
 
+  const riskFee = useMemo(() => {
+    return (data.paymentAmount / 10000.0) * data.riskScore;
+  }, [data.paymentAmount, data.riskScore]);
+
   return (
     <Stack width="100%">
       <Center>
@@ -57,17 +61,17 @@ function PaymentPage() {
             <DetailsRow title="UserId" value={data.userId} />
             <DetailsRow
               title="Fiat amount"
-              value={String(data.paymentAmount * 1.02) + " USD"}
+              value={`${data.paymentAmount * 1.02} USD`}
             />
             <DetailsRow title="Fiat Payment Method" value="ACH" />
             <DetailsRow
               title="Crypto amount"
-              value={String(data.paymentAmount) + " USDC"}
+              value={`${data.paymentAmount} USDC`}
             />
             <DetailsRow title="Status" value={data.recoveryStatus} />
             <DetailsRow title="Risk Score" value={String(data.riskScore)} />
             <DetailsRow title="Covered By Denota?" value="Yes" />
-            <DetailsRow title="Risk Fee" value={"[TODO] USDC"} />
+            <DetailsRow title="Risk Fee" value={`${riskFee} USDC`} />
             {shouldShowWithdrawalTx && (
               <DetailsRow
                 title="Withdrawal TX"

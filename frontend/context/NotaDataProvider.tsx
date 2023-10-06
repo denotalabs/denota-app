@@ -33,6 +33,16 @@ const NotaContext = createContext<NotaContextType>({
   updateNota: () => {},
 });
 
+const statusForRecoveryState = (recoveryState: number) => {
+  switch (recoveryState) {
+    case 0:
+      return "Withdrawn";
+    case 1:
+      return "Recovery Started";
+  }
+  return "";
+};
+
 // Create the context provider
 export const NotaProvider = ({ children }: { children: React.ReactNode }) => {
   const [notas, setNotas] = useState<Nota[]>([]);
@@ -54,11 +64,11 @@ export const NotaProvider = ({ children }: { children: React.ReactNode }) => {
     });
     const notas = response.data.map((item) => ({
       paymentId: item.id.toString(),
-      onchainId: item.onchain_id.toString(),
+      onchainId: item.onchain_id ? item.onchain_id.toString() : "",
       createdAt: item.created_at,
       paymentAmount: item.payment_amount,
-      userId: item.user_id,
-      recoveryStatus: item.recovery_status.toString(),
+      userId: item.user_id.substring(0, 8),
+      recoveryStatus: statusForRecoveryState(item.recovery_status),
       riskScore: item.risk_score,
     }));
     setNotas(notas);
