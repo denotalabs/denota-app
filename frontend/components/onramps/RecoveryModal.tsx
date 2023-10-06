@@ -1,6 +1,6 @@
 import { Text, VStack } from "@chakra-ui/react";
 import { useState } from "react";
-import { useOnrampNota } from "../../context/OnrampDataProvider";
+import { useNotas } from "../../context/NotaDataProvider";
 import RoundedButton from "../designSystem/RoundedButton";
 import SimpleModal from "../designSystem/SimpleModal";
 import { wait } from "./PaymentActions";
@@ -13,7 +13,7 @@ interface Props {
 
 function RecoveryModal(props: Props) {
   const [isLoading, setIsLoading] = useState(false);
-  const { updateOnrampNota } = useOnrampNota();
+  const { updateNota } = useNotas();
 
   return (
     <SimpleModal {...props}>
@@ -28,8 +28,8 @@ function RecoveryModal(props: Props) {
           onClick={async () => {
             setIsLoading(true);
             await wait(3000);
-            updateOnrampNota(props.paymentId, {
-              paymentStatus: "Recovery Started",
+            updateNota(props.paymentId, {
+              recoveryStatus: "Recovery Started",
             });
             props.onClose();
             setIsLoading(false);

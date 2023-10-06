@@ -6,7 +6,7 @@ import Head from "next/head";
 import SidebarNav from "../components/nav/SidebarNav";
 import ProtectedPage from "../components/ProtectedPage";
 import GoogleAnalytics from "../context/GoogleAnalytics";
-import { OnrampNotaProvider } from "../context/OnrampDataProvider";
+import { NotaProvider } from "../context/NotaDataProvider";
 import customTheme from "../theme";
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -25,7 +25,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <GoogleAnalytics measurementId="G-RX5F5Q2B8D" />
       <ChakraProvider theme={customTheme} resetCSS={true}>
-        <OnrampNotaProvider>
+        <NotaProvider>
           <Box minH="100vh" bgGradient="linear(to-r, brand.400, brand.500)">
             <ProtectedPage>
               <SidebarNav>
@@ -33,7 +33,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               </SidebarNav>
             </ProtectedPage>
           </Box>
-        </OnrampNotaProvider>
+        </NotaProvider>
       </ChakraProvider>
     </>
   );
