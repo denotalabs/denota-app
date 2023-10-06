@@ -4,50 +4,39 @@ import { useMemo } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import DetailsBox from "../../components/onramps/DetailsBox";
 import { PaymentActions } from "../../components/onramps/PaymentActions";
-import { useOnrampNota } from "../../context/OnrampDataProvider";
-
-const defaultFakePayment = {
-  paymentId: "4",
-  date: "2023-07-04 12:08:19",
-  amount: 275,
-  riskFee: 0.9625,
-  userId: "111122",
-  paymentStatus: "Requested",
-  riskScore: 35,
-};
+import { useNotas } from "../../context/OnrampDataProvider";
 
 function PaymentPage() {
   const router = useRouter();
   const id: string = router.query.id as string;
-  const { onrampNotas } = useOnrampNota();
-  const data =
-    onrampNotas.find((nota) => nota.paymentId === id) ?? defaultFakePayment;
+  const { notas: onrampNotas } = useNotas();
+  const data = onrampNotas.find((nota) => nota.paymentId === id);
 
   const shouldShowWithdrawalTx = useMemo(() => {
-    switch (data.paymentStatus) {
+    switch (data.recoveryStatus) {
       case "Clawed Back":
       case "Released":
       case "Withdrawn":
         return true;
     }
     return false;
-  }, [data.paymentStatus]);
+  }, [data.recoveryStatus]);
 
   const shouldShowReleaseTx = useMemo(() => {
-    switch (data.paymentStatus) {
+    switch (data.recoveryStatus) {
       case "Released":
         return true;
     }
     return false;
-  }, [data.paymentStatus]);
+  }, [data.recoveryStatus]);
 
   const shouldShowClawBackTx = useMemo(() => {
-    switch (data.paymentStatus) {
+    switch (data.recoveryStatus) {
       case "Clawed Back":
         return true;
     }
     return false;
-  }, [data.paymentStatus]);
+  }, [data.recoveryStatus]);
 
   return (
     <Stack width="100%">
@@ -64,24 +53,21 @@ function PaymentPage() {
             Payment # {id}
           </Text>
           <DetailsBox>
-            <DetailsRow title="Timestamp" value={data.date} />
+            <DetailsRow title="Timestamp" value={data.createdAt} />
             <DetailsRow title="UserId" value={data.userId} />
             <DetailsRow
-              title="Fiat Amount"
-              value={String(data.amount * 1.02) + " USD"}
+              title="Fiat amount"
+              value={String(data.paymentAmount * 1.02) + " USD"}
             />
             <DetailsRow title="Fiat Payment Method" value="ACH" />
             <DetailsRow
-              title="Crypto Amount"
-              value={String(data.amount) + " USDC"}
+              title="Crypto amount"
+              value={String(data.paymentAmount) + " USDC"}
             />
-            <DetailsRow title="Status" value={data.paymentStatus} />
+            <DetailsRow title="Status" value={data.recoveryStatus} />
             <DetailsRow title="Risk Score" value={String(data.riskScore)} />
             <DetailsRow title="Covered By Denota?" value="Yes" />
-            <DetailsRow
-              title="Risk Fee"
-              value={String(data.riskFee.toFixed(2)) + " USDC"}
-            />
+            <DetailsRow title="Risk Fee" value={"[TODO] USDC"} />
             {shouldShowWithdrawalTx && (
               <DetailsRow
                 title="Withdrawal TX"
@@ -105,7 +91,7 @@ function PaymentPage() {
             )}
           </DetailsBox>
           <PaymentActions
-            status={data.paymentStatus}
+            status={data.recoveryStatus}
             paymentId={id}
             style="big"
           />

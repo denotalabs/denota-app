@@ -3,7 +3,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import { useOnrampNota } from "../../../context/OnrampDataProvider";
+import { useNotas } from "../../../context/OnrampDataProvider";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps } from "../../designSystem/stepper/Stepper";
@@ -11,7 +11,7 @@ import { ScreenProps } from "../../designSystem/stepper/Stepper";
 const TransactionPreview: React.FC<ScreenProps> = () => {
   const router = useRouter();
   const toast = useToast();
-  const { addOnrampNota, onrampNotas } = useOnrampNota();
+  const { refresh } = useNotas();
   const { notaFormValues } = useNotaForm();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,18 +60,7 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
             );
 
             if (response.data) {
-              addOnrampNota({
-                paymentId: String(onrampNotas.length + 1),
-                date: new Date()
-                  .toISOString()
-                  .replace("T", " ")
-                  .substring(0, 19),
-                amount: notaFormValues.amount,
-                riskFee: notaFormValues.riskFee,
-                userId: "111122",
-                paymentStatus: "Withdrawn",
-                riskScore: notaFormValues.riskScore,
-              });
+              refresh();
               toast({
                 title: "Transaction succeeded",
                 description: "Coverage added",
