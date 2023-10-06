@@ -6,7 +6,7 @@ import Head from "next/head";
 import SidebarNav from "../components/nav/SidebarNav";
 import ProtectedPage from "../components/ProtectedPage";
 import GoogleAnalytics from "../context/GoogleAnalytics";
-import { NotaProvider } from "../context/OnrampDataProvider";
+import { NotaProvider } from "../context/NotaDataProvider";
 import customTheme from "../theme";
 
 function MyApp({ Component, pageProps }: AppProps) {

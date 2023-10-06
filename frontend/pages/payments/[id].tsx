@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import DetailsBox from "../../components/onramps/DetailsBox";
 import { PaymentActions } from "../../components/onramps/PaymentActions";
-import { useNotas } from "../../context/OnrampDataProvider";
+import { useNotas } from "../../context/NotaDataProvider";
 
 function PaymentPage() {
   const router = useRouter();

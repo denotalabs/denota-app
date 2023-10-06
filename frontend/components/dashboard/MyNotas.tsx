@@ -2,7 +2,7 @@ import { Link, VStack } from "@chakra-ui/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import NextLink from "next/link";
 import { useMemo } from "react";
-import { Nota, useNotas } from "../../context/OnrampDataProvider";
+import { Nota, useNotas } from "../../context/NotaDataProvider";
 import { PaymentActions } from "../onramps/PaymentActions";
 import { DataTable } from "./table/NotaTable";
 

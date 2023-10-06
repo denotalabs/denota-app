@@ -1,6 +1,6 @@
 import { Text, VStack } from "@chakra-ui/react";
 import { useState } from "react";
-import { useNotas } from "../../context/OnrampDataProvider";
+import { useNotas } from "../../context/NotaDataProvider";
 import RoundedButton from "../designSystem/RoundedButton";
 import SimpleModal from "../designSystem/SimpleModal";
 import { wait } from "./PaymentActions";
