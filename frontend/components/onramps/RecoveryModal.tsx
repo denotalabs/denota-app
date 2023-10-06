@@ -29,7 +29,7 @@ function RecoveryModal(props: Props) {
             setIsLoading(true);
             await wait(3000);
             updateNota(props.paymentId, {
-              paymentStatus: "Recovery Started",
+              recoveryStatus: "Recovery Started",
             });
             props.onClose();
             setIsLoading(false);
