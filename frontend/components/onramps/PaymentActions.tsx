@@ -25,7 +25,7 @@ export function PaymentActions({ status, paymentId, style }: ActionsProp) {
           <RecoveryModal
             isOpen={isOpen}
             onClose={onClose}
-            paymentId={paymentId}
+            onchainId={paymentId}
           />
           <ButtonGroup>
             <Button

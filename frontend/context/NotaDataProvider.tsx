@@ -21,7 +21,6 @@ export type Nota = {
 type NotaContextType = {
   notas: Nota[];
   refresh: () => void;
-  updateNota: (paymentId: string, updatedNota: Partial<Nota>) => void;
 };
 
 // Create the context with default values
@@ -29,8 +28,6 @@ const NotaContext = createContext<NotaContextType>({
   notas: [],
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   refresh: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  updateNota: () => {},
 });
 
 const statusForRecoveryState = (recoveryState: number) => {
@@ -46,14 +43,6 @@ const statusForRecoveryState = (recoveryState: number) => {
 // Create the context provider
 export const NotaProvider = ({ children }: { children: React.ReactNode }) => {
   const [notas, setNotas] = useState<Nota[]>([]);
-
-  const updateNota = (paymentId: string, updatedNota: Partial<Nota>) => {
-    setNotas((prevNotas) =>
-      prevNotas.map((nota) =>
-        nota.paymentId === paymentId ? { ...nota, ...updatedNota } : nota
-      )
-    );
-  };
 
   const fetchNotas = useCallback(async () => {
     const response = await axios.get("https://denota.klymr.me/notas", {
@@ -79,9 +68,7 @@ export const NotaProvider = ({ children }: { children: React.ReactNode }) => {
   }, [fetchNotas]);
 
   return (
-    <NotaContext.Provider
-      value={{ notas: notas, refresh: fetchNotas, updateNota }}
-    >
+    <NotaContext.Provider value={{ notas: notas, refresh: fetchNotas }}>
       {children}
     </NotaContext.Provider>
   );
