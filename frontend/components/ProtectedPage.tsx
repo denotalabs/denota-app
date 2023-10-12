@@ -1,7 +1,7 @@
 import { Box, Button, Center, Input, useToast, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import Image from "next/image";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 interface Props {
   children: ReactNode;
@@ -15,6 +15,7 @@ export default function ProtectedPage({ children }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const toast = useToast();
+  const initialized = useRef(false);
 
   const setTokenData = useCallback((data) => {
     localStorage.setItem("token", data.access_token);
@@ -57,11 +58,14 @@ export default function ProtectedPage({ children }: Props) {
   }, [setTokenData]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setIsLoggedIn((prev) => false);
-    } else {
-      refreshAccessToken();
+    if (!initialized.current) {
+      initialized.current = true;
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setIsLoggedIn((prev) => false);
+      } else {
+        refreshAccessToken();
+      }
     }
   }, [refreshAccessToken]);
 
