@@ -25,15 +25,15 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <GoogleAnalytics measurementId="G-RX5F5Q2B8D" />
       <ChakraProvider theme={customTheme} resetCSS={true}>
-        <NotaProvider>
-          <Box minH="100vh" bgGradient="linear(to-r, brand.400, brand.500)">
-            <ProtectedPage>
-              <SidebarNav>
+        <Box minH="100vh" bgGradient="linear(to-r, brand.400, brand.500)">
+          <ProtectedPage>
+            <SidebarNav>
+              <NotaProvider>
                 <Component {...pageProps} />
-              </SidebarNav>
-            </ProtectedPage>
-          </Box>
-        </NotaProvider>
+              </NotaProvider>
+            </SidebarNav>
+          </ProtectedPage>
+        </Box>
       </ChakraProvider>
     </>
   );
