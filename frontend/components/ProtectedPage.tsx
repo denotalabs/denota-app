@@ -57,16 +57,11 @@ export default function ProtectedPage({ children }: Props) {
   }, [setTokenData]);
 
   useEffect(() => {
-    const currentTime = new Date().getTime();
-    const expiryTime = localStorage.getItem("expires_at");
-
     const token = localStorage.getItem("token");
     if (!token) {
       setIsLoggedIn((prev) => false);
-    } else if (currentTime >= parseInt(expiryTime) - TWO_DAYS_IN_MILLISECONDS) {
-      refreshAccessToken();
     } else {
-      setIsLoggedIn((prev) => true);
+      refreshAccessToken();
     }
   }, [refreshAccessToken]);
 
