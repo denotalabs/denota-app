@@ -96,7 +96,7 @@ function PaymentPage() {
           </DetailsBox>
           <PaymentActions
             status={data.recoveryStatus}
-            paymentId={id}
+            paymentId={data.onchainId}
             style="big"
           />
         </VStack>

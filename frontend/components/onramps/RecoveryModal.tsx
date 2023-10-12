@@ -1,24 +1,25 @@
-import { Text, VStack } from "@chakra-ui/react";
+import { Text, useToast, VStack } from "@chakra-ui/react";
+import axios from "axios";
 import { useState } from "react";
 import { useNotas } from "../../context/NotaDataProvider";
 import RoundedButton from "../designSystem/RoundedButton";
 import SimpleModal from "../designSystem/SimpleModal";
-import { wait } from "./PaymentActions";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  paymentId: string;
+  onchainId: string;
 }
 
 function RecoveryModal(props: Props) {
   const [isLoading, setIsLoading] = useState(false);
-  const { updateNota } = useNotas();
+  const { refresh } = useNotas();
+  const toast = useToast();
 
   return (
     <SimpleModal {...props}>
       <VStack gap={4} mt={10} mb={6}>
-        <Text>{`Payment #${props.paymentId}`}</Text>
+        <Text>{`Payment #${props.onchainId}`}</Text>
         <Text>
           Denota is built on smart contracts and DeFi so the recovery process is
           transparent and efficient.
@@ -27,12 +28,48 @@ function RecoveryModal(props: Props) {
         <RoundedButton
           onClick={async () => {
             setIsLoading(true);
-            await wait(3000);
-            updateNota(props.paymentId, {
-              recoveryStatus: "Recovery Started",
-            });
-            props.onClose();
-            setIsLoading(false);
+
+            try {
+              const response = await axios.post(
+                "https://denota.klymr.me/recovery",
+                {
+                  notaId: props.onchainId,
+                },
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: localStorage.getItem("token"),
+                  },
+                }
+              );
+              if (response.data) {
+                refresh();
+                toast({
+                  title: "Recovery started",
+                  status: "success",
+                  duration: 3000,
+                  isClosable: true,
+                });
+                props.onClose();
+              } else {
+                toast({
+                  title: "Recovery error",
+                  status: "error",
+                  duration: 3000,
+                  isClosable: true,
+                });
+              }
+            } catch (error) {
+              toast({
+                title: "Recovery error",
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+              });
+              console.log(error);
+            } finally {
+              setIsLoading(false);
+            }
           }}
           isLoading={isLoading}
         >
