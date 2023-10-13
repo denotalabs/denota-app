@@ -1,4 +1,12 @@
-import { Box, Button, Center, Input, useToast, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Input,
+  Spinner,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
 import axios from "axios";
 import Image from "next/image";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
@@ -6,8 +14,6 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 interface Props {
   children: ReactNode;
 }
-
-const TWO_DAYS_IN_MILLISECONDS = 172800000;
 
 export default function ProtectedPage({ children }: Props) {
   const [isLoggedIn, setIsLoggedIn] = useState<undefined | boolean>(undefined);
@@ -109,7 +115,11 @@ export default function ProtectedPage({ children }: Props) {
   }, [email, password, setTokenData, toast]);
 
   if (isLoggedIn === undefined) {
-    return <></>;
+    return (
+      <Center>
+        <Spinner size="xl" />
+      </Center>
+    );
   }
 
   if (isLoggedIn === false) {
