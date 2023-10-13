@@ -23,6 +23,7 @@ import {
   MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
+  MdOutlinePerson,
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
@@ -44,6 +45,12 @@ const LinkItems: Array<LinkItemProps> = [
     name: "New Transaction",
     icon: MdOutlineAdd,
     href: "/send",
+    isExternal: false,
+  },
+  {
+    name: "Profile",
+    icon: MdOutlinePerson,
+    href: "/profile",
     isExternal: false,
   },
   {
