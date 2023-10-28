@@ -30,18 +30,26 @@ const DenotaProfile = () => {
     }
 
     const usdc = new ethers.Contract(
-      "0xE8958F60bf2e3fa00be499b3E1cBcd52fBf389b6",
+      "0xc5B6c09dc6595Eb949739f7Cd6A8d542C2aabF4b",
       erc20.abi,
       new ethers.providers.JsonRpcProvider(
         "https://polygon-mumbai-bor.publicnode.com/"
       )
     );
 
-    const formattedUserBalance = ethers.utils.formatUnits(
-      await usdc.balanceOf(response.data.subaccount_address)
+    const formattedUserBalance = String(
+      parseFloat(
+        ethers.utils.formatUnits(
+          await usdc.balanceOf(response.data.subaccount_address)
+        )
+      ).toFixed(2)
     );
-    const formattedReserveBalance = ethers.utils.formatUnits(
-      await usdc.balanceOf("0xE8958F60bf2e3fa00be499b3E1cBcd52fBf389b6")
+    const formattedReserveBalance = String(
+      parseFloat(
+        ethers.utils.formatUnits(
+          await usdc.balanceOf("0xE8958F60bf2e3fa00be499b3E1cBcd52fBf389b6")
+        )
+      ).toFixed(2)
     );
 
     setUserBalance(formattedUserBalance);
@@ -66,8 +74,14 @@ const DenotaProfile = () => {
             value={formatAddress(subaccountAddress)}
             copyValue={subaccountAddress}
           />
-          <DetailsRow title="Subaccount Balance" value={userBalance} />
-          <DetailsRow title="Reserve Balance" value={reserveBalance} />
+          <DetailsRow
+            title="Subaccount Balance"
+            value={`${userBalance} USDC`}
+          />
+          <DetailsRow
+            title="Reserve Balance"
+            value={`${reserveBalance} USDC`}
+          />
         </DetailsBox>
       </VStack>
     </Center>
