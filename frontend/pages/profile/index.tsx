@@ -1,4 +1,4 @@
-import { Center, VStack } from "@chakra-ui/react";
+import { Center, Spinner, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import { ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
@@ -12,8 +12,8 @@ const DenotaProfile = () => {
   const [subaccountAddress, setSubaccountAddress] = useState<
     string | undefined
   >();
-  const [userBalance, setUserBalance] = useState("");
-  const [reserveBalance, setReserveBalance] = useState("");
+  const [userBalance, setUserBalance] = useState<string | undefined>();
+  const [reserveBalance, setReserveBalance] = useState<string | undefined>();
 
   const { formatAddress } = useFormatAddress();
 
@@ -60,8 +60,12 @@ const DenotaProfile = () => {
     fetchUser();
   }, [fetchUser]);
 
-  if (!(userEmail || subaccountAddress)) {
-    return <></>;
+  if (!(userEmail && subaccountAddress && userBalance && reserveBalance)) {
+    return (
+      <Center w="100%" h="100%">
+        <Spinner size="xl" />
+      </Center>
+    );
   }
 
   return (
