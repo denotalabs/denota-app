@@ -1,8 +1,10 @@
-import { Center, VStack } from "@chakra-ui/react";
+import { Center, Spinner, VStack } from "@chakra-ui/react";
 import axios from "axios";
+import { ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import DetailsBox from "../../components/onramps/DetailsBox";
+import erc20 from "../../frontend-abi/ERC20.sol/TestERC20.json";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
 
 const DenotaProfile = () => {
@@ -10,6 +12,8 @@ const DenotaProfile = () => {
   const [subaccountAddress, setSubaccountAddress] = useState<
     string | undefined
   >();
+  const [userBalance, setUserBalance] = useState<string | undefined>();
+  const [reserveBalance, setReserveBalance] = useState<string | undefined>();
 
   const { formatAddress } = useFormatAddress();
 
@@ -24,14 +28,44 @@ const DenotaProfile = () => {
       setUserEmail(response.data.email);
       setSubaccountAddress(response.data.subaccount_address);
     }
+
+    const usdc = new ethers.Contract(
+      "0xc5B6c09dc6595Eb949739f7Cd6A8d542C2aabF4b",
+      erc20.abi,
+      new ethers.providers.JsonRpcProvider(
+        "https://polygon-mumbai-bor.publicnode.com/"
+      )
+    );
+
+    const formattedUserBalance = String(
+      parseFloat(
+        ethers.utils.formatUnits(
+          await usdc.balanceOf(response.data.subaccount_address)
+        )
+      ).toFixed(2)
+    );
+    const formattedReserveBalance = String(
+      parseFloat(
+        ethers.utils.formatUnits(
+          await usdc.balanceOf("0xE8958F60bf2e3fa00be499b3E1cBcd52fBf389b6")
+        )
+      ).toFixed(2)
+    );
+
+    setUserBalance(formattedUserBalance);
+    setReserveBalance(formattedReserveBalance);
   }, []);
 
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
-  if (!(userEmail || subaccountAddress)) {
-    return <></>;
+  if (!(userEmail && subaccountAddress && userBalance && reserveBalance)) {
+    return (
+      <Center w="100%" h="100%">
+        <Spinner size="xl" />
+      </Center>
+    );
   }
 
   return (
@@ -43,6 +77,14 @@ const DenotaProfile = () => {
             title="Subaccount Address"
             value={formatAddress(subaccountAddress)}
             copyValue={subaccountAddress}
+          />
+          <DetailsRow
+            title="Subaccount Balance"
+            value={`${userBalance} USDC`}
+          />
+          <DetailsRow
+            title="Reserve Balance"
+            value={`${reserveBalance} USDC`}
           />
         </DetailsBox>
       </VStack>
