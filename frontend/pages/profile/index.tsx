@@ -46,7 +46,7 @@ const DenotaProfile = () => {
     const formattedReserveBalance = String(
       parseFloat(
         ethers.utils.formatUnits(
-          await usdc.balanceOf("0xE8958F60bf2e3fa00be499b3E1cBcd52fBf389b6"),
+          await usdc.balanceOf("0x16E421294cB4d084D7BD52FaF4183cEffff1cF23"),
           6
         )
       ).toFixed(2)
