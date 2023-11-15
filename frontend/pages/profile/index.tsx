@@ -30,24 +30,24 @@ const DenotaProfile = () => {
     }
 
     const usdc = new ethers.Contract(
-      "0xc5B6c09dc6595Eb949739f7Cd6A8d542C2aabF4b",
+      "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
       erc20.abi,
-      new ethers.providers.JsonRpcProvider(
-        "https://polygon-mumbai-bor.publicnode.com/"
-      )
+      new ethers.providers.JsonRpcProvider("https://polygon-rpc.com/")
     );
 
     const formattedUserBalance = String(
       parseFloat(
         ethers.utils.formatUnits(
-          await usdc.balanceOf(response.data.subaccount_address)
+          await usdc.balanceOf(response.data.subaccount_address),
+          6
         )
       ).toFixed(2)
     );
     const formattedReserveBalance = String(
       parseFloat(
         ethers.utils.formatUnits(
-          await usdc.balanceOf("0xE8958F60bf2e3fa00be499b3E1cBcd52fBf389b6")
+          await usdc.balanceOf("0x16E421294cB4d084D7BD52FaF4183cEffff1cF23"),
+          6
         )
       ).toFixed(2)
     );
