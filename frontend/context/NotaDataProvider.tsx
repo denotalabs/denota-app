@@ -33,7 +33,7 @@ const NotaContext = createContext<NotaContextType>({
 const statusForRecoveryState = (recoveryState: number) => {
   switch (recoveryState) {
     case 0:
-      return "Withdrawn";
+      return "Covered";
     case 1:
       return "Recovery Started";
   }
