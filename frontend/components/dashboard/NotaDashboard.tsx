@@ -68,10 +68,6 @@ function MyNotas() {
         cell: (info) => info.getValue() + " USDC",
         header: "Amount",
       }),
-      columnHelper.accessor("riskScore", {
-        cell: (info) => info.getValue(),
-        header: "Risk score",
-      }),
       columnHelper.accessor("recoveryStatus", {
         cell: (info) => info.getValue(),
         header: "Payment status",

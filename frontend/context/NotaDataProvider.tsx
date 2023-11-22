@@ -14,7 +14,7 @@ export type Nota = {
   paymentAmount: number;
   userId: string;
   recoveryStatus: string;
-  riskScore: number;
+  mintTx: string;
 };
 
 // Create the context type
@@ -33,7 +33,7 @@ const NotaContext = createContext<NotaContextType>({
 const statusForRecoveryState = (recoveryState: number) => {
   switch (recoveryState) {
     case 0:
-      return "Withdrawn";
+      return "Covered";
     case 1:
       return "Recovery Started";
   }
@@ -59,6 +59,7 @@ export const NotaProvider = ({ children }: { children: React.ReactNode }) => {
       userId: item.user_id.substring(0, 8),
       recoveryStatus: statusForRecoveryState(item.recovery_status),
       riskScore: item.risk_score,
+      mintTx: item.mint_tx_hash,
     }));
     setNotas(notas);
   }, []);

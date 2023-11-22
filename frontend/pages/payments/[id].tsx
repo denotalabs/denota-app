@@ -1,10 +1,10 @@
 import { Center, Stack, Text, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useMemo } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import DetailsBox from "../../components/onramps/DetailsBox";
 import { PaymentActions } from "../../components/onramps/PaymentActions";
 import { useNotas } from "../../context/NotaDataProvider";
+import { useFormatAddress } from "../../hooks/useFormatAddress";
 
 function PaymentPage() {
   const router = useRouter();
@@ -12,35 +12,11 @@ function PaymentPage() {
   const { notas: onrampNotas } = useNotas();
   const data = onrampNotas.find((nota) => nota.paymentId === id);
 
-  const shouldShowWithdrawalTx = useMemo(() => {
-    switch (data.recoveryStatus) {
-      case "Clawed Back":
-      case "Released":
-      case "Withdrawn":
-        return true;
-    }
-    return false;
-  }, [data.recoveryStatus]);
+  const { formatAddress } = useFormatAddress();
 
-  const shouldShowReleaseTx = useMemo(() => {
-    switch (data.recoveryStatus) {
-      case "Released":
-        return true;
-    }
-    return false;
-  }, [data.recoveryStatus]);
-
-  const shouldShowClawBackTx = useMemo(() => {
-    switch (data.recoveryStatus) {
-      case "Clawed Back":
-        return true;
-    }
-    return false;
-  }, [data.recoveryStatus]);
-
-  const riskFee = useMemo(() => {
-    return (data.paymentAmount / 10000.0) * data.riskScore;
-  }, [data.paymentAmount, data.riskScore]);
+  if (!data) {
+    return <></>;
+  }
 
   return (
     <Stack width="100%">
@@ -69,30 +45,12 @@ function PaymentPage() {
               value={`${data.paymentAmount} USDC`}
             />
             <DetailsRow title="Status" value={data.recoveryStatus} />
-            <DetailsRow title="Risk Score" value={String(data.riskScore)} />
             <DetailsRow title="Covered By Denota?" value="Yes" />
-            <DetailsRow title="Risk Fee" value={`${riskFee} USDC`} />
-            {shouldShowWithdrawalTx && (
-              <DetailsRow
-                title="Withdrawal TX"
-                value={"0x123...456"}
-                link="https://google.com"
-              />
-            )}
-            {shouldShowReleaseTx && (
-              <DetailsRow
-                title="Release TX"
-                value={"0x987...345"}
-                link="https://google.com"
-              />
-            )}
-            {shouldShowClawBackTx && (
-              <DetailsRow
-                title="Clawback TX"
-                value={"0x456...321"}
-                link="https://google.com"
-              />
-            )}
+            <DetailsRow
+              title="Coverage TX"
+              value={formatAddress(data.mintTx)}
+              link={`https://polygonscan.com/tx/${data.mintTx}`}
+            />
           </DetailsBox>
           <PaymentActions
             status={data.recoveryStatus}
