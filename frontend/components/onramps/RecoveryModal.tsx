@@ -123,7 +123,7 @@ function RecoveryModal(props: Props) {
   return (
     <SimpleModal {...props}>
       <VStack gap={4} mt={10} mb={6}>
-        <Text>{`Payment #${props.onchainId}`}</Text>
+        <Text>{`Payment Recovery`}</Text>
         <Text>
           Denota is built on smart contracts and DeFi so the recovery process is
           transparent and efficient.
