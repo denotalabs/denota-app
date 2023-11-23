@@ -53,7 +53,8 @@ export const NotaProvider = ({ children }: { children: React.ReactNode }) => {
     });
     const notas = response.data.map((item) => ({
       paymentId: item.id.toString(),
-      onchainId: item.onchain_id ? item.onchain_id.toString() : "",
+      onchainId:
+        item.onchain_id !== undefined ? item.onchain_id.toString() : "",
       createdAt: item.created_at,
       paymentAmount: item.payment_amount,
       userId: item.user_id.substring(0, 8),
