@@ -8,10 +8,16 @@ export function wait(milliseconds) {
 interface ActionsProp {
   status: string;
   paymentId: string;
+  paymentAmount: number;
   style: "big" | "small";
 }
 
-export function PaymentActions({ status, paymentId, style }: ActionsProp) {
+export function PaymentActions({
+  status,
+  paymentId,
+  style,
+  paymentAmount,
+}: ActionsProp) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   switch (status) {
@@ -22,6 +28,7 @@ export function PaymentActions({ status, paymentId, style }: ActionsProp) {
             isOpen={isOpen}
             onClose={onClose}
             onchainId={paymentId}
+            paymentAmount={paymentAmount}
           />
           <ButtonGroup>
             <Button

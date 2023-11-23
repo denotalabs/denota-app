@@ -55,6 +55,7 @@ function PaymentPage() {
           <PaymentActions
             status={data.recoveryStatus}
             paymentId={data.onchainId}
+            paymentAmount={data.paymentAmount}
             style="big"
           />
         </VStack>
