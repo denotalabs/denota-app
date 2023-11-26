@@ -18,10 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <title>Denota App</title>
-        <meta
-          name="description"
-          content="Supercharged web3 pay for the future of work"
-        />
+        <meta name="description" content="Coverage and risk transfer demo" />
       </Head>
       <GoogleAnalytics measurementId="G-RX5F5Q2B8D" />
       <ChakraProvider theme={customTheme} resetCSS={true}>
