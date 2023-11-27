@@ -25,7 +25,6 @@ import {
   MdOutlineDynamicFeed,
   MdOutlinePerson,
 } from "react-icons/md";
-import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
 
 interface LinkItemProps {
@@ -159,17 +158,6 @@ const SocialIcons = () => {
         style={{ height: 40, width: 40 }}
         target="_blank"
       />
-      <Link href="https://discord.gg/DpXr3MsX" isExternal={true}>
-        <Center h="40px" w="40px">
-          <Icon
-            fontSize="20"
-            _groupHover={{
-              color: "white",
-            }}
-            as={SiDiscord}
-          />
-        </Center>
-      </Link>
       <SocialIcon
         fgColor="white"
         bgColor="transparent"

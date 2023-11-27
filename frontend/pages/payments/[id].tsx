@@ -45,7 +45,6 @@ function PaymentPage() {
               value={`${data.paymentAmount} USDC`}
             />
             <DetailsRow title="Status" value={data.recoveryStatus} />
-            <DetailsRow title="Covered By Denota?" value="Yes" />
             <DetailsRow
               title="Coverage TX"
               value={formatAddress(data.mintTx)}
