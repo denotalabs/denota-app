@@ -42,7 +42,7 @@ const statusForRecoveryState = (recoveryState: number) => {
 
 // Create the context provider
 export const NotaProvider = ({ children }: { children: React.ReactNode }) => {
-  const [notas, setNotas] = useState<Nota[]>([]);
+  const [notas, setNotas] = useState<Nota[] | undefined>(undefined);
 
   const fetchNotas = useCallback(async () => {
     const response = await axios.get("https://denota.klymr.me/notas", {
