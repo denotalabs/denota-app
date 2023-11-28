@@ -15,6 +15,7 @@ import StepperHeader from "./StepperHeader";
 interface StepperProps {
   children: ReactNode;
   onClose?: () => void;
+  hideHeader?: boolean;
 }
 
 enum StepperActionKind {
@@ -63,7 +64,7 @@ function reducer(state: StepperReducerInterface, action: StepperAction) {
   }
 }
 
-function Stepper({ children, onClose }: StepperProps) {
+function Stepper({ children, onClose, hideHeader = false }: StepperProps) {
   const allScreens: ReactNode[] = Children.toArray(children);
   const currentScreen: ReactNode =
     allScreens.length > 0 ? allScreens[0] : undefined;
@@ -96,12 +97,14 @@ function Stepper({ children, onClose }: StepperProps) {
         onClose,
       }}
     >
-      <StepperHeader
-        back={back}
-        onClose={onClose}
-        currentIndex={state.currentIndex}
-        title={screenTitle}
-      />
+      {!hideHeader && (
+        <StepperHeader
+          back={back}
+          onClose={onClose}
+          currentIndex={state.currentIndex}
+          title={screenTitle}
+        />
+      )}
       <AnimatePresence mode="wait">
         <Box
           key={(state.currentScreen as ReactElement).props.screenKey}
