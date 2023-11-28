@@ -32,7 +32,7 @@ export default function RegisterPage({ setTokenData, setIsLoggedIn }: Props) {
 
     try {
       const response = await axios.post(
-        "https://denota.klymr.me/register",
+        "http://127.0.0.1:3001/register",
         { email, password, inviteCode, onrampName },
         {
           headers: {

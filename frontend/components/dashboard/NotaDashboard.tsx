@@ -1,7 +1,9 @@
-import { Link, VStack } from "@chakra-ui/react";
+import { Button, Center, Link, Text, VStack } from "@chakra-ui/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 import { useMemo } from "react";
+import { MdOutlineAdd } from "react-icons/md";
 import { Nota, useNotas } from "../../context/NotaDataProvider";
 import { DataTable } from "./table/NotaTable";
 
@@ -46,6 +48,7 @@ function UserId({ userId }: UserIdProps) {
 
 function MyNotas() {
   const { notas: data } = useNotas();
+  const router = useRouter();
 
   const columns = useMemo(
     () => [
@@ -76,7 +79,7 @@ function MyNotas() {
     []
   );
 
-  if (!data || data.length === 0) {
+  if (!data) {
     return <></>;
   }
   return (
@@ -88,7 +91,31 @@ function MyNotas() {
       align="stretch"
       bg="brand.100"
     >
-      <DataTable columns={columns} data={data} />
+      {data.length === 0 ? (
+        <Center flexDirection={"column"}>
+          <Text fontSize={"xl"} py={3}>
+            {" "}
+            No notas found
+          </Text>
+          <Text fontWeight={600} fontSize={"xl"} textAlign="center" pb={6}>
+            <Button
+              bg="notaPurple.100"
+              w="min(40vw, 200px)"
+              onClick={() => {
+                router.push("/send", undefined, { shallow: true });
+              }}
+              fontSize="2xl"
+              size="lg"
+              borderRadius={5}
+              leftIcon={<MdOutlineAdd />}
+            >
+              New Nota
+            </Button>{" "}
+          </Text>
+        </Center>
+      ) : (
+        <DataTable columns={columns} data={data} />
+      )}
     </VStack>
   );
 }
