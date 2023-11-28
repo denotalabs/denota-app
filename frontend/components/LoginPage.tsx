@@ -11,7 +11,7 @@ import {
 import axios from "axios";
 import Image from "next/image";
 import { SetStateAction, useCallback, useState } from "react";
-import { ScreenProps } from "./designSystem/stepper/Stepper";
+import { ScreenProps, useStep } from "./designSystem/stepper/Stepper";
 
 interface Props extends ScreenProps {
   setTokenData: (data: any) => void;
@@ -23,6 +23,7 @@ export default function LoginPage({ setTokenData, setIsLoggedIn }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const toast = useToast();
+  const { next } = useStep();
 
   const handleSubmit = useCallback(async () => {
     setButtonLoading(true);
@@ -126,7 +127,7 @@ export default function LoginPage({ setTokenData, setIsLoggedIn }: Props) {
       </Box>
       <Text py={2.5}>
         Don't have an account?{" "}
-        <Link color="teal.500" href="register">
+        <Link color="teal.500" onClick={next}>
           Sign up
         </Link>
       </Text>

@@ -3,6 +3,7 @@ import axios from "axios";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import Stepper from "./designSystem/stepper/Stepper";
 import LoginPage from "./LoginPage";
+import RegisterPage from "./RegisterPage";
 
 interface Props {
   children: ReactNode;
@@ -79,6 +80,12 @@ export default function ProtectedPage({ children }: Props) {
           setIsLoggedIn={setIsLoggedIn}
           setTokenData={setTokenData}
           screenKey="logIn"
+          screenTitle=""
+        />
+        <RegisterPage
+          setIsLoggedIn={setIsLoggedIn}
+          setTokenData={setTokenData}
+          screenKey="register"
           screenTitle=""
         />
       </Stepper>
