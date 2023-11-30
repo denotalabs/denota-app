@@ -26,10 +26,10 @@ const DenotaProfile = () => {
 
   const { formatAddress } = useFormatAddress();
 
-  const { apiMode, setAPIMode } = useDenotaAPI();
+  const { apiEndpoint, apiMode, setAPIMode } = useDenotaAPI();
 
   const fetchUser = useCallback(async () => {
-    const response = await axios.get("https://denota.klymr.me/user", {
+    const response = await axios.get(`${apiEndpoint}/user`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: localStorage.getItem("token"),
@@ -65,7 +65,7 @@ const DenotaProfile = () => {
 
     setUserBalance(formattedUserBalance);
     setReserveBalance(formattedReserveBalance);
-  }, []);
+  }, [apiEndpoint]);
 
   useEffect(() => {
     fetchUser();
@@ -99,7 +99,7 @@ const DenotaProfile = () => {
           />
         </DetailsBox>
         <DetailsBox w={500} bg="brand.100">
-          <Text fontWeight={600} fontSize="xl" w="100%">
+          <Text fontWeight={600} fontSize="lg" w="100%">
             API Environment
           </Text>
           <RadioGroup onChange={setAPIMode} value={apiMode}>

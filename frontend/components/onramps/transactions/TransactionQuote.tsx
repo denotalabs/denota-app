@@ -3,6 +3,7 @@ import { Form, Formik } from "formik";
 
 import axios from "axios";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import useDenotaAPI from "../../../hooks/useDenotaAPI";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import AmountField from "../../fields/input/AmountField";
@@ -12,6 +13,7 @@ const TransactionQuote: React.FC<ScreenProps> = () => {
   const { updateNotaFormValues } = useNotaForm();
   const { next } = useStep();
   const toast = useToast();
+  const { apiEndpoint } = useDenotaAPI();
 
   return (
     <Box gap={2} px={4} w="100%">
@@ -26,7 +28,7 @@ const TransactionQuote: React.FC<ScreenProps> = () => {
             const riskScore = Math.floor(Math.random() * 50);
             try {
               const response = await axios.post(
-                "https://denota.klymr.me/quote",
+                `${apiEndpoint}/quote`,
                 { paymentAmount: values.amount, riskScore: riskScore },
                 {
                   headers: {

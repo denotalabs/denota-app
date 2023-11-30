@@ -11,6 +11,7 @@ import { ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNotas } from "../../context/NotaDataProvider";
 import erc20 from "../../frontend-abi/ERC20.sol/TestERC20.json";
+import useDenotaAPI from "../../hooks/useDenotaAPI";
 import RoundedButton from "../designSystem/RoundedButton";
 import SimpleModal from "../designSystem/SimpleModal";
 
@@ -54,12 +55,14 @@ function RecoveryModal(props: Props) {
     fetchData();
   }, [fetchData]);
 
+  const { apiEndpoint } = useDenotaAPI();
+
   const startRecovery = useCallback(async () => {
     setIsLoading(true);
 
     try {
       const response = await axios.post(
-        "https://denota.klymr.me/recovery",
+        `${apiEndpoint}/recovery`,
         {
           notaId: props.onchainId,
         },
