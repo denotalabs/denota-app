@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import useDenotaAPI from "../hooks/useDenotaAPI";
 
 export type Nota = {
   paymentId: string;
@@ -43,9 +44,10 @@ const statusForRecoveryState = (recoveryState: number) => {
 // Create the context provider
 export const NotaProvider = ({ children }: { children: React.ReactNode }) => {
   const [notas, setNotas] = useState<Nota[] | undefined>(undefined);
+  const { apiEndpoint } = useDenotaAPI();
 
   const fetchNotas = useCallback(async () => {
-    const response = await axios.get("https://denota.klymr.me/notas", {
+    const response = await axios.get(`${apiEndpoint}/notas`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: localStorage.getItem("token"),

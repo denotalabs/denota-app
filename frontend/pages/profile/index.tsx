@@ -1,10 +1,19 @@
-import { Center, Spinner, VStack } from "@chakra-ui/react";
+import {
+  Center,
+  Radio,
+  RadioGroup,
+  Spinner,
+  Stack,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import axios from "axios";
 import { ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
 import DetailsRow from "../../components/designSystem/DetailsRow";
 import DetailsBox from "../../components/onramps/DetailsBox";
 import erc20 from "../../frontend-abi/ERC20.sol/TestERC20.json";
+import useDenotaAPI from "../../hooks/useDenotaAPI";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
 
 const DenotaProfile = () => {
@@ -17,8 +26,10 @@ const DenotaProfile = () => {
 
   const { formatAddress } = useFormatAddress();
 
+  const { apiEndpoint, apiMode, setAPIMode } = useDenotaAPI();
+
   const fetchUser = useCallback(async () => {
-    const response = await axios.get("https://denota.klymr.me/user", {
+    const response = await axios.get(`${apiEndpoint}/user`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: localStorage.getItem("token"),
@@ -54,7 +65,7 @@ const DenotaProfile = () => {
 
     setUserBalance(formattedUserBalance);
     setReserveBalance(formattedReserveBalance);
-  }, []);
+  }, [apiEndpoint]);
 
   useEffect(() => {
     fetchUser();
@@ -86,6 +97,17 @@ const DenotaProfile = () => {
             title="Reserve Balance"
             value={`${reserveBalance} USDC`}
           />
+        </DetailsBox>
+        <DetailsBox w={500} bg="brand.100">
+          <Text fontWeight={600} fontSize="lg" w="100%">
+            API Environment
+          </Text>
+          <RadioGroup onChange={setAPIMode} value={apiMode}>
+            <Stack direction="column">
+              <Radio value="prod">Production</Radio>
+              <Radio value="local">Local</Radio>
+            </Stack>
+          </RadioGroup>
         </DetailsBox>
       </VStack>
     </Center>

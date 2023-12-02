@@ -1,6 +1,7 @@
 import { Center, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import useDenotaAPI from "../hooks/useDenotaAPI";
 import Stepper from "./designSystem/stepper/Stepper";
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
@@ -12,6 +13,7 @@ interface Props {
 export default function ProtectedPage({ children }: Props) {
   const [isLoggedIn, setIsLoggedIn] = useState<undefined | boolean>(undefined);
   const initialized = useRef(false);
+  const { apiEndpoint } = useDenotaAPI();
 
   const setTokenData = useCallback((data) => {
     localStorage.setItem("token", data.access_token);
@@ -30,7 +32,7 @@ export default function ProtectedPage({ children }: Props) {
 
     try {
       const response = await axios.post(
-        "https://denota.klymr.me/token/refresh",
+        `${apiEndpoint}/token/refresh`,
         { refreshToken: refreshToken },
         {
           headers: {

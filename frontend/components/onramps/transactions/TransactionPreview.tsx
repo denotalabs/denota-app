@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { useNotas } from "../../../context/NotaDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import useDenotaAPI from "../../../hooks/useDenotaAPI";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps } from "../../designSystem/stepper/Stepper";
@@ -14,6 +15,7 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
   const { refresh } = useNotas();
   const { notaFormValues } = useNotaForm();
   const [isLoading, setIsLoading] = useState(false);
+  const { apiEndpoint } = useDenotaAPI();
 
   return (
     <Box w="100%" px={8} pb={4}>
@@ -46,7 +48,7 @@ const TransactionPreview: React.FC<ScreenProps> = () => {
           setIsLoading(true);
           try {
             const response = await axios.post(
-              "https://denota.klymr.me/nota",
+              `${apiEndpoint}/nota`,
               {
                 paymentAmount: notaFormValues.amount,
                 riskScore: notaFormValues.riskScore,

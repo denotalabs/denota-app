@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import Image from "next/image";
 import { SetStateAction, useCallback, useState } from "react";
+import useDenotaAPI from "../hooks/useDenotaAPI";
 import { ScreenProps, useStep } from "./designSystem/stepper/Stepper";
 
 interface Props extends ScreenProps {
@@ -26,13 +27,14 @@ export default function RegisterPage({ setTokenData, setIsLoggedIn }: Props) {
   const [onrampName, setName] = useState("");
   const toast = useToast();
   const { back } = useStep();
+  const { apiEndpoint } = useDenotaAPI();
 
   const handleSubmit = useCallback(async () => {
     setButtonLoading(true);
 
     try {
       const response = await axios.post(
-        "https://denota.klymr.me/register",
+        `${apiEndpoint}/register`,
         { email, password, inviteCode, onrampName },
         {
           headers: {

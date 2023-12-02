@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import Image from "next/image";
 import { SetStateAction, useCallback, useState } from "react";
+import useDenotaAPI from "../hooks/useDenotaAPI";
 import { ScreenProps, useStep } from "./designSystem/stepper/Stepper";
 
 interface Props extends ScreenProps {
@@ -25,12 +26,14 @@ export default function LoginPage({ setTokenData, setIsLoggedIn }: Props) {
   const toast = useToast();
   const { next } = useStep();
 
+  const { apiEndpoint } = useDenotaAPI();
+
   const handleSubmit = useCallback(async () => {
     setButtonLoading(true);
 
     try {
       const response = await axios.post(
-        "https://denota.klymr.me/signin",
+        `${apiEndpoint}/signin`,
         { email, password },
         {
           headers: {
