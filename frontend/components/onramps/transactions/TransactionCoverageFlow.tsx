@@ -16,13 +16,10 @@ export function TransactionCoverageFlow() {
         gap={0}
       >
         <Stepper>
-          <TransactionQuote
-            screenKey="input"
-            screenTitle="Simulate Transaction"
-          />
+          <TransactionQuote screenKey="input" screenTitle="New Transaction" />
           <TransactionPreview
             screenKey="preview"
-            screenTitle="Simulate Transaction"
+            screenTitle="New Transaction"
           />
         </Stepper>
       </VStack>
