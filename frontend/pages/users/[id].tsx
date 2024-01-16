@@ -1,7 +1,7 @@
 import { Center, Stack, Text, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import DetailsRow from "../../components/designSystem/DetailsRow";
-import DetailsBox from "../../components/onramps/DetailsBox";
+import InfoBox from "../../components/onramps/InfoBox";
 
 function UserPage() {
   const router = useRouter();
@@ -13,7 +13,7 @@ function UserPage() {
         <VStack
           width="100%"
           bg="brand.100"
-          maxW="650px"
+          maxW="750px"
           py={5}
           borderRadius="30px"
           gap={4}
@@ -21,9 +21,9 @@ function UserPage() {
           <Text fontSize="2xl" fontWeight={600}>
             User {id}
           </Text>
-          <DetailsBox>
+          <InfoBox>
             <DetailsRow title="UserId" value={id} />
-          </DetailsBox>
+          </InfoBox>
         </VStack>
       </Center>
     </Stack>
