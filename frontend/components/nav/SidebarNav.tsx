@@ -23,7 +23,6 @@ import {
   MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
-  MdSwapHoriz,
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
@@ -50,15 +49,6 @@ const LinkItems: Array<LinkItemProps> = [
     href: "/send",
     isExternal: false,
   },
-  // {
-  //   name: "Contacts",
-  //   icon: MdOutlinePerson,
-  //   href: "/contacts",
-  //   isExternal: false,
-  // },
-  // { name: "Social", icon: MdOutlineGroup, href: "/social", isExternal: false },
-  // { name: "Batch", icon: MdOutlineArchive, href: "/batch", isExternal: false },
-  { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
     name: "Docs",
     icon: MdOutlineDescription,
