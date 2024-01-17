@@ -23,9 +23,13 @@ import {
   MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
-  MdOutlinePerson,
+  MdSwapHoriz,
 } from "react-icons/md";
+import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
+import useDemoMode from "../../hooks/useDemoMode";
+import DesktopNav from "./DesktopNav";
+import { MobileNav } from "./MobileNav";
 
 interface LinkItemProps {
   name: string;
@@ -41,17 +45,20 @@ const LinkItems: Array<LinkItemProps> = [
     isExternal: false,
   },
   {
-    name: "New Transaction",
+    name: "New Nota",
     icon: MdOutlineAdd,
     href: "/send",
     isExternal: false,
   },
-  {
-    name: "Profile",
-    icon: MdOutlinePerson,
-    href: "/profile",
-    isExternal: false,
-  },
+  // {
+  //   name: "Contacts",
+  //   icon: MdOutlinePerson,
+  //   href: "/contacts",
+  //   isExternal: false,
+  // },
+  // { name: "Social", icon: MdOutlineGroup, href: "/social", isExternal: false },
+  // { name: "Batch", icon: MdOutlineArchive, href: "/batch", isExternal: false },
+  { name: "Onramps", icon: MdSwapHoriz, href: "/onramps", isExternal: false },
   {
     name: "Docs",
     icon: MdOutlineDescription,
@@ -82,9 +89,9 @@ export default function SidebarNav({ children }: { children: ReactNode }) {
           <SidebarContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
-      <Box ml={{ base: 0, md: 60 }} pt={10}>
-        {children}
-      </Box>
+      <MobileNav onOpen={onOpen} />
+      <DesktopNav />
+      <Box ml={{ base: 0, md: 60 }}>{children}</Box>
     </Box>
   );
 }
@@ -94,7 +101,7 @@ interface SidebarProps extends BoxProps {
 }
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
-  const isDemoMode = false;
+  const isDemoMode = useDemoMode();
   const filteredLinkItems = isDemoMode
     ? LinkItems
     : LinkItems.filter((link) => !["Social", "Contacts"].includes(link.name));
@@ -158,6 +165,17 @@ const SocialIcons = () => {
         style={{ height: 40, width: 40 }}
         target="_blank"
       />
+      <Link href="https://discord.gg/DpXr3MsX" isExternal={true}>
+        <Center h="40px" w="40px">
+          <Icon
+            fontSize="20"
+            _groupHover={{
+              color: "white",
+            }}
+            as={SiDiscord}
+          />
+        </Center>
+      </Link>
       <SocialIcon
         fgColor="white"
         bgColor="transparent"
