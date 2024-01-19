@@ -44,7 +44,7 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
           token: notaFormValues.token ?? "NATIVE",
           amount: notaFormValues.amount ?? undefined,
           address: notaFormValues.address ?? "",
-          mode: initialMode,
+          mode: "pay",
           note: notaFormValues.note ?? "",
           email: notaFormValues.email ?? "",
           file: file,

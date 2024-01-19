@@ -24,7 +24,7 @@ function SendPage() {
     <NewUserScreen />
   ) : (
     <Center w="100%" h="100%">
-      <WriteNotaFlow isInvoice={true} />
+      <WriteNotaFlow isInvoice={false} />
     </Center>
   );
 }
