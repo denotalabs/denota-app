@@ -224,7 +224,7 @@ export const BlockchainDataProvider = memo(
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
-            escrowAddress: contractMapping.escrow, // TODO: deploy escrow
+            escrowAddress: contractMapping.reversibleRelease, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
             walletBalance: ethers.utils.formatUnits(walletBalance),
             userDaiBalanceRaw: userDaiBalance,

@@ -32,8 +32,7 @@ export const useDirectPay = () => {
         module: {
           moduleName: "direct",
           type: isInvoice ? "invoice" : "payment",
-          creditor: isInvoice ? blockchainState.account : address,
-          debitor: isInvoice ? address : blockchainState.account,
+          payee: isInvoice ? blockchainState.account : address,
           dueDate,
         },
       });
