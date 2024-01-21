@@ -9,7 +9,6 @@ import {
 import { Field, FieldProps } from "formik";
 
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
-import useDemoMode from "../../../hooks/useDemoMode";
 import CurrencyIcon, { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import { TokenChoice } from "../../designSystem/TokenChoice";
 
@@ -41,12 +40,7 @@ export function CurrencySelectorField() {
 }
 
 function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
-  const isDemoMode = useDemoMode();
-  let options: NotaCurrency[];
-  // TODO add support for USDT, etc (and NFTs)
-  isDemoMode
-    ? (options = ["NATIVE", "DAI", "USDC", "USDT", "WETH"])
-    : (options = ["NATIVE", "DAI", "WETH"]);
+  const options: NotaCurrency[] = ["USDC"];
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "framework",

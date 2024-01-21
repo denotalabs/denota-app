@@ -43,7 +43,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     if (!notaFormValues.amount || isNaN(parseFloat(notaFormValues.amount))) {
       return BigNumber.from(0);
     }
-    return ethers.utils.parseEther(notaFormValues.amount);
+    return ethers.utils.parseUnits(notaFormValues.amount, 6);
   }, [notaFormValues]);
 
   const { createLocalNota } = useNotaContext();
