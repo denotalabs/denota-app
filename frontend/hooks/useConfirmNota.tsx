@@ -5,11 +5,9 @@ import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useNotaForm } from "../context/NotaFormProvider";
 import { useNotaContext } from "../context/NotasContext";
-import { useAxelarBridge } from "./modules/useAxelarBridge";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEscrowNota } from "./modules/useEscrowNota";
 import { useEmail } from "./useEmail";
-import { useTokens } from "./useTokens";
 
 interface Props {
   onSuccess?: () => void;
@@ -26,8 +24,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.mode === "pay"
   );
 
-  const { getTokenAddress: addressForToken } = useTokens();
-
   const token = useMemo(() => {
     switch (notaFormValues.token) {
       case "DAI":
@@ -35,7 +31,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       case "WETH":
         return blockchainState.weth;
       default:
-        return null;
+        return blockchainState.dai;
     }
   }, [blockchainState.dai, blockchainState.weth, notaFormValues.token]);
 
@@ -43,14 +39,10 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     if (!notaFormValues.amount || isNaN(parseFloat(notaFormValues.amount))) {
       return BigNumber.from(0);
     }
-    return ethers.utils.parseEther(notaFormValues.amount);
+    return ethers.utils.parseUnits(notaFormValues.amount, 6);
   }, [notaFormValues]);
 
   const { createLocalNota } = useNotaContext();
-
-  const tokenAddress = useMemo(() => {
-    return addressForToken(notaFormValues.token);
-  }, [addressForToken, notaFormValues.token]);
 
   useEffect(() => {
     const fetchAllowance = async () => {
@@ -83,8 +75,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { writeNota: writeDirectPay } = useDirectPay();
 
   const { writeNota: writeEscrow } = useEscrowNota();
-
-  const { writeNota: writeCrosschain } = useAxelarBridge();
 
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete
@@ -132,26 +122,15 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
         switch (notaFormValues.module) {
           case "direct":
-            if (isCrossChain) {
-              receipt = await writeCrosschain({
-                tokenAddress,
-                amount: notaFormValues.amount,
-                address: notaFormValues.address,
-                ipfsHash: notaFormValues.ipfsHash ?? "",
-                imageUrl: lighthouseUrl,
-                token: notaFormValues.token,
-              });
-            } else {
-              receipt = await writeDirectPay({
-                dueDate: notaFormValues.dueDate,
-                amount: notaFormValues.amount,
-                address: notaFormValues.address,
-                ipfsHash: notaFormValues.ipfsHash ?? "",
-                isInvoice: notaFormValues.mode === "invoice",
-                imageUrl: lighthouseUrl,
-                token: notaFormValues.token,
-              });
-            }
+            receipt = await writeDirectPay({
+              dueDate: notaFormValues.dueDate,
+              amount: notaFormValues.amount,
+              address: notaFormValues.address,
+              ipfsHash: notaFormValues.ipfsHash ?? "",
+              isInvoice: notaFormValues.mode === "invoice",
+              imageUrl: lighthouseUrl,
+              token: notaFormValues.token,
+            });
 
             break;
 
@@ -249,8 +228,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     toast,
     onSuccess,
     writeEscrow,
-    writeCrosschain,
-    tokenAddress,
     writeDirectPay,
     sendEmail,
   ]);

@@ -218,13 +218,13 @@ export const BlockchainDataProvider = memo(
             daiAllowance,
             wethAllowance,
             registrarAddress: contractMapping.registrar,
-            userDaiBalance: ethers.utils.formatUnits(userDaiBalance),
-            userWethBalance: ethers.utils.formatUnits(userWethBalance),
+            userDaiBalance: ethers.utils.formatUnits(userDaiBalance, 6),
+            userWethBalance: ethers.utils.formatUnits(userWethBalance, 6),
             explorer: firstBlockExplorer,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
-            escrowAddress: contractMapping.escrow, // TODO: deploy escrow
+            escrowAddress: contractMapping.reversibleRelease, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
             walletBalance: ethers.utils.formatUnits(walletBalance),
             userDaiBalanceRaw: userDaiBalance,
