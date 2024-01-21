@@ -41,7 +41,7 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          token: notaFormValues.token ?? "NATIVE",
+          token: notaFormValues.token ?? "USDC",
           amount: notaFormValues.amount ?? undefined,
           address: notaFormValues.address ?? "",
           mode: "pay",

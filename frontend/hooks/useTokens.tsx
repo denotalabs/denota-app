@@ -14,7 +14,7 @@ export const useTokens = () => {
           return "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619";
         case chainId === 137 && token === "DAI":
           return "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063";
-        case chainId === 137 && token === "USDC":
+        case token === "USDC":
           return "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
         case chainId === 1 && token === "WETH":
           return "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
