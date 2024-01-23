@@ -49,14 +49,18 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       if (token === null) {
         setNeedsApproval(false);
       } else {
-        const tokenAllowance = await token?.functions.allowance(
-          blockchainState.account,
-          blockchainState.registrarAddress
-        );
-        if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
-          setNeedsApproval(true);
-        } else {
-          setNeedsApproval(false);
+        try {
+          const tokenAllowance = await token?.functions.allowance(
+            blockchainState.account,
+            blockchainState.registrarAddress
+          );
+          if (amountWei.sub(tokenAllowance[0]) > BigNumber.from(0)) {
+            setNeedsApproval(true);
+          } else {
+            setNeedsApproval(false);
+          }
+        } catch (e) {
+          console.log(e);
         }
       }
     };
