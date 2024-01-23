@@ -21,7 +21,6 @@ export const useEscrowNota = () => {
       amount,
       address,
       ipfsHash,
-      isInvoice,
       inspector,
       imageUrl,
     }: Props) => {
@@ -31,9 +30,8 @@ export const useEscrowNota = () => {
         metadata: { type: "uploaded", ipfsHash, imageUrl },
         module: {
           moduleName: "reversibleRelease",
-          type: isInvoice ? "invoice" : "payment",
-          creditor: isInvoice ? blockchainState.account : address,
-          debitor: isInvoice ? address : blockchainState.account,
+          payee: address,
+          payer: blockchainState.account,
           inspector,
         },
       });
