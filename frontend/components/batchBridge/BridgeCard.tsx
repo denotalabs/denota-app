@@ -30,15 +30,9 @@ function BridgeCard({
 
   const fromChain = parseInt(blockchainState.chainId, 16);
 
-  const fromToken = useMemo(
-    () => getTokenAddress(token, fromChain),
-    [fromChain, getTokenAddress, token]
-  );
+  const fromToken = useMemo(() => "", []);
 
-  const toToken = useMemo(
-    () => getTokenAddress(token, toChain),
-    [getTokenAddress, toChain, token]
-  );
+  const toToken = useMemo(() => "", []);
 
   // TODO: figure out token address on dest chain
   const jumperLink = `https://jumper.exchange/?fromAmount=${amount}&fromChain=${fromChain}&fromToken=${fromToken}&toChain=${toChain}&toToken=${toToken}`;

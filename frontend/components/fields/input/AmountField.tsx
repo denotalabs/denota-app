@@ -26,25 +26,26 @@ function AmountField({ token, mode }: Props) {
     if (value <= 0) {
       return "Value must be greater than 0";
     }
-    if (mode === "pay") {
-      switch (token) {
-        case "DAI":
-          if (Number(blockchainState.userDaiBalance) < value) {
-            return "Insufficient balance";
-          }
-          break;
-        case "WETH":
-          if (Number(blockchainState.userWethBalance) < value) {
-            return "Insufficient balance";
-          }
-          break;
-        case "NATIVE":
-          if (Number(blockchainState.walletBalance) < value) {
-            return "Insufficient balance";
-          }
-          break;
-      }
-    }
+    // TODO (THIS PR): fix validation
+    // if (mode === "pay") {
+    //   switch (token) {
+    //     case "DAI":
+    //       if (Number(blockchainState.userDaiBalance) < value) {
+    //         return "Insufficient balance";
+    //       }
+    //       break;
+    //     case "WETH":
+    //       if (Number(blockchainState.userWethBalance) < value) {
+    //         return "Insufficient balance";
+    //       }
+    //       break;
+    //     case "NATIVE":
+    //       if (Number(blockchainState.walletBalance) < value) {
+    //         return "Insufficient balance";
+    //       }
+    //       break;
+    //   }
+    // }
     return undefined;
   }
   return (

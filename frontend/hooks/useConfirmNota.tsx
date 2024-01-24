@@ -8,6 +8,7 @@ import { useNotaContext } from "../context/NotasContext";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEscrowNota } from "./modules/useEscrowNota";
 import { useEmail } from "./useEmail";
+import { useTokens } from "./useTokens";
 
 interface Props {
   onSuccess?: () => void;
@@ -24,16 +25,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.mode === "pay"
   );
 
+  const { getTokenContract } = useTokens();
+
   const token = useMemo(() => {
-    switch (notaFormValues.token) {
-      case "DAI":
-        return blockchainState.dai;
-      case "WETH":
-        return blockchainState.weth;
-      default:
-        return blockchainState.dai;
-    }
-  }, [blockchainState.dai, blockchainState.weth, notaFormValues.token]);
+    return getTokenContract(notaFormValues.token);
+  }, [getTokenContract, notaFormValues.token]);
 
   const amountWei = useMemo(() => {
     if (!notaFormValues.amount || isNaN(parseFloat(notaFormValues.amount))) {

@@ -17,7 +17,6 @@ import {
 import type { WalletState } from "@web3-onboard/core";
 import { useConnectWallet, useWallets } from "@web3-onboard/react";
 
-import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
   batchContractMappingForChainId,
@@ -36,24 +35,15 @@ declare global {
 
 interface BlockchainDataInterface {
   account: string;
-  dai: null | ethers.Contract;
-  weth: null | ethers.Contract;
-  daiAllowance: BigNumber;
-  wethAllowance: BigNumber;
   registrarAddress: string;
-  userDaiBalance: string;
-  userWethBalance: string;
   directPayAddress: string;
   escrowAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
   chainId: string;
+  chhainIdNumber: number;
   graphUrl: string;
   nativeCurrenySymbol: string;
-  walletBalance: string;
-  userDaiBalanceRaw: BigNumber;
-  userWethBalanceRaw: BigNumber;
-  walletBalanceRaw: BigNumber;
   disperse: null | ethers.Contract;
 }
 
@@ -86,6 +76,7 @@ const defaultBlockchainState = {
   userWethBalanceRaw: BigNumber.from(0),
   walletBalanceRaw: BigNumber.from(0),
   disperse: null,
+  chhainIdNumber: 0,
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -185,52 +176,18 @@ export const BlockchainDataProvider = memo(
           });
         } else {
           // Load contracts
-          const weth = new ethers.Contract(
-            contractMapping.weth,
-            erc20.abi,
-            signer
-          );
-          const dai = new ethers.Contract(
-            contractMapping.dai,
-            erc20.abi,
-            signer
-          );
-
-          const walletBalance = await provider.getBalance(account);
-
-          const userDaiBalance = await dai.balanceOf(account); // User's Dai balance
-          const daiAllowance = await dai.allowance(
-            account,
-            contractMapping.registrar
-          );
-
-          const userWethBalance = await weth.balanceOf(account); // User's Weth balance
-          const wethAllowance = await weth.allowance(
-            account,
-            contractMapping.registrar
-          );
-
           setBlockchainState({
             signer,
             account,
-            dai,
-            weth,
-            daiAllowance,
-            wethAllowance,
             registrarAddress: contractMapping.registrar,
-            userDaiBalance: ethers.utils.formatUnits(userDaiBalance, 6),
-            userWethBalance: ethers.utils.formatUnits(userWethBalance, 6),
             explorer: firstBlockExplorer,
             directPayAddress: contractMapping.directPay,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
             escrowAddress: contractMapping.reversibleRelease, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
-            walletBalance: ethers.utils.formatUnits(walletBalance),
-            userDaiBalanceRaw: userDaiBalance,
-            userWethBalanceRaw: userWethBalance,
-            walletBalanceRaw: walletBalance,
             disperse,
+            chhainIdNumber: chainId,
           });
           setIsInitializing(false);
         }

@@ -1,10 +1,11 @@
 import { write } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
+import { NotaCurrency } from "../../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 interface Props {
   dueDate?: string;
-  token: string;
+  token: NotaCurrency;
   amount: string;
   address: string;
   ipfsHash: string;

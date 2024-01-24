@@ -25,6 +25,7 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 
+import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { useConnectWallet } from "@web3-onboard/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
@@ -144,14 +145,24 @@ export default function WalletInfo() {
           </StyledMenuItem>
 
           <StyledMenuItem
-            onClick={() => addToken(blockchainState.dai?.address ?? "", "DAI")}
+            onClick={() =>
+              addToken(
+                contractMappingForChainId(blockchainState.chhainIdNumber).dai ??
+                  "",
+                "DAI"
+              )
+            }
           >
             <SmallAddIcon mr={2} />
             Add DAI
           </StyledMenuItem>
           <StyledMenuItem
             onClick={() =>
-              addToken(blockchainState.weth?.address ?? "", "WETH")
+              addToken(
+                contractMappingForChainId(blockchainState.chhainIdNumber)
+                  .weth ?? "",
+                "WETH"
+              )
             }
           >
             <SmallAddIcon mr={2} />

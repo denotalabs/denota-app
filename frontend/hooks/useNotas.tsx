@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
@@ -92,16 +93,20 @@ export const useNotas = ({ notaField }: Props) => {
 
   const currencyForTokenId = useCallback(
     (tokenAddress: string): NotaCurrency => {
+      const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
+
       switch (tokenAddress) {
-        case blockchainState.dai?.address.toLowerCase():
+        case mapping.dai.toLowerCase():
           return "DAI";
-        case blockchainState.weth?.address.toLowerCase():
+        case mapping.weth.toLowerCase():
           return "WETH";
+        case mapping.usdc.toLocaleLowerCase():
+          return "USDC";
         default:
-          return "NATIVE";
+          return "USDC";
       }
     },
-    [blockchainState.dai?.address, blockchainState.weth?.address]
+    [blockchainState.chhainIdNumber]
   );
 
   const mapField = useCallback(
