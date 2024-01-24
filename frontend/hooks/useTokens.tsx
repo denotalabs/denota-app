@@ -1,6 +1,7 @@
 import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { ethers } from "ethers";
 import { useCallback } from "react";
+import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
 
@@ -8,7 +9,7 @@ export const useTokens = () => {
   const { blockchainState } = useBlockchainData();
 
   const getTokenAddress = useCallback(
-    (token: string) => {
+    (token: NotaCurrency) => {
       const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
       switch (token) {
         case "DAI":
@@ -17,8 +18,10 @@ export const useTokens = () => {
           return mapping.weth;
         case "USDC":
           return mapping.usdc;
-        case "NATIVE":
-          return "0x0000000000000000000000000000000000000000";
+        case "USDCE":
+          return mapping.usdce;
+        case "USDT":
+          return mapping.usdt;
         default:
           return "";
       }
@@ -26,40 +29,48 @@ export const useTokens = () => {
     [blockchainState]
   );
 
-  const parseTokenValue = useCallback((token: string, value: number) => {
-    switch (token) {
-      case "WETH":
-        return ethers.utils.parseEther(String(value));
-      case "DAI":
-        return ethers.utils.parseUnits(String(value), 18);
-      case "USDC":
-        return ethers.utils.parseUnits(String(value), 6);
-      case "NATIVE":
-        return ethers.utils.parseEther(String(value));
-      default:
-        return "";
-    }
-  }, []);
-
-  const getTokenContract = useCallback(
-    (token: string) => {
-      const address = getTokenAddress(token);
-      return new ethers.Contract(address, erc20.abi, blockchainState.signer);
-    },
-    [blockchainState.signer, getTokenAddress]
-  );
-
-  const getTokenUnits = useCallback((token: string) => {
+  const getTokenUnits = useCallback((token: NotaCurrency) => {
     switch (token) {
       case "USDC":
+      case "USDT":
+      case "USDCE":
         return 6;
       default:
         return 18;
     }
   }, []);
 
+  const parseTokenValue = useCallback(
+    (token: NotaCurrency, value: number) => {
+      const units = getTokenUnits(token);
+      switch (token) {
+        case "WETH":
+          return ethers.utils.parseUnits(String(value), units);
+        case "DAI":
+          return ethers.utils.parseUnits(String(value), units);
+        case "USDC":
+          return ethers.utils.parseUnits(String(value), units);
+        case "USDCE":
+          return ethers.utils.parseUnits(String(value), units);
+        case "USDT":
+          return ethers.utils.parseUnits(String(value), units);
+        default:
+          return "";
+      }
+    },
+    [getTokenUnits]
+  );
+
+  const getTokenContract = useCallback(
+    (token: NotaCurrency) => {
+      const address = getTokenAddress(token);
+      return new ethers.Contract(address, erc20.abi, blockchainState.signer);
+    },
+    [blockchainState.signer, getTokenAddress]
+  );
+
   const getTokenBalance = useCallback(
-    async (token: string) => {
+    async (token: NotaCurrency) => {
       const contract = getTokenContract(token);
       if (contract) {
         const rawBalance = await contract.balanceOf(blockchainState.account);
@@ -76,7 +87,7 @@ export const useTokens = () => {
   );
 
   const getTokenAllowance = useCallback(
-    async (token: string) => {
+    async (token: NotaCurrency) => {
       const contract = getTokenContract(token);
       const rawBalance = await contract.allowance(
         blockchainState.account,

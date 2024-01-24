@@ -103,7 +103,7 @@ export const useNotas = ({ notaField }: Props) => {
         case mapping.usdc.toLocaleLowerCase():
           return "USDC";
         default:
-          return "NATIVE";
+          return "USDC";
       }
     },
     [blockchainState.chhainIdNumber]

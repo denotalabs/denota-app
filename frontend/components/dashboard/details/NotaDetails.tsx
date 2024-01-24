@@ -135,10 +135,7 @@ function NotaDetails({ nota }: Props) {
             value={
               String(nota.amount) +
               " " +
-              displayNameForCurrency(
-                nota.token as NotaCurrency,
-                nota.sourceChainHex
-              )
+              displayNameForCurrency(nota.token as NotaCurrency)
             }
           />
           <DetailsRow title="Module" value={moduleName} tooltip={moduleDesc} />

@@ -1,16 +1,6 @@
 import { Image } from "@chakra-ui/react";
-import { useBlockchainData } from "../../context/BlockchainDataProvider";
-import { deployedChains } from "../../context/chainInfo";
 
-export type NotaCurrency =
-  | "DAI"
-  | "USDC"
-  | "WETH"
-  | "USDT"
-  | "NATIVE"
-  | "USDCE";
-
-type URLKey = "MATIC" | "CELO" | "USDC" | "DAI" | "WETH" | "USDT" | "USDCE";
+export type NotaCurrency = "DAI" | "USDC" | "WETH" | "USDT" | "USDCE";
 
 const URL_MAP = {
   USDC: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023",
@@ -24,34 +14,10 @@ const URL_MAP = {
 
 interface Props {
   currency: NotaCurrency;
-  sourceChainHex?: string;
 }
 
-function CurrencyIcon({ currency, sourceChainHex }: Props) {
-  const { blockchainState } = useBlockchainData();
-
-  let currencyKey: URLKey;
-
-  if (currency === "NATIVE") {
-    if (sourceChainHex) {
-      currencyKey = deployedChains[sourceChainHex].nativeCurrency
-        .symbol as URLKey;
-    } else {
-      if (
-        !(
-          blockchainState.nativeCurrenySymbol === "MATIC" ||
-          blockchainState.nativeCurrenySymbol === "CELO"
-        )
-      ) {
-        return <></>;
-      }
-      currencyKey = blockchainState.nativeCurrenySymbol;
-    }
-  } else {
-    currencyKey = currency;
-  }
-
-  return <Image boxSize="20px" src={URL_MAP[currencyKey]} alt="USDC" />;
+function CurrencyIcon({ currency }: Props) {
+  return <Image boxSize="20px" src={URL_MAP[currency]} alt="USDC" />;
 }
 
 export default CurrencyIcon;

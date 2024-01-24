@@ -103,7 +103,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           </CardBody>
           <CardFooter>
             <Button
-              isDisabled={!isDemoMode}
+              isDisabled={true}
               onClick={() => {
                 updateNotaFormValues({
                   module: "milestone",
@@ -113,7 +113,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
                 }
               }}
             >
-              {isDemoMode ? "Select" : "Coming Soon"}
+              {"Coming Soon"}
             </Button>
           </CardFooter>
         </Card>
