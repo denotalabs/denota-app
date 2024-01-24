@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 
 import {
   contractMappingForChainId,
@@ -59,8 +59,6 @@ const defaultBlockchainState = {
   dai: null,
   weth: null,
   axelarBridgeSender: null,
-  daiAllowance: BigNumber.from(0),
-  wethAllowance: BigNumber.from(0),
   registrarAddress: "",
   userDaiBalance: "",
   userWethBalance: "",
@@ -72,9 +70,6 @@ const defaultBlockchainState = {
   escrowAddress: "",
   nativeCurrenySymbol: "",
   walletBalance: "",
-  userDaiBalanceRaw: BigNumber.from(0),
-  userWethBalanceRaw: BigNumber.from(0),
-  walletBalanceRaw: BigNumber.from(0),
   disperse: null,
   chhainIdNumber: 0,
 };
@@ -155,26 +150,23 @@ export const BlockchainDataProvider = memo(
         const contractMapping = contractMappingForChainId(chainId);
         const deployedChainInfo: ChainInfo = chainInfoForChainId(chainId);
 
-        const batchContract = batchContractMappingForChainId(chainId);
-
-        const disperse = batchContract
-          ? new ethers.Contract(batchContract, MultiDisperse.abi, signer)
-          : null;
-
-        const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
-
         if (contractMapping === undefined || deployedChainInfo == undefined) {
           setIsInitializing(false);
           setIsWrongChain(true);
           setBlockchainState({
             ...defaultBlockchainState,
-            explorer: firstBlockExplorer,
-            disperse,
             account,
             chainId: chainNumberToChainHex(chainId),
             signer,
           });
         } else {
+          const batchContract = batchContractMappingForChainId(chainId);
+
+          const disperse = batchContract
+            ? new ethers.Contract(batchContract, MultiDisperse.abi, signer)
+            : null;
+
+          const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
           // Load contracts
           setBlockchainState({
             signer,

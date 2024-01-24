@@ -7,14 +7,14 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
-import { MUMBAI_ADDRESS } from "../context/chainInfo";
+import { POLYGON_CHAINID } from "../context/chainInfo";
 import { switchNetwork } from "../context/SwitchNetwork";
 
 export function WrongChain() {
   const [chainSwitchFailed, setChainSwitchFailed] = useState(false);
 
-  const switchToMumbai = useCallback(async () => {
-    const isSuccess = await switchNetwork(MUMBAI_ADDRESS);
+  const switchToPolygon = useCallback(async () => {
+    const isSuccess = await switchNetwork(POLYGON_CHAINID);
     setChainSwitchFailed(!isSuccess);
   }, []);
   return (
@@ -23,7 +23,7 @@ export function WrongChain() {
         Wrong Chain
       </Text>
       <Text fontWeight={600} fontSize={"md"} textAlign="center" pb={6}>
-        Please switch to Polygon Mumbai Testnet
+        Please switch to Polygon Mainnet
       </Text>
       {chainSwitchFailed ? (
         <Alert status="error" maxW="500px">
@@ -37,10 +37,10 @@ export function WrongChain() {
         <Button
           colorScheme="blue"
           onClick={() => {
-            switchToMumbai?.();
+            switchToPolygon?.();
           }}
         >
-          Switch to Mumbai
+          Switch to Polygon
         </Button>
       )}
     </Center>
