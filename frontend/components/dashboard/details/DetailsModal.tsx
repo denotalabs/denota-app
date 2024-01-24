@@ -1,6 +1,6 @@
 import { Center, HStack } from "@chakra-ui/react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { MUMBAI_ADDRESS } from "../../../context/chainInfo";
+import { POLYGON_CHAINID } from "../../../context/chainInfo";
 import { Nota } from "../../../hooks/useNotas";
 import SimpleModal from "../../designSystem/SimpleModal";
 import NotaDetails from "./NotaDetails";
@@ -20,7 +20,7 @@ function DetailsModal(props: Props) {
   return (
     <SimpleModal {...props}>
       <NotaDetails nota={props.nota} />
-      {chainId === MUMBAI_ADDRESS && (
+      {chainId === POLYGON_CHAINID && (
         <Center>
           <HStack spacing={4}>
             <ViewOnOpenSeaButton

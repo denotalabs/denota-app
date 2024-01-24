@@ -1,4 +1,4 @@
-export const MUMBAI_ADDRESS = "0x13881";
+export const POLYGON_CHAINID = "0x89";
 export const METAMASK_ERROR_CODE = 4902;
 
 export interface ChainInfo {
