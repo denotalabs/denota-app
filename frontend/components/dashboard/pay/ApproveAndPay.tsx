@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaContext } from "../../../context/NotasContext";
 import { Nota } from "../../../hooks/useNotas";
+import { useTokens } from "../../../hooks/useTokens";
 import RoundedBox from "../../designSystem/RoundedBox";
 import RoundedButton from "../../designSystem/RoundedButton";
 
@@ -23,50 +24,19 @@ function ApproveAndPay({ nota, onClose }: Props) {
 
   const [needsApproval, setNeedsApproval] = useState(true);
 
+  const [insufBalance, setInsufBalance] = useState(true);
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const token = useMemo(() => {
-    switch (nota.token) {
-      case "DAI":
-        return blockchainState.dai;
-      case "WETH":
-        return blockchainState.weth;
-      default:
-        return null;
-    }
-  }, [blockchainState.dai, blockchainState.weth, nota.token]);
-
-  const tokenBalance = useMemo(() => {
-    switch (nota.token) {
-      case "DAI":
-        return blockchainState.userDaiBalanceRaw;
-      case "WETH":
-        return blockchainState.userWethBalanceRaw;
-      case "NATIVE":
-        return blockchainState.walletBalanceRaw;
-      default:
-        return BigNumber.from(0);
-    }
-  }, [
-    blockchainState.userDaiBalanceRaw,
-    blockchainState.userWethBalanceRaw,
-    blockchainState.walletBalanceRaw,
-    nota.token,
-  ]);
-
-  const insufficientBalance = useMemo(() => {
-    return nota.amountRaw.sub(tokenBalance) > BigNumber.from(0);
-  }, [nota.amountRaw, tokenBalance]);
+  const { getTokenAllowance, getTokenBalance, getTokenContract } = useTokens();
 
   useEffect(() => {
     const fetchAllowance = async () => {
+      const token = getTokenContract(nota.token);
       if (token === null) {
         setNeedsApproval(false);
       } else {
-        const tokenAllowance = await token?.functions.allowance(
-          blockchainState.account,
-          blockchainState.registrarAddress
-        );
+        const tokenAllowance = await getTokenAllowance(nota.token);
         if (nota.amountRaw.sub(tokenAllowance[0]) > BigNumber.from(0)) {
           setNeedsApproval(true);
         } else {
@@ -74,24 +44,36 @@ function ApproveAndPay({ nota, onClose }: Props) {
         }
       }
     };
+    const fetchBalance = async () => {
+      const { rawBalance } = await getTokenBalance(nota.token);
+      if (nota.amountRaw.sub(rawBalance) > BigNumber.from(0)) {
+        setInsufBalance(true);
+      } else {
+        setInsufBalance(false);
+      }
+    };
+
     fetchAllowance();
+    fetchBalance();
   }, [
     blockchainState.account,
     blockchainState.registrarAddress,
+    getTokenAllowance,
+    getTokenBalance,
+    getTokenContract,
     nota.amountRaw,
-    token,
-    token?.functions,
+    nota.token,
   ]);
 
   const buttonText = useMemo(() => {
-    if (insufficientBalance) {
+    if (insufBalance) {
       return "Insufficient funds";
     }
     if (needsApproval) {
       return "Approve " + nota.token;
     }
     return "Pay";
-  }, [nota.token, insufficientBalance, needsApproval]);
+  }, [insufBalance, needsApproval, nota.token]);
 
   const handlePay = useCallback(async () => {
     setIsLoading(true);
@@ -102,7 +84,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         // BigNumber.from(
         //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         // );
-        const tx = await token?.functions.approve(
+        const tx = await getTokenContract(nota.token)?.functions.approve(
           blockchainState.registrarAddress,
           nota.amountRaw
         );
@@ -132,14 +114,15 @@ function ApproveAndPay({ nota, onClose }: Props) {
       setIsLoading(false);
     }
   }, [
-    blockchainState.registrarAddress,
+    needsApproval,
+    getTokenContract,
+    nota.token,
     nota.amountRaw,
     nota.id,
-    needsApproval,
-    onClose,
-    refreshWithDelay,
+    blockchainState.registrarAddress,
     toast,
-    token?.functions,
+    refreshWithDelay,
+    onClose,
   ]);
 
   const moduleInfo = useMemo(() => {
@@ -159,7 +142,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         </Text>
       </RoundedBox>
       <RoundedButton
-        isDisabled={insufficientBalance}
+        isDisabled={insufBalance}
         isLoading={isLoading}
         onClick={handlePay}
       >
