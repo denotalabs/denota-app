@@ -1,5 +1,6 @@
 import { write } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
+import { NotaCurrency } from "../../components/designSystem/CurrencyIcon";
 
 interface Props {
   dueDate?: string;
@@ -21,7 +22,7 @@ export const useAxelarBridge = () => {
           creditor: address,
         },
         amount: Number(amount),
-        currency: token,
+        currency: token as NotaCurrency,
       });
       return receipt;
     },
