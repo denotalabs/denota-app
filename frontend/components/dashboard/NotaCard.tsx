@@ -215,14 +215,10 @@ function NotaCard({ nota }: Props) {
 
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
-              {nota.amount}{" "}
-              {displayNameForCurrency(nota.token, nota.sourceChainHex)}
+              {nota.amount} {displayNameForCurrency(nota.token)}
             </Text>
 
-            <CurrencyIcon
-              currency={nota.token}
-              sourceChainHex={nota.sourceChainHex}
-            />
+            <CurrencyIcon currency={nota.token} />
           </HStack>
         </Flex>
 
