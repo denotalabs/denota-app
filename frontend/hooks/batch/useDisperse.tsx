@@ -1,6 +1,7 @@
 import { useToast } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { NotaCurrency } from "../../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
   chainInfoForChainId,
@@ -40,14 +41,7 @@ const useDisperse = ({ data, chainId }: Props) => {
     }, {} as { [key: string]: number });
   }, [data]);
 
-  const [tokens, values, recipients] = useMemo(
-    () => [
-      data.map((val) => getTokenAddress(val.token, chainId)),
-      data.map((val) => parseTokenValue(val.token, val.value)),
-      data.map((val) => val.recipient),
-    ],
-    [chainId, data, getTokenAddress, parseTokenValue]
-  );
+  const [tokens, values, recipients] = useMemo(() => [[], [], []], []);
 
   const containsUnrecognizedToken = useMemo(() => {
     return tokens.includes("");
@@ -63,8 +57,7 @@ const useDisperse = ({ data, chainId }: Props) => {
       for (const token of uniqueTokens) {
         try {
           const tokenAllowance = await getTokenContract(
-            token,
-            chainId
+            token as NotaCurrency
           )?.functions.allowance(
             blockchainState.account,
             blockchainState.disperse.address
@@ -75,7 +68,9 @@ const useDisperse = ({ data, chainId }: Props) => {
             return;
           }
           if (
-            tokenAllowance[0].lt(parseTokenValue(token, tokenValues[token]))
+            tokenAllowance[0].lt(
+              parseTokenValue(token as NotaCurrency, tokenValues[token])
+            )
           ) {
             requiredApprovals.push(token);
           }
@@ -134,8 +129,7 @@ const useDisperse = ({ data, chainId }: Props) => {
 
       try {
         const approval = await getTokenContract(
-          approvalToken,
-          chainId
+          approvalToken
         )?.functions.approve(
           blockchainState.disperse.address,
           BigNumber.from(
