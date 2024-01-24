@@ -15,6 +15,9 @@ export const useCurrencyDisplayName = () => {
       if (currency === "NATIVE") {
         return blockchainState.nativeCurrenySymbol;
       }
+      if (currency === "USDCE") {
+        return "USDC.e";
+      }
       return currency;
     },
     [blockchainState.nativeCurrenySymbol]

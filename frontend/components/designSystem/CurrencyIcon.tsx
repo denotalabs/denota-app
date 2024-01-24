@@ -2,12 +2,19 @@ import { Image } from "@chakra-ui/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { deployedChains } from "../../context/chainInfo";
 
-export type NotaCurrency = "DAI" | "USDC" | "WETH" | "USDT" | "NATIVE";
+export type NotaCurrency =
+  | "DAI"
+  | "USDC"
+  | "WETH"
+  | "USDT"
+  | "NATIVE"
+  | "USDCE";
 
-type URLKey = "MATIC" | "CELO" | "USDC" | "DAI" | "WETH" | "USDT";
+type URLKey = "MATIC" | "CELO" | "USDC" | "DAI" | "WETH" | "USDT" | "USDCE";
 
 const URL_MAP = {
   USDC: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023",
+  USDCE: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023",
   DAI: "https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png?v=023",
   WETH: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=002",
   MATIC: "https://cryptologos.cc/logos/polygon-matic-logo.png?v=024",
