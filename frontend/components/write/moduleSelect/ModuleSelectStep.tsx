@@ -48,10 +48,10 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           variant={notaFormValues.module === "direct" ? "filled" : "outline"}
         >
           <CardHeader>
-            <Heading size="md"> Direct Pay</Heading>
+            <Heading size="md"> Direct Send</Heading>
           </CardHeader>
           <CardBody>
-            <Text>Funds are released immediately upon payment</Text>
+            <Text>Sends funds directly to the recipient along with the attached metadata</Text>
           </CardBody>
           <CardFooter>
             <Button
@@ -75,7 +75,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             <Heading size="md">Escrow</Heading>
           </CardHeader>
           <CardBody>
-            <Text>Funds are held in escrow until released by the payer </Text>
+            <Text>Funds are held in escrow until released by the inspector</Text>
           </CardBody>
           <CardFooter>
             <Button
@@ -92,7 +92,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        <Card
+        {/* <Card
           variant={notaFormValues.module === "milestone" ? "filled" : "outline"}
         >
           <CardHeader>
@@ -107,6 +107,107 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
               onClick={() => {
                 updateNotaFormValues({
                   module: "milestone",
+                });
+                if (!showTerms) {
+                  next?.();
+                }
+              }}
+            >
+              {"Coming Soon"}
+            </Button>
+          </CardFooter>
+        </Card> */}
+        <Card
+          variant={notaFormValues.module === "simpleCash" ? "filled" : "outline"}
+        >
+          <CardHeader>
+            <Heading size="md"> Simple Cash</Heading>
+          </CardHeader>
+          <CardBody>
+            <Text>Funds must be claimed by the recipient</Text>
+          </CardBody>
+          <CardFooter>
+            <Button
+              isDisabled={true}
+              onClick={() => {
+                updateNotaFormValues({
+                  module: "simpleCash",
+                });
+                if (!showTerms) {
+                  next?.();
+                }
+              }}
+            >
+              {"Coming Soon"}
+            </Button>
+          </CardFooter>
+        </Card>
+        {/* Might be able to abstract the recoverable cash and reversible timelock into an option: isRecoverable before release period or after? */}
+        <Card
+          variant={notaFormValues.module === "recoverCash" ? "filled" : "outline"}
+        >
+          <CardHeader>
+            <Heading size="md"> Recoverable Cash</Heading>
+          </CardHeader>
+          <CardBody>
+            <Text>Funds must be claimed by the recipient before the expiration date or the sender can recover it</Text>
+          </CardBody>
+          <CardFooter>
+            <Button
+              isDisabled={true}
+              onClick={() => {
+                updateNotaFormValues({
+                  module: "recoverCash",
+                });
+                if (!showTerms) {
+                  next?.();
+                }
+              }}
+            >
+              {"Coming Soon"}
+            </Button>
+          </CardFooter>
+        </Card>
+        <Card
+          variant={notaFormValues.module === "reversibleTimelock" ? "filled" : "outline"}
+        >
+          <CardHeader>
+            <Heading size="md"> Reversible Timelock</Heading>
+          </CardHeader>
+          <CardBody>
+            <Text>Funds are held in escrow until released by the inspector. If nothing happens before the releaseDate the funder can claim the funds.</Text>
+          </CardBody>
+          <CardFooter>
+            <Button
+              isDisabled={true}
+              onClick={() => {
+                updateNotaFormValues({
+                  module: "reversibleTimelock",
+                });
+                if (!showTerms) {
+                  next?.();
+                }
+              }}
+            >
+              {"Coming Soon"}
+            </Button>
+          </CardFooter>
+        </Card>
+        <Card
+          variant={notaFormValues.module === "onchainCondition" ? "filled" : "outline"}
+        >
+          <CardHeader>
+            <Heading size="md"> Onchain Condition</Heading>
+          </CardHeader>
+          <CardBody>
+            <Text>Funds are held in escrow until an onchain condition is reached.</Text>
+          </CardBody>
+          <CardFooter>
+            <Button
+              isDisabled={true}
+              onClick={() => {
+                updateNotaFormValues({
+                  module: "onchainCondition",
                 });
                 if (!showTerms) {
                   next?.();
