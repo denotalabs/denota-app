@@ -21,6 +21,7 @@ type FileUploadProps = {
 export type FileControlProps = FormControlProps &
   FileUploadProps & { buttonProps?: ButtonProps };
 
+// Add ability for the file to just be a URL instead of a file
 export const FileControl: React.FC<FileControlProps> = React.forwardRef(
   (props: FileControlProps, ref: ForwardedRef<HTMLInputElement>) => {
     const {

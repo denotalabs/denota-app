@@ -10,6 +10,7 @@ function MetadataBox() {
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
+        {/* Combine these two into the same row */}
         <EmailField fieldName="email" placeholder="" />
         <TagsField fieldName="tags" placeholder="" />
         <Flex

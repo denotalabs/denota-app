@@ -15,12 +15,12 @@ export default function EmailField({ fieldName, placeholder }: Props) {
   return (
     <Field
       name={fieldName}
-      // validate={validateAddress}
+    // validate={validateAddress}
     >
       {({ field, form: { errors, touched } }: any) => (
         <FormControl isInvalid={errors.name && touched.name}>
           <FormLabel noOfLines={1} flexShrink={0}>
-            Client Email
+            Recipient Email
           </FormLabel>
           <Input {...field} />
           <FormErrorMessage>{errors.name}</FormErrorMessage>
