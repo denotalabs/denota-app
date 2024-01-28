@@ -40,7 +40,7 @@ export const deployedChains: Record<string, ChainInfo> = {
     },
     blockExplorerUrls: ["https://polygonscan.com/tx/"],
     rpcUrls: ["https://polygon-rpc.com/"],
-    graphUrl: "https://denota.klymr.me/graph/mumbai",
+    graphUrl: "https://subgraph.satsuma-prod.com/7be75cb990f3/alexs-team--3065096/denota/version/v0.0.1-new-version/api",
     graphTestUrl:
       "http://ec2-3-236-30-211.compute-1.amazonaws.com:8000/subgraphs/name/CheqRegistrar/mumbai",
   },
