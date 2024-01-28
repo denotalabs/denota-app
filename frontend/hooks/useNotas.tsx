@@ -22,22 +22,24 @@ export interface NotaTransaction {
   hash: string;
 }
 
-export type DirectPayStatus = "paid" | "awaiting_payment" | "payable";
+// Now called DirectSend since invoice isn't an option
+export type DirectPayStatus = "paid" | "awaiting_payment" | "payable";  // Invoicing tech debt
 
 export type EscrowStatus =
-  | "voided"
+  | "voided"  // Reversed
   | "released"
   | "awaiting_release"
-  | "releasable"
-  | "awaiting_escrow"
-  | "payable";
+  | "releasable" // Reversible release hook can always be released
+  | "awaiting_escrow" // Invoicing tech debt
+  | "payable"; // Invoicing tech debt
 
 export interface EscrowModuleData {
   status: EscrowStatus;
   isSelfSigned: boolean;
-  module: "escrow";
+  module: "escrow";  // Should change the name
 }
 
+// Now called DirectSend since invoice isn't an option
 export interface DirectPayModuleData {
   status: DirectPayStatus;
   module: "direct";
@@ -51,21 +53,21 @@ export interface Nota {
   receiver: string;
   owner: string;
   token: NotaCurrency;
-  isInvoice: boolean;
+  isInvoice: boolean; // Invoicing tech debt
   createdTransaction: NotaTransaction;
   fundedTransaction: NotaTransaction | null;
   isPayer: boolean;
   uri: string;
   payer: string;
   payee: string;
-  dueDate?: Date;
+  dueDate?: Date; // Invoicing tech debt
   moduleData: EscrowModuleData | DirectPayModuleData;
-  inspector?: string;
-  isInspector: boolean;
-  isCrossChain: boolean;
-  sourceChainName?: string;
-  sourceChainHex?: string;
-  destChain?: string;
+  inspector?: string;  // Isn't this based on the hook?
+  isInspector: boolean;  // Hook specific, should be in hookData?
+  isCrossChain: boolean; // Hook specific, should be in hookData?
+  sourceChainName?: string; // Hook specific, should be in hookData?
+  sourceChainHex?: string; // Hook specific, should be in hookData?
+  destChain?: string; // Hook specific, should be in hookData?
 }
 
 const convertExponent = (amountExact: number) => {
@@ -194,7 +196,7 @@ export const useNotas = ({ notaField }: Props) => {
 
       const sourceChainName = gqlNota.moduleData.sourceChain
         ? chainInfoForChainId(Number(gqlNota.moduleData.sourceChain))
-            .displayName
+          .displayName
         : undefined;
 
       const destChain = gqlNota.moduleData.sourceChain
@@ -216,9 +218,9 @@ export const useNotas = ({ notaField }: Props) => {
         fundedTransaction:
           fundedDate && fundedTx
             ? {
-                date: fundedDate,
-                hash: fundedTx,
-              }
+              date: fundedDate,
+              hash: fundedTx,
+            }
             : null,
         isInvoice,
         uri: gqlNota.uri,
