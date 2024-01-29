@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import { Box, Button, Collapse, useToast } from "@chakra-ui/react";
+import { Box, Button, Collapse, Text, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useState } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
@@ -129,7 +129,12 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
                       },
                     }}
                   >
-                    Metadata Options
+                    <Text ml={2} fontSize="2xl">
+                      {"Metadata"}
+                    </Text>
+                    <Text ml={2} color="whiteAlpha.600">
+                      {"(Optional)"}
+                    </Text>
                   </Button>
                   <Collapse in={isOpen} animateOpacity>
                     <Box my={5}>

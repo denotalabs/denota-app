@@ -1,10 +1,8 @@
 import {
   FormControl,
   FormErrorMessage,
-  FormHelperText,
   FormLabel,
   Input,
-  Text,
 } from "@chakra-ui/react";
 import { Field } from "formik";
 
@@ -24,9 +22,6 @@ export default function TagsField({ fieldName, placeholder }: Props) {
           <FormLabel noOfLines={1} flexShrink={0}>
             Tags
           </FormLabel>
-          <FormHelperText mt={0} mb={2}>
-            <Text as="i">Add tags separated by commas</Text>
-          </FormHelperText>{" "}
           <Input {...field} />
           <FormErrorMessage>{errors.name}</FormErrorMessage>
         </FormControl>

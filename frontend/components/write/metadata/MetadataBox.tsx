@@ -1,4 +1,4 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, HStack } from "@chakra-ui/react";
 
 import RoundedBox from "../../designSystem/RoundedBox";
 import EmailField from "../../fields/input/EmailField";
@@ -10,8 +10,11 @@ function MetadataBox() {
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
-        <EmailField fieldName="email" placeholder="" />
-        <TagsField fieldName="tags" placeholder="" />
+        <HStack gap={16}>
+          <EmailField fieldName="email" placeholder="" />
+          <TagsField fieldName="tags" placeholder="" />
+        </HStack>
+
         <Flex
           alignItems="center"
           justifyContent="space-between"
