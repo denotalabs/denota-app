@@ -10,7 +10,7 @@ function MetadataBox() {
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
-        <HStack>
+        <HStack gap={16}>
           <EmailField fieldName="email" placeholder="" />
           <TagsField fieldName="tags" placeholder="" />
         </HStack>
