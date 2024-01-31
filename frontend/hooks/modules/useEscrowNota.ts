@@ -9,7 +9,6 @@ interface Props {
   address: string;
   ipfsHash: string;
   imageUrl: string;
-  isInvoice: boolean;
   inspector?: string;
 }
 

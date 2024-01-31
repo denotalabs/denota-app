@@ -12,7 +12,6 @@ import {
 import { Form, Formik } from "formik";
 import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import useDemoMode from "../../../hooks/useDemoMode";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ModuleTerms from "../module/ModuleTerms";
@@ -24,7 +23,6 @@ interface Props extends ScreenProps {
 const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   const { next } = useStep();
   const { updateNotaFormValues, notaFormValues } = useNotaForm();
-  const isDemoMode = useDemoMode();
 
   const currentDate = useMemo(() => {
     const d = new Date();
@@ -144,10 +142,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
         >
           {(props) => (
             <Form>
-              <ModuleTerms
-                module={notaFormValues.module}
-                isInvoice={notaFormValues.mode === "invoice"}
-              />
+              <ModuleTerms module={notaFormValues.module} />
               <RoundedButton
                 isDisabled={props.errors.milestones !== undefined}
                 type="submit"

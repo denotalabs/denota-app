@@ -6,10 +6,6 @@ import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ModuleTerms from "./ModuleTerms";
 
-interface Props extends ScreenProps {
-  isInvoice: boolean;
-}
-
 export type PaymentTermsFormValues = {
   inspection: number;
   module: string;
@@ -17,7 +13,7 @@ export type PaymentTermsFormValues = {
   milestones: string[];
 };
 
-const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
+const PaymentTermsStep: React.FC<ScreenProps> = () => {
   const { next } = useStep();
   const { updateNotaFormValues, notaFormValues } = useNotaForm();
 
@@ -55,7 +51,7 @@ const PaymentTermsStep: React.FC<Props> = ({ isInvoice }) => {
       >
         {(props) => (
           <Form>
-            <ModuleTerms module={props.values.module} isInvoice={isInvoice} />
+            <ModuleTerms module={props.values.module} />
             <RoundedButton type="submit">{"Next"}</RoundedButton>
           </Form>
         )}

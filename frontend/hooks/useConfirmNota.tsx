@@ -127,7 +127,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               amount: notaFormValues.amount,
               address: notaFormValues.address,
               ipfsHash: notaFormValues.ipfsHash ?? "",
-              isInvoice: notaFormValues.mode === "invoice",
               imageUrl: lighthouseUrl,
               token: notaFormValues.token,
             });
@@ -140,7 +139,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               amount: notaFormValues.amount,
               address: notaFormValues.address,
               ipfsHash: notaFormValues.ipfsHash ?? "",
-              isInvoice: notaFormValues.mode === "invoice",
               inspector: notaFormValues.auditor,
               imageUrl: notaFormValues.imageUrl ?? "",
             });
@@ -150,11 +148,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             break;
         }
 
-        const isInvoice = notaFormValues.mode === "invoice";
-
-        const owner = isInvoice
-          ? blockchainState.account
-          : notaFormValues.address;
+        const owner = notaFormValues.address;
 
         // It takes a few seconds for the graph to pick up the new nota so go ahead and add it locally
         createLocalNota({
@@ -162,7 +156,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           amount: Number(notaFormValues.amount),
           sender: blockchainState.account,
           receiver: notaFormValues.address,
-          isInvoice,
           owner,
           token: notaFormValues.token as NotaCurrency,
           isCrossChain,
@@ -179,7 +172,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             token: notaFormValues.token,
             amount: notaFormValues.amount,
             module: "direct",
-            isInvoice: notaFormValues.mode === "invoice",
           });
         }
 

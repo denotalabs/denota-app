@@ -1,26 +1,10 @@
-import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import {
-  Checkbox,
-  Flex,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  HStack,
-  Input,
-  Stack,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
+import { Checkbox, Flex, HStack, Stack, Text } from "@chakra-ui/react";
 import { Field, FieldProps } from "formik";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import useDemoMode from "../../../hooks/useDemoMode";
 
-interface Props {
-  isInvoice: boolean;
-}
-
-export function DirectPayTerms({ isInvoice }: Props) {
+export function DirectPayTerms() {
   const isDemoMode = useDemoMode();
 
   const { notaFormValues } = useNotaForm();
@@ -32,28 +16,6 @@ export function DirectPayTerms({ isInvoice }: Props) {
         {"Funds will be released immediately upon payment."}
       </Text>
       <Stack spacing={5}>
-        {isInvoice && (
-          <Field name="dueDate">
-            {({ field, form: { errors, touched } }: FieldProps) => (
-              <FormControl isInvalid={Boolean(errors.name && touched.name)}>
-                <FormLabel noOfLines={1} flexShrink={0} mb={3}>
-                  Due date
-                  <Tooltip
-                    label="Date the payment is due"
-                    aria-label="module tooltip"
-                    placement="right"
-                  >
-                    <QuestionOutlineIcon ml={2} mb={1} />
-                  </Tooltip>
-                </FormLabel>
-                <Input type="date" w="200px" {...field} />
-                <FormErrorMessage>
-                  {errors.name && errors.name.toString()}
-                </FormErrorMessage>
-              </FormControl>
-            )}
-          </Field>
-        )}
         {/* Axelar only supported for Celo direct payments */}
         {isDemoMode &&
           notaFormValues.mode === "pay" &&

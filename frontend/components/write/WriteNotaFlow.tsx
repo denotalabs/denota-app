@@ -9,10 +9,9 @@ import ModuleSelectStep from "./moduleSelect/ModuleSelectStep";
 
 interface Props {
   onClose?: () => void;
-  isInvoice: boolean;
 }
 
-export function WriteNotaFlow({ onClose, isInvoice }: Props) {
+export function WriteNotaFlow({ onClose }: Props) {
   return (
     <NotaFormProvider>
       <VStack
@@ -24,22 +23,21 @@ export function WriteNotaFlow({ onClose, isInvoice }: Props) {
         display={{ base: "flex", md: "none" }}
         maxW="100%"
       >
-        <WriteStepperMobile onClose={onClose} isInvoice={isInvoice} />
+        <WriteStepperMobile onClose={onClose} />
       </VStack>
       <VStack w="650px" bg="brand.100" py={2} px={4} borderRadius="30px">
-        <WriteStepperDesktop onClose={onClose} isInvoice={isInvoice} />
+        <WriteStepperDesktop onClose={onClose} />
       </VStack>
     </NotaFormProvider>
   );
 }
 
-export function WriteStepperDesktop({ onClose, isInvoice }: Props) {
+export function WriteStepperDesktop({ onClose }: Props) {
   return (
     <Stepper onClose={onClose}>
       <DetailsStep
         screenKey="write"
         screenTitle={"Payment Details"}
-        isInvoice={isInvoice}
         showMetadata={true}
       ></DetailsStep>
       <ModuleSelectStep
@@ -50,19 +48,17 @@ export function WriteStepperDesktop({ onClose, isInvoice }: Props) {
       <ConfirmNotaStep
         screenKey="confirm"
         screenTitle="Confirm"
-        isInvoice={isInvoice}
       ></ConfirmNotaStep>
     </Stepper>
   );
 }
 
-export function WriteStepperMobile({ onClose, isInvoice }: Props) {
+export function WriteStepperMobile({ onClose }: Props) {
   return (
     <Stepper onClose={onClose}>
       <DetailsStep
         screenKey="write"
         screenTitle={"Payment Details"}
-        isInvoice={isInvoice}
         showMetadata={false}
       ></DetailsStep>
       <MetadataStep
@@ -77,12 +73,10 @@ export function WriteStepperMobile({ onClose, isInvoice }: Props) {
       <PaymentTermsStep
         screenKey="module"
         screenTitle="Payment Terms"
-        isInvoice={isInvoice}
       ></PaymentTermsStep>
       <ConfirmNotaStep
         screenKey="confirm"
         screenTitle="Confirm"
-        isInvoice={isInvoice}
       ></ConfirmNotaStep>
     </Stepper>
   );

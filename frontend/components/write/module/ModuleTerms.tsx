@@ -7,22 +7,21 @@ import { MotionBox } from "./MotionBox";
 
 interface Props {
   module: string;
-  isInvoice: boolean;
 }
 
-function ModuleTerms({ module, isInvoice }: Props) {
+function ModuleTerms({ module }: Props) {
   const selectedModule = useMemo(() => {
     switch (module) {
       case "direct":
-        return <DirectPayTerms isInvoice={isInvoice} />;
+        return <DirectPayTerms />;
       case "escrow":
         return <EscrowTerms />;
       case "milestone":
         return <MilestoneTerms />;
       default:
-        return <DirectPayTerms isInvoice={isInvoice} />;
+        return <DirectPayTerms />;
     }
-  }, [isInvoice, module]);
+  }, [module]);
 
   return (
     <MotionBox
