@@ -115,9 +115,6 @@ function NotaDetails({ nota }: Props) {
               copyValue={!nota.isInspector ? undefined : nota.payee}
             />
           )}
-          {nota.dueDate && nota.isInvoice && (
-            <DetailsRow title="Due Date" value={nota.dueDate.toDateString()} />
-          )}
           <DetailsRow
             title="Created On"
             value={nota.createdTransaction.date.toDateString()}

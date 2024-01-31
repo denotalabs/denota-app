@@ -10,21 +10,12 @@ interface EmailProps {
   network: string;
   token: string;
   amount: string;
-  isInvoice: boolean;
   module: string;
 }
 
 export const useEmail = () => {
   const sendEmail = useCallback(
-    async ({
-      email,
-      txHash,
-      network,
-      token,
-      amount,
-      module,
-      isInvoice,
-    }: EmailProps) => {
+    async ({ email, txHash, network, token, amount, module }: EmailProps) => {
       try {
         await axios.post(DENOTA_EMAIL_SERVICE, {
           email,
@@ -32,7 +23,6 @@ export const useEmail = () => {
           network,
           token,
           amount,
-          isInvoice,
           module,
         });
       } catch (error) {

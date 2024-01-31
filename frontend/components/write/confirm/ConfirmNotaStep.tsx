@@ -10,11 +10,7 @@ import { ScreenProps } from "../../designSystem/stepper/Stepper";
 import ConfirmDetails from "./ConfirmDetails";
 import ConfirmNotice from "./ConfirmNotice";
 
-interface Props extends ScreenProps {
-  isInvoice: boolean;
-}
-
-const ConfirmNotaStep: React.FC<Props> = ({ isInvoice }: Props) => {
+const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   const { notaFormValues } = useNotaForm();
   const { needsApproval, approveAmount, writeNota } = useConfirmNota({
     onSuccess: () => {
@@ -51,11 +47,8 @@ const ConfirmNotaStep: React.FC<Props> = ({ isInvoice }: Props) => {
       >
         {(props) => (
           <Form>
-            <ConfirmNotice
-              isInvoice={notaFormValues.mode === "invoice"}
-              module={props.values.module}
-            ></ConfirmNotice>
-            <ConfirmDetails isInvoice={isInvoice}></ConfirmDetails>
+            <ConfirmNotice module={props.values.module}></ConfirmNotice>
+            <ConfirmDetails></ConfirmDetails>
             <RoundedButton type="submit" isLoading={props.isSubmitting}>
               {buttonText}
             </RoundedButton>

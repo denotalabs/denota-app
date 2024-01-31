@@ -29,7 +29,7 @@ app.post("/", jsonParser, async (req, res) => {
       },
     });
 
-    const { email, txHash, token, amount, isInvoice, network } = req.body;
+    const { email, txHash, token, amount, network } = req.body;
 
     let provider;
     let registrar;
@@ -52,11 +52,9 @@ app.post("/", jsonParser, async (req, res) => {
       if (tx.to === registrar) {
         const sender = tx.from.slice(0, 5) + "..." + tx.from.slice(-4);
 
-        const notaType = req.body.isInvoice ? "an invoice" : "a payment";
+        const notaType = "a payment";
 
-        const notaDescription = isInvoice
-          ? `${sender} requests ${amount} ${token}.`
-          : `${sender} paid you ${amount} ${token}.`;
+        const notaDescription = `${sender} paid you ${amount} ${token}.`;
 
         // TODO: add Denota logo/branding
         const mailOptions = {

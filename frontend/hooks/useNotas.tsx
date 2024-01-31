@@ -51,7 +51,6 @@ export interface Nota {
   receiver: string;
   owner: string;
   token: NotaCurrency;
-  isInvoice: boolean;
   createdTransaction: NotaTransaction;
   fundedTransaction: NotaTransaction | null;
   isPayer: boolean;
@@ -113,8 +112,6 @@ export const useNotas = ({ notaField }: Props) => {
     (gqlNota: any) => {
       const createdTx = gqlNota.createdTransaction.id;
 
-      const isInvoice = gqlNota.moduleData.isInvoice;
-
       const fundedDate = gqlNota.moduleData.fundedTimestamp
         ? new Date(Number(gqlNota.moduleData.fundedTimestamp) * 1000)
         : null;
@@ -123,13 +120,9 @@ export const useNotas = ({ notaField }: Props) => {
         ? gqlNota.moduleData.fundedTransaction.id
         : null;
 
-      const payer = isInvoice
-        ? (gqlNota.receiver.id as string)
-        : (gqlNota.sender.id as string);
+      const payer = gqlNota.sender.id as string;
 
-      const payee = isInvoice
-        ? (gqlNota.sender.id as string)
-        : (gqlNota.receiver.id as string);
+      const payee = gqlNota.receiver.id as string;
 
       const isPayer = payer === blockchainState.account.toLowerCase();
 
@@ -220,7 +213,6 @@ export const useNotas = ({ notaField }: Props) => {
                 hash: fundedTx,
               }
             : null,
-        isInvoice,
         uri: gqlNota.uri,
         isPayer,
         payer,
@@ -272,7 +264,6 @@ export const useNotas = ({ notaField }: Props) => {
           status
           amount
           fundedTimestamp
-          isInvoice
           isCrossChain
           sourceChain
           destChain
@@ -292,7 +283,6 @@ export const useNotas = ({ notaField }: Props) => {
           status
           amount
           fundedTimestamp
-          isInvoice
           fundedTransaction {
             id
           }

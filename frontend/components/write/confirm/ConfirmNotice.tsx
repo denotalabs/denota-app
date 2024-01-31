@@ -4,11 +4,10 @@ import { useMemo } from "react";
 import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
-  isInvoice: boolean;
   module: string;
 }
 
-function ConfirmNotice({ isInvoice, module }: Props) {
+function ConfirmNotice({ module }: Props) {
   const iconForModule = useMemo(() => {
     switch (module) {
       case "direct":

@@ -6,11 +6,7 @@ import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
-interface Props {
-  isInvoice: boolean;
-}
-
-function ConfirmDetails({ isInvoice }: Props) {
+function ConfirmDetails() {
   const { notaFormValues } = useNotaForm();
   const { formatAddress } = useFormatAddress();
 
@@ -31,9 +27,6 @@ function ConfirmDetails({ isInvoice }: Props) {
             displayNameForCurrency(notaFormValues.token as NotaCurrency)
           }
         />
-        {notaFormValues.module === "direct" && isInvoice && (
-          <DetailsRow title="Due Date" value={notaFormValues.dueDate} />
-        )}
         {notaFormValues.module === "escrow" && (
           <DetailsRow
             title="Inspector"

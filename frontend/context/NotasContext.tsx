@@ -31,7 +31,6 @@ interface OptimisticNotaProps {
   receiver: string;
   owner: string;
   token: NotaCurrency;
-  isInvoice: boolean;
   uri: string;
   inspector?: string;
   createdHash: string;
@@ -92,15 +91,14 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
       receiver,
       owner,
       token,
-      isInvoice,
       uri,
       inspector,
       isCrossChain,
       createdHash,
       module,
     }: OptimisticNotaProps) => {
-      const payer = isInvoice ? receiver : sender;
-      const payee = isInvoice ? sender : receiver;
+      const payer = sender;
+      const payee = receiver;
       const isPayer = blockchainState.account === payer;
       const isInspector = blockchainState.account === inspector;
 
@@ -109,13 +107,13 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
         case "direct":
           moduleData = {
             module: "direct",
-            status: isInvoice ? "awaiting_payment" : "paid",
+            status: "paid",
           };
           break;
         case "escrow":
           moduleData = {
             module: "escrow",
-            status: isInvoice ? "awaiting_escrow" : "releasable",
+            status: "releasable",
             isSelfSigned: inspector === blockchainState.account,
           };
       }
@@ -128,7 +126,6 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
         receiver,
         owner,
         token,
-        isInvoice,
         uri,
         payee,
         payer,
@@ -137,9 +134,7 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
         isPayer,
         isInspector,
         createdTransaction: { hash: createdHash, date: new Date() },
-        fundedTransaction: isInvoice
-          ? null
-          : { hash: createdHash, date: new Date() },
+        fundedTransaction: { hash: createdHash, date: new Date() },
         moduleData,
       };
       addOptimisticNota(nota);

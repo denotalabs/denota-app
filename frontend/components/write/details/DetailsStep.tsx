@@ -11,7 +11,6 @@ import AccountDetails from "./AccountDetails";
 import PaymentDetails from "./PaymentDetails";
 
 interface Props extends ScreenProps {
-  isInvoice: boolean;
   showMetadata: boolean;
 }
 
@@ -22,7 +21,7 @@ export type DetailsStepFormValues = {
   mode: string;
 };
 
-const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
+const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
   const { next } = useStep();
   const { notaFormValues, file, updateNotaFormValues, setFile } = useNotaForm();
   const { upload } = useUploadMetadata();
@@ -30,7 +29,7 @@ const DetailsStep: React.FC<Props> = ({ isInvoice, showMetadata }) => {
   let initialMode = notaFormValues.mode;
 
   if (initialMode === undefined) {
-    initialMode = isInvoice ? "invoice" : "pay";
+    initialMode = "pay";
   }
 
   const [isOpen, setIsOpen] = useState(false);
