@@ -59,7 +59,7 @@ export interface Nota {
 
 const convertExponent = (amountExact: number) => {
   // Use right exponent
-  return Number(BigInt(amountExact) / BigInt(10 ** 16)) / 100;
+  return Number(BigInt(amountExact) / BigInt(10 ** 4)) / 100;
 };
 
 export const useNotas = ({ notaField }: Props) => {
@@ -110,22 +110,24 @@ export const useNotas = ({ notaField }: Props) => {
 
       let moduleData: EscrowModuleData | DirectPayModuleData;
 
-      const isEscrow = gqlNota.escrowed === 0;
+      console.log(gqlNota.escrowed);
+
+      const isEscrow = Number(gqlNota.escrowed) !== 0;
 
       if (isEscrow) {
-        moduleData = { module: "direct", status: "paid" };
-      } else {
         moduleData = {
           module: "escrow",
           status: "awaiting_release",
         };
+      } else {
+        moduleData = { module: "direct", status: "paid" };
       }
 
       const amount = isEscrow ? gqlNota.escrowed : gqlNota.escrows[0].instant;
 
       return {
         id: gqlNota.id as string,
-        amount: convertExponent(amount as number),
+        amount: convertExponent(Number(amount)),
         amountRaw: BigNumber.from(amount),
         token: currencyForTokenId(gqlNota.erc20.id),
         receiver: gqlNota.receiver.id as string,
@@ -181,13 +183,10 @@ export const useNotas = ({ notaField }: Props) => {
       const tokenQuery = gql`
       query accounts($account: String ){
         account(id: $account)  {
-          notasSent(orderBy: createdAt, orderDirection: desc) {
+          notasSent {
             ${tokenFields}
           }
-          notasReceived(orderBy: createdAt, orderDirection: desc) {
-            ${tokenFields}
-          }
-          notasInspected(orderBy: createdAt, orderDirection: desc) {
+          notasReceived {
             ${tokenFields}
           }
        }
@@ -212,18 +211,13 @@ export const useNotas = ({ notaField }: Props) => {
             const gqlNotasReceived = data["data"]["account"][
               "notasReceived"
             ] as any[];
-            const gqlNotasInspected = data["data"]["account"][
-              "notasInspected"
-            ] as any[];
             setNotaSent(
               gqlNotasSent.filter((nota) => nota.owner).map(mapField)
             );
             setNotasReceived(
               gqlNotasReceived.filter((nota) => nota.owner).map(mapField)
             );
-            setNotasInspected(
-              gqlNotasInspected.filter((nota) => nota.owner).map(mapField)
-            );
+            setNotasInspected([]);
           } else {
             setNotaSent([]);
             setNotasReceived([]);
