@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -298,68 +298,67 @@ export const useNotas = ({ notaField }: Props) => {
       `;
 
       // TODO: pagination
-      // TODO: remove references to cheq from the graph schema
+      // TODO: remove references to nota from the graph schema
       const tokenQuery = gql`
       query accounts($account: String ){
         account(id: $account)  {
-          cheqsSent(orderBy: createdAt, orderDirection: desc) {
+          notasSent(orderBy: createdAt, orderDirection: desc) {
             ${tokenFields}
           }
-          cheqsReceived(orderBy: createdAt, orderDirection: desc) {
+          notasReceived(orderBy: createdAt, orderDirection: desc) {
             ${tokenFields}
           }
-          cheqsInspected(orderBy: createdAt, orderDirection: desc) {
+          notasInspected(orderBy: createdAt, orderDirection: desc) {
             ${tokenFields}
           }
        }
       }
       `;
 
-      setIsLoading(false);
-      setNotaSent([]);
-      setNotasReceived([]);
-      setNotasInspected([]);
-
-      // TODO: fix graph
-
-      // const client = new ApolloClient({
-      //   uri: blockchainState.graphUrl,
-      //   cache: new InMemoryCache(),
-      // });
-      // client
-      //   .query({
-      //     query: tokenQuery,
-      //     variables: {
-      //       account: account.toLowerCase(),
-      //     },
-      //   })
-      //   .then((data) => {
-      //     console.log({ data });
-      //     if (data["data"]["account"]) {
-      //       const gqlNotasSent = data["data"]["account"]["cheqsSent"] as any[];
-      //       const gqlNotasReceived = data["data"]["account"][
-      //         "cheqsReceived"
-      //       ] as any[];
-      //       const gqlNotasInspected = data["data"]["account"][
-      //         "cheqsInspected"
-      //       ] as any[];
-      //       setNotaSent(gqlNotasSent.map(mapField));
-      //       setNotasReceived(gqlNotasReceived.map(mapField));
-      //       setNotasInspected(gqlNotasInspected.map(mapField));
-      //     } else {
-      //       setNotaSent([]);
-      //       setNotasReceived([]);
-      //       setNotasInspected([]);
-      //     }
-      //     setIsLoading(false);
-      //   })
-      //   .catch((err) => {
-      //     console.log("Error fetching data: ", err);
-      //     setIsLoading(false);
-      //     setNotaSent([]);
-      //     setNotasReceived([]);
-      //     setNotasInspected([]);
-      //   });
+      const client = new ApolloClient({
+        uri: blockchainState.graphUrl,
+        cache: new InMemoryCache(),
+      });
+      client
+        .query({
+          query: tokenQuery,
+          variables: {
+            account: account.toLowerCase(),
+          },
+        })
+        .then((data) => {
+          console.log({ data });
+          if (data["data"]["account"]) {
+            const gqlNotasSent = data["data"]["account"]["notasSent"] as any[];
+            const gqlNotasReceived = data["data"]["account"][
+              "notasReceived"
+            ] as any[];
+            const gqlNotasInspected = data["data"]["account"][
+              "notasInspected"
+            ] as any[];
+            setNotaSent(
+              gqlNotasSent.filter((nota) => nota.owner).map(mapField)
+            );
+            setNotasReceived(
+              gqlNotasReceived.filter((nota) => nota.owner).map(mapField)
+            );
+            setNotasInspected(
+              gqlNotasInspected.filter((nota) => nota.owner).map(mapField)
+            );
+          } else {
+            setNotaSent([]);
+            setNotasReceived([]);
+            setNotasInspected([]);
+          }
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log("Error fetching data: ", err);
+          setIsLoading(false);
+          setNotaSent([]);
+          setNotasReceived([]);
+          setNotasInspected([]);
+        });
     }
   }, [account, blockchainState.graphUrl, mapField]);
 
@@ -416,9 +415,9 @@ export const useNotas = ({ notaField }: Props) => {
         nota.moduleData.module === "escrow" && !nota.moduleData.isSelfSigned
     );
     switch (notaField) {
-      case "cheqsSent":
+      case "notasSent":
         return notasSentIncludingOptimistic;
-      case "cheqsReceived":
+      case "notasReceived":
         return notasReceivedIncludingOptimistic;
       default:
         return notasReceivedIncludingOptimistic
