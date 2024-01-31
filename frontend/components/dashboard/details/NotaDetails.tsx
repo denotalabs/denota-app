@@ -1,7 +1,6 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
@@ -77,27 +76,6 @@ function NotaDetails({ nota }: Props) {
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
         <VStack gap={0}>
-          {nota.isCrossChain && (
-            <VStack mt={2}>
-              <Image
-                src="/logos/axelar-logo.svg"
-                alt="axelar"
-                width={20}
-                height={20}
-                unoptimized={true}
-              />
-              <Text mt={3} fontSize="lg">
-                Cross-chain Nota
-              </Text>
-              <Text mt={3}>Powered by Axelar</Text>
-            </VStack>
-          )}
-          {nota.sourceChainName && (
-            <DetailsRow title="Source Chain" value={nota.sourceChainName} />
-          )}
-          {nota.destChain && (
-            <DetailsRow title="Destination Chain" value={nota.destChain} />
-          )}
           <DetailsRow
             title="Payer"
             value={formatAddress(nota.payer)}

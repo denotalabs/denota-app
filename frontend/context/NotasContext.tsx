@@ -114,7 +114,6 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
           moduleData = {
             module: "escrow",
             status: "releasable",
-            isSelfSigned: inspector === blockchainState.account,
           };
       }
 
@@ -130,7 +129,6 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
         payee,
         payer,
         inspector,
-        isCrossChain,
         isPayer,
         isInspector,
         createdTransaction: { hash: createdHash, date: new Date() },

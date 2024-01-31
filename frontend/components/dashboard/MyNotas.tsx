@@ -39,8 +39,8 @@ function MyNotas() {
           focusBorderColor="clear"
         >
           <option value="all">All</option>
-          <option value="cheqsReceived">Received</option>
-          <option value="cheqsSent">Sent</option>
+          <option value="notasReceived">Received</option>
+          <option value="notasSent">Sent</option>
         </Select>
         <IconButton
           size="lg"
