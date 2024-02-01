@@ -110,16 +110,24 @@ export const useNotas = ({ notaField }: Props) => {
 
       let moduleData: EscrowModuleData | DirectPayModuleData;
 
-      console.log(gqlNota.escrowed);
-
       const isEscrow = Number(gqlNota.escrows[0].amount) !== 0;
 
       if (isEscrow) {
-        // TODO: this assumes self signed, update to pull the actual inspector
         isInspector = isPayer;
+        let status: "released" | "awaiting_release" | "releasable";
+
+        if (gqlNota.escrows.length > 1) {
+          status = "released";
+        } else if (isPayer) {
+          // TODO: this assumes self signed, update to pull the actual inspector
+          status = "releasable";
+        } else {
+          status = "awaiting_release";
+        }
+
         moduleData = {
           module: "escrow",
-          status: gqlNota.escrows.length > 1 ? "released" : "awaiting_release",
+          status,
         };
       } else {
         moduleData = { module: "direct", status: "paid" };
@@ -177,6 +185,7 @@ export const useNotas = ({ notaField }: Props) => {
       }
       escrows {
         instant
+        amount
       }
       `;
 
