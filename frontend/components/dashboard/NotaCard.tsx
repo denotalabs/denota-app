@@ -143,18 +143,18 @@ function NotaCard({ nota }: Props) {
   const handleRelease = useCallback(async () => {
     setCashingInProgress(true);
     await releaseNota({
-      notaId: nota.id,
+      nota,
     });
     setCashingInProgress(false);
-  }, [nota.id, releaseNota]);
+  }, [nota, releaseNota]);
 
   const handleVoid = useCallback(async () => {
     setCashingInProgress(true);
     await reverseNota({
-      notaId: nota.id,
+      nota,
     });
     setCashingInProgress(false);
-  }, [nota.id, reverseNota]);
+  }, [nota, reverseNota]);
 
   return (
     <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>

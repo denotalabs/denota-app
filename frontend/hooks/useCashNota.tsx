@@ -2,9 +2,10 @@ import { useToast } from "@chakra-ui/react";
 import { cash } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
 import { useNotaContext } from "../context/NotasContext";
+import { Nota } from "./useNotas";
 
 interface Props {
-  notaId: string;
+  nota: Nota;
 }
 
 export const useCashNota = () => {
@@ -12,9 +13,14 @@ export const useCashNota = () => {
   const { refreshWithDelay } = useNotaContext();
 
   const releaseNota = useCallback(
-    async ({ notaId }: Props) => {
+    async ({ nota }: Props) => {
       try {
-        await cash({ notaId, type: "release" });
+        await cash({
+          notaId: nota.id,
+          type: "release",
+          amount: nota.amountRaw,
+          to: nota.receiver,
+        });
         toast({
           title: "Transaction succeeded",
           description: "Payment released",
@@ -37,9 +43,14 @@ export const useCashNota = () => {
   );
 
   const reverseNota = useCallback(
-    async ({ notaId }: Props) => {
+    async ({ nota }: Props) => {
       try {
-        await cash({ notaId, type: "reversal" });
+        await cash({
+          notaId: nota.id,
+          type: "reversal",
+          amount: nota.amountRaw,
+          to: nota.sender,
+        });
         toast({
           title: "Transaction succeeded",
           description: "Payment voided",
