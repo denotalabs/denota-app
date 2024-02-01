@@ -106,18 +106,20 @@ export const useNotas = ({ notaField }: Props) => {
         gqlNota.sender.id === blockchainState.account.toLowerCase();
 
       // TODO: module data
-      const isInspector = false;
+      let isInspector = false;
 
       let moduleData: EscrowModuleData | DirectPayModuleData;
 
       console.log(gqlNota.escrowed);
 
-      const isEscrow = Number(gqlNota.escrowed) !== 0;
+      const isEscrow = Number(gqlNota.escrows[0].amount) !== 0;
 
       if (isEscrow) {
+        // TODO: this assumes self signed, update to pull the actual inspector
+        isInspector = isPayer;
         moduleData = {
           module: "escrow",
-          status: "awaiting_release",
+          status: gqlNota.escrows.length > 1 ? "released" : "awaiting_release",
         };
       } else {
         moduleData = { module: "direct", status: "paid" };
