@@ -1,6 +1,6 @@
 import { Button, Image } from "@chakra-ui/react";
 
-const OPENSEA_URL = "https://testnets.opensea.io/assets/";
+const OPENSEA_URL = "https://opensea.io/assets/";
 
 interface ViewOnOpenSeaButtonProps {
   id: string;
@@ -11,7 +11,7 @@ interface ViewOnOpenSeaButtonProps {
 const ViewOnOpenSeaButton = ({
   id,
   registrarAddress,
-  chain = "mumbai",
+  chain = "matic",
 }: ViewOnOpenSeaButtonProps) => {
   const url = `${OPENSEA_URL}${chain}/${registrarAddress}/${id}`;
   return (
