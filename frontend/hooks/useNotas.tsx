@@ -163,7 +163,7 @@ export const useNotas = ({ notaField }: Props) => {
         isInspector,
       };
     },
-    [blockchainState.account, currencyForTokenId]
+    [blockchainState.account, currencyForTokenId, getTokenUnits]
   );
 
   const refresh = useCallback(() => {
