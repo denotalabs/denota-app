@@ -113,5 +113,6 @@ export const useTokens = () => {
     parseTokenValue,
     getTokenBalance,
     getTokenAllowance,
+    getTokenUnits,
   };
 };

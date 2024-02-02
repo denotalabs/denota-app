@@ -4,6 +4,7 @@ import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
+import { useTokens } from "./useTokens";
 
 interface Props {
   notaField: string;
@@ -57,9 +58,9 @@ export interface Nota {
   isInspector: boolean;
 }
 
-const convertExponent = (amountExact: number) => {
-  // Use right exponent
-  return Number(BigInt(amountExact) / BigInt(10 ** 4)) / 100;
+const convertExponent = (amountExact: number, exponent: number) => {
+  const adjustedExponent = exponent - 3;
+  return Number(BigInt(amountExact) / BigInt(10 ** adjustedExponent)) / 1000;
 };
 
 export const useNotas = ({ notaField }: Props) => {
@@ -97,6 +98,8 @@ export const useNotas = ({ notaField }: Props) => {
     },
     [blockchainState.chhainIdNumber]
   );
+
+  const { getTokenUnits } = useTokens();
 
   const mapField = useCallback(
     (gqlNota: any) => {
@@ -137,7 +140,10 @@ export const useNotas = ({ notaField }: Props) => {
 
       return {
         id: gqlNota.id as string,
-        amount: convertExponent(Number(amount)),
+        amount: convertExponent(
+          Number(amount),
+          getTokenUnits(currencyForTokenId(gqlNota.erc20.id))
+        ),
         amountRaw: BigNumber.from(amount),
         token: currencyForTokenId(gqlNota.erc20.id),
         receiver: gqlNota.receiver.id as string,
@@ -157,7 +163,7 @@ export const useNotas = ({ notaField }: Props) => {
         isInspector,
       };
     },
-    [blockchainState.account, currencyForTokenId]
+    [blockchainState.account, currencyForTokenId, getTokenUnits]
   );
 
   const refresh = useCallback(() => {
