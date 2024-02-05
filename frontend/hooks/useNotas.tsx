@@ -113,13 +113,14 @@ export const useNotas = ({ notaField }: Props) => {
 
       let moduleData: EscrowModuleData | DirectPayModuleData;
 
-      const isEscrow = Number(gqlNota.escrows[0].amount) !== 0;
+      const isEscrow =
+        gqlNota.module.id === blockchainState.escrowAddress.toLowerCase();
 
       if (isEscrow) {
         isInspector = isPayer;
         let status: "released" | "awaiting_release" | "releasable";
 
-        if (gqlNota.escrows.length > 1) {
+        if (gqlNota.cashes.length > 0) {
           status = "released";
         } else if (isPayer) {
           // TODO: this assumes self signed, update to pull the actual inspector
@@ -136,7 +137,7 @@ export const useNotas = ({ notaField }: Props) => {
         moduleData = { module: "direct", status: "paid" };
       }
 
-      const amount = isEscrow ? gqlNota.escrowed : gqlNota.escrows[0].instant;
+      const amount = isEscrow ? gqlNota.escrowed : 0; //TODO: correct direct pay amount
 
       return {
         id: gqlNota.id as string,
@@ -163,7 +164,12 @@ export const useNotas = ({ notaField }: Props) => {
         isInspector,
       };
     },
-    [blockchainState.account, currencyForTokenId, getTokenUnits]
+    [
+      blockchainState.account,
+      blockchainState.escrowAddress,
+      currencyForTokenId,
+      getTokenUnits,
+    ]
   );
 
   const refresh = useCallback(() => {
@@ -186,12 +192,14 @@ export const useNotas = ({ notaField }: Props) => {
       owner {
         id
       }
-      erc20 {
+      currency {
         id
       }
-      escrows {
-        instant
-        amount
+      module {
+        id
+      }
+      cashes {
+        id
       }
       `;
 
