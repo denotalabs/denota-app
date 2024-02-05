@@ -1,9 +1,10 @@
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { contractMappingForChainId } from "@denota-labs/denota-sdk";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
+import NotaRegistar from "../frontend-abi/NotaRegistrar.sol/NotaRegistrar.json";
 import { useTokens } from "./useTokens";
 
 interface Props {
@@ -119,7 +120,16 @@ export const useNotas = ({ notaField }: Props) => {
         isInspector = isPayer;
         let status: "released" | "awaiting_release" | "releasable";
 
-        if (gqlNota.escrows.length > 1) {
+        const registrarContract = new ethers.Contract(
+          blockchainState.registrarAddress,
+          NotaRegistar.abi,
+          blockchainState.signer
+        );
+        const amountEscrowed = registrarContract.notaEscrowed(
+          Number(gqlNota.id)
+        );
+
+        if (amountEscrowed === 0) {
           status = "released";
         } else if (isPayer) {
           // TODO: this assumes self signed, update to pull the actual inspector
@@ -163,7 +173,13 @@ export const useNotas = ({ notaField }: Props) => {
         isInspector,
       };
     },
-    [blockchainState.account, currencyForTokenId, getTokenUnits]
+    [
+      blockchainState.account,
+      blockchainState.registrarAddress,
+      blockchainState.signer,
+      currencyForTokenId,
+      getTokenUnits,
+    ]
   );
 
   const refresh = useCallback(() => {
