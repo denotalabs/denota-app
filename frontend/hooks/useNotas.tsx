@@ -120,6 +120,8 @@ export const useNotas = ({ notaField }: Props) => {
         isInspector = isPayer;
         let status: "released" | "awaiting_release" | "releasable";
 
+        // TODO: this should be pulled for the graph instead
+        // Figure out why the graph is not handling the cash event correctly
         const registrarContract = new ethers.Contract(
           blockchainState.registrarAddress,
           NotaRegistar.abi,
