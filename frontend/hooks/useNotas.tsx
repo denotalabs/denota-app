@@ -137,16 +137,18 @@ export const useNotas = ({ notaField }: Props) => {
         moduleData = { module: "direct", status: "paid" };
       }
 
-      const amount = isEscrow ? gqlNota.escrowed : 0; //TODO: correct direct pay amount
+      const amount = isEscrow
+        ? gqlNota.written.escrowed
+        : gqlNota.written.instant;
 
       return {
         id: gqlNota.id as string,
         amount: convertExponent(
           Number(amount),
-          getTokenUnits(currencyForTokenId(gqlNota.erc20.id))
+          getTokenUnits(currencyForTokenId(gqlNota.currency.id))
         ),
         amountRaw: BigNumber.from(amount),
-        token: currencyForTokenId(gqlNota.erc20.id),
+        token: currencyForTokenId(gqlNota.currency.id),
         receiver: gqlNota.receiver.id as string,
         sender: gqlNota.sender.id as string,
         owner: gqlNota.owner.id as string,
@@ -200,6 +202,10 @@ export const useNotas = ({ notaField }: Props) => {
       }
       cashes {
         id
+      }
+      written {
+        instant
+        escrowed
       }
       `;
 
