@@ -113,13 +113,14 @@ export const useNotas = ({ notaField }: Props) => {
 
       let moduleData: EscrowModuleData | DirectPayModuleData;
 
-      const isEscrow = Number(gqlNota.escrows[0].amount) !== 0;
+      const isEscrow =
+        gqlNota.module.id === blockchainState.escrowAddress.toLowerCase();
 
       if (isEscrow) {
         isInspector = isPayer;
         let status: "released" | "awaiting_release" | "releasable";
 
-        if (gqlNota.escrows.length > 1) {
+        if (gqlNota.cashes.length > 0) {
           status = "released";
         } else if (isPayer) {
           // TODO: this assumes self signed, update to pull the actual inspector
@@ -136,16 +137,18 @@ export const useNotas = ({ notaField }: Props) => {
         moduleData = { module: "direct", status: "paid" };
       }
 
-      const amount = isEscrow ? gqlNota.escrowed : gqlNota.escrows[0].instant;
+      const amount = isEscrow
+        ? gqlNota.written.escrowed
+        : gqlNota.written.instant;
 
       return {
         id: gqlNota.id as string,
         amount: convertExponent(
           Number(amount),
-          getTokenUnits(currencyForTokenId(gqlNota.erc20.id))
+          getTokenUnits(currencyForTokenId(gqlNota.currency.id))
         ),
         amountRaw: BigNumber.from(amount),
-        token: currencyForTokenId(gqlNota.erc20.id),
+        token: currencyForTokenId(gqlNota.currency.id),
         receiver: gqlNota.receiver.id as string,
         sender: gqlNota.sender.id as string,
         owner: gqlNota.owner.id as string,
@@ -163,7 +166,12 @@ export const useNotas = ({ notaField }: Props) => {
         isInspector,
       };
     },
-    [blockchainState.account, currencyForTokenId, getTokenUnits]
+    [
+      blockchainState.account,
+      blockchainState.escrowAddress,
+      currencyForTokenId,
+      getTokenUnits,
+    ]
   );
 
   const refresh = useCallback(() => {
@@ -186,12 +194,18 @@ export const useNotas = ({ notaField }: Props) => {
       owner {
         id
       }
-      erc20 {
+      currency {
         id
       }
-      escrows {
+      module {
+        id
+      }
+      cashes {
+        id
+      }
+      written {
         instant
-        amount
+        escrowed
       }
       `;
 
