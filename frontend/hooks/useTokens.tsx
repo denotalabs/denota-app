@@ -29,6 +29,34 @@ export const useTokens = () => {
     [blockchainState]
   );
 
+  const displayNameForCurrency = useCallback((currency: NotaCurrency) => {
+    switch (currency) {
+      case "USDCE":
+        return "USDC.e";
+      case "UNKNOWN":
+        return "Unknown Token";
+    }
+    return currency;
+  }, []);
+
+  const currencyForTokenId = useCallback(
+    (tokenAddress: string): NotaCurrency => {
+      const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
+
+      switch (tokenAddress) {
+        case mapping.dai.toLowerCase():
+          return "DAI";
+        case mapping.weth.toLowerCase():
+          return "WETH";
+        case mapping.usdc.toLocaleLowerCase():
+          return "USDC";
+        default:
+          return "UNKNOWN";
+      }
+    },
+    [blockchainState.chhainIdNumber]
+  );
+
   const getTokenUnits = useCallback((token: NotaCurrency) => {
     switch (token) {
       case "USDC":
@@ -114,5 +142,7 @@ export const useTokens = () => {
     getTokenBalance,
     getTokenAllowance,
     getTokenUnits,
+    currencyForTokenId,
+    displayNameForCurrency,
   };
 };

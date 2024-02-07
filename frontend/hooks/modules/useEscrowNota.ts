@@ -24,6 +24,9 @@ export const useEscrowNota = () => {
       inspector,
       imageUrl,
     }: Props) => {
+      if (token === "UNKNOWN") {
+        return;
+      }
       const receipt = await write({
         amount: Number(amount),
         currency: token,

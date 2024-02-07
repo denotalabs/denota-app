@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { Field, FieldProps } from "formik";
 
-import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
+import { useTokens } from "../../../hooks/useTokens";
 import CurrencyIcon, { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import { TokenChoice } from "../../designSystem/TokenChoice";
 
@@ -50,7 +50,7 @@ function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
     },
   });
 
-  const { displayNameForCurrency } = useCurrencyDisplayName();
+  const { displayNameForCurrency } = useTokens();
 
   const group = getRootProps();
   return (
