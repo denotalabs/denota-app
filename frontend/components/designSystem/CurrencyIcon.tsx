@@ -1,6 +1,12 @@
 import { Image } from "@chakra-ui/react";
 
-export type NotaCurrency = "DAI" | "USDC" | "WETH" | "USDT" | "USDCE";
+export type NotaCurrency =
+  | "DAI"
+  | "USDC"
+  | "WETH"
+  | "USDT"
+  | "USDCE"
+  | "UNKNOWN";
 
 const URL_MAP = {
   USDC: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023",

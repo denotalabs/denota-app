@@ -3,8 +3,11 @@ import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 
 export const useCurrencyDisplayName = () => {
   const displayNameForCurrency = useCallback((currency: NotaCurrency) => {
-    if (currency === "USDCE") {
-      return "USDC.e";
+    switch (currency) {
+      case "USDCE":
+        return "USDC.e";
+      case "UNKNOWN":
+        return "Unknown Token";
     }
     return currency;
   }, []);

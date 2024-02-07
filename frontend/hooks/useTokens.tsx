@@ -29,6 +29,24 @@ export const useTokens = () => {
     [blockchainState]
   );
 
+  const currencyForTokenId = useCallback(
+    (tokenAddress: string): NotaCurrency => {
+      const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
+
+      switch (tokenAddress) {
+        case mapping.dai.toLowerCase():
+          return "DAI";
+        case mapping.weth.toLowerCase():
+          return "WETH";
+        case mapping.usdc.toLocaleLowerCase():
+          return "USDC";
+        default:
+          return "USDC";
+      }
+    },
+    [blockchainState.chhainIdNumber]
+  );
+
   const getTokenUnits = useCallback((token: NotaCurrency) => {
     switch (token) {
       case "USDC":
@@ -114,5 +132,6 @@ export const useTokens = () => {
     getTokenBalance,
     getTokenAllowance,
     getTokenUnits,
+    currencyForTokenId,
   };
 };
