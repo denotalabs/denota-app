@@ -23,6 +23,9 @@ interface Props {
 }
 
 function CurrencyIcon({ currency }: Props) {
+  if (currency === "UNKNOWN") {
+    return <></>;
+  }
   return <Image boxSize="20px" src={URL_MAP[currency]} alt="USDC" />;
 }
 
