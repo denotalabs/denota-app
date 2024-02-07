@@ -38,6 +38,7 @@ interface BlockchainDataInterface {
   registrarAddress: string;
   directPayAddress: string;
   escrowAddress: string;
+  simpleCashAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
   chainId: string;
@@ -72,6 +73,7 @@ const defaultBlockchainState = {
   walletBalance: "",
   disperse: null,
   chhainIdNumber: 0,
+  simpleCashAddress: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -174,6 +176,7 @@ export const BlockchainDataProvider = memo(
             registrarAddress: contractMapping.registrar,
             explorer: firstBlockExplorer,
             directPayAddress: contractMapping.directPay,
+            simpleCashAddress: contractMapping.simpleCash,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
             escrowAddress: contractMapping.reversibleRelease, // TODO: deploy escrow
