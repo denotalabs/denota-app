@@ -3,9 +3,9 @@ import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
 import { Nota } from "../../../hooks/useNotas";
+import { useTokens } from "../../../hooks/useTokens";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
@@ -51,7 +51,7 @@ function NotaDetails({ nota }: Props) {
     fetchData();
   }, [nota.uri]);
 
-  const { displayNameForCurrency } = useCurrencyDisplayName();
+  const { displayNameForCurrency } = useTokens();
   const { formatAddress } = useFormatAddress();
 
   const moduleName = useMemo(() => {

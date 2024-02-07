@@ -13,7 +13,7 @@ import {
 import { useFormikContext } from "formik";
 import { useCallback, useEffect } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
+import { useTokens } from "../../../hooks/useTokens";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import { PaymentTermsFormValues } from "./PaymentTermsStep";
 
@@ -23,7 +23,7 @@ export function MilestoneTerms() {
 
   const { notaFormValues } = useNotaForm();
 
-  const { displayNameForCurrency } = useCurrencyDisplayName();
+  const { displayNameForCurrency } = useTokens();
 
   const appendMilestone = useCallback(() => {
     setFieldValue("milestones", [...values.milestones, ""], false);

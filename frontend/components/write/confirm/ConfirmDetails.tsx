@@ -1,7 +1,7 @@
 import { VStack } from "@chakra-ui/react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import { useCurrencyDisplayName } from "../../../hooks/useCurrencyDisplayName";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
+import { useTokens } from "../../../hooks/useTokens";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
@@ -10,7 +10,7 @@ function ConfirmDetails() {
   const { notaFormValues } = useNotaForm();
   const { formatAddress } = useFormatAddress();
 
-  const { displayNameForCurrency } = useCurrencyDisplayName();
+  const { displayNameForCurrency } = useTokens();
 
   return (
     <RoundedBox p={6}>

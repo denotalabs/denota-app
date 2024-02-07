@@ -29,6 +29,16 @@ export const useTokens = () => {
     [blockchainState]
   );
 
+  const displayNameForCurrency = useCallback((currency: NotaCurrency) => {
+    switch (currency) {
+      case "USDCE":
+        return "USDC.e";
+      case "UNKNOWN":
+        return "Unknown Token";
+    }
+    return currency;
+  }, []);
+
   const currencyForTokenId = useCallback(
     (tokenAddress: string): NotaCurrency => {
       const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
@@ -133,5 +143,6 @@ export const useTokens = () => {
     getTokenAllowance,
     getTokenUnits,
     currencyForTokenId,
+    displayNameForCurrency,
   };
 };
