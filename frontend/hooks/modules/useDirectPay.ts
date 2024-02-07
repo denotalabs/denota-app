@@ -14,6 +14,9 @@ interface Props {
 export const useDirectPay = () => {
   const writeNota = useCallback(
     async ({ dueDate, token, amount, address, ipfsHash, imageUrl }: Props) => {
+      if (token === "UNKNOWN") {
+        return;
+      }
       const receipt = await write({
         amount: Number(amount),
         currency: token,
