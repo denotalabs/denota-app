@@ -14,12 +14,16 @@ export const useCashNota = () => {
 
   const releaseNota = useCallback(
     async ({ nota }: Props) => {
+      if (nota.moduleData.module === "direct") {
+        return;
+      }
       try {
         await cash({
           notaId: nota.id,
           type: "release",
           amount: nota.amountRaw,
           to: nota.receiver,
+          module: nota.moduleData.module,
         });
         toast({
           title: "Transaction succeeded",
@@ -44,12 +48,16 @@ export const useCashNota = () => {
 
   const reverseNota = useCallback(
     async ({ nota }: Props) => {
+      if (nota.moduleData.module === "direct") {
+        return;
+      }
       try {
         await cash({
           notaId: nota.id,
           type: "reversal",
           amount: nota.amountRaw,
           to: nota.sender,
+          module: nota.moduleData.module,
         });
         toast({
           title: "Transaction succeeded",

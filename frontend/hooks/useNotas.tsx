@@ -28,14 +28,21 @@ export type EscrowStatus =
   | "awaiting_escrow"
   | "payable";
 
+export type SimpleCashStatus = "awaiting_release" | "released";
+
 export interface EscrowModuleData {
   status: EscrowStatus;
-  module: "escrow";
+  module: "reversibleRelease";
 }
 
 export interface DirectPayModuleData {
   status: DirectPayStatus;
   module: "direct";
+}
+
+export interface SimpleCashModuleData {
+  status: SimpleCashStatus;
+  module: "simpleCash";
 }
 
 export interface Nota {
@@ -111,7 +118,7 @@ export const useNotas = ({ notaField }: Props) => {
         }
 
         moduleData = {
-          module: "escrow",
+          module: "reversibleRelease",
           status,
         };
       } else {
