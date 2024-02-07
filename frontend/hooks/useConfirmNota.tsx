@@ -7,7 +7,6 @@ import { useNotaForm } from "../context/NotaFormProvider";
 import { useNotaContext } from "../context/NotasContext";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEscrowNota } from "./modules/useEscrowNota";
-import { useSimpleCash } from "./modules/useSimpleCash";
 import { useEmail } from "./useEmail";
 import { useTokens } from "./useTokens";
 
@@ -77,8 +76,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
   const { writeNota: writeEscrow } = useEscrowNota();
 
-  const { writeNota: writeSimpleCash } = useSimpleCash();
-
   const approveAmount = useCallback(async () => {
     // Disabling infinite approvals until audit it complete
     // To enable:
@@ -147,15 +144,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             });
             break;
 
-          case "simpleCash":
-            receipt = await writeSimpleCash({
-              token: notaFormValues.token,
-              amount: notaFormValues.amount,
-              address: notaFormValues.address,
-              ipfsHash: notaFormValues.ipfsHash ?? "",
-              imageUrl: notaFormValues.imageUrl ?? "",
-            });
-            break;
           default:
             break;
         }
@@ -226,14 +214,13 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.token,
     notaFormValues.ipfsHash,
     notaFormValues.email,
-    notaFormValues.dueDate,
     notaFormValues.auditor,
+    notaFormValues.dueDate,
     createLocalNota,
     toast,
     onSuccess,
-    writeDirectPay,
     writeEscrow,
-    writeSimpleCash,
+    writeDirectPay,
     sendEmail,
   ]);
 
