@@ -4,6 +4,7 @@ import { DirectPayTerms } from "./DirectPayTerms";
 import { EscrowTerms } from "./EscrowTerms";
 import { MilestoneTerms } from "./MilestoneTerms";
 import { MotionBox } from "./MotionBox";
+import { SimpleCashTerms } from "./SimpleCashTerms";
 
 interface Props {
   module: string;
@@ -18,6 +19,8 @@ function ModuleTerms({ module }: Props) {
         return <EscrowTerms />;
       case "milestone":
         return <MilestoneTerms />;
+      case "simpleCash":
+        return <SimpleCashTerms />;
       default:
         return <DirectPayTerms />;
     }
@@ -31,7 +34,7 @@ function ModuleTerms({ module }: Props) {
       transition={{ duration: 0.3 }}
       mb={4}
     >
-      <Box padding={6}>{selectedModule}</Box>
+      <Box pt={4}>{selectedModule}</Box>
     </MotionBox>
   );
 }

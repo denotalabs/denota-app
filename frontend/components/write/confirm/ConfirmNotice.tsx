@@ -16,6 +16,8 @@ function ConfirmNotice({ module }: Props) {
         return <LockIcon />;
       case "milestone":
         return <StarIcon />;
+      case "simpleCash":
+        return <LockIcon />;
       default:
         return <StarIcon />;
     }
@@ -29,6 +31,8 @@ function ConfirmNotice({ module }: Props) {
         return "Escrow";
       case "milestone":
         return "Milestones";
+      case "simpleCash":
+        return "Simple Cash";
       default:
         return "";
     }
@@ -42,6 +46,8 @@ function ConfirmNotice({ module }: Props) {
         return "Funds will be held in escrow until released by the payer";
       case "milestone":
         return "Funds will be released on completion of milestones";
+      case "simpleCash":
+        return "Funds are locked until cashed by the recipient";
       default:
         return "";
     }
