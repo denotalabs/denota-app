@@ -112,7 +112,7 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
           break;
         case "escrow":
           moduleData = {
-            module: "escrow",
+            module: "reversibleRelease",
             status: "releasable",
           };
       }

@@ -42,7 +42,7 @@ const TOOLTIP_MESSAGE_MAP = {
   awaiting_payment: "awaiting payment",
   voided: "voided by inspector",
   released: "released by inspector",
-  awaiting_release: "waiting for payer to release funds",
+  awaiting_release: "waiting for funds to be released",
   releasable: "payment can be released or voided",
   awaiting_escrow: "waiting for payer to escrow funds",
 };

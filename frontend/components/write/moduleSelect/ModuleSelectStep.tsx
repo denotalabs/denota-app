@@ -115,6 +115,33 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
+        <Card
+          variant={
+            notaFormValues.module === "simpleCash" ? "filled" : "outline"
+          }
+        >
+          <CardHeader>
+            <Heading size="md">Simple Cash</Heading>
+          </CardHeader>
+          <CardBody>
+            <Text>Funds are locked until cashed by the recipient</Text>
+          </CardBody>
+          <CardFooter>
+            <Button
+              isDisabled={true}
+              onClick={() => {
+                updateNotaFormValues({
+                  module: "simpleCash",
+                });
+                if (!showTerms) {
+                  next?.();
+                }
+              }}
+            >
+              Coming Soon
+            </Button>
+          </CardFooter>
+        </Card>
       </SimpleGrid>
       {showTerms && notaFormValues.module && (
         <Formik

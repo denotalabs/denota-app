@@ -28,14 +28,21 @@ export type EscrowStatus =
   | "awaiting_escrow"
   | "payable";
 
+export type SimpleCashStatus = "awaiting_release" | "released" | "releasable";
+
 export interface EscrowModuleData {
   status: EscrowStatus;
-  module: "escrow";
+  module: "reversibleRelease";
 }
 
 export interface DirectPayModuleData {
   status: DirectPayStatus;
   module: "direct";
+}
+
+export interface SimpleCashModuleData {
+  status: SimpleCashStatus;
+  module: "simpleCash";
 }
 
 export interface Nota {
@@ -52,7 +59,7 @@ export interface Nota {
   uri: string;
   payer: string;
   payee: string;
-  moduleData: EscrowModuleData | DirectPayModuleData;
+  moduleData: EscrowModuleData | DirectPayModuleData | SimpleCashModuleData;
   inspector?: string;
   isInspector: boolean;
 }
@@ -92,35 +99,58 @@ export const useNotas = ({ notaField }: Props) => {
       // TODO: module data
       let isInspector = false;
 
-      let moduleData: EscrowModuleData | DirectPayModuleData;
+      let moduleData:
+        | EscrowModuleData
+        | DirectPayModuleData
+        | SimpleCashModuleData;
 
-      const isEscrow =
-        gqlNota.module.id === blockchainState.escrowAddress.toLowerCase();
+      let status: "released" | "awaiting_release" | "releasable";
 
-      if (isEscrow) {
-        isInspector = isPayer;
-        let status: "released" | "awaiting_release" | "releasable";
+      switch (gqlNota.module.id) {
+        case blockchainState.escrowAddress.toLowerCase():
+          isInspector = isPayer;
 
-        if (gqlNota.cashes.length > 0) {
-          status = "released";
-        } else if (isPayer) {
-          // TODO: this assumes self signed, update to pull the actual inspector
-          status = "releasable";
-        } else {
-          status = "awaiting_release";
-        }
+          if (gqlNota.cashes.length > 0) {
+            // TODO: handle voided state
+            status = "released";
+          } else if (isPayer) {
+            // TODO: this assumes self signed, update to pull the actual inspector
+            status = "releasable";
+          } else {
+            status = "awaiting_release";
+          }
 
-        moduleData = {
-          module: "escrow",
-          status,
-        };
-      } else {
-        moduleData = { module: "direct", status: "paid" };
+          moduleData = {
+            module: "reversibleRelease",
+            status,
+          };
+          break;
+        case blockchainState.simpleCashAddress.toLowerCase():
+          isInspector = !isPayer;
+
+          if (gqlNota.cashes.length > 0) {
+            // TODO: handle voided state
+            status = "released";
+          } else if (!isPayer) {
+            // TODO: this assumes self signed, update to pull the actual inspector
+            status = "releasable";
+          } else {
+            status = "awaiting_release";
+          }
+
+          moduleData = {
+            module: "simpleCash",
+            status,
+          };
+          break;
+        default: // Assumes direct pay if module is unknown
+          moduleData = { module: "direct", status: "paid" };
       }
 
-      const amount = isEscrow
-        ? gqlNota.written.escrowed
-        : gqlNota.written.instant;
+      const amount =
+        moduleData.module === "direct"
+          ? gqlNota.written.instant
+          : gqlNota.written.escrowed;
 
       return {
         id: gqlNota.id as string,
@@ -149,7 +179,9 @@ export const useNotas = ({ notaField }: Props) => {
     },
     [
       blockchainState.account,
+      blockchainState.directPayAddress,
       blockchainState.escrowAddress,
+      blockchainState.simpleCashAddress,
       currencyForTokenId,
       getTokenUnits,
     ]
