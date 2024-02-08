@@ -111,6 +111,7 @@ export const useNotas = ({ notaField }: Props) => {
           isInspector = isPayer;
 
           if (gqlNota.cashes.length > 0) {
+            // TODO: handle voided state
             status = "released";
           } else if (isPayer) {
             // TODO: this assumes self signed, update to pull the actual inspector
@@ -128,6 +129,7 @@ export const useNotas = ({ notaField }: Props) => {
           isInspector = !isPayer;
 
           if (gqlNota.cashes.length > 0) {
+            // TODO: handle voided state
             status = "released";
           } else if (!isPayer) {
             // TODO: this assumes self signed, update to pull the actual inspector
@@ -141,7 +143,7 @@ export const useNotas = ({ notaField }: Props) => {
             status,
           };
           break;
-        case blockchainState.directPayAddress.toLowerCase():
+        default: // Assumes direct pay if module is unknown
           moduleData = { module: "direct", status: "paid" };
       }
 
