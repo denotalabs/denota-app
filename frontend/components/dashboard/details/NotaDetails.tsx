@@ -56,7 +56,7 @@ function NotaDetails({ nota }: Props) {
 
   const moduleName = useMemo(() => {
     switch (nota.moduleData.module) {
-      case "escrow":
+      case "reversibleRelease":
         return "Escrow";
       case "direct":
         return "Direct Pay";
@@ -65,7 +65,7 @@ function NotaDetails({ nota }: Props) {
 
   const moduleDesc = useMemo(() => {
     switch (nota.moduleData.module) {
-      case "escrow":
+      case "reversibleRelease":
         return "Funds are held in escrow until released by the payer";
       case "direct":
         return "Funds are released immediately upon payment";

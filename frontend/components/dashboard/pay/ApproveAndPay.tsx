@@ -129,7 +129,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
     switch (nota.moduleData.module) {
       case "direct":
         return "Funds will be released immediately";
-      case "escrow":
+      case "reversibleRelease":
         return "Funds will be held in escrow";
     }
   }, [nota.moduleData.module]);
