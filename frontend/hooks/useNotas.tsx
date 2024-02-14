@@ -1,4 +1,5 @@
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
+import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
@@ -106,8 +107,10 @@ export const useNotas = ({ notaField }: Props) => {
 
       let status: "released" | "awaiting_release" | "releasable";
 
+      const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
+
       switch (gqlNota.module.id) {
-        case blockchainState.escrowAddress.toLowerCase():
+        case mapping.reversibleRelease.toLowerCase():
           isInspector = isPayer;
 
           if (gqlNota.cashes.length > 0) {
@@ -125,7 +128,8 @@ export const useNotas = ({ notaField }: Props) => {
             status,
           };
           break;
-        case blockchainState.simpleCashAddress.toLowerCase():
+        case mapping.cashBeforeDate.toLowerCase():
+        case mapping.simpleCash.toLowerCase():
           isInspector = !isPayer;
 
           if (gqlNota.cashes.length > 0) {
@@ -179,9 +183,7 @@ export const useNotas = ({ notaField }: Props) => {
     },
     [
       blockchainState.account,
-      blockchainState.directPayAddress,
-      blockchainState.escrowAddress,
-      blockchainState.simpleCashAddress,
+      blockchainState.chhainIdNumber,
       currencyForTokenId,
       getTokenUnits,
     ]

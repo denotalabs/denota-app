@@ -91,7 +91,11 @@ function ApproveAndPay({ nota, onClose }: Props) {
         await tx.wait();
         setNeedsApproval(false);
       } else {
-        await fund({ notaId: nota.id });
+        const module = nota.moduleData.module;
+        if (module === "direct") {
+          return;
+        }
+        await fund({ notaId: nota.id, amount: nota.amountRaw, module });
         toast({
           title: "Transaction succeeded",
           description: "Invoice paid",
