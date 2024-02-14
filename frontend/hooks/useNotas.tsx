@@ -128,6 +128,7 @@ export const useNotas = ({ notaField }: Props) => {
             status,
           };
           break;
+        case mapping.cashBeforeDate.toLowerCase():
         case mapping.simpleCash.toLowerCase():
           isInspector = !isPayer;
 
