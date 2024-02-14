@@ -36,9 +36,6 @@ declare global {
 interface BlockchainDataInterface {
   account: string;
   registrarAddress: string;
-  directPayAddress: string;
-  escrowAddress: string;
-  simpleCashAddress: string;
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
   chainId: string;
@@ -57,18 +54,13 @@ interface BlockchainDataContextInterface {
 
 const defaultBlockchainState = {
   account: "",
-  dai: null,
-  weth: null,
-  axelarBridgeSender: null,
   registrarAddress: "",
   userDaiBalance: "",
   userWethBalance: "",
   signer: null,
   explorer: "",
-  directPayAddress: "",
   chainId: "",
   graphUrl: "",
-  escrowAddress: "",
   nativeCurrenySymbol: "",
   walletBalance: "",
   disperse: null,
@@ -175,11 +167,8 @@ export const BlockchainDataProvider = memo(
             account,
             registrarAddress: contractMapping.registrar,
             explorer: firstBlockExplorer,
-            directPayAddress: contractMapping.directPay,
-            simpleCashAddress: contractMapping.simpleCash,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
-            escrowAddress: contractMapping.reversibleRelease, // TODO: deploy escrow
             nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
             disperse,
             chhainIdNumber: chainId,
