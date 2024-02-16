@@ -7,7 +7,7 @@ interface Props {
   token: NotaCurrency;
   amount: string;
   address: string;
-  ipfsHash: string;
+  externalUrl: string;
   imageUrl: string;
   inspector?: string;
 }
@@ -20,7 +20,7 @@ export const useEscrowNota = () => {
       token,
       amount,
       address,
-      ipfsHash,
+      externalUrl,
       inspector,
       imageUrl,
     }: Props) => {
@@ -30,7 +30,7 @@ export const useEscrowNota = () => {
       const receipt = await write({
         amount: Number(amount),
         currency: token,
-        metadata: { type: "uploaded", ipfsHash, imageUrl },
+        metadata: { type: "uploaded", externalUrl, imageUrl },
         module: {
           moduleName: "reversibleRelease",
           payee: address,

@@ -18,7 +18,7 @@ export const useDirectPay = () => {
       token,
       amount,
       address,
-      externalUrl: ipfsHash,
+      externalUrl,
       imageUrl,
     }: Props) => {
       if (token === "UNKNOWN") {
@@ -27,7 +27,7 @@ export const useDirectPay = () => {
       const receipt = await write({
         amount: Number(amount),
         currency: token,
-        metadata: { type: "uploaded", ipfsHash, imageUrl },
+        metadata: { type: "uploaded", externalUrl, imageUrl },
         module: {
           moduleName: "direct",
           type: "payment",

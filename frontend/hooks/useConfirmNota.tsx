@@ -110,19 +110,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       try {
         let receipt: { txHash: string; notaId: string };
 
-        // Use lighthouse url while we investigate lighthouse IPFS issue
-        const lighthouseUrl = !notaFormValues.imageUrl
-          ? ""
-          : `https://gateway.lighthouse.storage/ipfs/${
-              notaFormValues.imageUrl.split("ipfs://")[1]
-            }`;
-
-        const isCrossChain =
-          notaFormValues.module === "direct" &&
-          blockchainState.chainId === "0xaef3" &&
-          notaFormValues.mode === "pay" &&
-          !!notaFormValues.axelarEnabled;
-
         switch (notaFormValues.module) {
           case "direct":
             receipt = await writeDirectPay({
@@ -130,7 +117,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               amount: notaFormValues.amount,
               address: notaFormValues.address,
               externalUrl: notaFormValues.externalUrl ?? "",
-              imageUrl: lighthouseUrl,
+              imageUrl: notaFormValues.imageUrl,
               token: notaFormValues.token,
             });
 
@@ -141,7 +128,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               token: notaFormValues.token,
               amount: notaFormValues.amount,
               address: notaFormValues.address,
-              ipfsHash: notaFormValues.ipfsHash ?? "",
+              externalUrl: notaFormValues.externalUrl ?? "",
               inspector: notaFormValues.auditor,
               imageUrl: notaFormValues.imageUrl ?? "",
             });
@@ -152,7 +139,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               token: notaFormValues.token,
               amount: notaFormValues.amount,
               address: notaFormValues.address,
-              ipfsHash: notaFormValues.ipfsHash ?? "",
+              externalUrl: notaFormValues.externalUrl ?? "",
               imageUrl: notaFormValues.imageUrl ?? "",
             });
             break;
@@ -170,7 +157,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           receiver: notaFormValues.address,
           owner,
           token: notaFormValues.token as NotaCurrency,
-          isCrossChain,
+          isCrossChain: false,
           createdHash: receipt.txHash,
           module: notaFormValues.module as "direct" | "escrow",
           uri: notaFormValues.ipfsHash,
@@ -214,19 +201,19 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     needsApproval,
     token?.functions,
     blockchainState.registrarAddress,
-    blockchainState.chainId,
     blockchainState.account,
+    blockchainState.chainId,
     amountWei,
-    notaFormValues.imageUrl,
     notaFormValues.module,
-    notaFormValues.mode,
-    notaFormValues.axelarEnabled,
     notaFormValues.address,
     notaFormValues.amount,
     notaFormValues.token,
     notaFormValues.ipfsHash,
     notaFormValues.email,
+    notaFormValues.mode,
     notaFormValues.dueDate,
+    notaFormValues.externalUrl,
+    notaFormValues.imageUrl,
     notaFormValues.auditor,
     createLocalNota,
     toast,
