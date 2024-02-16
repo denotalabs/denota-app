@@ -7,20 +7,28 @@ interface Props {
   token: NotaCurrency;
   amount: string;
   address: string;
-  ipfsHash: string;
+  externalUrl: string;
   imageUrl: string;
 }
 
 export const useDirectPay = () => {
   const writeNota = useCallback(
-    async ({ dueDate, token, amount, address, ipfsHash, imageUrl }: Props) => {
+    async ({
+      dueDate,
+      token,
+      amount,
+      address,
+      externalUrl,
+      imageUrl,
+    }: Props) => {
+      console.log({ externalUrl, imageUrl });
       if (token === "UNKNOWN") {
         return;
       }
       const receipt = await write({
         amount: Number(amount),
         currency: token,
-        metadata: { type: "uploaded", ipfsHash, imageUrl },
+        metadata: { type: "uploaded", externalUrl, imageUrl },
         module: {
           moduleName: "direct",
           type: "payment",
