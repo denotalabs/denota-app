@@ -21,6 +21,7 @@ export const useDirectPay = () => {
       externalUrl,
       imageUrl,
     }: Props) => {
+      console.log({ externalUrl, imageUrl });
       if (token === "UNKNOWN") {
         return;
       }
