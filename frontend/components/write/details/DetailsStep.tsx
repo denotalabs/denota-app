@@ -48,6 +48,8 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
           email: notaFormValues.email ?? "",
           file: file,
           tags: notaFormValues.tags ?? "",
+          externalUrl: notaFormValues.externalUrl ?? "",
+          imageURL: notaFormValues.imageUrl ?? "",
         }}
         onSubmit={async (values, actions) => {
           const hasMetadata = values.note || values.file || values.tags;
@@ -88,6 +90,8 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
             note: values.note,
             email: values.email,
             tags: values.tags,
+            externalUrl: values.externalUrl,
+            imageURL: values.imageURL,
           });
 
           if (values.file) {

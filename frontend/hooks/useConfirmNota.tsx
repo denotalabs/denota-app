@@ -129,7 +129,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               dueDate: notaFormValues.dueDate,
               amount: notaFormValues.amount,
               address: notaFormValues.address,
-              ipfsHash: notaFormValues.ipfsHash ?? "",
+              externalUrl: notaFormValues.externalUrl ?? "",
               imageUrl: lighthouseUrl,
               token: notaFormValues.token,
             });
