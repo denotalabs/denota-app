@@ -13,10 +13,7 @@ interface Props {
 
 export default function ExternalUrlField({ fieldName, placeholder }: Props) {
   return (
-    <Field
-      name={fieldName}
-      // validate={validateAddress}
-    >
+    <Field name={fieldName}>
       {({ field, form: { errors, touched } }: any) => (
         <FormControl isInvalid={errors.name && touched.name}>
           <FormLabel noOfLines={1} flexShrink={0}>
