@@ -17,11 +17,9 @@ import Image from "next/image";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { deployedChains } from "../../context/chainInfo";
 import { switchNetwork } from "../../context/SwitchNetwork";
-import useDemoMode from "../../hooks/useDemoMode";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
 
 export default function ChainSwitcher() {
-  const isDemoMode = useDemoMode();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   const { isInitializing, blockchainState } = useBlockchainData();
@@ -84,7 +82,7 @@ export default function ChainSwitcher() {
           <StyledMenuItem
             key={chain.chainId}
             onClick={() => handleSelectChain(chain)}
-            isDisabled={!isDemoMode && chain.isDisabled}
+            isDisabled={chain.isDisabled}
           >
             <Flex alignItems="center">
               <Image

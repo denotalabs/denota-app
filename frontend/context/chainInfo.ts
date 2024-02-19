@@ -28,7 +28,6 @@ export const chainInfoForChainId = (chainId: number) => {
 
 export const deployedChains: Record<string, ChainInfo> = {
   "0x89": {
-    isDisabled: true,
     displayName: "Polygon",
     name: "Polygon",
     chainId: "0x89",
