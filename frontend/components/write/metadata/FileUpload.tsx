@@ -1,10 +1,9 @@
 import { ArrowUpIcon } from "@chakra-ui/icons";
 import {
-  Button,
   ButtonProps,
   FormControl,
   FormControlProps,
-  FormLabel,
+  IconButton,
   InputGroup,
   useToast,
 } from "@chakra-ui/react";
@@ -42,6 +41,7 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
 
     const handleChange = (value: ChangeEvent<HTMLInputElement>) => {
       if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
+        // TODO: lighthouse upload
         setFileName(value.target.files?.[0].name);
         value.target.files && setValue(value.target.files?.[0]);
       } else {
@@ -57,10 +57,7 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
     const [fileName, setFileName] = useState<string | undefined>(file?.name);
 
     return (
-      <FormControl name={name} label={label} {...rest} {...ref}>
-        <FormLabel noOfLines={1} flexShrink={0}>
-          Attach File
-        </FormLabel>
+      <FormControl name={name} label={label} {...rest} {...ref} mt={8}>
         <InputGroup onClick={handleClick}>
           <input
             onChange={handleChange}
@@ -71,17 +68,14 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
             ref={inputRef}
             hidden
           />
-          <Button
-            w={"full"}
+          <IconButton
             variant={"outline"}
+            aria-label="Upload"
             {...buttonProps}
             {...field}
-            leftIcon={fileName ? undefined : <ArrowUpIcon />}
+            icon={<ArrowUpIcon />}
             isLoading={false}
-            paddingX={24}
-          >
-            {fileName ? fileName : "Upload"}
-          </Button>
+          ></IconButton>
         </InputGroup>
       </FormControl>
     );
