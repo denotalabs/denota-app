@@ -1,3 +1,5 @@
+import { CashBeforeDateData } from "@denota-labs/denota-sdk/dist/modules/CashBeforeDate";
+import { SimpleCashData } from "@denota-labs/denota-sdk/dist/modules/SimpleCash";
 import { ethers } from "ethers";
 import {
   createContext,
@@ -7,11 +9,13 @@ import {
   useState,
 } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
+// TODO why are there separate moduleDatas here?
 import {
   DirectPayModuleData,
-  EscrowModuleData,
   Nota,
-  useNotas,
+  ReversibleByBeforeDateModuleData,
+  ReversibleReleaseModuleData,
+  useNotas
 } from "../hooks/useNotas";
 import { useBlockchainData } from "./BlockchainDataProvider";
 
@@ -102,7 +106,8 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
       const isPayer = blockchainState.account === payer;
       const isInspector = blockchainState.account === inspector;
 
-      let moduleData: EscrowModuleData | DirectPayModuleData;
+      let moduleData: DirectPayModuleData | SimpleCashData | CashBeforeDateData | ReversibleReleaseModuleData | ReversibleByBeforeDateModuleData;
+
       switch (module) {
         case "direct":
           moduleData = {
