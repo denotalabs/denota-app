@@ -19,22 +19,15 @@ export interface NotaTransaction {
   hash: string;
 }
 
-export type DirectPayStatus = "paid" | "awaiting_payment" | "payable";
+export type DirectPayStatus = "paid";
 
-export type EscrowStatus =
-  | "voided"
-  | "released"
-  | "awaiting_release"
-  | "releasable"
-  | "awaiting_escrow"
-  | "payable";
+export type SimpleCashStatus = "claimable" | "claimed";
 
-export type SimpleCashStatus = "awaiting_release" | "released" | "releasable";
+export type CashBeforeDateStatus = "claimable" | "claimed" | "expired" | "revoked";
 
-export interface EscrowModuleData {
-  status: EscrowStatus;
-  module: "reversibleRelease";
-}
+export type ReversibleReleaseStatus = "releasable" | "awaiting_release" | "revoked" | "released";
+
+export type ReversibleByBeforeDateStatus = "releasable" | "awaiting_release" | "released" | "revoked" | "claimable" | "claimed";
 
 export interface DirectPayModuleData {
   status: DirectPayStatus;
@@ -46,23 +39,38 @@ export interface SimpleCashModuleData {
   module: "simpleCash";
 }
 
+export interface CashBeforeDateModuleData {
+  status: CashBeforeDateStatus;
+  module: "cashBeforeDate";
+}
+
+export interface ReversibleReleaseModuleData {
+  status: ReversibleReleaseStatus;
+  module: "reversibleRelease";
+}
+
+export interface ReversibleByBeforeDateModuleData {
+  status: ReversibleByBeforeDateStatus;
+  module: "reversibleByBeforeDate";
+}
+
 export interface Nota {
   id: string;
   amount: number;
   amountRaw: BigNumber;
-  sender: string;
-  receiver: string;
+  sender: string;  // TODO: remove
+  receiver: string;  // TODO: remove
   owner: string;
   token: NotaCurrency;
   createdTransaction: NotaTransaction;
-  fundedTransaction: NotaTransaction | null;
-  isPayer: boolean;
+  fundedTransaction: NotaTransaction | null;  // TODO have list of WTFCA transactions
+  isPayer: boolean;  // TODO: remove
   uri: string;
   payer: string;
   payee: string;
-  moduleData: EscrowModuleData | DirectPayModuleData | SimpleCashModuleData;
-  inspector?: string;
-  isInspector: boolean;
+  inspector?: string;  // TODO: remove since should be in moduleData
+  isInspector: boolean;  // TODO: remove since should be in moduleData
+  moduleData: DirectPayModuleData | SimpleCashModuleData | CashBeforeDateModuleData | ReversibleReleaseModuleData | ReversibleByBeforeDateModuleData;
 }
 
 const convertExponent = (amountExact: number, exponent: number) => {
@@ -79,7 +87,8 @@ export const useNotas = ({ notaField }: Props) => {
   const [notasSent, setNotaSent] = useState<Nota[] | undefined>(undefined);
   const [notasInspected, setNotasInspected] = useState<Nota[] | undefined>(
     undefined
-  );
+  );  // TODO: should be injected by module
+
   const [optimisticNotas, setOptimisticNotas] = useState<Nota[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -97,21 +106,54 @@ export const useNotas = ({ notaField }: Props) => {
       const isPayer =
         gqlNota.sender.id === blockchainState.account.toLowerCase();
 
-      // TODO: module data
-      let isInspector = false;
+      let isInspector = false; // TODO: expect inside module data
 
       let moduleData:
-        | EscrowModuleData
         | DirectPayModuleData
-        | SimpleCashModuleData;
+        | SimpleCashModuleData
+        | CashBeforeDateModuleData
+        | ReversibleReleaseModuleData
+        | ReversibleByBeforeDateModuleData;
 
-      let status: "released" | "awaiting_release" | "releasable";
+      let status: "paid" | "claimable" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "revoked";
 
       const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
 
       switch (gqlNota.module.id) {
+        case mapping.simpleCash.toLowerCase():
+          if (gqlNota.cashes.length > 0) {  // TODO what are .cashes?
+            status = "claimed";
+          } else {
+            status = "claimable";
+          }
+          moduleData = {
+            module: "simpleCash",
+            status,
+          };
+          break;
+        case mapping.cashBeforeDate.toLowerCase():
+          // TODO need to have cashBeforeDate in this object. AKA need have it in the subgraph
+          if (gqlNota.cashes.length > 0) {
+            // TODO can either be revoked or claimed, need to store that in the subgraph
+            if (true) {
+              status = "claimed";
+            } else {
+            }
+          } else if (gqlNota.cashBeforeDate >= Date.now()) {
+            status = "claimable";
+          } else if (gqlNota.cashBeforeDate < Date.now()) {
+            status = "expired";
+          } else {
+            status = "claimable";
+          }
+
+          moduleData = {
+            module: "cashBeforeDate",
+            status,
+          };
+          break;
         case mapping.reversibleRelease.toLowerCase():
-          isInspector = isPayer;
+          isInspector = isPayer;  // TODO 
 
           if (gqlNota.cashes.length > 0) {
             // TODO: handle voided state
@@ -128,25 +170,25 @@ export const useNotas = ({ notaField }: Props) => {
             status,
           };
           break;
-        case mapping.cashBeforeDate.toLowerCase():
-        case mapping.simpleCash.toLowerCase():
-          isInspector = !isPayer;
+        // TODO add to sdk with new module/reversibleByBeforeDate.ts
+        // case mapping.reversibleByBeforeDate.toLowerCase():
+        //   isInspector = isPayer;  // TODO 
 
-          if (gqlNota.cashes.length > 0) {
-            // TODO: handle voided state
-            status = "released";
-          } else if (!isPayer) {
-            // TODO: this assumes self signed, update to pull the actual inspector
-            status = "releasable";
-          } else {
-            status = "awaiting_release";
-          }
+        //   if (gqlNota.cashes.length > 0) {
+        //     // TODO: handle voided state
+        //     status = "released";
+        //   } else if (isPayer) {
+        //     // TODO: this assumes self signed, update to pull the actual inspector
+        //     status = "releasable";
+        //   } else {
+        //     status = "awaiting_release";
+        //   }
 
-          moduleData = {
-            module: "simpleCash",
-            status,
-          };
-          break;
+        //   moduleData = {
+        //     module: "reversibleRelease",
+        //     status,
+        //   };
+        //   break;
         default: // Assumes direct pay if module is unknown
           moduleData = { module: "direct", status: "paid" };
       }
@@ -251,7 +293,6 @@ export const useNotas = ({ notaField }: Props) => {
           },
         })
         .then((data) => {
-          console.log({ data });
           if (data["data"]["account"]) {
             const gqlNotasSent = data["data"]["account"]["notasSent"] as any[];
             const gqlNotasReceived = data["data"]["account"][
