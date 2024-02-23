@@ -19,6 +19,7 @@ export type DetailsStepFormValues = {
   amount: string | undefined;
   address: string;
   mode: string;
+  imageUrl: string;
 };
 
 const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
