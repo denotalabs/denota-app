@@ -8,7 +8,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useField } from "formik";
-import React, { ChangeEvent, ForwardedRef, useRef } from "react";
+import React, { ChangeEvent, ForwardedRef, useRef, useState } from "react";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
 
 type FileUploadProps = {
@@ -39,14 +39,27 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
       inputRef.current?.click();
     };
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleChange = async (value: ChangeEvent<HTMLInputElement>) => {
       if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
+        setIsLoading(true);
         const { imageUrl } = await upload(
           value.target.files?.[0],
           undefined,
           undefined
         );
-        setValue(imageUrl);
+        if (!imageUrl) {
+          toast({
+            title: "Upload error",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        } else {
+          setValue(imageUrl);
+        }
+        setIsLoading(false);
       } else {
         toast({
           title: "File too large (max size 10MB)",
@@ -75,7 +88,7 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
             {...buttonProps}
             {...field}
             icon={<ArrowUpIcon />}
-            isLoading={false}
+            isLoading={isLoading}
           ></IconButton>
         </InputGroup>
       </FormControl>
