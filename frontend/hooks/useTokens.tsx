@@ -50,6 +50,8 @@ export const useTokens = () => {
           return "WETH";
         case mapping.usdc.toLocaleLowerCase():
           return "USDC";
+        case mapping.usdce.toLocaleLowerCase():
+          return "USDCE";
         default:
           return "UNKNOWN";
       }
