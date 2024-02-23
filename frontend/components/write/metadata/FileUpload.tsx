@@ -1,4 +1,3 @@
-import { ArrowUpIcon } from "@chakra-ui/icons";
 import {
   ButtonProps,
   FormControl,
@@ -9,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import React, { ChangeEvent, ForwardedRef, useRef, useState } from "react";
+import { BsUpload } from "react-icons/bs";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
 
 type FileUploadProps = {
@@ -87,7 +87,7 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
             aria-label="Upload"
             {...buttonProps}
             {...field}
-            icon={<ArrowUpIcon />}
+            icon={<BsUpload />}
             isLoading={isLoading}
           ></IconButton>
         </InputGroup>
