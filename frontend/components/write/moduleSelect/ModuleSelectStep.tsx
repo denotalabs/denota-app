@@ -46,7 +46,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           variant={notaFormValues.module === "direct" ? "filled" : "outline"}
         >
           <CardHeader>
-            <Heading size="md"> Direct Pay</Heading>
+            <Heading size="md">Direct Pay</Heading>
           </CardHeader>
           <CardBody>
             <Text>Funds are released immediately upon payment</Text>

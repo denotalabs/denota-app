@@ -1,20 +1,18 @@
-import { Flex, HStack } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 
 import RoundedBox from "../../designSystem/RoundedBox";
-import EmailField from "../../fields/input/EmailField";
 import ExternalUrlField from "../../fields/input/ExternalUrlField";
 import ImageUrlField from "../../fields/input/ImageURLField";
 import NoteField from "../../fields/input/NoteField";
-import TagsField from "../../fields/input/TagsField";
 
 function MetadataBox() {
   return (
     <RoundedBox padding={4}>
       <Flex flexWrap={"wrap"} gap={"18px"} direction={"column"}>
-        <HStack gap={16}>
+        {/* <HStack gap={16}>
           <EmailField fieldName="email" placeholder="" />
           <TagsField fieldName="tags" placeholder="" />
-        </HStack>
+        </HStack> */}
 
         <Flex
           alignItems="center"
@@ -23,6 +21,7 @@ function MetadataBox() {
           flexGrow={1}
           maxW="100%"
         >
+          {/* Need to have a button for uploading a doc using lighthouse here */}
           <NoteField fieldName="note" />
         </Flex>
         <Flex

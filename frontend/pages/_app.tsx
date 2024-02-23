@@ -3,7 +3,7 @@ import "@fontsource/dm-sans/index.css";
 import coinbaseModule from "@web3-onboard/coinbase";
 import gnosisModule from "@web3-onboard/gnosis";
 import injectedModule from "@web3-onboard/injected-wallets";
-import { init, Web3OnboardProvider } from "@web3-onboard/react";
+import { Web3OnboardProvider, init } from "@web3-onboard/react";
 // import walletConnectModule from "@web3-onboard/walletconnect";
 import { AppProps } from "next/app";
 import Head from "next/head";
@@ -71,7 +71,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>Denota App</title>
         <meta
           name="description"
-          content="Supercharged web3 pay for the future of work"
+          content="Putting trust back into crypto payments."
         />
       </Head>
       <GoogleAnalytics measurementId="G-RX5F5Q2B8D" />

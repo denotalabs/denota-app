@@ -40,7 +40,7 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          token: notaFormValues.token ?? "USDC",
+          token: notaFormValues.token ?? "USDT",
           amount: notaFormValues.amount ?? undefined,
           address: notaFormValues.address ?? "",
           mode: "pay",
@@ -122,7 +122,8 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
               {showMetadata && (
                 <>
                   <Button
-                    mt={4}
+                    mt={0}
+                    mb={3}
                     rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronUpIcon />}
                     onClick={() => setIsOpen(!isOpen)}
                     bg="transparent"
