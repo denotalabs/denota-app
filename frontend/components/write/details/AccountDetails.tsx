@@ -10,7 +10,7 @@ function AccountDetails({ onSelectContact }: AccountDetailsProps) {
   return (
     <RoundedBox padding={4} mb={6}>
       <FormControl>
-        <FormLabel mb={2}>Client Address</FormLabel>
+        <FormLabel mb={2}>Recipient Address</FormLabel>
         <AccountField fieldName="address" placeholder="0x..." />
       </FormControl>
     </RoundedBox>

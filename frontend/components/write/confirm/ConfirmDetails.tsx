@@ -16,7 +16,7 @@ function ConfirmDetails() {
     <RoundedBox p={6}>
       <VStack>
         <DetailsRow
-          title="Client address"
+          title="Recipient address"
           value={formatAddress(notaFormValues.address)}
         />
         <DetailsRow

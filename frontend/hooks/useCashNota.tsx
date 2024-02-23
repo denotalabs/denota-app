@@ -20,7 +20,7 @@ export const useCashNota = () => {
       try {
         await cash({
           notaId: nota.id,
-          type: "release",
+          type: "release", // NOTE: Isn't used in the SDK
           amount: nota.amountRaw,
           to: nota.receiver,
           module: nota.moduleData.module,
@@ -54,7 +54,7 @@ export const useCashNota = () => {
       try {
         await cash({
           notaId: nota.id,
-          type: "reversal",
+          type: "reversal", // NOTE: Isn't used in the SDK
           amount: nota.amountRaw,
           to: nota.sender,
           module: nota.moduleData.module,

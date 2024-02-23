@@ -118,7 +118,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                 unoptimized={true}
               />
               <Center>
-                <Text>ALPHA</Text>
+                <Text>BETA</Text>
               </Center>
             </Box>
             <CloseButton
@@ -199,9 +199,9 @@ const NavItem = ({
         isExternal
           ? undefined
           : () => {
-              router.push(href, undefined, { shallow: true });
-              onClose();
-            }
+            router.push(href, undefined, { shallow: true });
+            onClose();
+          }
       }
       href={isExternal ? href : undefined}
       isExternal={isExternal}

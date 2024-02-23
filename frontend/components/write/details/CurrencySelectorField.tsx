@@ -40,7 +40,7 @@ export function CurrencySelectorField() {
 }
 
 function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
-  const options: NotaCurrency[] = ["USDC", "USDT", "USDCE", "WETH"];
+  const options: NotaCurrency[] = ["USDT", "USDC", "USDCE", "WETH"];
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "framework",
