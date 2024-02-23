@@ -3,7 +3,7 @@ import { useCallback } from "react";
 
 const METADATA_SERVICE_URL_LOCAL = "http://127.0.0.1:3001/lighthouse";
 
-const METADATA_SERVICE = "https://api.denota.xy/nft-lighthouse";
+const METADATA_SERVICE = "https://api.denota.xyz/nft-lighthouse";
 
 interface NotaMetadata {
   desc?: string;
