@@ -54,21 +54,38 @@ function NotaDetails({ nota }: Props) {
   const { displayNameForCurrency } = useTokens();
   const { formatAddress } = useFormatAddress();
 
+  // TODO for some reason not showing cashBeforeDate
   const moduleName = useMemo(() => {
     switch (nota.moduleData.module) {
       case "reversibleRelease":
-        return "Escrow";
+        return "Reversible Release";
       case "direct":
         return "Direct Pay";
+      case "simpleCash":
+        return "Simple Cash";
+      case "cashBeforeDate":
+        return "Cash Before Date";
+      case "reversibleByBeforeDate":
+        return "Reversible By Before Date";
+      // case "cashBeforeDateDrip":
+      //   return "Cash Before Date Drip";
     }
   }, [nota.moduleData.module]);
 
   const moduleDesc = useMemo(() => {
     switch (nota.moduleData.module) {
-      case "reversibleRelease":
-        return "Funds are held in escrow until released by the payer";
       case "direct":
         return "Funds are released immediately upon payment";
+      case "simpleCash":
+        return "Allows owner to claim tokens";
+      case "cashBeforeDate":
+        return "Allows owner to claim tokens before the expiration date";
+      case "reversibleRelease":
+        return "Funds are held in escrow until released by the payer";
+      case "reversibleByBeforeDate":
+        return "Allows the sender to reverse the payment only before the expiration date";
+      // case "cashBeforeDateDrip":
+      //   return "Allows the owner to claim tokens in drips before the expiration date";
     }
   }, [nota.moduleData.module]);
 
@@ -86,6 +103,14 @@ function NotaDetails({ nota }: Props) {
             value={formatAddress(nota.payee)}
             copyValue={!nota.isPayer ? undefined : nota.payee}
           />
+          <DetailsRow
+            title="Payment Amount"
+            value={
+              String(nota.amount) +
+              " " +
+              displayNameForCurrency(nota.token as NotaCurrency)
+            }
+          />
           {nota.inspector && (
             <DetailsRow
               title="Inspector"
@@ -93,6 +118,7 @@ function NotaDetails({ nota }: Props) {
               copyValue={!nota.isInspector ? undefined : nota.payee}
             />
           )}
+          <DetailsRow title="Module" value={moduleName} tooltip={moduleDesc} />
           <DetailsRow
             title="Created On"
             value={nota.createdTransaction.date.toDateString()}
@@ -105,15 +131,6 @@ function NotaDetails({ nota }: Props) {
               link={`${explorer}${nota.fundedTransaction.hash}`}
             />
           )}
-          <DetailsRow
-            title="Payment Amount"
-            value={
-              String(nota.amount) +
-              " " +
-              displayNameForCurrency(nota.token as NotaCurrency)
-            }
-          />
-          <DetailsRow title="Module" value={moduleName} tooltip={moduleDesc} />
         </VStack>
       </RoundedBox>
       {nota.uri &&

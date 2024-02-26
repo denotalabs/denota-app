@@ -21,7 +21,7 @@ export interface NotaTransaction {
 
 export type DirectPayStatus = "paid";
 
-export type SimpleCashStatus = "claimable" | "claimed";
+export type SimpleCashStatus = "claimable" | "awaiting_claim" | "claimed";
 
 export type CashBeforeDateStatus =
   | "claimable"
@@ -85,11 +85,11 @@ export interface Nota {
   inspector?: string; // TODO: remove since should be in moduleData
   isInspector: boolean; // TODO: remove since should be in moduleData
   moduleData:
-    | DirectPayModuleData
-    | SimpleCashModuleData
-    | CashBeforeDateModuleData
-    | ReversibleReleaseModuleData
-    | ReversibleByBeforeDateModuleData;
+  | DirectPayModuleData
+  | SimpleCashModuleData
+  | CashBeforeDateModuleData
+  | ReversibleReleaseModuleData
+  | ReversibleByBeforeDateModuleData;
 }
 
 const convertExponent = (amountExact: number, exponent: number) => {
@@ -134,25 +134,18 @@ export const useNotas = ({ notaField }: Props) => {
         | ReversibleReleaseModuleData
         | ReversibleByBeforeDateModuleData;
 
-      let status:
-        | "paid"
-        | "claimable"
-        | "awaiting_release"
-        | "releasable"
-        | "released"
-        | "claimed"
-        | "expired"
-        | "revoked";
+      let status: "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "revoked";
 
       const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
 
       switch (gqlNota.module.id) {
         case mapping.simpleCash.toLowerCase():
           if (gqlNota.cashes.length > 0) {
-            // TODO what are .cashes?
             status = "claimed";
-          } else {
+          } else if (gqlNota.owner.id === blockchainState.account.toLowerCase()) {
             status = "claimable";
+          } else {
+            status = "awaiting_claim";
           }
           moduleData = {
             module: "simpleCash",
@@ -160,16 +153,23 @@ export const useNotas = ({ notaField }: Props) => {
           };
           break;
         case mapping.cashBeforeDate.toLowerCase():
+          // if (gqlNota.owner.id === blockchainState.account.toLowerCase()) {
+          //   // If owner, can be claimable, or expired, or revoked
+          //   // If sender, can be awaiting_claim, revokable, or revoked
+          //   status = "claimable";
+          // } else if (gqlNota.cashBeforeDate >= Date.now()) {
+          //   status = "awaiting_claim";
+          // }
+
           // TODO need to have cashBeforeDate in this object. AKA need have it in the subgraph
           if (gqlNota.cashes.length > 0) {
             // TODO can either be revoked or claimed, need to store that in the subgraph
-            // if (true) {
-            //   status = "claimed";
-            // } else {
-            // }
-            status = "claimed";
+            if (true) {  // Look inside cashes to see if it's revoked
+              status = "claimed";
+            } else {
+            }
           } else if (gqlNota.cashBeforeDate >= Date.now()) {
-            status = "claimable";
+            status = "awaiting_claim";
           } else if (gqlNota.cashBeforeDate < Date.now()) {
             status = "expired";
           } else {

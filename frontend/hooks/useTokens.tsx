@@ -29,6 +29,7 @@ export const useTokens = () => {
     [blockchainState]
   );
 
+  // TODO why is this just usdce or unknown?
   const displayNameForCurrency = useCallback((currency: NotaCurrency) => {
     switch (currency) {
       case "USDCE":
@@ -52,6 +53,8 @@ export const useTokens = () => {
           return "USDC";
         case mapping.usdce.toLocaleLowerCase():
           return "USDCE";
+        case mapping.usdt.toLocaleLowerCase():
+          return "USDT";
         default:
           return "UNKNOWN";
       }
