@@ -7,7 +7,6 @@ import { useUploadMetadata } from "../../../hooks/useUploadNote";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import MetadataBox from "../metadata/MetadataBox";
-import AccountDetails from "./AccountDetails";
 import PaymentDetails from "./PaymentDetails";
 
 interface Props extends ScreenProps {
@@ -114,11 +113,6 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
               <PaymentDetails
                 token={props.values.token}
                 mode={props.values.mode}
-              />
-              <AccountDetails
-                onSelectContact={(address) => {
-                  props.setFieldValue("address", address);
-                }}
               />
               {showMetadata && (
                 <>
