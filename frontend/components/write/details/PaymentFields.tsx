@@ -27,7 +27,12 @@ function PaymentFields({ token, mode }: Props) {
   }, [updateNotaFormValues, values]);
 
   return (
-    <Flex gap={"18px"} direction={"row"} mt={5}>
+    <Flex
+      gap={"18px"}
+      direction={"row"}
+      mt={5}
+      flexWrap={{ base: "wrap", md: "nowrap" }}
+    >
       <FormControl flexShrink={1}>
         <FormLabel mb={2}>Recipient Address</FormLabel>
         <AccountField fieldName="address" placeholder="0x..." />

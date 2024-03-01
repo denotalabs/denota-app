@@ -8,7 +8,7 @@ interface Props {
 }
 function PaymentDetails({ token, mode }: Props) {
   return (
-    <RoundedBox padding={4} mb={6}>
+    <RoundedBox padding={4}>
       <CurrencySelectorField />
       <PaymentFields token={token} mode={mode} />
     </RoundedBox>

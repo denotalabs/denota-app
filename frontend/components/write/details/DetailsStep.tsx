@@ -1,9 +1,9 @@
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
-import { Box, Button, Collapse, Text, useToast } from "@chakra-ui/react";
+import { Box, HStack, Text, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useState } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
+import RoundedBox from "../../designSystem/RoundedBox";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import MetadataBox from "../metadata/MetadataBox";
@@ -110,39 +110,28 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
             props.values.amount;
           return (
             <Form>
-              <PaymentDetails
-                token={props.values.token}
-                mode={props.values.mode}
-              />
-              {showMetadata && (
-                <>
-                  <Button
-                    mt={0}
-                    mb={3}
-                    rightIcon={isOpen ? <ChevronDownIcon /> : <ChevronUpIcon />}
-                    onClick={() => setIsOpen(!isOpen)}
-                    bg="transparent"
-                    sx={{
-                      "&:hover": {
-                        bg: "transparent",
-                      },
-                    }}
-                  >
-                    <Text ml={2} fontSize="2xl">
-                      {"Metadata"}
-                    </Text>
-                    <Text ml={2} color="whiteAlpha.600">
-                      {"(Optional)"}
-                    </Text>
-                  </Button>
-                  <Collapse in={isOpen} animateOpacity>
-                    <Box my={5}>
+              <RoundedBox>
+                <PaymentDetails
+                  token={props.values.token}
+                  mode={props.values.mode}
+                />
+                {showMetadata && (
+                  <>
+                    <HStack px={2}>
+                      {" "}
+                      <Text ml={2} fontSize="2xl">
+                        {"Metadata"}
+                      </Text>
+                      <Text ml={2} color="whiteAlpha.600">
+                        {"(Optional)"}
+                      </Text>
+                    </HStack>
+                    <Box>
                       <MetadataBox />
                     </Box>
-                  </Collapse>
-                </>
-              )}
-
+                  </>
+                )}
+              </RoundedBox>
               <RoundedButton
                 mt={2}
                 type="submit"
