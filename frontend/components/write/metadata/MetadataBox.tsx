@@ -3,7 +3,6 @@ import { Box, Flex, HStack } from "@chakra-ui/react";
 import RoundedBox from "../../designSystem/RoundedBox";
 import ExternalUrlField from "../../fields/input/ExternalUrlField";
 import ImageUrlField from "../../fields/input/ImageURLField";
-import NoteField from "../../fields/input/NoteField";
 import FileControl from "./FileUpload";
 
 function MetadataBox() {
@@ -15,16 +14,15 @@ function MetadataBox() {
           <TagsField fieldName="tags" placeholder="" />
         </HStack> */}
 
-        <Flex
+        {/* <Flex
           alignItems="center"
           justifyContent="space-between"
           flexShrink={0}
           flexGrow={1}
           maxW="100%"
         >
-          {/* Need to have a button for uploading a doc using lighthouse here */}
           <NoteField fieldName="note" />
-        </Flex>
+        </Flex> */}
         <Flex
           alignItems="center"
           justifyContent="space-between"

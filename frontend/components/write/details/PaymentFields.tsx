@@ -2,6 +2,7 @@ import { Flex, FormControl, FormLabel } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
 import { useEffect } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import AccountField from "../../fields/input/AccountField";
 
 import AmountField from "../../fields/input/AmountField";
 import { DetailsStepFormValues } from "./DetailsStep";
@@ -26,7 +27,16 @@ function PaymentFields({ token, mode }: Props) {
   }, [updateNotaFormValues, values]);
 
   return (
-    <Flex flexWrap={"wrap"} gap={"18px"} direction={"row"} mt={5}>
+    <Flex
+      gap={"18px"}
+      direction={"row"}
+      mt={5}
+      flexWrap={{ base: "wrap", md: "nowrap" }}
+    >
+      <FormControl flexShrink={1}>
+        <FormLabel mb={2}>Recipient Address</FormLabel>
+        <AccountField fieldName="address" placeholder="0x..." />
+      </FormControl>
       <Flex justifyContent="space-between" flexShrink={0} maxW="100%">
         <FormControl w="200px" mr={5}>
           <FormLabel>Amount</FormLabel>
