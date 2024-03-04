@@ -59,7 +59,7 @@ function NotaDetails({ nota }: Props) {
     switch (nota.moduleData.module) {
       case "reversibleRelease":
         return "Reversible Release";
-      case "direct":
+      case "directSend":
         return "Direct Pay";
       case "simpleCash":
         return "Simple Cash";
@@ -67,14 +67,14 @@ function NotaDetails({ nota }: Props) {
         return "Cash Before Date";
       case "reversibleByBeforeDate":
         return "Reversible By Before Date";
-      // case "cashBeforeDateDrip":
-      //   return "Cash Before Date Drip";
+      case "cashBeforeDateDrip":
+        return "Cash Before Date Drip";
     }
   }, [nota.moduleData.module]);
 
   const moduleDesc = useMemo(() => {
     switch (nota.moduleData.module) {
-      case "direct":
+      case "directSend":
         return "Funds are released immediately upon payment";
       case "simpleCash":
         return "Allows owner to claim tokens";
@@ -84,11 +84,12 @@ function NotaDetails({ nota }: Props) {
         return "Funds are held in escrow until released by the payer";
       case "reversibleByBeforeDate":
         return "Allows the sender to reverse the payment only before the expiration date";
-      // case "cashBeforeDateDrip":
-      //   return "Allows the owner to claim tokens in drips before the expiration date";
+      case "cashBeforeDateDrip":
+        return "Allows the owner to claim tokens in drips before the expiration date";
     }
   }, [nota.moduleData.module]);
 
+  // TODO need to iterate over moduleData to dynamically show each field in the modal
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>

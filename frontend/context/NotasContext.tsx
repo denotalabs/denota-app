@@ -1,5 +1,5 @@
-import { CashBeforeDateData } from "@denota-labs/denota-sdk/dist/modules/CashBeforeDate";
-import { SimpleCashData } from "@denota-labs/denota-sdk/dist/modules/SimpleCash";
+// import { CashBeforeDateData } from "@denota-labs/denota-sdk/dist/modules/CashBeforeDate";
+// import { SimpleCashData } from "@denota-labs/denota-sdk/dist/modules/SimpleCash";
 import { ethers } from "ethers";
 import {
   createContext,
@@ -11,10 +11,13 @@ import {
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 // TODO why are there separate moduleDatas here?
 import {
-  DirectPayModuleData,
+  CashBeforeDateDripModuleData,
+  CashBeforeDateModuleData,
+  DirectSendModuleData,
   Nota,
   ReversibleByBeforeDateModuleData,
   ReversibleReleaseModuleData,
+  SimpleCashModuleData,
   useNotas
 } from "../hooks/useNotas";
 import { useBlockchainData } from "./BlockchainDataProvider";
@@ -30,15 +33,15 @@ interface NotasContextInterface {
 
 interface OptimisticNotaProps {
   id: string;
+  token: NotaCurrency;
   amount: number;
+  module: "directSend" | "simpleCash" | "reversibleRelease" | "cashBeforeDate" | "cashBeforeDateDrip" | "reversibleByBeforeDate";
   sender: string;
   receiver: string;
   owner: string;
-  token: NotaCurrency;
+  createdHash: string;
   uri: string;
   inspector?: string;
-  createdHash: string;
-  module: "escrow" | "direct";
   isCrossChain: boolean;
 }
 
@@ -106,19 +109,35 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
       const isPayer = blockchainState.account === payer;
       const isInspector = blockchainState.account === inspector;
 
-      let moduleData: DirectPayModuleData | SimpleCashData | CashBeforeDateData | ReversibleReleaseModuleData | ReversibleByBeforeDateModuleData;
+      // TODO need to link these from the SDK
+      let moduleData: DirectSendModuleData | SimpleCashModuleData | CashBeforeDateModuleData | ReversibleReleaseModuleData | ReversibleByBeforeDateModuleData | CashBeforeDateDripModuleData;
 
       switch (module) {
-        case "direct":
+        case "directSend":
           moduleData = {
-            module: "direct",
+            module: "directSend",
             status: "paid",
           };
           break;
-        case "escrow":
+        case "simpleCash":
+          moduleData = {
+            module: "simpleCash",
+            status: "claimable",
+          };
+        case "reversibleRelease":
           moduleData = {
             module: "reversibleRelease",
             status: "releasable",
+          };
+        case "cashBeforeDate":
+          moduleData = {
+            module: "cashBeforeDate",
+            status: "awaiting_claim",
+          };
+        case "cashBeforeDateDrip":
+          moduleData = {
+            module: "cashBeforeDateDrip",
+            status: "awaiting_claim",
           };
       }
 

@@ -1,6 +1,12 @@
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { contractMappingForChainId } from "@denota-labs/denota-sdk";
-import { BigNumber } from "ethers";
+// import { DirectSendData } from "@denota-labs/denota-sdk/dist/modules/DirectSend";
+// import { SimpleCashData } from "@denota-labs/denota-sdk/dist/modules/SimpleCash";
+// import { ReversibleReleaseData } from "@denota-labs/denota-sdk/dist/modules/ReversibleRelease";
+// import { CashBeforeDateData } from "@denota-labs/denota-sdk/dist/modules/CashBeforeDate";
+// import { ReversibleByBeforeDateData } from "@denota-labs/denota-sdk/dist/modules/ReversibleByBeforeDate";
+// import { CashBeforeDateDripData } from "@denota-labs/denota-sdk/dist/modules/CashBeforeDateDrip";
+import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
@@ -19,33 +25,22 @@ export interface NotaTransaction {
   hash: string;
 }
 
+// TODO need to set and pull these from the SDK
 export type DirectPayStatus = "paid";
 
 export type SimpleCashStatus = "claimable" | "awaiting_claim" | "claimed";
 
-export type CashBeforeDateStatus =
-  | "claimable"
-  | "claimed"
-  | "expired"
-  | "revoked";
+export type CashBeforeDateStatus = "claimable" | "awaiting_claim" | "claimed" | "expired" | "returnable" | "returned";
 
-export type ReversibleReleaseStatus =
-  | "releasable"
-  | "awaiting_release"
-  | "revoked"
-  | "released";
+export type CashBeforeDateDripStatus = "claimable" | "awaiting_claim" | "claimed" | "expired" | "returnable" | "returned" | "locked";
 
-export type ReversibleByBeforeDateStatus =
-  | "releasable"
-  | "awaiting_release"
-  | "released"
-  | "revoked"
-  | "claimable"
-  | "claimed";
+export type ReversibleReleaseStatus = "releasable" | "awaiting_release" | "returned" | "released";
 
-export interface DirectPayModuleData {
+export type ReversibleByBeforeDateStatus = "releasable" | "awaiting_release" | "released" | "returned" | "claimable" | "awaiting_claim" | "claimed";
+
+export interface DirectSendModuleData {
   status: DirectPayStatus;
-  module: "direct";
+  module: "directSend";
 }
 
 export interface SimpleCashModuleData {
@@ -68,28 +63,31 @@ export interface ReversibleByBeforeDateModuleData {
   module: "reversibleByBeforeDate";
 }
 
+export interface CashBeforeDateDripModuleData {
+  status: CashBeforeDateDripStatus;
+  module: "cashBeforeDateDrip";
+}
+
+export type ModuleData = DirectSendModuleData | SimpleCashModuleData | CashBeforeDateModuleData | ReversibleReleaseModuleData | ReversibleByBeforeDateModuleData | CashBeforeDateDripModuleData;
+// TODO need to set and pull the above from the SDK
+
 export interface Nota {
   id: string;
+  token: NotaCurrency;
   amount: number;
   amountRaw: BigNumber;
-  sender: string; // TODO: remove
-  receiver: string; // TODO: remove
+  moduleData: ModuleData;
+  sender: string;  // TODO: remove
+  receiver: string;  // TODO: remove
   owner: string;
-  token: NotaCurrency;
   createdTransaction: NotaTransaction;
-  fundedTransaction: NotaTransaction | null; // TODO have list of WTFCA transactions
-  isPayer: boolean; // TODO: remove
-  uri: string;
+  fundedTransaction: NotaTransaction | null;  // TODO have list of WTFCA transactions
+  isPayer: boolean;  // TODO: remove but is passed to NotasContext
   payer: string;
   payee: string;
-  inspector?: string; // TODO: remove since should be in moduleData
-  isInspector: boolean; // TODO: remove since should be in moduleData
-  moduleData:
-  | DirectPayModuleData
-  | SimpleCashModuleData
-  | CashBeforeDateModuleData
-  | ReversibleReleaseModuleData
-  | ReversibleByBeforeDateModuleData;
+  inspector?: string;  // TODO: remove since should be in moduleData
+  isInspector: boolean;  // TODO: remove since should be in moduleData
+  uri?: string;
 }
 
 const convertExponent = (amountExact: number, exponent: number) => {
@@ -128,18 +126,23 @@ export const useNotas = ({ notaField }: Props) => {
       let isInspector = false; // TODO: expect inside module data
 
       let moduleData:
-        | DirectPayModuleData
+        | DirectSendModuleData
         | SimpleCashModuleData
         | CashBeforeDateModuleData
+        | CashBeforeDateDripModuleData
         | ReversibleReleaseModuleData
         | ReversibleByBeforeDateModuleData;
 
-      let status: "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "revoked";
+      let status: "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "returnable" | "returned" | "locked";
 
       const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
 
       switch (gqlNota.module.id) {
         case mapping.simpleCash.toLowerCase():
+          const decoded = ethers.utils.defaultAbiCoder.encode(["string,string"], [gqlNota.moduleData.raw]);
+          gqlNota.uri = decoded[0];
+          gqlNota.imageURI = decoded[1];
+
           if (gqlNota.cashes.length > 0) {
             status = "claimed";
           } else if (gqlNota.owner.id === blockchainState.account.toLowerCase()) {
@@ -153,27 +156,29 @@ export const useNotas = ({ notaField }: Props) => {
           };
           break;
         case mapping.cashBeforeDate.toLowerCase():
-          // if (gqlNota.owner.id === blockchainState.account.toLowerCase()) {
-          //   // If owner, can be claimable, or expired, or revoked
-          //   // If sender, can be awaiting_claim, revokable, or revoked
-          //   status = "claimable";
-          // } else if (gqlNota.cashBeforeDate >= Date.now()) {
-          //   status = "awaiting_claim";
-          // }
+          let decoded1 = ethers.utils.defaultAbiCoder.encode(["string,string"], [gqlNota.moduleData.raw]);
+          gqlNota.expirationDate = decoded1[0];
+          gqlNota.uri = decoded1[1];
+          gqlNota.imageURI = decoded1[2];
 
-          // TODO need to have cashBeforeDate in this object. AKA need have it in the subgraph
           if (gqlNota.cashes.length > 0) {
-            // TODO can either be revoked or claimed, need to store that in the subgraph
-            if (true) {  // Look inside cashes to see if it's revoked
+            if (gqlNota.cashes[0].to == blockchainState.account.toLowerCase()) {
               status = "claimed";
             } else {
+              status = "returned";
             }
-          } else if (gqlNota.cashBeforeDate >= Date.now()) {
-            status = "awaiting_claim";
-          } else if (gqlNota.cashBeforeDate < Date.now()) {
-            status = "expired";
+          } else if (gqlNota.expirationDate >= Date.now()) {
+            if (gqlNota.owner.id === blockchainState.account.toLowerCase()) {
+              status = "claimable";
+            } else {
+              status = "awaiting_claim";
+            }
           } else {
-            status = "claimable";
+            if (gqlNota.owner.id === blockchainState.account.toLowerCase()) {
+              status = "expired";
+            } else {
+              status = "returnable";
+            }
           }
 
           moduleData = {
@@ -181,17 +186,59 @@ export const useNotas = ({ notaField }: Props) => {
             status,
           };
           break;
+        case mapping.cashBeforeDateDrip.toLowerCase():
+          let decoded2 = ethers.utils.defaultAbiCoder.encode(["uint256,uint256,uint256,string,string"], [gqlNota.moduleData.raw]);
+          gqlNota.dripAmount = decoded2[0];
+          gqlNota.dripPeriod = decoded2[1];
+          gqlNota.cashBeforeDate = decoded2[2];
+          gqlNota.uri = decoded2[3];
+          gqlNota.imageURI = decoded2[4];
+
+          if (gqlNota.cashBeforeDate < Date.now()) { // expired for owner
+            if (gqlNota.payer.id == blockchainState.account.toLowerCase()) {
+              if (gqlNota.escrow != 0) {
+                status = "returnable";
+              } else {
+                status = "returned";
+              }
+            } else {
+              status = "expired";
+            }
+          } else if (gqlNota.lastDrip + gqlNota.dripPeriod <= Date.now()) {
+            if (gqlNota.owner.id == blockchainState.account.toLowerCase()) {
+              status = "claimable";
+            } else {
+              status = "awaiting_claim";
+            }
+          } else {
+            status = "locked";
+          }
+
+          moduleData = {
+            module: "cashBeforeDateDrip",
+            status,
+          };
+          break;
         case mapping.reversibleRelease.toLowerCase():
-          isInspector = isPayer; // TODO
+          let decoded3 = ethers.utils.defaultAbiCoder.encode(["address,string,string"], [gqlNota.moduleData.raw]);
+          gqlNota.inspector = decoded3[0];
+          gqlNota.uri = decoded3[1];
+          gqlNota.imageURI = decoded3[2];
 
           if (gqlNota.cashes.length > 0) {
-            // TODO: handle voided state
-            status = "released";
-          } else if (isPayer) {
-            // TODO: this assumes self signed, update to pull the actual inspector
-            status = "releasable";
+            // TODO Need to know if the `to` went to the `owner` at the time it was released
+            //// Need to check transfers and if >0 check if the cash timestamp was before it
+            if (gqlNota.cashes[0].to == gqlNota.owner) {
+              status = "released";
+            } else {
+              status = "returned";
+            }
           } else {
-            status = "awaiting_release";
+            if (gqlNota.inspector.id === blockchainState.account.toLowerCase()) {
+              status = "releasable";
+            } else {
+              status = "awaiting_release";
+            }
           }
 
           moduleData = {
@@ -199,44 +246,67 @@ export const useNotas = ({ notaField }: Props) => {
             status,
           };
           break;
-        // TODO add to sdk with new module/reversibleByBeforeDate.ts
-        // case mapping.reversibleByBeforeDate.toLowerCase():
-        //   isInspector = isPayer;  // TODO
+        case mapping.reversibleByBeforeDate.toLowerCase():
+          let decoded4 = ethers.utils.defaultAbiCoder.encode(["address,uint256,string,string"], [gqlNota.moduleData.raw]);
+          gqlNota.inspector = decoded4[0];
+          gqlNota.expirationDate = decoded4[1];
+          gqlNota.uri = decoded4[2];
+          gqlNota.imageURI = decoded4[3];
 
-        //   if (gqlNota.cashes.length > 0) {
-        //     // TODO: handle voided state
-        //     status = "released";
-        //   } else if (isPayer) {
-        //     // TODO: this assumes self signed, update to pull the actual inspector
-        //     status = "releasable";
-        //   } else {
-        //     status = "awaiting_release";
-        //   }
+          if (gqlNota.cashes.length > 0) {
+            // TODO Need to know if the `to` went to the `owner` at the time it was released
+            //// Need to check transfers and if >0 check if the cash timestamp was before it
+            if (gqlNota.cashes[0].to == gqlNota.owner.id) {
+              if (gqlNota.cashes[0].caller == gqlNota.inspector) {
+                status = "released";
+              } else {
+                status = "claimed";
+              }
+            } else {
+              status = "returned";
+            }
+          } else if (gqlNota.expirationDate > Date.now()) {  // Depends on inspector to release
+            if (gqlNota.inspector === blockchainState.account.toLowerCase()) {
+              status = "releasable";
+            } else {
+              status = "awaiting_release";
+            }
+          } else if (gqlNota.owner.id === blockchainState.account.toLowerCase()) {
+            status = "claimable";
+          } else {
+            status = "awaiting_claim";
+          }
 
-        //   moduleData = {
-        //     module: "reversibleRelease",
-        //     status,
-        //   };
-        //   break;
+          moduleData = {
+            module: "reversibleByBeforeDate",
+            status,
+          };
+          break;
         default: // Assumes direct pay if module is unknown
-          moduleData = { module: "direct", status: "paid" };
+          const decoded5 = ethers.utils.defaultAbiCoder.encode(["string,string"], [gqlNota.moduleData.raw]);
+          gqlNota.uri = decoded5[0];
+          gqlNota.imageURI = decoded5[1];
+          moduleData = { module: "directSend", status: "paid" };
       }
 
-      const amount =
-        moduleData.module === "direct"
+      const amount = // TODO Show payment amount and current escrow. Use Cashed/Funded.
+        moduleData.module === "directSend"
           ? gqlNota.written.instant
           : gqlNota.written.escrowed;
 
       return {
         id: gqlNota.id as string,
+        token: currencyForTokenId(gqlNota.currency.id),
         amount: convertExponent(
           Number(amount),
           getTokenUnits(currencyForTokenId(gqlNota.currency.id))
         ),
         amountRaw: BigNumber.from(amount),
-        token: currencyForTokenId(gqlNota.currency.id),
-        receiver: gqlNota.receiver.id as string,
+        moduleData,
+
+        // TODO keep sender/receiver OR payer/payee? Both?
         sender: gqlNota.sender.id as string,
+        receiver: gqlNota.receiver.id as string,
         owner: gqlNota.owner.id as string,
         createdTransaction: {
           date: new Date(Number(gqlNota.createdTransaction.timestamp) * 1000),
@@ -247,7 +317,6 @@ export const useNotas = ({ notaField }: Props) => {
         isPayer,
         payer: gqlNota.sender.id as string,
         payee: gqlNota.receiver.id as string,
-        moduleData,
         inspector: undefined,
         isInspector,
       };
@@ -263,10 +332,18 @@ export const useNotas = ({ notaField }: Props) => {
   const refresh = useCallback(() => {
     if (account) {
       setIsLoading(true);
-      const tokenFields = `      
+      const notaFields = `      
       id
+      currency {
+        id
+      }
       escrowed
-      uri
+      module {
+        id
+      }
+      moduleData {
+        raw
+      }
       createdTransaction {
         timestamp
         id
@@ -278,12 +355,6 @@ export const useNotas = ({ notaField }: Props) => {
         id
       }
       owner {
-        id
-      }
-      currency {
-        id
-      }
-      module {
         id
       }
       cashes {
@@ -301,10 +372,10 @@ export const useNotas = ({ notaField }: Props) => {
       query accounts($account: String ){
         account(id: $account)  {
           notasSent {
-            ${tokenFields}
+            ${notaFields}
           }
           notasReceived {
-            ${tokenFields}
+            ${notaFields}
           }
        }
       }
@@ -367,7 +438,7 @@ export const useNotas = ({ notaField }: Props) => {
     const optimisticNotasFiltered = optimisticNotas.filter(
       (nota) =>
         !sentNotaIds.includes(nota.id) &&
-        nota.sender === blockchainState.account
+        nota.payer === blockchainState.account
     );
 
     return optimisticNotasFiltered.concat(notasSent);
@@ -385,7 +456,7 @@ export const useNotas = ({ notaField }: Props) => {
     const optimisticNotasFiltered = optimisticNotas.filter(
       (nota) =>
         !receivedNotaIds.includes(nota.id) &&
-        nota.receiver === blockchainState.account
+        nota.owner === blockchainState.account
     );
     return optimisticNotasFiltered.concat(notasReceived);
   }, [blockchainState.account, notasReceived, optimisticNotas]);
