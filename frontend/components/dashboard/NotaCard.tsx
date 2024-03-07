@@ -20,10 +20,12 @@ import { useCallback, useMemo, useState } from "react";
 import {
   MdAssignmentTurnedIn,
   MdCancel,
+  MdLock,
   MdLockOpen,
   MdMonetizationOn,
   MdOutlineDoneAll,
   MdOutlineLock,
+  MdQuestionMark,
   MdTimerOff,
   MdTrendingUp
 } from "react-icons/md";
@@ -38,20 +40,19 @@ import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 interface Props {
   nota: Nota;
 }
-
 const TOOLTIP_MESSAGE_MAP = {
   paid: "paid",
   claimable: "payment can be claimed",
+  awaiting_claim: "waiting for funds to be claimed",
   awaiting_release: "waiting for funds to be released",
   releasable: "payment can be released or voided",
   released: "released by inspector",
   claimed: "claimed by owner",
   expired: "past expiration date",
-  revoked: "revoked by inspector",
-  //// payable: "payment requested",
-  //// awaiting_payment: "awaiting payment",
-  //// awaiting_escrow: "waiting for payer to escrow funds",
-  //// voided: "voided by inspector",
+  returnable: "funds can be returned",
+  returned: "returned by inspector",
+  locked: "payment is currently locked",
+  "?": "unknown status"
 };
 
 function NotaCard({ nota }: Props) {
@@ -104,6 +105,8 @@ function NotaCard({ nota }: Props) {
         return <MdOutlineDoneAll color="white" size={20} />;
       case "claimable":
         return <MdMonetizationOn color="white" size={20} />;
+      case "awaiting_claim":
+        return <MdOutlineLock color="white" size={20} />;
       case "awaiting_release":
         return <MdOutlineLock color="white" size={20} />;
       case "releasable":
@@ -114,29 +117,41 @@ function NotaCard({ nota }: Props) {
         return <MdAssignmentTurnedIn color="white" size={20} />;
       case "expired":
         return <MdTimerOff color="white" size={20} />;
-      default:
+      case "returnable":
+        return <MdLockOpen color="white" size={20} />;
+      case "returned":
         return <MdCancel color="white" size={20} />;
+      case "locked":
+        return <MdLock color="white" size={20} />;
+      default:
+        return <MdQuestionMark color="white" size={20} />;
     }
   }, [nota.moduleData.status]);
 
   const iconColor = useMemo(() => {
     switch (nota.moduleData.status) {
       case "paid":
-        return "#00C28E";
+        return "#00C28E";  // green
       case "claimable":
-        return "#FFD700";
+        return "#FFD700";  // yellow
       case "awaiting_release":
-        return "#C5CCD8";
+        return "#FFD700"; // gray
+      case "awaiting_claim":
+        return "#FFD700";
       case "releasable":
-        return "#4A67ED";
+        return "#4A67ED"; // blue
       case "released":
         return "#00C28E";
       case "claimed":
         return "#00C28E";
       case "expired":
+        return "#E53E3E"; // red
+      case "returned":
         return "#E53E3E";
-      case "revoked":
-        return "#E53E3E";
+      case "locked":
+        return "#C5CCD8";
+      case "?":
+        return "#242526";
       default:
         return "#4A67ED";
     }
@@ -234,14 +249,14 @@ function NotaCard({ nota }: Props) {
         <VStack alignItems="flex-start" w="100%">
           <Center w="100%">
             <ButtonGroup>
-              {nota.moduleData.status === "releasable" ? (
+              {(nota.moduleData.status === "returnable" || nota.moduleData.status === "releasable") ? (
                 <Menu>
                   <MenuButton disabled={cashingInProgress} as={Button} minW={0}>
                     Options {cashingInProgress ? <Spinner size="xs" /> : null}
                   </MenuButton>
                   <MenuList alignItems={"center"}>
+                    <MenuItem onClick={handleVoid}>Return</MenuItem>
                     <MenuItem onClick={handleRelease}>Release</MenuItem>
-                    <MenuItem onClick={handleVoid}>Void</MenuItem>
                   </MenuList>
                 </Menu>
               ) : nota.moduleData.status === "claimable" ? (
