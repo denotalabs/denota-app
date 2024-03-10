@@ -24,6 +24,7 @@ function NotaDetails({ nota }: Props) {
   const [fileName, setFilename] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
+  // TODO need to handle both imageURI and docURIs with and without lighthouse
   useEffect(() => {
     async function fetchData() {
       try {
@@ -54,7 +55,6 @@ function NotaDetails({ nota }: Props) {
   const { displayNameForCurrency } = useTokens();
   const { formatAddress } = useFormatAddress();
 
-  // TODO for some reason not showing cashBeforeDate
   const moduleName = useMemo(() => {
     switch (nota.moduleData.module) {
       case "reversibleRelease":
@@ -69,6 +69,8 @@ function NotaDetails({ nota }: Props) {
         return "Reversible By Before Date";
       case "cashBeforeDateDrip":
         return "Cash Before Date Drip";
+      default:
+        return nota.moduleData.module;
     }
   }, [nota.moduleData.module]);
 
@@ -105,13 +107,14 @@ function NotaDetails({ nota }: Props) {
             copyValue={!nota.isPayer ? undefined : nota.payee}
           />
           <DetailsRow
-            title="Payment Amount"
+            title="Amount"
             value={
               String(nota.amount) +
               " " +
               displayNameForCurrency(nota.token as NotaCurrency)
             }
           />
+          {/* TODO display moduleData fields here */}
           {nota.inspector && (
             <DetailsRow
               title="Inspector"
@@ -119,7 +122,7 @@ function NotaDetails({ nota }: Props) {
               copyValue={!nota.isInspector ? undefined : nota.payee}
             />
           )}
-          <DetailsRow title="Module" value={moduleName} tooltip={moduleDesc} />
+          <DetailsRow title="Payment Terms" value={moduleName} tooltip={moduleDesc} />
           <DetailsRow
             title="Created On"
             value={nota.createdTransaction.date.toDateString()}

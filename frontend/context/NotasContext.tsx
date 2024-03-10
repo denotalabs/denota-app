@@ -129,6 +129,11 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
             module: "reversibleRelease",
             status: "releasable",
           };
+        case "reversibleByBeforeDate":
+          moduleData = {
+            module: "reversibleByBeforeDate",
+            status: "releasable",
+          };
         case "cashBeforeDate":
           moduleData = {
             module: "cashBeforeDate",
