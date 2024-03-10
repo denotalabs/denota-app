@@ -18,16 +18,15 @@ import {
 } from "@chakra-ui/react";
 import { useCallback, useMemo, useState } from "react";
 import {
-  MdAssignmentTurnedIn,
   MdCancel,
+  MdDoneAll,
+  MdHelpOutline,
+  MdHourglassDisabled,
+  MdHourglassTop,
   MdLock,
-  MdLockOpen,
+  MdLockPerson,
   MdMonetizationOn,
-  MdOutlineDoneAll,
-  MdOutlineLock,
-  MdQuestionMark,
-  MdTimerOff,
-  MdTrendingUp
+  MdSwapHorizontalCircle
 } from "react-icons/md";
 import { useCashNota } from "../../hooks/useCashNota";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
@@ -102,58 +101,59 @@ function NotaCard({ nota }: Props) {
   const icon = useMemo(() => {
     switch (nota.moduleData.status) {
       case "paid":
-        return <MdOutlineDoneAll color="white" size={20} />;
+        return <MdDoneAll color="white" size={20} />;
       case "claimable":
         return <MdMonetizationOn color="white" size={20} />;
       case "awaiting_claim":
-        return <MdOutlineLock color="white" size={20} />;
+        return <MdHourglassTop color="white" size={20} />;  // TODO
       case "awaiting_release":
-        return <MdOutlineLock color="white" size={20} />;
+        return <MdLockPerson color="white" size={20} />;
       case "releasable":
-        return <MdLockOpen color="white" size={20} />;
+        return <MdSwapHorizontalCircle color="white" size={20} />;
       case "released":
-        return <MdTrendingUp color="white" size={20} />;
+        return <MdDoneAll color="white" size={20} />; // MdTrendingUp
       case "claimed":
-        return <MdAssignmentTurnedIn color="white" size={20} />;
+        return <MdDoneAll color="white" size={20} />;
       case "expired":
-        return <MdTimerOff color="white" size={20} />;
+        return <MdHourglassDisabled color="white" size={20} />;
       case "returnable":
-        return <MdLockOpen color="white" size={20} />;
+        return <MdSwapHorizontalCircle color="white" size={20} />;
       case "returned":
         return <MdCancel color="white" size={20} />;
       case "locked":
         return <MdLock color="white" size={20} />;
       default:
-        return <MdQuestionMark color="white" size={20} />;
+        return <MdHelpOutline color="white" size={20} />;
     }
   }, [nota.moduleData.status]);
 
   const iconColor = useMemo(() => {
+    // Green = good, yellow = action needed, red = bad, gray = waiting
     switch (nota.moduleData.status) {
       case "paid":
-        return "#00C28E";  // green
+        return "#00C28E"; // green
       case "claimable":
-        return "#FFD700";  // yellow
+        return "#FFD700"; // yellow
       case "awaiting_release":
-        return "#FFD700"; // gray
+        return "#C5CCD8"; // gray
       case "awaiting_claim":
-        return "#FFD700";
+        return "#C5CCD8"; // gray
       case "releasable":
-        return "#4A67ED"; // blue
+        return "#FFD700"; // yellow
+      case "returnable":
+        return "#FFD700"; // yellow
       case "released":
-        return "#00C28E";
+        return "#00C28E"; // green
       case "claimed":
-        return "#00C28E";
+        return "#00C28E"; // green
       case "expired":
         return "#E53E3E"; // red
       case "returned":
-        return "#E53E3E";
+        return "#E53E3E"; // red
       case "locked":
-        return "#C5CCD8";
-      case "?":
-        return "#242526";
+        return "#C5CCD8"; // gray
       default:
-        return "#4A67ED";
+        return "#242526"; // black
     }
   }, [nota.moduleData.status]);
   const gradient = generateNotaGradient(nota);

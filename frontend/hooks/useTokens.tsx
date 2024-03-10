@@ -29,7 +29,6 @@ export const useTokens = () => {
     [blockchainState]
   );
 
-  // TODO why is this just usdce or unknown?
   const displayNameForCurrency = useCallback((currency: NotaCurrency) => {
     switch (currency) {
       case "USDCE":
