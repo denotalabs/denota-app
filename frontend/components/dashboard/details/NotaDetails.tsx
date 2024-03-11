@@ -70,7 +70,8 @@ function NotaDetails({ nota }: Props) {
       case "cashBeforeDateDrip":
         return "Cash Before Date Drip";
       default:
-        return nota.moduleData.module;
+        // console.log("Unknown module", nota);
+        return "Unknown"; //nota.moduleData.module;
     }
   }, [nota.moduleData.module]);
 
@@ -88,6 +89,8 @@ function NotaDetails({ nota }: Props) {
         return "Allows the sender to reverse the payment only before the expiration date";
       case "cashBeforeDateDrip":
         return "Allows the owner to claim tokens in drips before the expiration date";
+      default:
+        return "Unknown payment terms";
     }
   }, [nota.moduleData.module]);
 

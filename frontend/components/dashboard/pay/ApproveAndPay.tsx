@@ -92,7 +92,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         setNeedsApproval(false);
       } else {
         const module = nota.moduleData.module;
-        if (module === "direct") {
+        if (module === "directSend") {
           return;
         }
         await fund({ notaId: nota.id, amount: nota.amountRaw, module });
@@ -129,9 +129,10 @@ function ApproveAndPay({ nota, onClose }: Props) {
     onClose,
   ]);
 
+  // TODO add more module info for last send page
   const moduleInfo = useMemo(() => {
     switch (nota.moduleData.module) {
-      case "direct":
+      case "directSend":
         return "Funds will be released immediately";
       case "reversibleRelease":
         return "Funds will be held in escrow";

@@ -3,10 +3,10 @@ import { useCallback } from "react";
 import { NotaCurrency } from "../../components/designSystem/CurrencyIcon";
 
 interface Props {
-  dueDate?: string;
   token: NotaCurrency;
   amount: string;
-  address: string;
+  dueDate?: string;
+  address: string;  // TODO change this to owner?
   externalUrl: string;
   imageUrl: string;
 }
