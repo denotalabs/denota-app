@@ -14,7 +14,8 @@ export const useCashNota = () => {
 
   const releaseNota = useCallback(
     async ({ nota }: Props) => {
-      if (nota.moduleData.module === "direct") {
+      // TODO handle on SDK side
+      if (nota.moduleData.module === "directSend" || nota.moduleData.module === "cashBeforeDateDrip" || nota.moduleData.module === "unknown") {
         return;
       }
       try {
@@ -48,7 +49,7 @@ export const useCashNota = () => {
 
   const reverseNota = useCallback(
     async ({ nota }: Props) => {
-      if (nota.moduleData.module === "direct") {
+      if (nota.moduleData.module === "directSend" || nota.moduleData.module === "cashBeforeDateDrip" || nota.moduleData.module === "unknown") {
         return;
       }
       try {
