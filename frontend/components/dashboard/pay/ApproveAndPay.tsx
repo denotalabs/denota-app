@@ -92,7 +92,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         setNeedsApproval(false);
       } else {
         const module = nota.moduleData.module;
-        if (module === "directSend") {
+        if (module === "directSend" || module === "cashBeforeDateDrip" || module === "unknown") {
           return;
         }
         await fund({ notaId: nota.id, amount: nota.amountRaw, module });

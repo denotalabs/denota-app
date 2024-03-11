@@ -34,7 +34,7 @@ import { Nota } from "../../hooks/useNotas";
 import { useTokens } from "../../hooks/useTokens";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
-import ApproveAndPayModal from "./pay/ApproveAndPayModal";
+// import ApproveAndPayModal from "./pay/ApproveAndPayModal";
 
 interface Props {
   nota: Nota;
@@ -286,7 +286,7 @@ function NotaCard({ nota }: Props) {
         onClose={onCloseDetails}
         nota={nota}
       />
-      <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} nota={nota} />
+      {/* <ApproveAndPayModal isOpen={isPayOpen} onClose={onClosePay} nota={nota} /> */}
     </GridItem>
   );
 }
