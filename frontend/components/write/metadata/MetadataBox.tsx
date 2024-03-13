@@ -30,7 +30,14 @@ function MetadataBox() {
           flexGrow={1}
           maxW="100%"
         >
-          <ExternalUrlField fieldName="externalUrl" placeholder="" />
+          <HStack width="full">
+            <Box flexGrow={1} flexShrink={0}>
+              <ExternalUrlField fieldName="externalUrl" placeholder="" />
+            </Box>
+            <Box flexShrink={1}>
+              <FileControl name="imageUrl" />
+            </Box>
+          </HStack>
         </Flex>
         <Flex
           alignItems="center"

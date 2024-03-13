@@ -12,9 +12,9 @@ import { BsUpload } from "react-icons/bs";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
 
 type FileUploadProps = {
-  accept?: string;
   multiple?: boolean;
   name: string;
+  isImage?: boolean;
 };
 
 export type FileControlProps = FormControlProps &
@@ -27,10 +27,11 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
       label,
       buttonProps,
       multiple = false,
-      accept = ".jpg,.jpeg,.png,.gif,.pdf,.docx,.csv",
+      isImage,
       ...rest
     } = props;
-    const [{ onChange, ...field }, , { setValue }] = useField(name);
+    const accept = isImage ? ".jpg,.jpeg,.png,.gif" : ".pdf,.docx,.csv";
+    const [{ ...field }, , { setValue }] = useField(name);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const toast = useToast();
     const { upload } = useUploadMetadata();
