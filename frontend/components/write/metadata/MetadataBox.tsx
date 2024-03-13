@@ -35,7 +35,7 @@ function MetadataBox() {
               <ExternalUrlField fieldName="externalUrl" placeholder="" />
             </Box>
             <Box flexShrink={1}>
-              <FileControl name="imageUrl" />
+              <FileControl name="externalUrl" isImage={false} />
             </Box>
           </HStack>
         </Flex>
@@ -51,7 +51,7 @@ function MetadataBox() {
               <ImageUrlField fieldName="imageUrl" placeholder="" />
             </Box>
             <Box flexShrink={1}>
-              <FileControl name="imageUrl" />
+              <FileControl name="imageUrl" isImage={true} />
             </Box>
           </HStack>
         </Flex>
