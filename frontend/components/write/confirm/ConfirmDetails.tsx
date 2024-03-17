@@ -27,7 +27,7 @@ function ConfirmDetails() {
             displayNameForCurrency(notaFormValues.token as NotaCurrency)
           }
         />
-        {notaFormValues.module === "escrow" && (
+        {notaFormValues.module === "reversibleRelease" || notaFormValues.module === "reversibleByBeforeDate" && (
           <DetailsRow
             title="Inspector"
             value={
@@ -35,6 +35,12 @@ function ConfirmDetails() {
                 ? formatAddress(notaFormValues.auditor)
                 : "Self-signed"
             }
+          />
+        )}
+        {notaFormValues.module === "cashBeforeDate" || notaFormValues.module === "reversibleByBeforeDate" && (
+          <DetailsRow
+            title="Expiration Date"
+            value={notaFormValues.expirationDate}
           />
         )}
       </VStack>

@@ -5,8 +5,9 @@ import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useNotaForm } from "../context/NotaFormProvider";
 import { useNotaContext } from "../context/NotasContext";
+// TODO need to switch to SDK for these
 import { useDirectPay } from "./modules/useDirectPay";
-import { useEscrowNota } from "./modules/useEscrowNota";
+import { useReversibleRelease } from "./modules/useReversibleRelease";
 import { useSimpleCash } from "./modules/useSimpleCash";
 import { useEmail } from "./useEmail";
 import { useTokens } from "./useTokens";
@@ -15,6 +16,7 @@ interface Props {
   onSuccess?: () => void;
 }
 
+// Asks for token approval if not already, tries writing nota and creates local version, sends email if provided
 export const useConfirmNota = ({ onSuccess }: Props) => {
   const toast = useToast();
 
@@ -75,7 +77,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
   const { writeNota: writeDirectPay } = useDirectPay();
 
-  const { writeNota: writeEscrow } = useEscrowNota();
+  const { writeNota: writeReversibleRelease } = useReversibleRelease();
 
   const { writeNota: writeSimpleCash } = useSimpleCash();
 
@@ -108,46 +110,42 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       setNeedsApproval(false);
     } else {
       try {
+        const owner = notaFormValues.address;
         let receipt: { txHash: string; notaId: string };
 
         switch (notaFormValues.module) {
-          case "direct":
+          case "directSend":
             receipt = await writeDirectPay({
-              dueDate: notaFormValues.dueDate,
-              amount: notaFormValues.amount,
-              address: notaFormValues.address,
-              externalUrl: notaFormValues.externalUrl ?? "",
-              imageUrl: notaFormValues.imageUrl,
-              token: notaFormValues.token,
-            });
-
-            break;
-
-          case "escrow":
-            receipt = await writeEscrow({
               token: notaFormValues.token,
               amount: notaFormValues.amount,
-              address: notaFormValues.address,
-              externalUrl: notaFormValues.externalUrl ?? "",
-              inspector: notaFormValues.auditor,
-              imageUrl: notaFormValues.imageUrl ?? "",
+              address: owner,
+              // dueDate: notaFormValues.dueDate,
+              externalURI: notaFormValues.externalURI ?? "",
+              imageURI: notaFormValues.imageURI,
             });
             break;
-
           case "simpleCash":
             receipt = await writeSimpleCash({
               token: notaFormValues.token,
               amount: notaFormValues.amount,
-              address: notaFormValues.address,
-              externalUrl: notaFormValues.externalUrl ?? "",
-              imageUrl: notaFormValues.imageUrl ?? "",
+              address: owner,
+              externalURI: notaFormValues.externalURI ?? "",
+              imageURI: notaFormValues.imageURI ?? "",
+            });
+            break;
+          case "reversibleRelease":
+            receipt = await writeReversibleRelease({
+              token: notaFormValues.token,
+              amount: notaFormValues.amount,
+              address: owner,
+              inspector: notaFormValues.auditor,
+              externalURI: notaFormValues.externalURI ?? "",
+              imageURI: notaFormValues.imageURI ?? "",
             });
             break;
           default:
             break;
         }
-
-        const owner = notaFormValues.address;
 
         // It takes a few seconds for the graph to pick up the new nota so go ahead and add it locally
         createLocalNota({
@@ -159,7 +157,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           token: notaFormValues.token as NotaCurrency,
           isCrossChain: false,
           createdHash: receipt.txHash,
-          module: notaFormValues.module as "direct" | "escrow",
+          module: notaFormValues.module as "directSend" | "simpleCash" | "cashBeforeDate" | "reversibleRelease" | "reversibleByBeforeDate" | "cashBeforeDateDrip",
           uri: notaFormValues.ipfsHash,
         });
 
@@ -170,7 +168,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             network: blockchainState.chainId,
             token: notaFormValues.token,
             amount: notaFormValues.amount,
-            module: "direct",
+            module: "directSend",
           });
         }
 
@@ -212,14 +210,14 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.email,
     notaFormValues.mode,
     notaFormValues.dueDate,
-    notaFormValues.externalUrl,
-    notaFormValues.imageUrl,
+    notaFormValues.externalURI,
+    notaFormValues.imageURI,
     notaFormValues.auditor,
     createLocalNota,
     toast,
     onSuccess,
     writeDirectPay,
-    writeEscrow,
+    writeReversibleRelease,
     writeSimpleCash,
     sendEmail,
   ]);

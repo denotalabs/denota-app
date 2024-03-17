@@ -1,11 +1,5 @@
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
-import { contractMappingForChainId } from "@denota-labs/denota-sdk";
-// import { DirectSendData } from "@denota-labs/denota-sdk/dist/modules/DirectSend";
-// import { SimpleCashData } from "@denota-labs/denota-sdk/dist/modules/SimpleCash";
-// import { ReversibleReleaseData } from "@denota-labs/denota-sdk/dist/modules/ReversibleRelease";
-// import { CashBeforeDateData } from "@denota-labs/denota-sdk/dist/modules/CashBeforeDate";
-// import { ReversibleByBeforeDateData } from "@denota-labs/denota-sdk/dist/modules/ReversibleByBeforeDate";
-// import { CashBeforeDateDripData } from "@denota-labs/denota-sdk/dist/modules/CashBeforeDateDrip";
+import { contractMappingForChainId, ModuleData, NotaStatuses, NotaTransaction } from "@denota-labs/denota-sdk/dist";
 import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
@@ -17,61 +11,6 @@ interface Props {
 }
 
 //////////// TODO need to set and pull the above from the SDK ////////////
-export interface NotaTransaction {
-  date: Date;
-  hash: string;
-}
-
-export type DirectPayStatus = "paid";
-
-export type SimpleCashStatus = "claimable" | "awaiting_claim" | "claimed";
-
-export type CashBeforeDateStatus = "claimable" | "awaiting_claim" | "claimed" | "expired" | "returnable" | "returned";
-
-export type CashBeforeDateDripStatus = "claimable" | "awaiting_claim" | "claimed" | "expired" | "returnable" | "returned" | "locked";
-
-export type ReversibleReleaseStatus = "releasable" | "awaiting_release" | "returned" | "released";
-
-export type ReversibleByBeforeDateStatus = "releasable" | "awaiting_release" | "released" | "returned" | "claimable" | "awaiting_claim" | "claimed";
-
-export type UnknownModuleStatus = "?";
-
-export interface DirectSendModuleData {
-  status: DirectPayStatus;
-  module: "directSend";
-}
-
-export interface SimpleCashModuleData {
-  status: SimpleCashStatus;
-  module: "simpleCash";
-}
-
-export interface CashBeforeDateModuleData {
-  status: CashBeforeDateStatus;
-  module: "cashBeforeDate";
-}
-
-export interface ReversibleReleaseModuleData {
-  status: ReversibleReleaseStatus;
-  module: "reversibleRelease";
-}
-
-export interface ReversibleByBeforeDateModuleData {
-  status: ReversibleByBeforeDateStatus;
-  module: "reversibleByBeforeDate";
-}
-
-export interface CashBeforeDateDripModuleData {
-  status: CashBeforeDateDripStatus;
-  module: "cashBeforeDateDrip";
-}
-export interface UnknownModuleData {
-  status: UnknownModuleStatus;
-  module: "unknown";
-}
-
-export type ModuleData = DirectSendModuleData | SimpleCashModuleData | CashBeforeDateModuleData | ReversibleReleaseModuleData | ReversibleByBeforeDateModuleData | CashBeforeDateDripModuleData | UnknownModuleData;
-
 export interface Nota {
   id: string;
   token: NotaCurrency;
@@ -100,6 +39,8 @@ const convertExponent = (amountExact: number, exponent: number) => {
 export const useNotas = ({ notaField }: Props) => {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account.toLowerCase();
+  // const chainId = Number(blockchainState.chainId);
+
   const [notasReceived, setNotasReceived] = useState<Nota[] | undefined>(
     undefined
   );
@@ -126,16 +67,15 @@ export const useNotas = ({ notaField }: Props) => {
 
       let isInspector = false; // TODO: expect inside module data
 
+      let moduleData: ModuleData;
+      // if (!gqlNota?.moduleData?.raw) {
+      //   console.log(gqlNota.module.id);
+      //   moduleData = { module: "unknown", status: "?" };
+      // } else {
+      //   moduleData = getModuleData(chainId, account, gqlNota.module.id.toLowerCase(), gqlNota.moduleData.raw);
+      // }
       // TODO take these from SDK
-      let moduleData:
-        | DirectSendModuleData
-        | SimpleCashModuleData
-        | CashBeforeDateModuleData
-        | CashBeforeDateDripModuleData
-        | ReversibleReleaseModuleData
-        | ReversibleByBeforeDateModuleData
-        | UnknownModuleData;
-      let status: "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "returnable" | "returned" | "locked" | "?";
+      let status: NotaStatuses; // let status = "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "returnable" | "returned" | "locked" | "?";
       const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
       let coder = new ethers.utils.AbiCoder();
       switch (gqlNota.module.id) {
@@ -180,6 +120,7 @@ export const useNotas = ({ notaField }: Props) => {
 
           moduleData = {
             module: "cashBeforeDate",
+            cashBeforeDate: expirationDate,
             status,
           };
           break;
@@ -209,6 +150,7 @@ export const useNotas = ({ notaField }: Props) => {
 
           moduleData = {
             module: "cashBeforeDate",
+            cashBeforeDate: expirationDate2,
             status,
           };
           break;
@@ -249,6 +191,82 @@ export const useNotas = ({ notaField }: Props) => {
 
           moduleData = {
             module: "cashBeforeDateDrip",
+            expirationDate: cashBeforeDate,
+            dripAmount: dripAmount,
+            dripPeriod: dripPeriod,
+            status,
+          };
+          break;
+        case "0x00000000123157038206fefeb809823016331ff2".toLowerCase():  // CashBeforeDate
+          let decoded9 = coder.decode(["uint256", "string", "string"], gqlNota.moduleData.raw);
+          let expirationDate4 = decoded9[0];
+
+          if (gqlNota.cashes.length > 0) {
+            if (gqlNota.cashes[0].to == account) {
+              status = "claimed";
+            } else {
+              status = "returned";
+            }
+          } else if (expirationDate4 >= Date.now()) {
+            if (gqlNota.owner.id === account) {
+              status = "claimable";
+            } else {
+              status = "awaiting_claim";
+            }
+          } else {
+            if (gqlNota.owner.id === account) {
+              status = "expired";
+            } else {
+              status = "returnable";
+            }
+          }
+
+          moduleData = {
+            module: "cashBeforeDate",
+            cashBeforeDate: expirationDate4,
+            status,
+          };
+          break;
+        case "0x00000000cce992072e23cda23a1986f2207f5e80".toLowerCase(): // CashBeforeDateDrip
+          let decoded0 = [0, 0, 0];//coder.decode(["uint256", "uint256", "uint256", "string", "string"], gqlNota.moduleData.raw);
+          let lastDrip0 = 0;
+          let dripAmount0 = decoded0[0];
+          let dripPeriod0 = decoded0[1];
+          let cashBeforeDate0 = decoded0[2];
+
+          if (cashBeforeDate0 < Date.now()) { // expired for owner
+            if (gqlNota.sender.id == account) {
+              if (gqlNota.escrow != 0) {
+                status = "returnable";
+              } else {
+                status = "returned";
+              }
+            } else {
+              status = "expired";
+            }
+          } else if (lastDrip0 + dripPeriod0 <= Date.now()) {
+            if (gqlNota.owner.id == account) {
+              if (gqlNota.escrow > dripAmount) {
+                status = "claimable";
+              } else {
+                status = "locked";
+              }
+            } else {
+              if (gqlNota.escrow > dripAmount0) {
+                status = "awaiting_claim";
+              } else {
+                status = "locked";
+              }
+            }
+          } else {
+            status = "locked";
+          }
+
+          moduleData = {
+            module: "cashBeforeDateDrip",
+            expirationDate: cashBeforeDate0,
+            dripAmount: dripAmount0,
+            dripPeriod: dripPeriod0,
             status,
           };
           break;
@@ -274,43 +292,46 @@ export const useNotas = ({ notaField }: Props) => {
 
           moduleData = {
             module: "reversibleRelease",
+            inspector: inspector,
             status,
           };
           break;
-        case "0x00000000115e79ea19439db1095327acbd810bf7".toLowerCase():
-          let decoded4 = coder.decode(["address", "uint256", "string", "string"], gqlNota.moduleData.raw);
-          let inspector1 = decoded4[0].toLowerCase();
-          let expirationDate1 = decoded4[1];
+        // case mapping.cashBeforeDateDrip.toLowerCase():
+        //   let decoded4 = coder.decode(["address", "uint256", "string", "string"], gqlNota.moduleData.raw);
+        //   let inspector1 = decoded4[0].toLowerCase();
+        //   let expirationDate1 = decoded4[1];
 
-          if (gqlNota.cashes.length > 0) {
-            // TODO Need to know if the `to` went to the `owner` at the time it was released
-            //// Need to check transfers and if >0 check if the cash timestamp was before it
-            if (gqlNota.cashes[0].to == gqlNota.owner.id) {
-              if (gqlNota.cashes[0].caller == inspector1) {
-                status = "released";
-              } else {
-                status = "claimed";
-              }
-            } else {
-              status = "returned";
-            }
-          } else if (expirationDate1 > Date.now()) {  // Depends on inspector to release
-            if (inspector1 === account) {
-              status = "releasable";
-            } else {
-              status = "awaiting_release";
-            }
-          } else if (gqlNota.owner.id === account) {
-            status = "claimable";
-          } else {
-            status = "awaiting_claim";
-          }
+        //   if (gqlNota.cashes.length > 0) {
+        //     // TODO Need to know if the `to` went to the `owner` at the time it was released
+        //     //// Need to check transfers and if >0 check if the cash timestamp was before it
+        //     if (gqlNota.cashes[0].to == gqlNota.owner.id) {
+        //       if (gqlNota.cashes[0].caller == inspector1) {
+        //         status = "released";
+        //       } else {
+        //         status = "claimed";
+        //       }
+        //     } else {
+        //       status = "returned";
+        //     }
+        //   } else if (expirationDate1 > Date.now()) {  // Depends on inspector to release
+        //     if (inspector1 === account) {
+        //       status = "releasable";
+        //     } else {
+        //       status = "awaiting_release";
+        //     }
+        //   } else if (gqlNota.owner.id === account) {
+        //     status = "claimable";
+        //   } else {
+        //     status = "awaiting_claim";
+        //   }
 
-          moduleData = {
-            module: "reversibleByBeforeDate",
-            status,
-          };
-          break;
+        //   moduleData = {
+        //     module: "reversibleByBeforeDate",
+        //     inspector: inspector1,
+        //     reversibleByBeforeDate: expirationDate1,
+        //     status,
+        //   };
+        //   break;
         case "0x00000003672153A114583FA78C3D313D4E3cAE40".toLowerCase(): // DirectSend
           const decoded5 = coder.decode(["string", "string"], gqlNota.moduleData.raw);
           moduleData = { module: "directSend", status: "paid" };
@@ -346,6 +367,8 @@ export const useNotas = ({ notaField }: Props) => {
 
           moduleData = {
             module: "reversibleByBeforeDate",
+            inspector: inspector2,
+            reversibleByBeforeDate: expirationDate3,
             status,
           };
           break;
@@ -370,7 +393,6 @@ export const useNotas = ({ notaField }: Props) => {
         ),
         amountRaw: BigNumber.from(amount),
         moduleData,
-
         // TODO keep sender/receiver OR payer/payee? Both?
         sender: gqlNota.sender.id as string,
         receiver: gqlNota.receiver.id as string,

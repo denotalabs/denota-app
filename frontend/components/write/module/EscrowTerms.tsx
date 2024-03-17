@@ -13,7 +13,7 @@ export function EscrowTerms() {
         <FormLabel noOfLines={1} flexShrink={0}>
           Inspector
           <Tooltip
-            label="Party responsible arbitrating disputes. Leave empty for self sign"
+            label="Party responsible arbitrating disputes. Leave empty for it to be yourself"
             aria-label="module tooltip"
             placement="right"
           >

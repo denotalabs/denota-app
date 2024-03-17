@@ -11,7 +11,7 @@ interface Props {
   placeholder: string;
 }
 
-export default function ExternalUrlField({ fieldName, placeholder }: Props) {
+export default function ExternalURIField({ fieldName, placeholder }: Props) {
   return (
     <Field name={fieldName}>
       {({ field, form: { errors, touched } }: any) => (

@@ -44,12 +44,12 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
     const handleChange = async (value: ChangeEvent<HTMLInputElement>) => {
       if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
         setIsLoading(true);
-        const { imageUrl } = await upload(
+        const { imageURI } = await upload(
           value.target.files?.[0],
           undefined,
           undefined
         );
-        if (!imageUrl) {
+        if (!imageURI) {
           toast({
             title: "Upload error",
             status: "error",
@@ -57,7 +57,7 @@ export const FileControl: React.FC<FileControlProps> = React.forwardRef(
             isClosable: true,
           });
         } else {
-          setValue(imageUrl);
+          setValue(imageURI);
         }
         setIsLoading(false);
       } else {

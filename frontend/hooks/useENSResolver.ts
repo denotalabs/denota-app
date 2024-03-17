@@ -1,5 +1,5 @@
-import { useCallback } from "react";
 import { ethers } from "ethers";
+import { useCallback } from "react";
 
 const useENSResolver = (projectId: string) => {
   const resolveENS = useCallback(async (name: string): Promise<string | null> => {

@@ -10,9 +10,9 @@ interface Props {
 function ConfirmNotice({ module }: Props) {
   const iconForModule = useMemo(() => {
     switch (module) {
-      case "direct":
+      case "directSend":
         return <ArrowRightIcon />;
-      case "escrow":
+      case "reversibleRelease":
         return <LockIcon />;
       case "milestone":
         return <StarIcon />;
@@ -25,14 +25,14 @@ function ConfirmNotice({ module }: Props) {
 
   const moduleTitle = useMemo(() => {
     switch (module) {
-      case "direct":
+      case "directSend":
         return "Direct Pay";
-      case "escrow":
-        return "Escrow";
-      case "milestone":
-        return "Milestones";
+      case "reversibleRelease":
+        return "Reversible Release";
       case "simpleCash":
         return "Simple Cash";
+      case "milestone":
+        return "Milestones";
       default:
         return "";
     }
@@ -40,9 +40,9 @@ function ConfirmNotice({ module }: Props) {
 
   const moduleDescription = useMemo(() => {
     switch (module) {
-      case "direct":
+      case "directSend":
         return "Funds will be released as soon as the payment is made";
-      case "escrow":
+      case "reversibleRelease":
         return "Funds will be held in escrow until released by the payer";
       case "milestone":
         return "Funds will be released on completion of milestones";

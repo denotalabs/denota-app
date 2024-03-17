@@ -7,12 +7,12 @@ interface Props {
   token: NotaCurrency;
   amount: string;
   address: string;
-  externalUrl: string;
-  imageUrl: string;
+  externalURI: string;
+  imageURI: string;
   inspector?: string;
 }
 
-export const useEscrowNota = () => {
+export const useReversibleRelease = () => {
   const { blockchainState } = useBlockchainData();
 
   const writeNota = useCallback(
@@ -20,23 +20,21 @@ export const useEscrowNota = () => {
       token,
       amount,
       address,
-      externalUrl,
       inspector,
-      imageUrl,
+      externalURI,
+      imageURI,
     }: Props) => {
       if (token === "UNKNOWN") {
         return;
       }
       const receipt = await write({
-        amount: Number(amount),
         currency: token,
-        metadata: { type: "uploaded", externalUrl, imageUrl },
-        module: {
-          moduleName: "reversibleRelease",
-          payee: address,
-          payer: blockchainState.account,
-          inspector,
-        },
+        amount: Number(amount),
+        instant: 0,
+        owner: address,
+        metadata: { type: "uploaded", externalURI, imageURI },
+        moduleName: "reversibleRelease",
+        ...(inspector ? { inspector } : { owner: address }),
       });
       return receipt;
     },

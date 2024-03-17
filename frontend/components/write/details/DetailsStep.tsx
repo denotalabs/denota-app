@@ -48,8 +48,8 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
           email: notaFormValues.email ?? "",
           file: file,
           tags: notaFormValues.tags ?? "",
-          externalUrl: notaFormValues.externalUrl ?? "",
-          imageUrl: notaFormValues.imageUrl ?? "",
+          externalURI: notaFormValues.externalURI ?? "",
+          imageURI: notaFormValues.imageURI ?? "",
         }}
         onSubmit={async (values, actions) => {
           const hasMetadata = values.note || values.file || values.tags;
@@ -68,7 +68,7 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
                 values.tags
               );
 
-              const { ipfsHash, imageUrl } = result;
+              const { ipfsHash, imageURI } = result;
 
               if (ipfsHash === undefined) {
                 toast({
@@ -80,7 +80,7 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
               } else {
                 updateNotaFormValues({
                   ipfsHash,
-                  imageUrl,
+                  imageURI,
                 });
               }
             }
@@ -90,8 +90,8 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
             note: values.note,
             email: values.email,
             tags: values.tags,
-            externalUrl: values.externalUrl,
-            imageUrl: values.imageUrl,
+            externalURI: values.externalURI,
+            imageURI: values.imageURI,
           });
 
           if (values.file) {
