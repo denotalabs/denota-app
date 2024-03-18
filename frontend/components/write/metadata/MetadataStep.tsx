@@ -33,7 +33,7 @@ const MetadataStep: React.FC<ScreenProps> = () => {
         onSubmit={async (values, actions) => {
           actions.setSubmitting(true);
           let ipfsHash = "";
-          let imageUrl = "";
+          let imageURI = "";
           if (values.note || values.file || values.tags) {
             if (
               notaFormValues.note === values.note &&
@@ -41,7 +41,7 @@ const MetadataStep: React.FC<ScreenProps> = () => {
               notaFormValues.tags === values.tags
             ) {
               ipfsHash = notaFormValues.ipfsHash;
-              imageUrl = notaFormValues.imageUrl;
+              imageURI = notaFormValues.imageURI;
             } else {
               const result = await upload(
                 values.file,
@@ -50,7 +50,7 @@ const MetadataStep: React.FC<ScreenProps> = () => {
               );
               if (result) {
                 ipfsHash = result.ipfsHash;
-                imageUrl = result.imageUrl;
+                imageURI = result.imageURI;
               }
             }
           }
@@ -66,7 +66,7 @@ const MetadataStep: React.FC<ScreenProps> = () => {
               note: values.note,
               email: values.email,
               ipfsHash,
-              imageUrl,
+              imageURI,
               tags: values.tags,
             });
             if (values.file) {

@@ -31,7 +31,7 @@ const PaymentTermsStep: React.FC<ScreenProps> = () => {
           inspection: notaFormValues.inspection
             ? Number(notaFormValues.inspection)
             : 604800,
-          module: notaFormValues.module ?? "direct",
+          module: notaFormValues.module ?? "directSend",
           dueDate: notaFormValues.dueDate ?? currentDate,
           auditor: notaFormValues.auditor ?? "",
           milestones: notaFormValues.milestones

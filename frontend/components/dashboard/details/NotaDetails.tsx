@@ -1,6 +1,7 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
+import { isAddress } from "ethers/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
@@ -24,6 +25,7 @@ function NotaDetails({ nota }: Props) {
   const [fileName, setFilename] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
+  // TODO need to handle both imageURI and docURIs with and without lighthouse
   useEffect(() => {
     async function fetchData() {
       try {
@@ -55,23 +57,45 @@ function NotaDetails({ nota }: Props) {
   const { formatAddress } = useFormatAddress();
 
   const moduleName = useMemo(() => {
-    switch (nota.moduleData.module) {
+    switch (nota.moduleData.moduleName) {
       case "reversibleRelease":
-        return "Escrow";
-      case "direct":
+        return "Reversible Release";
+      case "directSend":
         return "Direct Pay";
+      case "simpleCash":
+        return "Simple Cash";
+      case "cashBeforeDate":
+        return "Cash Before Date";
+      case "reversibleByBeforeDate":
+        return "Reversible By Before Date";
+      case "cashBeforeDateDrip":
+        return "Cash Before Date Drip";
+      default:
+        // console.log("Unknown module", nota);
+        return "Unknown";
     }
-  }, [nota.moduleData.module]);
+  }, [nota.moduleData.moduleName]);
 
   const moduleDesc = useMemo(() => {
-    switch (nota.moduleData.module) {
+    switch (nota.moduleData.moduleName) {
+      case "directSend":
+        return "Funds are released immediately upon payment";
+      case "simpleCash":
+        return "Allows owner to claim tokens";
+      case "cashBeforeDate":
+        return "Allows owner to claim tokens before the expiration date";
       case "reversibleRelease":
         return "Funds are held in escrow until released by the payer";
-      case "direct":
-        return "Funds are released immediately upon payment";
+      case "reversibleByBeforeDate":
+        return "Allows the sender to reverse the payment only before the expiration date";
+      case "cashBeforeDateDrip":
+        return "Allows the owner to claim tokens in drips before the expiration date";
+      default:
+        return "Unknown payment terms";
     }
-  }, [nota.moduleData.module]);
+  }, [nota.moduleData.moduleName]);
 
+  // TODO need to iterate over moduleData to dynamically show each field in the modal
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
@@ -86,13 +110,26 @@ function NotaDetails({ nota }: Props) {
             value={formatAddress(nota.payee)}
             copyValue={!nota.isPayer ? undefined : nota.payee}
           />
-          {nota.inspector && (
-            <DetailsRow
-              title="Inspector"
-              value={formatAddress(nota.inspector)}
-              copyValue={!nota.isInspector ? undefined : nota.payee}
-            />
-          )}
+          <DetailsRow
+            title="Amount"
+            value={
+              String(nota.amount) +
+              " " +
+              displayNameForCurrency(nota.token as NotaCurrency)
+            }
+          />
+          <DetailsRow title="Payment Terms" value={moduleName} tooltip={moduleDesc} />
+          {
+            Object.entries(nota.moduleData)
+              .filter(([key, value]) => key !== "moduleName" && value !== null && value !== undefined)
+              .map(([key, value]) => (
+                <DetailsRow
+                  key={key}
+                  title={key}
+                  value={value.toString ? value.toString() : value}
+                  copyValue={isAddress(value) ? value : ""} />
+              ))
+          }
           <DetailsRow
             title="Created On"
             value={nota.createdTransaction.date.toDateString()}
@@ -105,15 +142,6 @@ function NotaDetails({ nota }: Props) {
               link={`${explorer}${nota.fundedTransaction.hash}`}
             />
           )}
-          <DetailsRow
-            title="Payment Amount"
-            value={
-              String(nota.amount) +
-              " " +
-              displayNameForCurrency(nota.token as NotaCurrency)
-            }
-          />
-          <DetailsRow title="Module" value={moduleName} tooltip={moduleDesc} />
         </VStack>
       </RoundedBox>
       {nota.uri &&
@@ -126,7 +154,7 @@ function NotaDetails({ nota }: Props) {
                 </Text>
                 <RoundedBox p={4} mb={4}>
                   <Text fontWeight={300} textAlign={"left"}>
-                    {note}
+                    {note.charAt(0).toUpperCase() + note.slice(1)}
                   </Text>
                 </RoundedBox>
               </VStack>
@@ -152,7 +180,7 @@ function NotaDetails({ nota }: Props) {
                 </Text>
                 <RoundedBox p={4} mb={4}>
                   <a href={file} target="_blank" download>
-                    {fileName}
+                    {fileName.charAt(0).toUpperCase() + fileName.slice(1)}
                     <DownloadIcon ml={2} />
                   </a>
                 </RoundedBox>

@@ -8,8 +8,8 @@ interface Props {
   token: NotaCurrency;
   amount: string;
   address: string;
-  externalUrl: string;
-  imageUrl: string;
+  externalURI: string;
+  imageURI: string;
 }
 
 export const useSimpleCash = () => {
@@ -17,25 +17,22 @@ export const useSimpleCash = () => {
 
   const writeNota = useCallback(
     async ({
-      dueDate,
       token,
       amount,
       address,
-      externalUrl,
-      imageUrl,
+      externalURI,
+      imageURI,
     }: Props) => {
       if (token === "UNKNOWN") {
         return;
       }
       const receipt = await write({
-        amount: Number(amount),
         currency: token,
-        metadata: { type: "uploaded", externalUrl, imageUrl },
-        module: {
-          moduleName: "simpleCash",
-          payee: address,
-          payer: blockchainState.account,
-        },
+        amount: Number(amount),
+        instant: 0,
+        owner: address,
+        moduleName: "simpleCash",
+        metadata: { type: "uploaded", externalURI, imageURI },
       });
       return receipt;
     },

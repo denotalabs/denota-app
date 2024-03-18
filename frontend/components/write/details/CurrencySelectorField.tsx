@@ -17,6 +17,7 @@ interface CurrencySelectorProps {
   value: NotaCurrency;
 }
 
+// TODO need to add arbitrary token support (like uni by entering it's address)
 export function CurrencySelectorField() {
   return (
     <Field name="token">

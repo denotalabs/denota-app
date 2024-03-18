@@ -1,5 +1,6 @@
 import { Box, Center, Text } from "@chakra-ui/react";
 
+// TODO update this
 function NewUserScreen() {
   return (
     <Box w="100%">

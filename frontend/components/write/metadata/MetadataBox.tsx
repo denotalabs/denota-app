@@ -1,8 +1,8 @@
 import { Box, Flex, HStack } from "@chakra-ui/react";
 
 import RoundedBox from "../../designSystem/RoundedBox";
-import ExternalUrlField from "../../fields/input/ExternalUrlField";
-import ImageUrlField from "../../fields/input/ImageURLField";
+import ExternalURIField from "../../fields/input/ExternalURIField";
+import ImageURIField from "../../fields/input/ImageURIField";
 import FileControl from "./FileUpload";
 
 function MetadataBox() {
@@ -30,7 +30,7 @@ function MetadataBox() {
           flexGrow={1}
           maxW="100%"
         >
-          <ExternalUrlField fieldName="externalUrl" placeholder="" />
+          <ExternalURIField fieldName="externalURI" placeholder="" />
         </Flex>
         <Flex
           alignItems="center"
@@ -41,10 +41,10 @@ function MetadataBox() {
         >
           <HStack width="full">
             <Box flexGrow={1} flexShrink={0}>
-              <ImageUrlField fieldName="imageUrl" placeholder="" />
+              <ImageURIField fieldName="imageURI" placeholder="" />
             </Box>
             <Box flexShrink={1}>
-              <FileControl name="imageUrl" />
+              <FileControl name="imageURI" />
             </Box>
           </HStack>
         </Flex>

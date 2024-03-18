@@ -3,38 +3,35 @@ import { useCallback } from "react";
 import { NotaCurrency } from "../../components/designSystem/CurrencyIcon";
 
 interface Props {
-  dueDate?: string;
   token: NotaCurrency;
   amount: string;
-  address: string;
-  externalUrl: string;
-  imageUrl: string;
+  address: string;  // TODO change this to owner
+  externalURI: string;
+  imageURI: string;
+  dueDate?: string;
 }
 
 export const useDirectPay = () => {
   const writeNota = useCallback(
     async ({
-      dueDate,
+      // dueDate,
       token,
       amount,
       address,
-      externalUrl,
-      imageUrl,
+      externalURI,
+      imageURI,
     }: Props) => {
-      console.log({ externalUrl, imageUrl });
+      console.log({ externalURI, imageURI });
       if (token === "UNKNOWN") {
         return;
       }
       const receipt = await write({
-        amount: Number(amount),
         currency: token,
-        metadata: { type: "uploaded", externalUrl, imageUrl },
-        module: {
-          moduleName: "direct",
-          type: "payment",
-          payee: address,
-          dueDate,
-        },
+        amount: Number(amount),
+        instant: 0,
+        owner: address,
+        moduleName: "directSend",
+        metadata: { type: "uploaded", externalURI, imageURI },
       });
       return receipt;
     },

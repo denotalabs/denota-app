@@ -3,7 +3,6 @@ import {
   ExternalLinkIcon,
   QuestionOutlineIcon,
 } from "@chakra-ui/icons";
-
 import {
   Box,
   Flex,
@@ -14,6 +13,8 @@ import {
   useClipboard,
   useToast,
 } from "@chakra-ui/react";
+import { isAddress } from "ethers/lib/utils";
+import { useFormatAddress } from "../../hooks/useFormatAddress";
 
 interface Props {
   title: string;
@@ -34,6 +35,18 @@ function DetailsRow({
 }: Props) {
   const { onCopy } = useClipboard(copyValue ?? "");
   const toast = useToast();
+  const { formatAddress } = useFormatAddress();
+
+  title = title.charAt(0).toUpperCase() + title.slice(1)
+
+  if (isAddress(value)) {
+    value = formatAddress(value)
+  } else if (value.match(/^\d+$/)) {
+    // TODO need to convert to a time in seconds/minutes/etc if it's a time period
+    value = new Date(parseInt(value) * 1000).toDateString()
+  } else {
+    value = value.charAt(0).toUpperCase() + value.slice(1)
+  }
 
   return (
     <Box py={3} w="100%">

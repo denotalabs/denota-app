@@ -13,9 +13,9 @@ interface Props {
 function ModuleTerms({ module }: Props) {
   const selectedModule = useMemo(() => {
     switch (module) {
-      case "direct":
+      case "directSend":
         return <DirectPayTerms />;
-      case "escrow":
+      case "reversibleRelease":
         return <EscrowTerms />;
       case "milestone":
         return <MilestoneTerms />;

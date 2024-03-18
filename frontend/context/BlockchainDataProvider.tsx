@@ -13,7 +13,7 @@ import {
   contractMappingForChainId,
   setProvider,
 } from "@denota-labs/denota-sdk";
-// TODO: remove references to cheq from contracts
+
 import type { WalletState } from "@web3-onboard/core";
 import { useConnectWallet, useWallets } from "@web3-onboard/react";
 

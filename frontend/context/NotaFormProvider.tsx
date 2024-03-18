@@ -13,7 +13,7 @@ export interface ExportNotaFormContext {
 const NotaFormContext = createContext<ExportNotaFormContext>({
   notaFormValues: {},
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  updateNotaFormValues: () => {},
+  updateNotaFormValues: () => { },
 });
 
 export const NotaFormProvider = ({

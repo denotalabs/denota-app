@@ -43,19 +43,19 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
         mb={4}
       >
         <Card
-          variant={notaFormValues.module === "direct" ? "filled" : "outline"}
+          variant={notaFormValues.module === "directSend" ? "filled" : "outline"}
         >
           <CardHeader>
-            <Heading size="md">Direct Pay</Heading>
+            <Heading size="md">Direct</Heading>
           </CardHeader>
           <CardBody>
-            <Text>Funds are released immediately upon payment</Text>
+            <Text>Funds are released immediately</Text>
           </CardBody>
           <CardFooter>
             <Button
               onClick={() => {
                 updateNotaFormValues({
-                  module: "direct",
+                  module: "directSend",
                 });
                 if (!showTerms) {
                   next?.();
@@ -67,19 +67,19 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           </CardFooter>
         </Card>
         <Card
-          variant={notaFormValues.module === "escrow" ? "filled" : "outline"}
+          variant={notaFormValues.module === "reversibleRelease" ? "filled" : "outline"}
         >
           <CardHeader>
-            <Heading size="md">Reversible Release</Heading>
+            <Heading size="md">Reversible</Heading>
           </CardHeader>
           <CardBody>
-            <Text>Funds are held in escrow until released by the payer </Text>
+            <Text>Funds are held in escrow until released by the inspector</Text>
           </CardBody>
           <CardFooter>
             <Button
               onClick={() => {
                 updateNotaFormValues({
-                  module: "escrow",
+                  module: "reversibleRelease",
                 });
                 if (!showTerms) {
                   next?.();
@@ -116,21 +116,46 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        <Card
-          variant={notaFormValues.module === "milestone" ? "filled" : "outline"}
+        {/* <Card
+          variant={notaFormValues.module === "reversibleByBeforeDate" ? "filled" : "outline"}
         >
           <CardHeader>
-            <Heading size="md"> Milestones</Heading>
+            <Heading size="md">Reversible Before</Heading>
           </CardHeader>
           <CardBody>
-            <Text>Funds are released on completion of milestones </Text>
+            <Text>An inspector can reverse the payment only before the expiration date.</Text>
           </CardBody>
           <CardFooter>
             <Button
               isDisabled={true}
               onClick={() => {
                 updateNotaFormValues({
-                  module: "milestone",
+                  module: "reversibleByBeforeDate",
+                });
+                if (!showTerms) {
+                  next?.();
+                }
+              }}
+            >
+              {"Coming Soon"}
+            </Button>
+          </CardFooter>
+        </Card> */}
+        <Card
+          variant={notaFormValues.module === "cashBeforeDateDrip" ? "filled" : "outline"}
+        >
+          <CardHeader>
+            <Heading size="md">Drip</Heading>
+          </CardHeader>
+          <CardBody>
+            <Text>Tokens are released in chunks over time.</Text>
+          </CardBody>
+          <CardFooter>
+            <Button
+              isDisabled={true}
+              onClick={() => {
+                updateNotaFormValues({
+                  module: "cashBeforeDateDrip",
                 });
                 if (!showTerms) {
                   next?.();
@@ -148,7 +173,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             inspection: notaFormValues.inspection
               ? Number(notaFormValues.inspection)
               : 604800,
-            module: notaFormValues.module ?? "direct",
+            module: notaFormValues.module ?? "directSend",
             dueDate: notaFormValues.dueDate ?? currentDate,
             auditor: notaFormValues.auditor ?? "",
             milestones: notaFormValues.milestones

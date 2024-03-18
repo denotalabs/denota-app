@@ -11,7 +11,7 @@ interface Props {
   placeholder: string;
 }
 
-export default function ImageUrlField({ fieldName, placeholder }: Props) {
+export default function ImageURIField({ fieldName, placeholder }: Props) {
   return (
     <Field name={fieldName}>
       {({ field, form: { errors, touched } }: any) => (

@@ -33,7 +33,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
     <Box w="100%" p={4}>
       <Formik
         initialValues={{
-          module: notaFormValues.module ?? "direct",
+          module: notaFormValues.module ?? "directSend",
         }}
         onSubmit={async (values, actions) => {
           if (needsApproval) {

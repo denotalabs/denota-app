@@ -66,7 +66,7 @@ app.post("/lighthouse", cpUpload, async function (req, res) {
 
     res.send({
       key: response.data.Hash,
-      imageUrl: obj.image ?? "",
+      imageURI: obj.image ?? "",
       url: "https://gateway.lighthouse.storage/ipfs/" + response.data.Hash,
     });
   } catch (err) {
