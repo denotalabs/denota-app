@@ -91,11 +91,11 @@ function ApproveAndPay({ nota, onClose }: Props) {
         await tx.wait();
         setNeedsApproval(false);
       } else {
-        const module = nota.moduleData.module;
-        if (module === "directSend" || module === "cashBeforeDateDrip" || module === "unknown") {
+        const moduleName = nota.moduleData.moduleName;
+        if (moduleName === "directSend" || moduleName === "cashBeforeDateDrip" || moduleName === "unknown") {
           return;
         }
-        await fund({ notaId: nota.id, amount: nota.amountRaw, module });
+        await fund({ notaId: nota.id, amount: nota.amountRaw, moduleName: moduleName });
         toast({
           title: "Transaction succeeded",
           description: "Invoice paid",
@@ -131,13 +131,13 @@ function ApproveAndPay({ nota, onClose }: Props) {
 
   // TODO add more module info for last send page
   const moduleInfo = useMemo(() => {
-    switch (nota.moduleData.module) {
+    switch (nota.moduleData.moduleName) {
       case "directSend":
         return "Funds will be released immediately";
       case "reversibleRelease":
         return "Funds will be held in escrow";
     }
-  }, [nota.moduleData.module]);
+  }, [nota.moduleData.moduleName]);
 
   return (
     <Box w="100%" p={4}>

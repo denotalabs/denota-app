@@ -8,6 +8,7 @@ interface Props {
   nota: Nota;
 }
 
+// TODO getting that the tx.waite isn't working. It's not returning a tx for some reason and wait won't work on null
 export const useCashNota = () => {
   const toast = useToast();
   const { refreshWithDelay } = useNotaContext();
@@ -15,7 +16,7 @@ export const useCashNota = () => {
   const releaseNota = useCallback(
     async ({ nota }: Props) => {
       // TODO handle on SDK side
-      if (nota.moduleData.module === "directSend" || nota.moduleData.module === "cashBeforeDateDrip" || nota.moduleData.module === "unknown") {
+      if (nota.moduleData.moduleName === "directSend" || nota.moduleData.moduleName === "unknown") {
         return;
       }
       try {
@@ -24,7 +25,7 @@ export const useCashNota = () => {
           type: "release", // NOTE: Isn't used in the SDK
           amount: nota.amountRaw,
           to: nota.receiver,
-          module: nota.moduleData.module,
+          moduleName: nota.moduleData.moduleName,
         });
         toast({
           title: "Transaction succeeded",
@@ -49,7 +50,7 @@ export const useCashNota = () => {
 
   const reverseNota = useCallback(
     async ({ nota }: Props) => {
-      if (nota.moduleData.module === "directSend" || nota.moduleData.module === "cashBeforeDateDrip" || nota.moduleData.module === "unknown") {
+      if (nota.moduleData.moduleName === "directSend" || nota.moduleData.moduleName === "unknown") {
         return;
       }
       try {
@@ -58,7 +59,7 @@ export const useCashNota = () => {
           type: "reversal", // NOTE: Isn't used in the SDK
           amount: nota.amountRaw,
           to: nota.sender,
-          module: nota.moduleData.module,
+          moduleName: nota.moduleData.moduleName,
         });
         toast({
           title: "Transaction succeeded",
