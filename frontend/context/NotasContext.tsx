@@ -1,5 +1,4 @@
-// import { CashBeforeDateData } from "@denota-labs/denota-sdk/dist/modules/CashBeforeDate";
-// import { SimpleCashData } from "@denota-labs/denota-sdk/dist/modules/SimpleCash";
+import { ModuleData } from "@denota-labs/denota-sdk/";
 import { ethers } from "ethers";
 import {
   createContext,
@@ -11,13 +10,7 @@ import {
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 // TODO why are there separate moduleDatas here?
 import {
-  CashBeforeDateDripModuleData,
-  CashBeforeDateModuleData,
-  DirectSendModuleData,
   Nota,
-  ReversibleByBeforeDateModuleData,
-  ReversibleReleaseModuleData,
-  SimpleCashModuleData,
   useNotas
 } from "../hooks/useNotas";
 import { useBlockchainData } from "./BlockchainDataProvider";
@@ -31,11 +24,12 @@ interface NotasContextInterface {
   createLocalNota: (props: OptimisticNotaProps) => void;
 }
 
+// TODO change this to the same struct as Nota from the SDK?
 interface OptimisticNotaProps {
   id: string;
   token: NotaCurrency;
   amount: number;
-  module: "directSend" | "simpleCash" | "reversibleRelease" | "cashBeforeDate" | "cashBeforeDateDrip" | "reversibleByBeforeDate";
+  moduleData: ModuleData;
   sender: string;
   receiver: string;
   owner: string;
@@ -93,76 +87,80 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
   const createLocalNota = useCallback(
     ({
       id,
+      token,
       amount,
+      moduleData,
       sender,
       receiver,
       owner,
-      token,
       uri,
       inspector,
       isCrossChain,
       createdHash,
-      module,
     }: OptimisticNotaProps) => {
       const payer = sender;
       const payee = receiver;
       const isPayer = blockchainState.account === payer;
       const isInspector = blockchainState.account === inspector;
 
-      // TODO need to link these from the SDK
-      let moduleData: DirectSendModuleData | SimpleCashModuleData | CashBeforeDateModuleData | ReversibleReleaseModuleData | ReversibleByBeforeDateModuleData | CashBeforeDateDripModuleData;
-
-      switch (module) {
+      switch (moduleData.moduleName) {
         case "directSend":
           moduleData = {
-            module: "directSend",
+            moduleName: "directSend",
             status: "paid",
           };
           break;
         case "simpleCash":
           moduleData = {
-            module: "simpleCash",
+            moduleName: "simpleCash",
             status: "claimable",
           };
         case "reversibleRelease":
           moduleData = {
-            module: "reversibleRelease",
+            moduleName: "reversibleRelease",
             status: "releasable",
+            inspector: isInspector ? blockchainState.account : undefined,
           };
         case "reversibleByBeforeDate":
           moduleData = {
-            module: "reversibleByBeforeDate",
+            moduleName: "reversibleByBeforeDate",
             status: "releasable",
+            inspector: isInspector ? blockchainState.account : undefined,
+            reversibleByBeforeDate: null,
           };
         case "cashBeforeDate":
           moduleData = {
-            module: "cashBeforeDate",
+            moduleName: "cashBeforeDate",
             status: "awaiting_claim",
+            cashBeforeDate: null,
           };
         case "cashBeforeDateDrip":
           moduleData = {
-            module: "cashBeforeDateDrip",
+            moduleName: "cashBeforeDateDrip",
             status: "awaiting_claim",
+            expirationDate: null,
+            dripAmount: null,
+            dripPeriod: null,
           };
       }
 
       const nota: Nota = {
         id,
+        token,
         amount,
         amountRaw: ethers.utils.parseEther(String(amount)),
+        moduleData,
         sender,
         receiver,
         owner,
-        token,
-        uri,
-        payee,
-        payer,
-        inspector,
-        isPayer,
-        isInspector,
         createdTransaction: { hash: createdHash, date: new Date() },
         fundedTransaction: { hash: createdHash, date: new Date() },
-        moduleData,
+        isPayer,
+        payer,
+        payee,
+        isInspector,
+        uri,
+        inspector,
       };
       addOptimisticNota(nota);
     },
