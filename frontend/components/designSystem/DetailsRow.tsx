@@ -38,11 +38,11 @@ function DetailsRow({
   const { formatAddress } = useFormatAddress();
 
   title = title.charAt(0).toUpperCase() + title.slice(1)
-  // value = isAddress(value) ? formatAddress(value) : value.charAt(0).toUpperCase() + value.slice(1)
+
   if (isAddress(value)) {
     value = formatAddress(value)
-    // check if value is an epoch time string convert it to a date
   } else if (value.match(/^\d+$/)) {
+    // TODO need to convert to a time in seconds/minutes/etc if it's a time period
     value = new Date(parseInt(value) * 1000).toDateString()
   } else {
     value = value.charAt(0).toUpperCase() + value.slice(1)

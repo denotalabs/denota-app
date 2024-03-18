@@ -121,7 +121,7 @@ function NotaDetails({ nota }: Props) {
           <DetailsRow title="Payment Terms" value={moduleName} tooltip={moduleDesc} />
           {
             Object.entries(nota.moduleData)
-              .filter(([key]) => key !== "moduleName")
+              .filter(([key, value]) => key !== "moduleName" && value !== null && value !== undefined)
               .map(([key, value]) => (
                 <DetailsRow
                   key={key}
@@ -130,7 +130,6 @@ function NotaDetails({ nota }: Props) {
                   copyValue={isAddress(value) ? value : ""} />
               ))
           }
-
           <DetailsRow
             title="Created On"
             value={nota.createdTransaction.date.toDateString()}

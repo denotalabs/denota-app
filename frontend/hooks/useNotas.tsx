@@ -25,9 +25,9 @@ export interface Nota {
   isPayer: boolean;  // TODO: remove but is passed to NotasContext
   payer: string;
   payee: string;
-  inspector?: string;  // TODO: remove since should be in moduleData
   isInspector: boolean;  // TODO: remove since should be in moduleData
   uri: string;
+  inspector?: string;  // TODO: remove since should be in moduleData
 }
 //////////// TODO need to set and pull the above from the SDK ////////////
 
