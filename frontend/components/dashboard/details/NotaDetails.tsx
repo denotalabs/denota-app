@@ -1,6 +1,7 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
 import axios from "axios";
+import { isAddress } from "ethers/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
@@ -56,7 +57,7 @@ function NotaDetails({ nota }: Props) {
   const { formatAddress } = useFormatAddress();
 
   const moduleName = useMemo(() => {
-    switch (nota.moduleData.module) {
+    switch (nota.moduleData.moduleName) {
       case "reversibleRelease":
         return "Reversible Release";
       case "directSend":
@@ -71,12 +72,12 @@ function NotaDetails({ nota }: Props) {
         return "Cash Before Date Drip";
       default:
         // console.log("Unknown module", nota);
-        return "Unknown"; //nota.moduleData.module;
+        return "Unknown";
     }
-  }, [nota.moduleData.module]);
+  }, [nota.moduleData.moduleName]);
 
   const moduleDesc = useMemo(() => {
-    switch (nota.moduleData.module) {
+    switch (nota.moduleData.moduleName) {
       case "directSend":
         return "Funds are released immediately upon payment";
       case "simpleCash":
@@ -92,7 +93,7 @@ function NotaDetails({ nota }: Props) {
       default:
         return "Unknown payment terms";
     }
-  }, [nota.moduleData.module]);
+  }, [nota.moduleData.moduleName]);
 
   // TODO need to iterate over moduleData to dynamically show each field in the modal
   return (
@@ -117,15 +118,19 @@ function NotaDetails({ nota }: Props) {
               displayNameForCurrency(nota.token as NotaCurrency)
             }
           />
-          {/* TODO display moduleData fields here */}
-          {nota.inspector && (
-            <DetailsRow
-              title="Inspector"
-              value={formatAddress(nota.inspector)}
-              copyValue={!nota.isInspector ? undefined : nota.payee}
-            />
-          )}
           <DetailsRow title="Payment Terms" value={moduleName} tooltip={moduleDesc} />
+          {
+            Object.entries(nota.moduleData)
+              .filter(([key]) => key !== "moduleName")
+              .map(([key, value]) => (
+                <DetailsRow
+                  key={key}
+                  title={key}
+                  value={value.toString ? value.toString() : value}
+                  copyValue={isAddress(value) ? value : ""} />
+              ))
+          }
+
           <DetailsRow
             title="Created On"
             value={nota.createdTransaction.date.toDateString()}
@@ -150,7 +155,7 @@ function NotaDetails({ nota }: Props) {
                 </Text>
                 <RoundedBox p={4} mb={4}>
                   <Text fontWeight={300} textAlign={"left"}>
-                    {note}
+                    {note.charAt(0).toUpperCase() + note.slice(1)}
                   </Text>
                 </RoundedBox>
               </VStack>
@@ -176,7 +181,7 @@ function NotaDetails({ nota }: Props) {
                 </Text>
                 <RoundedBox p={4} mb={4}>
                   <a href={file} target="_blank" download>
-                    {fileName}
+                    {fileName.charAt(0).toUpperCase() + fileName.slice(1)}
                     <DownloadIcon ml={2} />
                   </a>
                 </RoundedBox>
