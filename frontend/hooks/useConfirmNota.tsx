@@ -1,4 +1,5 @@
 import { useToast } from "@chakra-ui/react";
+import { ModuleData } from "@denota-labs/denota-sdk";
 import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
@@ -113,6 +114,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         const owner = notaFormValues.address;
         let receipt: { txHash: string; notaId: string };
 
+        // TODO need to add more modules
         switch (notaFormValues.module) {
           case "directSend":
             receipt = await writeDirectPay({
@@ -150,14 +152,14 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         // It takes a few seconds for the graph to pick up the new nota so go ahead and add it locally
         createLocalNota({
           id: receipt.notaId,
+          token: notaFormValues.token as NotaCurrency,
           amount: Number(notaFormValues.amount),
+          moduleData: notaFormValues.moduleData as ModuleData,
           sender: blockchainState.account,
           receiver: notaFormValues.address,
           owner,
-          token: notaFormValues.token as NotaCurrency,
           isCrossChain: false,
           createdHash: receipt.txHash,
-          module: notaFormValues.module as "directSend" | "simpleCash" | "cashBeforeDate" | "reversibleRelease" | "reversibleByBeforeDate" | "cashBeforeDateDrip",
           uri: notaFormValues.ipfsHash,
         });
 
