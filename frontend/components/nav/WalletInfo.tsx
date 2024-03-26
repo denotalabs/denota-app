@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 
 import { contractMappingForChainId } from "@denota-labs/denota-sdk";
-import { useConnectWallet } from "@web3-onboard/react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
 
@@ -59,12 +59,11 @@ export default function WalletInfo() {
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const [{ wallet }, , disconnect] = useConnectWallet();
-
   const logout = useCallback(async () => {
-    await disconnect(wallet);
-    window.location.reload();
-  }, [disconnect, wallet]);
+    // TODO: handle logout
+    // await disconnect(wallet);
+    // window.location.reload();
+  }, []);
 
   useEffect(() => {
     const element = avatarRef.current;
@@ -80,17 +79,7 @@ export default function WalletInfo() {
   }, [blockchainState.account, avatarRef]);
   const [isOpen, setIsOpen] = useState(false);
   if (isInitializing) return <></>;
-  if (account === "")
-    return (
-      <Button
-        colorScheme="blue"
-        onClick={() => {
-          connectWallet?.();
-        }}
-      >
-        Connect Wallet
-      </Button>
-    );
+  if (account === "") return <ConnectButton />;
   else
     return (
       <Menu isOpen={isOpen} onClose={() => setIsOpen(false)}>
