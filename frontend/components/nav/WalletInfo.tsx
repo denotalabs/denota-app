@@ -26,6 +26,7 @@ import {
 } from "@chakra-ui/react";
 
 import { contractMappingForChainId } from "@denota-labs/denota-sdk";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useConnectWallet } from "@web3-onboard/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
@@ -80,17 +81,7 @@ export default function WalletInfo() {
   }, [blockchainState.account, avatarRef]);
   const [isOpen, setIsOpen] = useState(false);
   if (isInitializing) return <></>;
-  if (account === "")
-    return (
-      <Button
-        colorScheme="blue"
-        onClick={() => {
-          connectWallet?.();
-        }}
-      >
-        Connect Wallet
-      </Button>
-    );
+  if (account === "") return <ConnectButton />;
   else
     return (
       <Menu isOpen={isOpen} onClose={() => setIsOpen(false)}>
