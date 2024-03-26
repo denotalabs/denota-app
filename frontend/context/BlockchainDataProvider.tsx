@@ -14,9 +14,6 @@ import {
   setProvider,
 } from "@denota-labs/denota-sdk";
 
-import type { WalletState } from "@web3-onboard/core";
-import { useConnectWallet, useWallets } from "@web3-onboard/react";
-
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
   batchContractMappingForChainId,
@@ -26,6 +23,9 @@ import {
 } from "./chainInfo";
 
 import { MetaMaskInpageProvider } from "@metamask/providers";
+
+import { useAccount } from "wagmi";
+import { useEthersSigner } from "./useEthersSigner";
 
 declare global {
   interface Window {
@@ -82,43 +82,16 @@ export const BlockchainDataProvider = memo(
     const [isInitializing, setIsInitializing] = useState(true);
     const [isWrongChain, setIsWrongChain] = useState(false);
 
-    const [, connect] = useConnectWallet();
-    const connectedWallets = useWallets();
-
-    const connectWalletWeb3Modal = useCallback(async () => {
-      let wallet: WalletState;
-
-      if (connectedWallets[0]) {
-        wallet = connectedWallets[0];
-      } else {
-        const wallets = await connect();
-        wallet = wallets[0];
-      }
-      const provider = new ethers.providers.Web3Provider(
-        wallet.provider,
-        "any"
-      );
-      const signer = provider.getSigner(); //console.log(provider)
-      const account = await signer.getAddress(); //console.log(account)
-
-      return [provider, signer, account] as [
-        ethers.providers.Web3Provider,
-        ethers.providers.JsonRpcSigner,
-        string
-      ];
-    }, [connect, connectedWallets]);
+    const ethersWalletInfo = useEthersSigner();
 
     const loadBlockchainData = useCallback(async () => {
-      if (
-        connectedWallets &&
-        connectedWallets.length > 0 &&
-        connectedWallets[0].chains[0].id === blockchainState.chainId
-      ) {
-        return;
-      }
       setIsInitializing(true);
       try {
-        const [provider, signer, account] = await connectWalletWeb3Modal(); // console.log(provider, signer, account)
+        if (!ethersWalletInfo) {
+          return;
+        }
+
+        const [provider, signer, account] = ethersWalletInfo; // console.log(provider, signer, account)
         const { chainId } = await provider.getNetwork();
 
         try {
@@ -180,22 +153,15 @@ export const BlockchainDataProvider = memo(
         window.alert("Error loading contracts");
         setIsInitializing(false);
       }
-    }, [blockchainState.chainId, connectWalletWeb3Modal, connectedWallets]);
+    }, [ethersWalletInfo]);
+
+    const { isConnected } = useAccount();
 
     useEffect(() => {
-      const lastWallet = localStorage.getItem(
-        "onboard.js:last_connected_wallet"
-      );
-      if (lastWallet && lastWallet !== "[]" && !connectedWallets[0]) {
-        // There is a wallet but onboardJS hasn't loaded it yet. Stay in the loading state
-        return;
-      }
-      if (connectedWallets[0]) {
-        loadBlockchainData();
-      } else {
+      if (!isConnected) {
         setIsInitializing(false);
       }
-    }, [connectedWallets, loadBlockchainData]);
+    }, [isConnected, loadBlockchainData]);
 
     return (
       <BlockchainDataContext.Provider
