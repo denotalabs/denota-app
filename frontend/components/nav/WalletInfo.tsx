@@ -27,7 +27,6 @@ import {
 
 import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useConnectWallet } from "@web3-onboard/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
 
@@ -60,12 +59,11 @@ export default function WalletInfo() {
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const [{ wallet }, , disconnect] = useConnectWallet();
-
   const logout = useCallback(async () => {
-    await disconnect(wallet);
-    window.location.reload();
-  }, [disconnect, wallet]);
+    // TODO: handle logout
+    // await disconnect(wallet);
+    // window.location.reload();
+  }, []);
 
   useEffect(() => {
     const element = avatarRef.current;

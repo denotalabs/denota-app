@@ -1,7 +1,6 @@
 import { Box, ChakraProvider } from "@chakra-ui/react";
 import "@fontsource/dm-sans/index.css";
-// import walletConnectModule from "@web3-onboard/walletconnect";
-import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProps } from "next/app";
