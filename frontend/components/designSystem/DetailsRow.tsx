@@ -16,6 +16,42 @@ import {
 import { isAddress } from "ethers/lib/utils";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
 
+function formatTime(seconds: number) {
+  const years = Math.floor(seconds / 31536000);
+  seconds %= 31536000;
+  const months = Math.floor(seconds / 2592000);
+  seconds %= 2592000;
+  const days = Math.floor(seconds / 86400);
+  seconds %= 86400;
+  const hours = Math.floor(seconds / 3600);
+  seconds %= 3600;
+  const minutes = Math.floor(seconds / 60);
+  seconds %= 60;
+
+  const timeParts = [];
+
+  if (years > 0) {
+    timeParts.push(`${years}y`);
+  }
+  if (months > 0) {
+    timeParts.push(`${months}m`);
+  }
+  if (days > 0) {
+    timeParts.push(`${days}d`);
+  }
+  if (hours > 0) {
+    timeParts.push(`${hours}h`);
+  }
+  if (minutes > 0) {
+    timeParts.push(`${minutes}m`);
+  }
+  if (seconds > 0) {
+    timeParts.push(`${seconds}s`);
+  }
+
+  return timeParts.join(' ');
+}
+
 interface Props {
   title: string;
   value: string;
@@ -36,16 +72,27 @@ function DetailsRow({
   const { onCopy } = useClipboard(copyValue ?? "");
   const toast = useToast();
   const { formatAddress } = useFormatAddress();
+  console.log(title, value)
 
   title = title.charAt(0).toUpperCase() + title.slice(1)
+  const isURI = value?.match(/^https?:\/\//) || value?.match(/^ipfs:\/\//)
 
-  if (isAddress(value)) {
-    value = formatAddress(value)
-  } else if (value.match(/^\d+$/)) {
-    // TODO need to convert to a time in seconds/minutes/etc if it's a time period
-    value = new Date(parseInt(value) * 1000).toDateString()
-  } else {
-    value = value.charAt(0).toUpperCase() + value.slice(1)
+
+  if (value !== null && value !== undefined) {
+    if (!isURI) {
+      if (isAddress(value)) {
+        value = formatAddress(value);
+      } else if (value.match(/^\d+$/)) {
+        const seconds = parseInt(value);
+        if (seconds < 946684800000) {
+          value = formatTime(seconds);
+        } else {
+          value = new Date(seconds).toDateString();
+        }
+      } else {
+        value = value.charAt(0).toUpperCase() + value.slice(1);
+      }
+    }
   }
 
   return (

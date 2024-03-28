@@ -90,32 +90,6 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        <Card
-          variant={
-            notaFormValues.module === "simpleCash" ? "filled" : "outline"
-          }
-        >
-          <CardHeader>
-            <Heading size="md">Simple Cash</Heading>
-          </CardHeader>
-          <CardBody>
-            <Text>Funds are locked until cashed by the recipient</Text>
-          </CardBody>
-          <CardFooter>
-            <Button
-              onClick={() => {
-                updateNotaFormValues({
-                  module: "simpleCash",
-                });
-                if (!showTerms) {
-                  next?.();
-                }
-              }}
-            >
-              Select
-            </Button>
-          </CardFooter>
-        </Card>
         {/* <Card
           variant={notaFormValues.module === "reversibleByBeforeDate" ? "filled" : "outline"}
         >
@@ -174,19 +148,19 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
               ? Number(notaFormValues.inspection)
               : 604800,
             module: notaFormValues.module ?? "directSend",
-            dueDate: notaFormValues.dueDate ?? currentDate,
+            // dueDate: notaFormValues.dueDate ?? currentDate,
             auditor: notaFormValues.auditor ?? "",
             milestones: notaFormValues.milestones
               ? notaFormValues.milestones.split(",")
               : [notaFormValues.amount],
-            axelarEnabled: notaFormValues.axelarEnabled ?? false,
+            // axelarEnabled: notaFormValues.axelarEnabled ?? false,
           }}
           onSubmit={(values) => {
             updateNotaFormValues({
               milestones: values.milestones.join(","),
-              dueDate: values.dueDate,
+              // dueDate: values.dueDate,
               auditor: values.auditor,
-              axelarEnabled: values.axelarEnabled ? "true" : undefined,
+              // axelarEnabled: values.axelarEnabled ? "true" : undefined,
             });
             next?.();
           }}

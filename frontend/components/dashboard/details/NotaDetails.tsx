@@ -1,5 +1,6 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
+import { ModuleData } from "@denota-labs/denota-sdk";
 import axios from "axios";
 import { isAddress } from "ethers/lib/utils";
 import { useEffect, useMemo, useState } from "react";
@@ -10,6 +11,19 @@ import { useTokens } from "../../../hooks/useTokens";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
+
+function formatModuleDataRows(moduleData: ModuleData) {
+
+  return Object.entries(moduleData)
+    .filter(([key, value]) => key !== "moduleName" && key !== "externalURI" && key !== "imageURI" && value !== null && value !== undefined)
+    .map(([key, value]) => (
+      <DetailsRow
+        key={key}
+        title={key}
+        value={value.toString ? value.toString() : value}
+        copyValue={isAddress(value) ? value : ""} />
+    ))
+}
 
 interface Props {
   nota: Nota;
@@ -25,11 +39,19 @@ function NotaDetails({ nota }: Props) {
   const [fileName, setFilename] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
-  // TODO need to handle both imageURI and docURIs with and without lighthouse
+  // TODO need to handle both imageURI and externalURIs with and without lighthouse
   useEffect(() => {
     async function fetchData() {
       try {
-        if (nota.uri) {
+        if (nota.moduleData.externalURI) {  // TODO need to check if it's just a hash or a full URL
+          if (nota.moduleData.externalURI.startsWith("ipfs://")) {
+            const resp = await axios.get(nota.moduleData.externalURI);
+            if (resp.data.file) {
+              setFile(`https://gateway.lighthouse.storage/ipfs/${resp.data.file}`);
+              setFilename(resp.data.filename);
+            }
+            setIsLoading(false);
+          }
           const NOTE_URL = `https://gateway.lighthouse.storage/ipfs/${nota.uri}`;
           const resp = await axios.get(NOTE_URL);
           setNote(resp.data.description);
@@ -94,8 +116,8 @@ function NotaDetails({ nota }: Props) {
         return "Unknown payment terms";
     }
   }, [nota.moduleData.moduleName]);
+  // console.log(nota.moduleData);
 
-  // TODO need to iterate over moduleData to dynamically show each field in the modal
   return (
     <VStack gap={4} mt={10} mb={6}>
       <RoundedBox px={6}>
@@ -119,17 +141,17 @@ function NotaDetails({ nota }: Props) {
             }
           />
           <DetailsRow title="Payment Terms" value={moduleName} tooltip={moduleDesc} />
-          {
-            Object.entries(nota.moduleData)
-              .filter(([key, value]) => key !== "moduleName" && value !== null && value !== undefined)
-              .map(([key, value]) => (
-                <DetailsRow
-                  key={key}
-                  title={key}
-                  value={value.toString ? value.toString() : value}
-                  copyValue={isAddress(value) ? value : ""} />
-              ))
-          }
+          {formatModuleDataRows(nota.moduleData)}
+          {nota.moduleData.externalURI && (<DetailsRow
+            title="External URI"
+            value={nota.moduleData.externalURI}
+            link={`${nota.moduleData.externalURI}`}
+          />)}
+          {nota.moduleData.imageURI && (<DetailsRow
+            title="Image"
+            value={nota.moduleData.imageURI}
+            link={`${nota.moduleData.imageURI}`}
+          />)}
           <DetailsRow
             title="Created On"
             value={nota.createdTransaction.date.toDateString()}
