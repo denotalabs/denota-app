@@ -105,7 +105,7 @@ function NotaCard({ nota }: Props) {
       case "claimable":
         return <MdMonetizationOn color="white" size={20} />;
       case "awaiting_claim":
-        return <MdHourglassTop color="white" size={20} />;  // TODO
+        return <MdHourglassTop color="white" size={20} />;
       case "awaiting_release":
         return <MdLockPerson color="white" size={20} />;
       case "releasable":

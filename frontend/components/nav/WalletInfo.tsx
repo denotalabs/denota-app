@@ -5,10 +5,8 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   CopyIcon,
-  InfoIcon,
   MoonIcon,
-  SmallAddIcon,
-  SmallCloseIcon,
+  SmallCloseIcon
 } from "@chakra-ui/icons";
 import { useBreakpointValue } from "@chakra-ui/react";
 import jazzicon from "jazzicon-ts";
@@ -25,7 +23,6 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 
-import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { useConnectWallet } from "@web3-onboard/react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
@@ -118,19 +115,14 @@ export default function WalletInfo() {
                 <Text fontSize="lg">
                   {blockchainState.account &&
                     blockchainState.account.slice(0, 6) +
-                      "..." +
-                      blockchainState.account.slice(-4)}
+                    "..." +
+                    blockchainState.account.slice(-4)}
                 </Text>
               </>
             )}
           </Flex>
         </MenuButton>
         <MenuList alignItems="center" bg="brand.100">
-          <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
-            <InfoIcon mr={2} />
-            Testnet Mode
-            <Switch isChecked disabled={true} id="testnet-mode" />
-          </StyledMenuItem>
           <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
             <MoonIcon mr={2} />
             Dark Mode
@@ -142,31 +134,6 @@ export default function WalletInfo() {
               id="dark-mode"
               disabled={true}
             />
-          </StyledMenuItem>
-
-          <StyledMenuItem
-            onClick={() =>
-              addToken(
-                contractMappingForChainId(blockchainState.chhainIdNumber).dai ??
-                  "",
-                "DAI"
-              )
-            }
-          >
-            <SmallAddIcon mr={2} />
-            Add DAI
-          </StyledMenuItem>
-          <StyledMenuItem
-            onClick={() =>
-              addToken(
-                contractMappingForChainId(blockchainState.chhainIdNumber)
-                  .weth ?? "",
-                "WETH"
-              )
-            }
-          >
-            <SmallAddIcon mr={2} />
-            Add WETH
           </StyledMenuItem>
 
           <StyledMenuItem
