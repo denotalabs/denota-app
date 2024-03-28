@@ -127,18 +127,21 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
             status: "releasable",
             inspector: isInspector ? blockchainState.account : undefined,
             reversibleByBeforeDate: null,
+            reversibleByBeforeDateFormatted: null,
           };
         case "cashBeforeDate":
           moduleData = {
             moduleName: "cashBeforeDate",
             status: "awaiting_claim",
             cashBeforeDate: null,
+            cashBeforeDateFormatted: null,
           };
         case "cashBeforeDateDrip":
           moduleData = {
             moduleName: "cashBeforeDateDrip",
             status: "awaiting_claim",
             expirationDate: null,
+            expirationDateFormatted: null,
             dripAmount: null,
             dripPeriod: null,
           };
