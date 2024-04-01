@@ -1,10 +1,9 @@
 import { Box, Text, useToast } from "@chakra-ui/react";
-import { fund } from "@denota-labs/denota-sdk";
+import { Nota, fund } from "@denota-labs/denota-sdk";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaContext } from "../../../context/NotasContext";
-import { Nota } from "../../../hooks/useNotas";
 import { useTokens } from "../../../hooks/useTokens";
 import RoundedBox from "../../designSystem/RoundedBox";
 import RoundedButton from "../../designSystem/RoundedButton";
@@ -28,16 +27,16 @@ function ApproveAndPay({ nota, onClose }: Props) {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const { getTokenAllowance, getTokenBalance, getTokenContract } = useTokens();
+  const { getTokenAllowance, getTokenBalance, getTokenContract, currencyForTokenId } = useTokens();
 
   useEffect(() => {
     const fetchAllowance = async () => {
-      const token = getTokenContract(nota.token);
+      const token = getTokenContract(currencyForTokenId(nota.token));
       if (token === null) {
         setNeedsApproval(false);
       } else {
-        const tokenAllowance = await getTokenAllowance(nota.token);
-        if (nota.amountRaw.sub(tokenAllowance[0]) > BigNumber.from(0)) {
+        const tokenAllowance = await getTokenAllowance(currencyForTokenId(nota.token));
+        if (nota.totalAmountSent.sub(tokenAllowance[0]) > BigNumber.from(0)) {
           setNeedsApproval(true);
         } else {
           setNeedsApproval(false);
@@ -45,8 +44,8 @@ function ApproveAndPay({ nota, onClose }: Props) {
       }
     };
     const fetchBalance = async () => {
-      const { rawBalance } = await getTokenBalance(nota.token);
-      if (nota.amountRaw.sub(rawBalance) > BigNumber.from(0)) {
+      const { rawBalance } = await getTokenBalance(currencyForTokenId(nota.token));
+      if (nota.totalAmountSent.sub(rawBalance) > BigNumber.from(0)) {
         setInsufBalance(true);
       } else {
         setInsufBalance(false);
@@ -61,7 +60,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
     getTokenAllowance,
     getTokenBalance,
     getTokenContract,
-    nota.amountRaw,
+    nota.totalAmountSent,
     nota.token,
   ]);
 
@@ -84,9 +83,9 @@ function ApproveAndPay({ nota, onClose }: Props) {
         // BigNumber.from(
         //   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         // );
-        const tx = await getTokenContract(nota.token)?.functions.approve(
+        const tx = await getTokenContract(currencyForTokenId(nota.token))?.functions.approve(
           blockchainState.registrarAddress,
-          nota.amountRaw
+          nota.totalAmountSent
         );
         await tx.wait();
         setNeedsApproval(false);
@@ -95,7 +94,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
         if (moduleName === "directSend" || moduleName === "cashBeforeDateDrip" || moduleName === "unknown") {
           return;
         }
-        await fund({ notaId: nota.id, amount: nota.amountRaw, moduleName: moduleName });
+        await fund({ notaId: nota.id, amount: nota.totalAmountSent, moduleName: moduleName });
         toast({
           title: "Transaction succeeded",
           description: "Invoice paid",
@@ -121,7 +120,7 @@ function ApproveAndPay({ nota, onClose }: Props) {
     needsApproval,
     getTokenContract,
     nota.token,
-    nota.amountRaw,
+    nota.totalAmountSent,
     nota.id,
     blockchainState.registrarAddress,
     toast,

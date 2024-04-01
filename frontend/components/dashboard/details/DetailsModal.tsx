@@ -1,7 +1,8 @@
 import { Center, HStack } from "@chakra-ui/react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { POLYGON_CHAINID } from "../../../context/chainInfo";
-import { Nota } from "../../../hooks/useNotas";
+// import { Nota } from "../../../hooks/useNotas";
+import { Nota } from "@denota-labs/denota-sdk";
 import SimpleModal from "../../designSystem/SimpleModal";
 import NotaDetails from "./NotaDetails";
 import ViewOnOpenSeaButton from "./ViewOnOpenSeaButton";

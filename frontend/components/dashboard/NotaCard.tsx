@@ -16,6 +16,7 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
+import { Nota } from "@denota-labs/denota-sdk";
 import { useCallback, useMemo, useState } from "react";
 import {
   MdCancel,
@@ -30,7 +31,6 @@ import {
 } from "react-icons/md";
 import { useCashNota } from "../../hooks/useCashNota";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
-import { Nota } from "../../hooks/useNotas";
 import { useTokens } from "../../hooks/useTokens";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
@@ -72,18 +72,18 @@ function NotaCard({ nota }: Props) {
   ];
 
   const generateNotaGradient = (nota: Nota): string => {
-    const { id, amount, sender, receiver } = nota;
-    const hash = hashCode(`${id}${amount}${sender}${receiver}`);
+    const { id, totalAmountSent, sender, receiver } = nota;
+    const hash = hashCode(`${id}${totalAmountSent}${sender}${receiver}`);
     const colorIndex = Math.abs(hash) % GRADIENT_COLORS.length;
     const [startColor, endColor] = GRADIENT_COLORS[colorIndex];
     return `linear-gradient(180deg, ${startColor}, ${endColor})`;
   };
 
-  const { createdTransaction } = nota;
+  const { token, createdAt } = nota;
 
   const createdLocaleDate = useMemo(() => {
-    return createdTransaction.date.toLocaleDateString();
-  }, [createdTransaction.date]);
+    return createdAt.toLocaleDateString();
+  }, [createdAt]);
   const {
     isOpen: isDetailsOpen,
     onOpen: onOpenDetails,
@@ -158,7 +158,7 @@ function NotaCard({ nota }: Props) {
   }, [nota.moduleData.status]);
   const gradient = generateNotaGradient(nota);
 
-  const { displayNameForCurrency } = useTokens();
+  const { weiAddressToDisplay, currencyForTokenId } = useTokens();
 
   const [cashingInProgress, setCashingInProgress] = useState(false);
 
@@ -224,7 +224,7 @@ function NotaCard({ nota }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formatAddress(nota.payer)}
+              {formatAddress(nota.sender)}
             </Text>
             <ArrowForwardIcon mx={2} />
             <Text
@@ -233,16 +233,16 @@ function NotaCard({ nota }: Props) {
               textOverflow="clip"
               noOfLines={1}
             >
-              {formatAddress(nota.payee)}
+              {formatAddress(nota.receiver)}
             </Text>
           </HStack>
 
           <HStack>
             <Text fontWeight={400} fontSize={"xl"} my={0}>
-              {nota.amount} {displayNameForCurrency(nota.token)}
+              {weiAddressToDisplay(nota.totalAmountSent, token)} {currencyForTokenId(token)}
             </Text>
 
-            <CurrencyIcon currency={nota.token} />
+            <CurrencyIcon currency={currencyForTokenId(token)} />
           </HStack>
         </Flex>
 

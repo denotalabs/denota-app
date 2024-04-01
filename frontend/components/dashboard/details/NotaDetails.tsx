@@ -1,21 +1,23 @@
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Center, HStack, Spinner, Tag, Text, VStack } from "@chakra-ui/react";
-import { ModuleData } from "@denota-labs/denota-sdk";
+import { ModuleData, Nota } from "@denota-labs/denota-sdk";
 import axios from "axios";
 import { isAddress } from "ethers/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useFormatAddress } from "../../../hooks/useFormatAddress";
-import { Nota } from "../../../hooks/useNotas";
 import { useTokens } from "../../../hooks/useTokens";
-import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
 function formatModuleDataRows(moduleData: ModuleData) {
-
+  const filterCondition = (key: string, value: any) => {
+    return key !== "moduleName" && key !== "externalURI" && key !== "imageURI" &&
+      key !== "writeBytes" && !key.includes("Formatted") &&
+      value !== null && value !== undefined;
+  };
   return Object.entries(moduleData)
-    .filter(([key, value]) => key !== "moduleName" && key !== "externalURI" && key !== "imageURI" && value !== null && value !== undefined)
+    .filter(([key, value]) => filterCondition(key, value))
     .map(([key, value]) => (
       <DetailsRow
         key={key}
@@ -51,18 +53,21 @@ function NotaDetails({ nota }: Props) {
               setFilename(resp.data.filename);
             }
             setIsLoading(false);
+          } else if (nota.moduleData.externalURI.startsWith("http")) {
+            setNote("");
+          } else {
+            const NOTE_URL = `https://gateway.lighthouse.storage/ipfs/${nota.moduleData.externalURI}`;
+            const resp = await axios.get(NOTE_URL);
+            setNote(resp.data.description);
+            setTags(resp.data.tags);
+            if (resp.data.file) {
+              setFile(
+                `https://gateway.lighthouse.storage/ipfs/${resp.data.file}`
+              );
+              setFilename(resp.data.filename);
+            }
+            setIsLoading(false);
           }
-          const NOTE_URL = `https://gateway.lighthouse.storage/ipfs/${nota.uri}`;
-          const resp = await axios.get(NOTE_URL);
-          setNote(resp.data.description);
-          setTags(resp.data.tags);
-          if (resp.data.file) {
-            setFile(
-              `https://gateway.lighthouse.storage/ipfs/${resp.data.file}`
-            );
-            setFilename(resp.data.filename);
-          }
-          setIsLoading(false);
         } else {
           setNote("");
         }
@@ -73,9 +78,9 @@ function NotaDetails({ nota }: Props) {
       }
     }
     fetchData();
-  }, [nota.uri]);
+  }, [nota.moduleData.externalURI]);
 
-  const { displayNameForCurrency } = useTokens();
+  const { displayNameForCurrency, weiAddressToDisplay, currencyForTokenId } = useTokens();
   const { formatAddress } = useFormatAddress();
 
   const moduleName = useMemo(() => {
@@ -116,7 +121,7 @@ function NotaDetails({ nota }: Props) {
         return "Unknown payment terms";
     }
   }, [nota.moduleData.moduleName]);
-  // console.log(nota.moduleData);
+  const isPayer = nota.sender === blockchainState.account;
 
   return (
     <VStack gap={4} mt={10} mb={6}>
@@ -124,20 +129,19 @@ function NotaDetails({ nota }: Props) {
         <VStack gap={0}>
           <DetailsRow
             title="Payer"
-            value={formatAddress(nota.payer)}
-            copyValue={!nota.isPayer ? nota.payer : undefined}
+            value={formatAddress(nota.sender)}
+            copyValue={nota.sender}
           />
           <DetailsRow
             title="Recipient"
-            value={formatAddress(nota.payee)}
-            copyValue={!nota.isPayer ? undefined : nota.payee}
+            value={formatAddress(nota.receiver)}
+            copyValue={nota.receiver}
           />
           <DetailsRow
             title="Amount"
-            value={
-              String(nota.amount) +
-              " " +
-              displayNameForCurrency(nota.token as NotaCurrency)
+            value={weiAddressToDisplay(nota.totalAmountSent, nota.token)
+              + " " +
+              displayNameForCurrency(currencyForTokenId(nota.token))
             }
           />
           <DetailsRow title="Payment Terms" value={moduleName} tooltip={moduleDesc} />
@@ -154,19 +158,19 @@ function NotaDetails({ nota }: Props) {
           />)}
           <DetailsRow
             title="Created On"
-            value={nota.createdTransaction.date.toDateString()}
-            link={`${explorer}${nota.createdTransaction.hash}`}
+            value={nota.createdAt.toLocaleDateString()}
+            link={`${explorer}${nota.written.transaction.hash}`}
           />
-          {nota.fundedTransaction && (
+          {nota.funds.length > 0 && (
             <DetailsRow
               title="Funded Date"
-              value={nota.fundedTransaction.date.toDateString()}
-              link={`${explorer}${nota.fundedTransaction.hash}`}
+              value={new Date(nota.funds[0].transaction.timestamp).toString()}
+              link={`${explorer}${nota.funds[0].transaction.hash}`}
             />
           )}
         </VStack>
       </RoundedBox>
-      {nota.uri &&
+      {nota.moduleData.externalURI &&
         (!isLoading ? (
           <>
             {note && (

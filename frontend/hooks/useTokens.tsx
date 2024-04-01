@@ -93,6 +93,17 @@ export const useTokens = () => {
     [getTokenUnits]
   );
 
+
+  const weiAddressToDisplay = useCallback(
+    (wei: ethers.BigNumber, token: string): string => {
+      const units = getTokenUnits(currencyForTokenId(token));
+      console.log(units);
+
+      return ethers.utils.formatUnits(wei, units);
+    },
+    [getTokenUnits]
+  );
+
   const getTokenContract = useCallback(
     (token: NotaCurrency) => {
       const address = getTokenAddress(token);
@@ -148,5 +159,6 @@ export const useTokens = () => {
     getTokenUnits,
     currencyForTokenId,
     displayNameForCurrency,
+    weiAddressToDisplay,
   };
 };
