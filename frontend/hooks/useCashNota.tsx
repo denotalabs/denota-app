@@ -1,14 +1,14 @@
 import { useToast } from "@chakra-ui/react";
-import { cash } from "@denota-labs/denota-sdk";
+import { Nota, cash } from "@denota-labs/denota-sdk";
+import { BigNumber } from "ethers";
 import { useCallback } from "react";
 import { useNotaContext } from "../context/NotasContext";
-import { Nota } from "./useNotas";
 
 interface Props {
   nota: Nota;
 }
 
-// TODO getting that the tx.waite isn't working. It's not returning a tx for some reason and wait won't work on null
+// TODO use SDK for this and pass hook specific variables (Nota?)
 export const useCashNota = () => {
   const toast = useToast();
   const { refreshWithDelay } = useNotaContext();
@@ -20,13 +20,24 @@ export const useCashNota = () => {
         return;
       }
       try {
-        await cash({
-          notaId: nota.id,
-          type: "release", // NOTE: Isn't used in the SDK
-          amount: nota.amountRaw,
-          to: nota.receiver,
-          moduleName: nota.moduleData.moduleName,
-        });
+        if (nota.moduleData.moduleName === "cashBeforeDateDrip") {
+          let newAmount = BigNumber.from(nota.moduleData.dripAmount);
+          await cash({
+            notaId: nota.id,
+            type: "reversal", // NOTE: Isn't used in the SDK
+            amount: newAmount,
+            to: nota.owner,
+            moduleName: nota.moduleData.moduleName,
+          });
+        } else {
+          await cash({
+            notaId: nota.id,
+            type: "release", // NOTE: Isn't used in the SDK
+            amount: nota.escrowed,
+            to: nota.owner,
+            moduleName: nota.moduleData.moduleName,
+          });
+        }
         toast({
           title: "Transaction succeeded",
           description: "Payment released",
@@ -57,7 +68,7 @@ export const useCashNota = () => {
         await cash({
           notaId: nota.id,
           type: "reversal", // NOTE: Isn't used in the SDK
-          amount: nota.amountRaw,
+          amount: nota.escrowed,
           to: nota.sender,
           moduleName: nota.moduleData.moduleName,
         });
