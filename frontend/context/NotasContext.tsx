@@ -1,5 +1,5 @@
 import { ModuleData } from "@denota-labs/denota-sdk/";
-import { ethers } from "ethers";
+import { BigNumber } from "ethers";
 import {
   createContext,
   useCallback,
@@ -9,8 +9,8 @@ import {
 } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 // TODO why are there separate moduleDatas here?
+import { Nota } from "@denota-labs/denota-sdk";
 import {
-  Nota,
   useNotas
 } from "../hooks/useNotas";
 import { useBlockchainData } from "./BlockchainDataProvider";
@@ -28,12 +28,17 @@ interface NotasContextInterface {
 interface OptimisticNotaProps {
   id: string;
   token: NotaCurrency;
-  amount: number;
+  instant: number;
+  escrowed: number;
+  module: string;
   moduleData: ModuleData;
+
+  owner: string;
+
   sender: string;
   receiver: string;
-  owner: string;
   createdHash: string;
+
   uri: string;
   inspector?: string;
   isCrossChain: boolean;
@@ -88,7 +93,9 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
     ({
       id,
       token,
-      amount,
+      instant,
+      escrowed,
+      module,
       moduleData,
       sender,
       receiver,
@@ -103,67 +110,38 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
       const isPayer = blockchainState.account === payer;
       const isInspector = blockchainState.account === inspector;
 
-      switch (moduleData.moduleName) {
-        case "directSend":
-          moduleData = {
-            moduleName: "directSend",
-            status: "paid",
-          };
-          break;
-        case "simpleCash":
-          moduleData = {
-            moduleName: "simpleCash",
-            status: "claimable",
-          };
-        case "reversibleRelease":
-          moduleData = {
-            moduleName: "reversibleRelease",
-            status: "releasable",
-            inspector: isInspector ? blockchainState.account : undefined,
-          };
-        case "reversibleByBeforeDate":
-          moduleData = {
-            moduleName: "reversibleByBeforeDate",
-            status: "releasable",
-            inspector: isInspector ? blockchainState.account : undefined,
-            reversibleByBeforeDate: null,
-            reversibleByBeforeDateFormatted: null,
-          };
-        case "cashBeforeDate":
-          moduleData = {
-            moduleName: "cashBeforeDate",
-            status: "awaiting_claim",
-            cashBeforeDate: null,
-            cashBeforeDateFormatted: null,
-          };
-        case "cashBeforeDateDrip":
-          moduleData = {
-            moduleName: "cashBeforeDateDrip",
-            status: "awaiting_claim",
-            expirationDate: null,
-            expirationDateFormatted: null,
-            dripAmount: null,
-            dripPeriod: null,
-          };
-      }
+      const totalAmountSent = BigNumber.from(escrowed).add(BigNumber.from(instant));
 
       const nota: Nota = {
         id,
         token,
-        amount,
-        amountRaw: ethers.utils.parseEther(String(amount)),
-        moduleData,
-        sender,
-        receiver,
-        owner,
-        createdTransaction: { hash: createdHash, date: new Date() },
-        fundedTransaction: { hash: createdHash, date: new Date() },
-        isPayer,
-        payer,
-        payee,
-        isInspector,
-        uri,
-        inspector,
+        escrowed: BigNumber.from(escrowed),
+        module: module, // TODO need to convert to the address here
+        moduleData: moduleData,
+
+        owner: owner,
+        approved: owner,
+        sender: sender,
+        receiver: receiver,
+        totalAmountSent: totalAmountSent,
+        createdAt: new Date(),
+
+        written: {
+          writeBytes: "",
+          escrowed: BigNumber.from(escrowed),
+          instant: BigNumber.from(instant),
+          moduleFee: BigNumber.from(0),
+          transaction: {
+            timestamp: new Date(),
+            hash: createdHash,
+            blockNumber: String(0),
+          },
+        },
+        transfers: null,
+        funds: null,
+        cashes: null,
+        approvals: null,
+        metadataUpdates: null
       };
       addOptimisticNota(nota);
     },

@@ -10,10 +10,10 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { Nota } from "@denota-labs/denota-sdk";
 import { useRouter } from "next/router";
 import { MdOutlineAdd } from "react-icons/md";
 import { useNotaContext } from "../../context/NotasContext";
-import { Nota } from "../../hooks/useNotas";
 import NotaCard from "./NotaCard";
 
 function MyNotas() {

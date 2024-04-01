@@ -153,14 +153,16 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         createLocalNota({
           id: receipt.notaId,
           token: notaFormValues.token as NotaCurrency,
-          amount: Number(notaFormValues.amount),
+          escrowed: notaFormValues.amount,
+          module: notaFormValues.module,
           moduleData: notaFormValues.moduleData as ModuleData,
           sender: blockchainState.account,
-          receiver: notaFormValues.address,
-          owner,
-          isCrossChain: false,
-          createdHash: receipt.txHash,
-          uri: notaFormValues.ipfsHash,
+          receiver: owner,
+          instant: 0,  // TODO this needs dynamic setting based on hook used
+          owner: owner,
+          createdHash: "",
+          uri: notaFormValues.externalURI ?? "",
+          isCrossChain: false
         });
 
         if (receipt.txHash && notaFormValues.email) {

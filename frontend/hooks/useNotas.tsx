@@ -1,40 +1,16 @@
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
-import { getModuleData, ModuleData, NotaTransaction } from "@denota-labs/denota-sdk";
+import {
+  getModuleData,
+  Nota // Includes formatting and additional fields
+} from "@denota-labs/denota-sdk";
 import { BigNumber } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useTokens } from "./useTokens";
 
 interface Props {
   notaField: string;
 }
-
-//////////// TODO need to set and pull the above from the SDK ////////////
-export interface Nota {
-  id: string;
-  token: NotaCurrency;
-  amount: number;
-  amountRaw: BigNumber;
-  moduleData: ModuleData;
-  sender: string;  // TODO: remove
-  receiver: string;  // TODO: remove
-  owner: string;
-  createdTransaction: NotaTransaction;
-  fundedTransaction: NotaTransaction | null;  // TODO have list of WTFCA transactions
-  isPayer: boolean;  // TODO: remove but is passed to NotasContext
-  payer: string;
-  payee: string;
-  isInspector: boolean;  // TODO: remove since should be in moduleData
-  uri: string;
-  inspector?: string;  // TODO: remove since should be in moduleData
-}
-//////////// TODO need to set and pull the above from the SDK ////////////
-
-const convertExponent = (amountExact: number, exponent: number) => {
-  const adjustedExponent = exponent - 3;
-  return Number(BigInt(amountExact) / BigInt(10 ** adjustedExponent)) / 1000;
-};
 
 export const useNotas = ({ notaField }: Props) => {
   const { blockchainState } = useBlockchainData();
@@ -47,7 +23,7 @@ export const useNotas = ({ notaField }: Props) => {
   const [notasSent, setNotaSent] = useState<Nota[] | undefined>(undefined);
   const [notasInspected, setNotasInspected] = useState<Nota[] | undefined>(
     undefined
-  ); // TODO: should be injected by module
+  );
 
   const [optimisticNotas, setOptimisticNotas] = useState<Nota[]>([]);
 
@@ -57,47 +33,34 @@ export const useNotas = ({ notaField }: Props) => {
     setOptimisticNotas((notas) => [...notas, nota]);
   }, []);
 
-  const { getTokenUnits, currencyForTokenId } = useTokens();
+  const { getTokenUnits, currencyForTokenId, parseTokenValue } = useTokens();
 
+  // Returns a filled out Nota object from a GraphQL response
   const mapField = useCallback(
-    (gqlNota: any) => {
-      const createdTx = gqlNota.createdTransaction.id;
-
-      const isPayer = gqlNota.sender.id === account;
-
-      let isInspector = false; // TODO: expect inside module data
-
-      // TODO should gqlNota be converted to a Nota type first?
+    (gqlNota: any): Nota => {
+      let totalAmountSent = BigNumber.from(gqlNota.written.instant).add(BigNumber.from(gqlNota.written.escrowed));
       let moduleData = getModuleData(account, chainId, gqlNota, gqlNota.module.id.toLowerCase());
-
-      const amount = moduleData.moduleName === "directSend"
-        ? gqlNota.written.instant
-        : gqlNota.written.escrowed;
 
       return {
         id: gqlNota.id as string,
-        token: currencyForTokenId(gqlNota.currency.id),
-        amount: convertExponent(
-          Number(amount),
-          getTokenUnits(currencyForTokenId(gqlNota.currency.id))
-        ),
-        amountRaw: BigNumber.from(amount),
+        token: gqlNota.token.id,
+        escrowed: gqlNota.escrowed,
+        module: gqlNota.module.id as string,
         moduleData,
-        // TODO keep sender/receiver OR payer/payee? Both?
+
+        owner: gqlNota.owner.id as string,
+        approved: gqlNota.approved?.id as string,
         sender: gqlNota.sender.id as string,
         receiver: gqlNota.receiver.id as string,
-        owner: gqlNota.owner.id as string,
-        createdTransaction: {
-          date: new Date(Number(gqlNota.createdTransaction.timestamp) * 1000),
-          hash: createdTx,
-        },
-        fundedTransaction: null, // TODO: calculate based on escrow
-        uri: gqlNota.uri,
-        isPayer,
-        payer: gqlNota.sender.id as string,
-        payee: gqlNota.receiver.id as string,
-        inspector: undefined,
-        isInspector,
+        totalAmountSent: totalAmountSent,
+        createdAt: new Date(Number(gqlNota.written.transaction.timestamp) * 1000),
+
+        written: gqlNota.written,
+        transfers: gqlNota.transfers,
+        funds: gqlNota.funds,
+        cashes: gqlNota.cashes,
+        approvals: gqlNota.approvals,
+        metadataUpdates: gqlNota.metadataUpdates,
       };
     },
     [
@@ -113,7 +76,7 @@ export const useNotas = ({ notaField }: Props) => {
       setIsLoading(true);
       const notaFields = `      
       id
-      currency {
+      token {
         id
       }
       escrowed
@@ -121,10 +84,12 @@ export const useNotas = ({ notaField }: Props) => {
         id
       }
       moduleData {
-        raw
+        writeBytes
       }
-      createdTransaction {
-        timestamp
+      owner {
+        id
+      }
+      approved {
         id
       }
       sender {
@@ -133,13 +98,12 @@ export const useNotas = ({ notaField }: Props) => {
       receiver {
         id
       }
-      owner {
-        id
-      }
-      cashes {
-        to
+      written {
+        instant
+        escrowed
         transaction {
           timestamp
+          hash
         }
       }
       transfers {
@@ -147,9 +111,18 @@ export const useNotas = ({ notaField }: Props) => {
           timestamp
         }
       }
-      written {
-        instant
-        escrowed
+      funds {
+        amount
+        transaction {
+          timestamp
+        }
+      }
+      cashes {
+        to
+        amount
+        transaction {
+          timestamp
+        }
       }
       `;
 
@@ -226,7 +199,7 @@ export const useNotas = ({ notaField }: Props) => {
     const optimisticNotasFiltered = optimisticNotas.filter(
       (nota) =>
         !sentNotaIds.includes(nota.id) &&
-        nota.payer === account
+        nota.sender === account
     );
 
     return optimisticNotasFiltered.concat(notasSent);
@@ -265,14 +238,17 @@ export const useNotas = ({ notaField }: Props) => {
       case "notasReceived":
         return notasReceivedIncludingOptimistic;
       default:
-        return notasReceivedIncludingOptimistic
+        const displayNotas = notasReceivedIncludingOptimistic
           .concat(notasSentIncludingOptimistic)
+          .filter((nota, index, self) => {
+            return self.findIndex((n) => n.id === nota.id) === index;
+          })
           .sort((a, b) => {
             return (
-              b.createdTransaction.date.getTime() -
-              a.createdTransaction.date.getTime()
+              b.createdAt.getTime() - a.createdAt.getTime()
             );
           });
+        return displayNotas;
     }
   }, [
     notasReceived,

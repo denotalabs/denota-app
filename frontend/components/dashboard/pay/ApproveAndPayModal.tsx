@@ -1,4 +1,4 @@
-import { Nota } from "../../../hooks/useNotas";
+import { Nota } from "@denota-labs/denota-sdk";
 import SimpleModal from "../../designSystem/SimpleModal";
 import ApproveAndPay from "./ApproveAndPay";
 
