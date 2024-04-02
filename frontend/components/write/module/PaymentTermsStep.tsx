@@ -33,7 +33,7 @@ const PaymentTermsStep: React.FC<ScreenProps> = () => {
             : 604800,
           module: notaFormValues.module ?? "directSend",
           dueDate: notaFormValues.dueDate ?? currentDate,
-          auditor: notaFormValues.auditor ?? "",
+          arbitrator: notaFormValues.arbitrator ?? "",
           milestones: notaFormValues.milestones
             ? notaFormValues.milestones.split(",")
             : [notaFormValues.amount],
@@ -43,7 +43,7 @@ const PaymentTermsStep: React.FC<ScreenProps> = () => {
           updateNotaFormValues({
             milestones: values.milestones.join(","),
             dueDate: values.dueDate,
-            auditor: values.auditor,
+            arbitrator: values.arbitrator,
             axelarEnabled: values.axelarEnabled ? "true" : undefined,
           });
           next?.();

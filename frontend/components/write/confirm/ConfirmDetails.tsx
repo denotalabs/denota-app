@@ -31,8 +31,8 @@ function ConfirmDetails() {
           <DetailsRow
             title="Inspector"
             value={
-              notaFormValues.auditor
-                ? formatAddress(notaFormValues.auditor)
+              notaFormValues.arbitrator
+                ? formatAddress(notaFormValues.arbitrator)
                 : "Self-signed"
             }
           />

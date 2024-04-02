@@ -92,6 +92,7 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
             tags: values.tags,
             externalURI: values.externalURI,
             imageURI: values.imageURI,
+            module: "directSend",
           });
 
           if (values.file) {

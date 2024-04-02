@@ -97,7 +97,6 @@ export const useTokens = () => {
   const weiAddressToDisplay = useCallback(
     (wei: ethers.BigNumber, token: string): string => {
       const units = getTokenUnits(currencyForTokenId(token));
-      console.log(units);
 
       return ethers.utils.formatUnits(wei, units);
     },
