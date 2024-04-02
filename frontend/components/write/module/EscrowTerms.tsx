@@ -14,7 +14,7 @@ export function EscrowTerms() {
     <Flex flexWrap={"wrap"} direction={"column"} gap={"18px"}>
       <HStack>
         <FormControl>
-          <RadioButtonField fieldName="Recoverable When?" label="Revocerable When?" values={["Always", "Before Date"]} />
+          <RadioButtonField fieldName="Recoverable When?" label="Recoverable When?" values={["Always", "Before Date"]} />
           <FormLabel noOfLines={1} flexShrink={0}>
             Inspection End?
             <Tooltip
