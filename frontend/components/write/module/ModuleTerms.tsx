@@ -4,23 +4,39 @@ import { DirectPayTerms } from "./DirectPayTerms";
 import { EscrowTerms } from "./EscrowTerms";
 import { MilestoneTerms } from "./MilestoneTerms";
 import { MotionBox } from "./MotionBox";
-import { SimpleCashTerms } from "./SimpleCashTerms";
+// import { SimpleCashTerms } from "./SimpleCashTerms";
 
 interface Props {
   module: string;
 }
 
 function ModuleTerms({ module }: Props) {
+  const moduleNameToCard = {
+    directSend: "Direct",
+    simpleCash: "Direct",
+    cashBeforeDate: "Direct",
+    reversibleRelease: "Reversible",
+    reversibleByBeforeDate: "Reversible",
+    cashBeforeDateDrip: "Drip",
+    milestone: "Drip",
+    // "": "Cancelable",
+    // "": "Grant",
+    // "": "Condition",
+  };
+
   const selectedModule = useMemo(() => {
-    switch (module) {
-      case "directSend":
+    const moduleType = moduleNameToCard[module];
+    switch (moduleType) {
+      case "Direct":
         return <DirectPayTerms />;
-      case "reversibleRelease":
+      case "Reversible":
         return <EscrowTerms />;
-      case "milestone":
+      case "Drip":
         return <MilestoneTerms />;
-      case "simpleCash":
-        return <SimpleCashTerms />;
+      // case "simpleCash":
+      //   return <SimpleCashTerms />;
+      // case "cashBeforeDateDrip":
+      //   return <SimpleCashTerms />;
       default:
         return <DirectPayTerms />;
     }

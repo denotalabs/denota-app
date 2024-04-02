@@ -90,31 +90,6 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             </Button>
           </CardFooter>
         </Card>
-        {/* <Card
-          variant={notaFormValues.module === "reversibleByBeforeDate" ? "filled" : "outline"}
-        >
-          <CardHeader>
-            <Heading size="md">Reversible Before</Heading>
-          </CardHeader>
-          <CardBody>
-            <Text>An inspector can reverse the payment only before the expiration date.</Text>
-          </CardBody>
-          <CardFooter>
-            <Button
-              isDisabled={true}
-              onClick={() => {
-                updateNotaFormValues({
-                  module: "reversibleByBeforeDate",
-                });
-                if (!showTerms) {
-                  next?.();
-                }
-              }}
-            >
-              {"Coming Soon"}
-            </Button>
-          </CardFooter>
-        </Card> */}
         <Card
           variant={notaFormValues.module === "cashBeforeDateDrip" ? "filled" : "outline"}
         >
