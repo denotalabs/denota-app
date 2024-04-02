@@ -37,7 +37,7 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
   const toast = useToast();
 
   return (
-    <Box w="100%" p={4}>
+    <Box w="100%" p={3}>
       <Formik
         initialValues={{
           token: notaFormValues.token ?? "USDT",
@@ -111,19 +111,19 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
             props.values.amount;
           return (
             <Form>
-              <RoundedBox>
+              <RoundedBox p={4}>
                 <PaymentDetails
                   token={props.values.token}
                   mode={props.values.mode}
                 />
                 {showMetadata && (
                   <>
-                    <HStack px={2}>
+                    <HStack px={2} pt={5}>
                       {" "}
                       <Text ml={2} fontSize="2xl">
                         {"Metadata"}
                       </Text>
-                      <Text ml={2} color="whiteAlpha.600">
+                      <Text ml={1} color="whiteAlpha.600">
                         {"(Optional)"}
                       </Text>
                     </HStack>
@@ -134,7 +134,7 @@ const DetailsStep: React.FC<Props> = ({ showMetadata }) => {
                 )}
               </RoundedBox>
               <RoundedButton
-                mt={2}
+                mt={4}
                 type="submit"
                 isLoading={props.isSubmitting}
                 isDisabled={!isValid}

@@ -1,7 +1,7 @@
 import { Center, Spinner } from "@chakra-ui/react";
+import { WrongChain } from "../../components/WrongChain";
 import NewUserScreen from "../../components/dashboard/NewUserScreen";
 import WriteNotaFlow from "../../components/write/WriteNotaFlow";
-import { WrongChain } from "../../components/WrongChain";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 function SendPage() {

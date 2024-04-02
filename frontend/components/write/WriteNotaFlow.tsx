@@ -70,7 +70,7 @@ export function WriteStepperMobile({ onClose }: Props) {
       ></DetailsStep>
       <MetadataStep
         screenKey="metadata"
-        screenTitle={"Payment Metadata (Optional)"}
+        screenTitle={"Metadata (Optional)"}
       ></MetadataStep>
       <ModuleSelectStep
         screenKey="moduleSelect"
