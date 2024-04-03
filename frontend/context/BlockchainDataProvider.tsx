@@ -160,6 +160,8 @@ export const BlockchainDataProvider = memo(
     useEffect(() => {
       if (!isConnected) {
         setIsInitializing(false);
+      } else {
+        loadBlockchainData();
       }
     }, [isConnected, loadBlockchainData]);
 
