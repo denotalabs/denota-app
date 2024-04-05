@@ -33,20 +33,49 @@ export const useNotas = ({ notaField }: Props) => {
     setOptimisticNotas((notas) => [...notas, nota]);
   }, []);
 
-  const { getTokenUnits, currencyForTokenId, parseTokenValue } = useTokens();
+  const { getTokenUnits, currencyForTokenId } = useTokens();
 
   // Returns a filled out Nota object from a GraphQL response
   const mapField = useCallback(
     (gqlNota: any): Nota => {
       let totalAmountSent = BigNumber.from(gqlNota.written.instant).add(BigNumber.from(gqlNota.written.escrowed));
-      let moduleData = getModuleData(account, chainId, gqlNota, gqlNota.module.id.toLowerCase());
+      const written = {
+        instant: BigNumber.from(gqlNota.written.instant),
+        escrowed: BigNumber.from(gqlNota.written.escrowed),
+        timestamp: new Date(Number(gqlNota.written.transaction.timestamp) * 1000),
+        moduleFee: BigNumber.from(gqlNota.written.moduleFee),
+        writeBytes: gqlNota.written.writeBytes,
+        transaction: {
+          timestamp: new Date(Number(gqlNota.written.transaction.timestamp) * 1000),
+          hash: gqlNota.written.transaction.hash,
+          blockNumber: gqlNota.written.transaction.blockNumber,
+        }
+      };
+      const funds = gqlNota.funds.map((fund: any) => {
+        return {
+          amount: BigNumber.from(fund.amount),
+          timestamp: new Date(Number(fund.transaction.timestamp) * 1000),
+        }
+      });
+      const cashes = gqlNota.cashes.map((cash: any) => {
+        return {
+          to: cash.to,
+          amount: BigNumber.from(cash.amount),
+          timestamp: new Date(Number(cash.transaction.timestamp) * 1000),
+          transaction: {
+            timestamp: new Date(Number(cash.transaction.timestamp) * 1000),
+            hash: cash.transaction.hash,
+            blockNumber: cash.transaction.blockNumber,
+          }
+        }
+      });
 
-      return {
+      let nota: Nota = {
         id: gqlNota.id as string,
         token: gqlNota.token.id,
-        escrowed: gqlNota.escrowed,
+        escrowed: BigNumber.from(gqlNota.escrowed),
         module: gqlNota.module.id as string,
-        moduleData,
+        moduleData: gqlNota.moduleData,  // Only has writeBytes
 
         owner: gqlNota.owner.id as string,
         approved: gqlNota.approved?.id as string,
@@ -55,13 +84,16 @@ export const useNotas = ({ notaField }: Props) => {
         totalAmountSent: totalAmountSent,
         createdAt: new Date(Number(gqlNota.written.transaction.timestamp) * 1000),
 
-        written: gqlNota.written,
+        written: written,
         transfers: gqlNota.transfers,
-        funds: gqlNota.funds,
-        cashes: gqlNota.cashes,
+        funds: funds,
+        cashes: cashes,
         approvals: gqlNota.approvals,
         metadataUpdates: gqlNota.metadataUpdates,
       };
+
+      nota.moduleData = getModuleData({ account: account, chainIdNumber: chainId, nota: nota, hookAddress: nota.module });
+      return nota;
     },
     [
       account,
@@ -101,6 +133,8 @@ export const useNotas = ({ notaField }: Props) => {
       written {
         instant
         escrowed
+        moduleFee
+        writeBytes
         transaction {
           timestamp
           hash
@@ -219,7 +253,6 @@ export const useNotas = ({ notaField }: Props) => {
         !receivedNotaIds.includes(nota.id) &&
         nota.owner === account
     );
-    // TODO need to filter duplicate notas (sent and received)
     return optimisticNotasFiltered.concat(notasReceived);
   }, [account, notasReceived, optimisticNotas]);
 

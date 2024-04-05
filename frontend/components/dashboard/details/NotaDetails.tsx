@@ -13,8 +13,7 @@ import RoundedBox from "../../designSystem/RoundedBox";
 function formatModuleDataRows(moduleData: ModuleData) {
   const filterCondition = (key: string, value: any) => {
     return key !== "moduleName" && key !== "externalURI" && key !== "imageURI" &&
-      key !== "writeBytes" && !key.includes("Formatted") &&
-      value !== null && value !== undefined;
+      key !== "writeBytes" && value !== null && value !== undefined;
   };
   return Object.entries(moduleData)
     .filter(([key, value]) => filterCondition(key, value))
@@ -22,7 +21,7 @@ function formatModuleDataRows(moduleData: ModuleData) {
       <DetailsRow
         key={key}
         title={key}
-        value={value.toString ? value.toString() : value}
+        value={value}
         copyValue={isAddress(value) ? value : ""} />
     ))
 }
@@ -98,7 +97,6 @@ function NotaDetails({ nota }: Props) {
       case "cashBeforeDateDrip":
         return "Cash Before Date Drip";
       default:
-        // console.log("Unknown module", nota);
         return "Unknown";
     }
   }, [nota.moduleData.moduleName]);
@@ -106,7 +104,7 @@ function NotaDetails({ nota }: Props) {
   const moduleDesc = useMemo(() => {
     switch (nota.moduleData.moduleName) {
       case "directSend":
-        return "Funds are released immediately upon payment";
+        return "Funds are sent directly to your recipient.";
       case "simpleCash":
         return "Allows owner to claim tokens";
       case "cashBeforeDate":
@@ -121,7 +119,6 @@ function NotaDetails({ nota }: Props) {
         return "Unknown payment terms";
     }
   }, [nota.moduleData.moduleName]);
-  const isPayer = nota.sender === blockchainState.account;
 
   return (
     <VStack gap={4} mt={10} mb={6}>
