@@ -13,6 +13,7 @@ import {
   useClipboard,
   useToast,
 } from "@chakra-ui/react";
+import { BigNumber } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
 
@@ -54,7 +55,7 @@ function formatTime(seconds: number) {
 
 interface Props {
   title: string;
-  value: string;
+  value: any;
   link?: string | null;
   tooltip?: string;
   copyValue?: string;
@@ -72,26 +73,26 @@ function DetailsRow({
   const { onCopy } = useClipboard(copyValue ?? "");
   const toast = useToast();
   const { formatAddress } = useFormatAddress();
-  console.log(title, value)
 
   title = title.charAt(0).toUpperCase() + title.slice(1)
-  const isURI = value?.match(/^https?:\/\//) || value?.match(/^ipfs:\/\//)
-
-
   if (value !== null && value !== undefined) {
-    if (!isURI) {
-      if (isAddress(value)) {
-        value = formatAddress(value);
-      } else if (value.match(/^\d+$/)) {
-        const seconds = parseInt(value);
-        if (seconds < 946684800000) {
-          value = formatTime(seconds);
-        } else {
-          value = new Date(seconds).toDateString();
-        }
-      } else {
-        value = value.charAt(0).toUpperCase() + value.slice(1);
+    if (BigNumber.isBigNumber(value)) {
+      if (title === "DripAmount") {
+        value = value.toString();
+        // ethers.utils.formatUnits(Number(value), 6)  // TODO need to format this using the nota.token decimals
+      } else if (title === "DripPeriod") {
+        value = formatTime(Number(value) / 1000).toString();
       }
+    } else if (typeof value === "string") {
+      if (value.match(/^http?:\/\//) || value.match(/^ipfs:\/\//)) {
+        value = value.charAt(0).toUpperCase() + value.slice(1);
+      } else if (isAddress(value)) {
+        value = formatAddress(value);
+      }
+    } else if (value instanceof Date) {
+      value = value.toDateString();
+    } else {
+      value = value.toString();
     }
   }
 
