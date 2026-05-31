@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { NotaCurrency } from "../../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
-  chainInfoForChainId,
   chainNumberToChainHex,
-} from "../../context/chainInfo";
+  getChainConfig,
+} from "../../context/config/chains";
 import { useTokens } from "../useTokens";
 import { CsvData } from "./useBatchPaymentReader";
 
@@ -27,7 +27,7 @@ const useDisperse = ({ data, chainId }: Props) => {
   }, [blockchainState.chainId, chainId]);
 
   const chainName = useMemo(() => {
-    return chainInfoForChainId(chainId).displayName;
+    return getChainConfig(chainId)?.displayName ?? "";
   }, [chainId]);
 
   const [isConfirmed, setIsConfirmed] = useState(false);

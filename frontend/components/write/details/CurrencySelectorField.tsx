@@ -3,13 +3,22 @@ import {
   FormErrorMessage,
   FormLabel,
   HStack,
+  Spinner,
   Text,
   useRadioGroup,
 } from "@chakra-ui/react";
 import { Field, FieldProps } from "formik";
 
+import { useMemo } from "react";
+import {
+  normalizeSymbol,
+  useTokenList,
+} from "../../../context/TokenListProvider";
 import { useTokens } from "../../../hooks/useTokens";
-import CurrencyIcon, { NotaCurrency } from "../../designSystem/CurrencyIcon";
+import CurrencyIcon, {
+  NotaCurrency,
+  SUPPORTED_CURRENCIES,
+} from "../../designSystem/CurrencyIcon";
 import { TokenChoice } from "../../designSystem/TokenChoice";
 
 interface CurrencySelectorProps {
@@ -17,7 +26,6 @@ interface CurrencySelectorProps {
   value: NotaCurrency;
 }
 
-// TODO need to add arbitrary token support (like uni by entering it's address)
 export function CurrencySelectorField() {
   return (
     <Field name="token">
@@ -41,7 +49,16 @@ export function CurrencySelectorField() {
 }
 
 function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
-  const options: NotaCurrency[] = ["USDT", "USDC", "USDCE", "WETH"];
+  const { bySymbol, isLoading } = useTokenList();
+  const { displayNameForCurrency } = useTokens();
+
+  // Only show currencies that resolve to a token on the active chain.
+  const options = useMemo(() => {
+    const available = SUPPORTED_CURRENCIES.filter((currency) =>
+      bySymbol.has(normalizeSymbol(currency))
+    );
+    return available.length > 0 ? available : SUPPORTED_CURRENCIES;
+  }, [bySymbol]);
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "framework",
@@ -51,19 +68,27 @@ function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
     },
   });
 
-  const { displayNameForCurrency } = useTokens();
-
   const group = getRootProps();
+
+  if (isLoading) {
+    return (
+      <HStack maxW="100%">
+        <Spinner size="sm" />
+        <Text fontSize="sm">Loading tokens...</Text>
+      </HStack>
+    );
+  }
+
   return (
     <HStack flexWrap="wrap" {...group} maxW="100%" rowGap={3}>
-      {options.map((value) => {
-        const radio = getRadioProps({ value });
+      {options.map((option) => {
+        const radio = getRadioProps({ value: option });
         return (
-          <TokenChoice key={value} radioProps={radio}>
+          <TokenChoice key={option} radioProps={radio}>
             <HStack>
-              <CurrencyIcon currency={value} />
+              <CurrencyIcon currency={option} />
               <Text fontSize="sm" textAlign="center">
-                {displayNameForCurrency(value)}
+                {displayNameForCurrency(option)}
               </Text>
             </HStack>
           </TokenChoice>

@@ -1,5 +1,4 @@
 import { Box, ChakraProvider } from "@chakra-ui/react";
-import "@fontsource/dm-sans/index.css";
 import coinbaseModule from "@web3-onboard/coinbase";
 import gnosisModule from "@web3-onboard/gnosis";
 import injectedModule from "@web3-onboard/injected-wallets";
@@ -10,6 +9,7 @@ import SidebarNav from "../components/nav/SidebarNav";
 import { BlockchainDataProvider } from "../context/BlockchainDataProvider";
 import GoogleAnalytics from "../context/GoogleAnalytics";
 import { NotasProvider } from "../context/NotasContext";
+import { TokenListProvider } from "../context/TokenListProvider";
 import customTheme from "../theme";
 
 const gnosis = gnosisModule();
@@ -72,13 +72,18 @@ function MyApp({ Component, pageProps }: AppProps) {
       <ChakraProvider theme={customTheme} resetCSS={true}>
         <Web3OnboardProvider web3Onboard={web3Onboard}>
           <BlockchainDataProvider>
-            <NotasProvider>
-              <Box minH="100vh" bgGradient="linear(to-r, brand.400, brand.500)">
-                <SidebarNav>
-                  <Component {...pageProps} />
-                </SidebarNav>
-              </Box>
-            </NotasProvider>
+            <TokenListProvider>
+              <NotasProvider>
+                <Box
+                  minH="100vh"
+                  bgGradient="linear(to-r, brand.400, brand.500)"
+                >
+                  <SidebarNav>
+                    <Component {...pageProps} />
+                  </SidebarNav>
+                </Box>
+              </NotasProvider>
+            </TokenListProvider>
           </BlockchainDataProvider>
         </Web3OnboardProvider>
       </ChakraProvider>

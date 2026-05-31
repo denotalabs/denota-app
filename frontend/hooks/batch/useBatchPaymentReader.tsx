@@ -1,7 +1,7 @@
 import { useToast } from "@chakra-ui/react";
 import Papa from "papaparse";
 import { useCallback, useState } from "react";
-import { chainNumberForChainName } from "../../context/chainInfo";
+import { chainNumberForChainName } from "../../context/config/chains";
 
 export interface CsvData {
   recipient: string;

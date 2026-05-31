@@ -15,7 +15,11 @@ import {
 import Image from "next/image";
 
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
-import { deployedChains } from "../../context/chainInfo";
+import {
+  chainNumberToChainHex,
+  DENOTA_CHAINS,
+  getChainConfigByHex,
+} from "../../context/config/chains";
 import { switchNetwork } from "../../context/SwitchNetwork";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
 
@@ -25,20 +29,15 @@ export default function ChainSwitcher() {
   const { isInitializing, blockchainState } = useBlockchainData();
   const { account, chainId } = blockchainState;
 
-  const selectedChain = deployedChains[chainId];
+  const selectedChain = getChainConfigByHex(chainId);
 
   const [isOpen, setIsOpen] = useState(false);
 
   const { connectWallet } = useBlockchainData();
 
-  const handleSelectChain = async (chain: {
-    displayName: string;
-    chainId: string;
-    logoSrc: string;
-    isDisabled?: boolean;
-  }) => {
+  const handleSelectChain = async (chainIdHex: string) => {
     setIsOpen(false);
-    await switchNetwork(chain.chainId);
+    await switchNetwork(chainIdHex);
 
     // Batch screen doesn't reload the page so force blockchain data refresh here
     if (window.location.pathname === "/batch/") {
@@ -78,25 +77,28 @@ export default function ChainSwitcher() {
         </Flex>
       </MenuButton>
       <MenuList bg="brand.100">
-        {Object.values(deployedChains).map((chain) => (
-          <StyledMenuItem
-            key={chain.chainId}
-            onClick={() => handleSelectChain(chain)}
-            isDisabled={chain.isDisabled}
-          >
-            <Flex alignItems="center">
-              <Image
-                src={chain.logoSrc}
-                alt={chain.displayName}
-                width={20}
-                height={20}
-                unoptimized={true}
-              />
-              <Spacer mx="1" />
-              {chain.displayName}
-            </Flex>
-          </StyledMenuItem>
-        ))}
+        {Object.values(DENOTA_CHAINS).map((chain) => {
+          const chainIdHex = chainNumberToChainHex(chain.chain.id);
+          return (
+            <StyledMenuItem
+              key={chainIdHex}
+              onClick={() => handleSelectChain(chainIdHex)}
+              isDisabled={chain.isDisabled}
+            >
+              <Flex alignItems="center">
+                <Image
+                  src={chain.logoSrc}
+                  alt={chain.displayName}
+                  width={20}
+                  height={20}
+                  unoptimized={true}
+                />
+                <Spacer mx="1" />
+                {chain.displayName}
+              </Flex>
+            </StyledMenuItem>
+          );
+        })}
       </MenuList>
     </Menu>
   );

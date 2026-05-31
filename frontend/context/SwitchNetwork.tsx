@@ -1,24 +1,23 @@
-import { deployedChains, METAMASK_ERROR_CODE } from "./chainInfo";
+import {
+  blockExplorerTxBasesFor,
+  getChainConfigByHex,
+  METAMASK_ERROR_CODE,
+  rpcUrlsFor,
+} from "./config/chains";
 
 export const switchNetwork = async (chainId: string) => {
-  const network = deployedChains[chainId];
+  const config = getChainConfigByHex(chainId);
 
-  if (!network) {
+  if (!config) {
     console.error(`Unsupported chain ID: ${chainId}`);
     return;
   }
 
-  const {
-    name,
-    chainId: id,
-    nativeCurrency,
-    blockExplorerUrls,
-    rpcUrls,
-  } = network;
+  const { chain } = config;
   try {
     await window.ethereum?.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId: id }],
+      params: [{ chainId }],
     });
     return true;
   } catch (error: any) {
@@ -28,11 +27,11 @@ export const switchNetwork = async (chainId: string) => {
           method: "wallet_addEthereumChain",
           params: [
             {
-              chainId: id,
-              chainName: name,
-              nativeCurrency,
-              blockExplorerUrls,
-              rpcUrls,
+              chainId,
+              chainName: chain.name,
+              nativeCurrency: chain.nativeCurrency,
+              blockExplorerUrls: blockExplorerTxBasesFor(config),
+              rpcUrls: rpcUrlsFor(config),
             },
           ],
         });

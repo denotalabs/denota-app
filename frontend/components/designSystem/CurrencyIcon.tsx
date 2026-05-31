@@ -1,4 +1,8 @@
 import { Image } from "@chakra-ui/react";
+import {
+  normalizeSymbol,
+  useTokenList,
+} from "../../context/TokenListProvider";
 
 export type NotaCurrency =
   | "DAI"
@@ -8,25 +12,53 @@ export type NotaCurrency =
   | "USDCE"
   | "UNKNOWN";
 
-const URL_MAP = {
-  USDC: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023",
-  USDCE: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png?v=023",
-  DAI: "https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png?v=023",
-  WETH: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=002",
-  MATIC: "https://cryptologos.cc/logos/polygon-matic-logo.png?v=024",
-  CELO: "https://cryptologos.cc/logos/celo-celo-logo.svg?v=024",
-  USDT: "https://cryptologos.cc/logos/tether-usdt-logo.png?v=024",
+// The set of currencies the app supports writing with. The actual address /
+// decimals / logo for each comes from the runtime token list. Arbitrary token
+// support is gated on SDK changes (write() is symbol-based).
+export const SUPPORTED_CURRENCIES: NotaCurrency[] = [
+  "USDT",
+  "USDC",
+  "USDCE",
+  "WETH",
+];
+
+// Every currency the app can recognize when reading tokens off-chain (a
+// superset of SUPPORTED_CURRENCIES, which is only what we let users write).
+const KNOWN_CURRENCIES = new Set<string>([
+  "DAI",
+  "USDC",
+  "WETH",
+  "USDT",
+  "USDCE",
+]);
+
+/** Resolve a normalized token symbol to a NotaCurrency, or "UNKNOWN". */
+export const currencyForSymbol = (normalizedSymbol: string): NotaCurrency =>
+  KNOWN_CURRENCIES.has(normalizedSymbol)
+    ? (normalizedSymbol as NotaCurrency)
+    : "UNKNOWN";
+
+// Symbols whose UI label differs from the NotaCurrency key.
+const CURRENCY_DISPLAY_NAMES: Partial<Record<NotaCurrency, string>> = {
+  USDCE: "USDC.e",
+  UNKNOWN: "Unknown Token",
 };
+
+export const displayNameForCurrency = (currency: NotaCurrency): string =>
+  CURRENCY_DISPLAY_NAMES[currency] ?? currency;
 
 interface Props {
   currency: NotaCurrency;
 }
+// TODO the above minus NotaCurrency type is tech debt. Remove once SDK allows arbitrary tokens to be written.
 
 function CurrencyIcon({ currency }: Props) {
-  if (currency === "UNKNOWN") {
-    return <></>;
-  }
-  return <Image boxSize="20px" src={URL_MAP[currency]} alt="USDC" />;
+  const { bySymbol } = useTokenList();
+  const logoURI = bySymbol.get(normalizeSymbol(currency))?.logoURI;
+
+  return logoURI ? (
+    <Image boxSize="20px" src={logoURI} alt={currency} />
+  ) : null;
 }
 
 export default CurrencyIcon;
