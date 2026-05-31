@@ -25,9 +25,6 @@ function AccountField({ fieldName, placeholder, isRequired = true }: Props) {
     }
 
     let error;
-    if (blockchainState.account === value) {
-      error = "Can't self send";
-    }
     if (!ethers.utils.isAddress(value)) {
       error = "Invalid address";
     }

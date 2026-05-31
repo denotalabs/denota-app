@@ -7,7 +7,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
-import { POLYGON_CHAINID } from "../context/chainInfo";
+import { POLYGON_CHAINID } from "../context/config/chains";
 import { switchNetwork } from "../context/SwitchNetwork";
 
 export function WrongChain() {

@@ -2,10 +2,10 @@ import { Box, Button, Text, VStack } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
-  chainInfoForChainId,
   chainNumberToChainHex,
-  deployedChains,
-} from "../../context/chainInfo";
+  getChainConfig,
+  getChainConfigByHex,
+} from "../../context/config/chains";
 import { useNotaForm } from "../../context/NotaFormProvider";
 import { switchNetwork } from "../../context/SwitchNetwork";
 import { BatchDataMap } from "../../hooks/batch/useBatchPaymentReader";
@@ -28,7 +28,7 @@ const BridgeStep: React.FC<ScreenProps> = () => {
   const originChainId = notaFormValues.originChainId as string;
 
   const originChainName = useMemo(() => {
-    return deployedChains[originChainId].displayName;
+    return getChainConfigByHex(originChainId)?.displayName ?? "";
   }, [originChainId]);
 
   const switchToOriginChain = useCallback(async () => {
@@ -65,9 +65,9 @@ const BridgeStep: React.FC<ScreenProps> = () => {
 
     for (const tokenChain of tokenChainKeys) {
       const [token, chainId] = tokenChain.split("|");
-      const chainInfo = chainInfoForChainId(Number(chainId));
-      const chainDisplayName = chainInfo
-        ? chainInfo.displayName
+      const chainConfig = getChainConfig(Number(chainId));
+      const chainDisplayName = chainConfig
+        ? chainConfig.displayName
         : "UNRECOGNIZED CHAIN";
 
       outputList.push({

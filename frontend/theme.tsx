@@ -27,9 +27,9 @@ const notaTheme = extendTheme({
     },
   },
   fonts: {
-    body: `DM Sans, sans-serif`,
-    heading: `DM Sans, sans-serif`,
-    mono: "DM Sans, monospace",
+    body: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`,
+    heading: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`,
+    mono: `ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`,
   },
   shadows: { outline: "0 !important" },
   colors: {

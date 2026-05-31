@@ -1,111 +1,85 @@
-import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { ethers } from "ethers";
 import { useCallback } from "react";
-import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
+import {
+  currencyForSymbol,
+  displayNameForCurrency as displayNameForCurrencyImpl,
+  NotaCurrency,
+} from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
+import {
+  normalizeSymbol,
+  useTokenList,
+} from "../context/TokenListProvider";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
+
+const DEFAULT_DECIMALS = 18;
 
 export const useTokens = () => {
   const { blockchainState } = useBlockchainData();
+  const { bySymbol, byAddress } = useTokenList();
 
   const getTokenAddress = useCallback(
     (token: NotaCurrency) => {
-      const mapping = contractMappingForChainId(blockchainState.chainIdNumber);
-      switch (token) {
-        case "DAI":
-          return mapping.dai;
-        case "WETH":
-          return mapping.weth;
-        case "USDC":
-          return mapping.usdc;
-        case "USDCE":
-          return mapping.usdce;
-        case "USDT":
-          return mapping.usdt;
-        default:
-          return "";
+      if (token === "UNKNOWN") {
+        return "";
       }
+      return bySymbol.get(normalizeSymbol(token))?.address ?? "";
     },
-    [blockchainState]
+    [bySymbol]
   );
-
-  const displayNameForCurrency = useCallback((currency: NotaCurrency) => {
-    switch (currency) {
-      case "USDCE":
-        return "USDC.e";
-      case "UNKNOWN":
-        return "Unknown Token";
-    }
-    return currency;
-  }, []);
 
   const currencyForTokenId = useCallback(
     (tokenAddress: string): NotaCurrency => {
-      const mapping = contractMappingForChainId(blockchainState.chainIdNumber);
-
-      switch (tokenAddress) {
-        case mapping.dai.toLowerCase():
-          return "DAI";
-        case mapping.weth.toLowerCase():
-          return "WETH";
-        case mapping.usdc.toLocaleLowerCase():
-          return "USDC";
-        case mapping.usdce.toLocaleLowerCase():
-          return "USDCE";
-        case mapping.usdt.toLocaleLowerCase():
-          return "USDT";
-        default:
-          return "UNKNOWN";
+      const token = byAddress.get(tokenAddress.toLowerCase());
+      if (!token) {
+        return "UNKNOWN";
       }
+      return currencyForSymbol(normalizeSymbol(token.symbol));
     },
-    [blockchainState.chainIdNumber]
+    [byAddress]
   );
 
-  const getTokenUnits = useCallback((token: NotaCurrency) => {
-    switch (token) {
-      case "USDC":
-      case "USDT":
-      case "USDCE":
-        return 6;
-      default:
-        return 18;
-    }
-  }, []);
+  const displayNameForCurrency = useCallback(
+    (currency: NotaCurrency) => displayNameForCurrencyImpl(currency),
+    []
+  );
+
+  const getTokenUnits = useCallback(
+    (token: NotaCurrency) => {
+      if (token === "UNKNOWN") {
+        return DEFAULT_DECIMALS;
+      }
+      return bySymbol.get(normalizeSymbol(token))?.decimals ?? DEFAULT_DECIMALS;
+    },
+    [bySymbol]
+  );
 
   const parseTokenValue = useCallback(
     (token: NotaCurrency, value: number) => {
-      const units = getTokenUnits(token);
-      switch (token) {
-        case "WETH":
-          return ethers.utils.parseUnits(String(value), units);
-        case "DAI":
-          return ethers.utils.parseUnits(String(value), units);
-        case "USDC":
-          return ethers.utils.parseUnits(String(value), units);
-        case "USDCE":
-          return ethers.utils.parseUnits(String(value), units);
-        case "USDT":
-          return ethers.utils.parseUnits(String(value), units);
-        default:
-          return "";
+      if (token === "UNKNOWN") {
+        return "";
       }
+      const units = getTokenUnits(token);
+      return ethers.utils.parseUnits(String(value), units);
     },
     [getTokenUnits]
   );
 
-
   const weiAddressToDisplay = useCallback(
     (wei: ethers.BigNumber, token: string): string => {
-      const units = getTokenUnits(currencyForTokenId(token));
-
+      const units =
+        byAddress.get(token.toLowerCase())?.decimals ?? DEFAULT_DECIMALS;
       return ethers.utils.formatUnits(wei, units);
     },
-    [getTokenUnits]
+    [byAddress]
   );
 
   const getTokenContract = useCallback(
     (token: NotaCurrency) => {
       const address = getTokenAddress(token);
+      if (!address) {
+        return null;
+      }
       return new ethers.Contract(address, erc20.abi, blockchainState.signer);
     },
     [blockchainState.signer, getTokenAddress]

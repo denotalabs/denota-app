@@ -1,6 +1,6 @@
 import { Center, HStack } from "@chakra-ui/react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { POLYGON_CHAINID } from "../../../context/chainInfo";
+import { POLYGON_CHAINID } from "../../../context/config/chains";
 // import { Nota } from "../../../hooks/useNotas";
 import { Nota } from "@denota-labs/denota-sdk";
 import SimpleModal from "../../designSystem/SimpleModal";

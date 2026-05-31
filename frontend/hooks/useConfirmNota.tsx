@@ -29,7 +29,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.mode === "pay"
   );
 
-  const { getTokenContract } = useTokens();
+  const { getTokenContract, getTokenUnits } = useTokens();
 
   const token = useMemo(() => {
     return getTokenContract(notaFormValues.token);
@@ -39,8 +39,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     if (!notaFormValues.amount || isNaN(parseFloat(notaFormValues.amount))) {
       return BigNumber.from(0);
     }
-    return ethers.utils.parseUnits(notaFormValues.amount, 6);
-  }, [notaFormValues]);
+    return ethers.utils.parseUnits(
+      notaFormValues.amount,
+      getTokenUnits(notaFormValues.token)
+    );
+  }, [getTokenUnits, notaFormValues]);
 
   const { createLocalNota } = useNotaContext();
 

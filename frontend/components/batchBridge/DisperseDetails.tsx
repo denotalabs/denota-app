@@ -7,9 +7,9 @@ import { Button, Link, Text, VStack } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
-  chainInfoForChainId,
   chainNumberToChainHex,
-} from "../../context/chainInfo";
+  getChainConfig,
+} from "../../context/config/chains";
 import { switchNetwork } from "../../context/SwitchNetwork";
 import { CsvData } from "../../hooks/batch/useBatchPaymentReader";
 import useDisperse from "../../hooks/batch/useDisperse";
@@ -26,7 +26,7 @@ function DisperseDetails({ chainId, data }: Props) {
   const { connectWallet, blockchainState } = useBlockchainData();
 
   const chainName = useMemo(() => {
-    return chainInfoForChainId(chainId).displayName;
+    return getChainConfig(chainId)?.displayName ?? "";
   }, [chainId]);
 
   const [isOpen, setIsOpen] = useState(false);

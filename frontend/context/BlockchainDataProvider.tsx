@@ -20,10 +20,11 @@ import { useConnectWallet, useWallets } from "@web3-onboard/react";
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
   batchContractMappingForChainId,
-  ChainInfo,
-  chainInfoForChainId,
+  blockExplorerTxBasesFor,
   chainNumberToChainHex,
-} from "./chainInfo";
+  DenotaChainConfig,
+  getChainConfig,
+} from "./config/chains";
 
 import { MetaMaskInpageProvider } from "@metamask/providers";
 
@@ -142,7 +143,8 @@ export const BlockchainDataProvider = memo(
           }
         });
         const contractMapping = contractMappingForChainId(chainId);
-        const deployedChainInfo: ChainInfo = chainInfoForChainId(chainId);
+        const deployedChainInfo: DenotaChainConfig | undefined =
+          getChainConfig(chainId);
 
         if (contractMapping === undefined || deployedChainInfo == undefined) {
           setIsInitializing(false);
@@ -160,7 +162,8 @@ export const BlockchainDataProvider = memo(
             ? new ethers.Contract(batchContract, MultiDisperse.abi, signer)
             : null;
 
-          const firstBlockExplorer = deployedChainInfo.blockExplorerUrls[0];
+          const firstBlockExplorer =
+            blockExplorerTxBasesFor(deployedChainInfo)[0] ?? "";
           // Load contracts
           setBlockchainState({
             signer,
@@ -169,7 +172,8 @@ export const BlockchainDataProvider = memo(
             explorer: firstBlockExplorer,
             chainId: chainNumberToChainHex(chainId),
             graphUrl: deployedChainInfo.graphUrl, // Change to graphTestUrl for testing a local graph node
-            nativeCurrencySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
+            nativeCurrencySymbol:
+              deployedChainInfo.chain.nativeCurrency?.symbol ?? "",
             disperse,
             chainIdNumber: chainId,
           });
