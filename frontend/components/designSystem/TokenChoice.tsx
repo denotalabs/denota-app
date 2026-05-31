@@ -7,16 +7,16 @@ interface TokenChoiceProps {
 }
 
 export function TokenChoice({ radioProps, children }: TokenChoiceProps) {
-  const { getInputProps, getCheckboxProps } = useRadio(radioProps);
+  const { getInputProps, getRadioProps } = useRadio(radioProps);
 
   const input = getInputProps();
-  const checkbox = getCheckboxProps();
+  const radio = getRadioProps();
 
   return (
     <Box as="label">
       <input {...input} />
       <Box
-        {...checkbox}
+        {...radio}
         cursor="pointer"
         borderWidth="1px"
         borderRadius="full"

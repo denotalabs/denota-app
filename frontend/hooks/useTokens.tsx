@@ -10,7 +10,7 @@ export const useTokens = () => {
 
   const getTokenAddress = useCallback(
     (token: NotaCurrency) => {
-      const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
+      const mapping = contractMappingForChainId(blockchainState.chainIdNumber);
       switch (token) {
         case "DAI":
           return mapping.dai;
@@ -41,7 +41,7 @@ export const useTokens = () => {
 
   const currencyForTokenId = useCallback(
     (tokenAddress: string): NotaCurrency => {
-      const mapping = contractMappingForChainId(blockchainState.chhainIdNumber);
+      const mapping = contractMappingForChainId(blockchainState.chainIdNumber);
 
       switch (tokenAddress) {
         case mapping.dai.toLowerCase():
@@ -58,7 +58,7 @@ export const useTokens = () => {
           return "UNKNOWN";
       }
     },
-    [blockchainState.chhainIdNumber]
+    [blockchainState.chainIdNumber]
   );
 
   const getTokenUnits = useCallback((token: NotaCurrency) => {

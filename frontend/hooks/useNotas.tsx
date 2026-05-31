@@ -97,7 +97,7 @@ export const useNotas = ({ notaField }: Props) => {
     },
     [
       account,
-      blockchainState.chhainIdNumber,
+      blockchainState.chainIdNumber,
       currencyForTokenId,
       getTokenUnits,
     ]

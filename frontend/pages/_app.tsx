@@ -4,7 +4,6 @@ import coinbaseModule from "@web3-onboard/coinbase";
 import gnosisModule from "@web3-onboard/gnosis";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { Web3OnboardProvider, init } from "@web3-onboard/react";
-// import walletConnectModule from "@web3-onboard/walletconnect";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import SidebarNav from "../components/nav/SidebarNav";
@@ -16,11 +15,6 @@ import customTheme from "../theme";
 const gnosis = gnosisModule();
 
 const coinbase = coinbaseModule();
-
-// const walletConnect = walletConnectModule({
-//   version: 2,
-//   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_ID,
-// });
 
 const celoTestnet = {
   id: "0xaef3",

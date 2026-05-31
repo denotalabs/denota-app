@@ -16,7 +16,7 @@ export const switchNetwork = async (chainId: string) => {
     rpcUrls,
   } = network;
   try {
-    await (window as any).ethereum.request({
+    await window.ethereum?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: id }],
     });
@@ -24,7 +24,7 @@ export const switchNetwork = async (chainId: string) => {
   } catch (error: any) {
     if (error.code === METAMASK_ERROR_CODE) {
       try {
-        await (window as any).ethereum.request({
+        await window.ethereum?.request({
           method: "wallet_addEthereumChain",
           params: [
             {

@@ -39,9 +39,9 @@ interface BlockchainDataInterface {
   signer: null | ethers.providers.JsonRpcSigner;
   explorer: string;
   chainId: string;
-  chhainIdNumber: number;
+  chainIdNumber: number;
   graphUrl: string;
-  nativeCurrenySymbol: string;
+  nativeCurrencySymbol: string;
   disperse: null | ethers.Contract;
 }
 
@@ -61,10 +61,10 @@ const defaultBlockchainState = {
   explorer: "",
   chainId: "",
   graphUrl: "",
-  nativeCurrenySymbol: "",
+  nativeCurrencySymbol: "",
   walletBalance: "",
   disperse: null,
-  chhainIdNumber: 0,
+  chainIdNumber: 0,
   simpleCashAddress: "",
 };
 
@@ -168,10 +168,10 @@ export const BlockchainDataProvider = memo(
             registrarAddress: contractMapping.registrar,
             explorer: firstBlockExplorer,
             chainId: chainNumberToChainHex(chainId),
-            graphUrl: deployedChainInfo.graphUrl, // Change from graphUrlto graphTestUrl for testing a local graph node
-            nativeCurrenySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
+            graphUrl: deployedChainInfo.graphUrl, // Change to graphTestUrl for testing a local graph node
+            nativeCurrencySymbol: deployedChainInfo.nativeCurrency?.symbol ?? "",
             disperse,
-            chhainIdNumber: chainId,
+            chainIdNumber: chainId,
           });
           setIsInitializing(false);
         }
