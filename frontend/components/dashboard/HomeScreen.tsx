@@ -7,7 +7,7 @@ import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import NewUserModal from "../nux/NewUserModal";
 import { WrongChain } from "../WrongChain";
 import MyNotas from "./MyNotas";
-import NewUserScreen from "./NewUserScreen";
+import PublicNotas from "./PublicNotas";
 
 function HomeScreen() {
   return (
@@ -47,7 +47,9 @@ function HomeScreenContent() {
   }
 
   return account === "" ? (
-    <NewUserScreen />
+    <Center flexDirection={"column"} width="100%" p={{ base: "4", lg: "0" }}>
+      <PublicNotas />
+    </Center>
   ) : (
     <Center flexDirection={"column"} width="100%" p={{ base: "4", lg: "0" }}>
       <NewUserModal isOpen={isNuxOpen} onClose={onCloseNux} />

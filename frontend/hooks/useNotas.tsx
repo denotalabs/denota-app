@@ -10,9 +10,34 @@ import { useTokens } from "./useTokens";
 
 interface Props {
   notaField: string;
+  /** When false, skip the subgraph (e.g. account holds no notas). */
+  subgraphEnabled: boolean;
 }
 
-export const useNotas = ({ notaField }: Props) => {
+const GRAPH_QUERY_TIMEOUT_MS = 8_000;
+
+const queryWithTimeout = <T,>(
+  promise: Promise<T>,
+  timeoutMs: number
+): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error("Graph query timed out")),
+      timeoutMs
+    );
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+
+export const useNotas = ({ notaField, subgraphEnabled }: Props) => {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account.toLowerCase();
   const chainId = Number(blockchainState.chainId);
@@ -28,6 +53,9 @@ export const useNotas = ({ notaField }: Props) => {
   const [optimisticNotas, setOptimisticNotas] = useState<Nota[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
+  // True when the subgraph query fails (e.g. graph node not running), so
+  // consumers can fall back to reading notas directly over RPC.
+  const [graphFailed, setGraphFailed] = useState(false);
 
   const addOptimisticNota = useCallback((nota: Nota) => {
     setOptimisticNotas((notas) => [...notas, nota]);
@@ -104,9 +132,16 @@ export const useNotas = ({ notaField }: Props) => {
   );
 
   const refresh = useCallback(() => {
-    if (account) {
-      setIsLoading(true);
-      const notaFields = `      
+    if (!account || !subgraphEnabled) {
+      setGraphFailed(false);
+      setIsLoading(false);
+      setNotaSent([]);
+      setNotasReceived([]);
+      setNotasInspected([]);
+      return;
+    }
+    setIsLoading(true);
+    const notaFields = `      
       id
       token {
         id
@@ -160,8 +195,8 @@ export const useNotas = ({ notaField }: Props) => {
       }
       `;
 
-      // TODO: pagination
-      const tokenQuery = gql`
+    // TODO: pagination
+    const tokenQuery = gql`
       query accounts($account: String ){
         account(id: $account)  {
           notasSent {
@@ -174,48 +209,51 @@ export const useNotas = ({ notaField }: Props) => {
       }
       `;
 
-      const client = new ApolloClient({
-        uri: blockchainState.graphUrl,
-        cache: new InMemoryCache(),
-      });
-      client
-        .query({
-          query: tokenQuery,
-          variables: {
-            account: account,
-          },
-        })
-        .then((data) => {
-          if (data["data"]["account"]) {
-            const gqlNotasSent = data["data"]["account"]["notasSent"] as any[];
-            const gqlNotasReceived = data["data"]["account"][
-              "notasReceived"
-            ] as any[];
-            setNotaSent(
-              gqlNotasSent.filter((nota) => nota.owner).map(mapField)
-            );
+    const client = new ApolloClient({
+      uri: blockchainState.graphUrl,
+      cache: new InMemoryCache(),
+    });
+    queryWithTimeout(
+      client.query({
+        query: tokenQuery,
+        variables: {
+          account: account,
+        },
+      }),
+      GRAPH_QUERY_TIMEOUT_MS
+    )
+      .then((data) => {
+        setGraphFailed(false);
+        if (data["data"]["account"]) {
+          const gqlNotasSent = data["data"]["account"]["notasSent"] as any[];
+          const gqlNotasReceived = data["data"]["account"][
+            "notasReceived"
+          ] as any[];
+          setNotaSent(
+            gqlNotasSent.filter((nota) => nota.owner).map(mapField)
+          );
 
-            setNotasReceived(
-              gqlNotasReceived.filter((nota) => nota.owner).map(mapField)
-            );
+          setNotasReceived(
+            gqlNotasReceived.filter((nota) => nota.owner).map(mapField)
+          );
 
-            setNotasInspected([]);
-          } else {
-            setNotaSent([]);
-            setNotasReceived([]);
-            setNotasInspected([]);
-          }
-          setIsLoading(false);
-        })
-        .catch((err) => {
-          console.log("Error fetching data: ", err);
-          setIsLoading(false);
+          setNotasInspected([]);
+        } else {
           setNotaSent([]);
           setNotasReceived([]);
           setNotasInspected([]);
-        });
-    }
-  }, [account, blockchainState.graphUrl, mapField]);
+        }
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log("Error fetching data: ", err);
+        setGraphFailed(true);
+        setIsLoading(false);
+        setNotaSent([]);
+        setNotasReceived([]);
+        setNotasInspected([]);
+      });
+  }, [account, blockchainState.graphUrl, mapField, subgraphEnabled]);
 
   useEffect(() => {
     refresh();
@@ -293,5 +331,5 @@ export const useNotas = ({ notaField }: Props) => {
     notasReceivedIncludingOptimistic,
   ]);
 
-  return { notas, refresh, addOptimisticNota };
+  return { notas, refresh, addOptimisticNota, graphFailed };
 };
