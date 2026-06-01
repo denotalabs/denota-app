@@ -10,9 +10,8 @@ import {
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 // TODO why are there separate moduleDatas here?
 import { Nota } from "@denota-labs/denota-sdk";
-import {
-  useNotas
-} from "../hooks/useNotas";
+import { useNotas } from "../hooks/useNotas";
+import { useAccountNotaBalance } from "../hooks/usePublicNotas";
 import { useBlockchainData } from "./BlockchainDataProvider";
 
 interface NotasContextInterface {
@@ -22,6 +21,10 @@ interface NotasContextInterface {
   isLoading: boolean;
   setNotaField: (notaField: string) => void;
   createLocalNota: (props: OptimisticNotaProps) => void;
+  graphFailed: boolean;
+  accountNotaBalance: number | undefined;
+  balanceChecking: boolean;
+  refreshBalance: () => void;
 }
 
 // TODO change this to the same struct as Nota from the SDK?
@@ -59,15 +62,32 @@ export const NotaContext = createContext<NotasContextInterface>({
   createLocalNota: () => {
     return;
   },
+  graphFailed: false,
+  accountNotaBalance: undefined,
+  balanceChecking: false,
+  refreshBalance: () => {
+    return;
+  },
 });
 
 export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
   const [notaField, setNotaFieldInternal] = useState("all");
   const [isLoadingInternal, setIsLoadingInternal] = useState(false);
   const { blockchainState } = useBlockchainData();
+  const account = blockchainState.account;
 
-  const { notas, refresh, addOptimisticNota } = useNotas({
+  const {
+    balance: accountNotaBalance,
+    isCheckingBalance: balanceChecking,
+    refresh: refreshBalance,
+  } = useAccountNotaBalance(account);
+
+  const subgraphEnabled =
+    !!account && accountNotaBalance !== undefined && accountNotaBalance > 0;
+
+  const { notas, refresh, addOptimisticNota, graphFailed } = useNotas({
     notaField: notaField,
+    subgraphEnabled,
   });
 
   const setNotaField = useCallback((notaField: string) => {
@@ -157,6 +177,10 @@ export const NotasProvider = ({ children }: { children: React.ReactNode }) => {
         setNotaField,
         refreshWithDelay,
         createLocalNota,
+        graphFailed,
+        accountNotaBalance,
+        balanceChecking,
+        refreshBalance,
       }}
     >
       {children}
