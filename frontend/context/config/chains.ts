@@ -9,6 +9,9 @@ export const ETHEREUM_MAINNET_CHAIN_ID = mainnet.id;
 export const POLYGON_CHAIN_ID = polygon.id;
 export const ANVIL_CHAIN_ID = 31337;
 
+/** Chain used for token metadata and UI when no wallet is connected. */
+export const DEFAULT_CHAIN_ID = POLYGON_CHAIN_ID;
+
 const envValue = (key: string, fallback = "") =>
   process.env[key]?.trim() || fallback;
 

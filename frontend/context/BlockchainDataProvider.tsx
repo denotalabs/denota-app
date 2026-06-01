@@ -22,6 +22,7 @@ import {
   batchContractMappingForChainId,
   blockExplorerTxBasesFor,
   chainNumberToChainHex,
+  DEFAULT_CHAIN_ID,
   DenotaChainConfig,
   getChainConfig,
 } from "./config/chains";
@@ -197,6 +198,15 @@ export const BlockchainDataProvider = memo(
       if (connectedWallets[0]) {
         loadBlockchainData();
       } else {
+        const deployedChainInfo = getChainConfig(DEFAULT_CHAIN_ID);
+        setBlockchainState({
+          ...defaultBlockchainState,
+          chainId: chainNumberToChainHex(DEFAULT_CHAIN_ID),
+          chainIdNumber: DEFAULT_CHAIN_ID,
+          graphUrl: deployedChainInfo?.graphUrl ?? "",
+          nativeCurrencySymbol:
+            deployedChainInfo?.chain.nativeCurrency?.symbol ?? "",
+        });
         setIsInitializing(false);
       }
     }, [connectedWallets, loadBlockchainData]);

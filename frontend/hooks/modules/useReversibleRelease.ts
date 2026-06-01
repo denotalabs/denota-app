@@ -1,6 +1,9 @@
 import { write } from "@denota-labs/denota-sdk";
 import { useCallback } from "react";
-import { NotaCurrency } from "../../components/designSystem/CurrencyIcon";
+import {
+  NotaCurrency,
+  sdkCurrencyFor,
+} from "../../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 interface Props {
@@ -28,7 +31,7 @@ export const useReversibleRelease = () => {
         return;
       }
       const receipt = await write({
-        currency: token,
+        currency: sdkCurrencyFor(token),
         amount: Number(amount),
         instant: 0,
         owner: address,

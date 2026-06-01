@@ -18,6 +18,7 @@ import { useTokens } from "../../../hooks/useTokens";
 import CurrencyIcon, {
   NotaCurrency,
   SUPPORTED_CURRENCIES,
+  tokenListSymbolForCurrency,
 } from "../../designSystem/CurrencyIcon";
 import { TokenChoice } from "../../designSystem/TokenChoice";
 
@@ -55,7 +56,7 @@ function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
   // Only show currencies that resolve to a token on the active chain.
   const options = useMemo(() => {
     const available = SUPPORTED_CURRENCIES.filter((currency) =>
-      bySymbol.has(normalizeSymbol(currency))
+      bySymbol.has(normalizeSymbol(tokenListSymbolForCurrency(currency)))
     );
     return available.length > 0 ? available : SUPPORTED_CURRENCIES;
   }, [bySymbol]);
