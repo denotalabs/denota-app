@@ -4,6 +4,7 @@ import {
   currencyForSymbol,
   displayNameForCurrency as displayNameForCurrencyImpl,
   NotaCurrency,
+  tokenListSymbolForCurrency,
 } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import {
@@ -23,7 +24,10 @@ export const useTokens = () => {
       if (token === "UNKNOWN") {
         return "";
       }
-      return bySymbol.get(normalizeSymbol(token))?.address ?? "";
+      return (
+        bySymbol.get(normalizeSymbol(tokenListSymbolForCurrency(token)))
+          ?.address ?? ""
+      );
     },
     [bySymbol]
   );
@@ -49,7 +53,10 @@ export const useTokens = () => {
       if (token === "UNKNOWN") {
         return DEFAULT_DECIMALS;
       }
-      return bySymbol.get(normalizeSymbol(token))?.decimals ?? DEFAULT_DECIMALS;
+      return (
+        bySymbol.get(normalizeSymbol(tokenListSymbolForCurrency(token)))
+          ?.decimals ?? DEFAULT_DECIMALS
+      );
     },
     [bySymbol]
   );

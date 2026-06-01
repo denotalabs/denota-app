@@ -5,7 +5,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { getChainConfig } from "./config/chains";
+import { DEFAULT_CHAIN_ID, getChainConfig } from "./config/chains";
 import { isTokenList, TokenInfo } from "./config/tokenList";
 import { useBlockchainData } from "./BlockchainDataProvider";
 
@@ -53,7 +53,7 @@ export const TokenListProvider = ({
   children: React.ReactNode;
 }) => {
   const { blockchainState } = useBlockchainData();
-  const chainId = blockchainState.chainIdNumber;
+  const chainId = blockchainState.chainIdNumber || DEFAULT_CHAIN_ID;
 
   const [tokens, setTokens] = useState<TokenInfo[]>([]);
   const [isLoading, setIsLoading] = useState(false);

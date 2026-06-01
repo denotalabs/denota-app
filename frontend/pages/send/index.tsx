@@ -1,12 +1,10 @@
 import { Center, Spinner } from "@chakra-ui/react";
 import { WrongChain } from "../../components/WrongChain";
-import NewUserScreen from "../../components/dashboard/NewUserScreen";
 import WriteNotaFlow from "../../components/write/WriteNotaFlow";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 
 function SendPage() {
   const { isInitializing, isWrongChain, blockchainState } = useBlockchainData();
-  const { account } = blockchainState;
 
   if (isInitializing) {
     return (
@@ -20,9 +18,7 @@ function SendPage() {
     return <WrongChain />;
   }
 
-  return account === "" ? (
-    <NewUserScreen />
-  ) : (
+  return (
     <Center w="100%" h="100%">
       <WriteNotaFlow />
     </Center>
