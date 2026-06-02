@@ -1,10 +1,6 @@
-import {
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-} from "@chakra-ui/react";
+import { FormControl, FormErrorMessage, HStack, Input } from "@chakra-ui/react";
 import { Field } from "formik";
+import { FileUploadButton } from "../../write/metadata/FileUpload";
 
 interface Props {
   fieldName: string;
@@ -16,10 +12,10 @@ export default function ExternalURIField({ fieldName, placeholder }: Props) {
     <Field name={fieldName}>
       {({ field, form: { errors, touched } }: any) => (
         <FormControl isInvalid={errors.name && touched.name}>
-          <FormLabel noOfLines={1} flexShrink={0}>
-            External URL
-          </FormLabel>
-          <Input {...field} />
+          <HStack align="center" spacing={2}>
+            <Input flex={1} {...field} placeholder={placeholder} />
+            <FileUploadButton name={fieldName} uploadValueKey="ipfsHash" />
+          </HStack>
           <FormErrorMessage>{errors.name}</FormErrorMessage>
         </FormControl>
       )}

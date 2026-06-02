@@ -3,7 +3,6 @@ import { NotaFormProvider } from "../../context/NotaFormProvider";
 import Stepper from "../designSystem/stepper/Stepper";
 import ConfirmNotaStep from "./confirm/ConfirmNotaStep";
 import DetailsStep from "./details/DetailsStep";
-import MetadataStep from "./metadata/MetadataStep";
 import PaymentTermsStep from "./module/PaymentTermsStep";
 import ModuleSelectStep from "./moduleSelect/ModuleSelectStep";
 
@@ -45,7 +44,6 @@ export function WriteStepperDesktop({ onClose }: Props) {
       <DetailsStep
         screenKey="write"
         screenTitle={"Payment Details"}
-        showMetadata={true}
       ></DetailsStep>
       <ModuleSelectStep
         screenKey="moduleSelect"
@@ -66,12 +64,7 @@ export function WriteStepperMobile({ onClose }: Props) {
       <DetailsStep
         screenKey="write"
         screenTitle={"Payment Details"}
-        showMetadata={false}
       ></DetailsStep>
-      <MetadataStep
-        screenKey="metadata"
-        screenTitle={"Metadata (Optional)"}
-      ></MetadataStep>
       <ModuleSelectStep
         screenKey="moduleSelect"
         screenTitle="Payment Terms"

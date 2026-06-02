@@ -4,6 +4,10 @@ import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useConfirmNota } from "../../../hooks/useConfirmNota";
+import {
+  hasValidPaymentAmount,
+  useInsufficientBalance,
+} from "../../../hooks/useInsufficientBalance";
 
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps } from "../../designSystem/stepper/Stepper";
@@ -20,14 +24,40 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
 
   const router = useRouter();
 
+  const isPayMode = notaFormValues.mode === "pay";
+  const requiresBalanceCheck =
+    isPayMode && hasValidPaymentAmount(notaFormValues.amount);
+
+  const { insufficientBalance, isCheckingBalance, balanceChecked } =
+    useInsufficientBalance(
+      notaFormValues.token,
+      notaFormValues.amount,
+      requiresBalanceCheck
+    );
+
+  const isAwaitingBalanceCheck =
+    requiresBalanceCheck && (!balanceChecked || isCheckingBalance);
+
   const buttonText = useMemo(() => {
+    if (isAwaitingBalanceCheck) {
+      return "Confirm Payment";
+    }
+    if (insufficientBalance) {
+      return "Insufficient balance";
+    }
     if (needsApproval) {
       return "Approve " + notaFormValues.token;
     }
     return notaFormValues.mode === "invoice"
       ? "Create Invoice"
       : "Confirm Payment";
-  }, [notaFormValues.mode, notaFormValues.token, needsApproval]);
+  }, [
+    insufficientBalance,
+    isAwaitingBalanceCheck,
+    needsApproval,
+    notaFormValues.mode,
+    notaFormValues.token,
+  ]);
 
   return (
     <Box w="100%" p={4}>
@@ -35,12 +65,14 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
         initialValues={{
           module: notaFormValues.module ?? "directSend",
         }}
-        onSubmit={async (values, actions) => {
-          if (needsApproval) {
-            await approveAmount();
-            actions.setSubmitting(false);
-          } else {
-            await writeNota();
+        onSubmit={async (_values, actions) => {
+          try {
+            if (needsApproval) {
+              await approveAmount();
+            } else {
+              await writeNota();
+            }
+          } finally {
             actions.setSubmitting(false);
           }
         }}
@@ -49,7 +81,11 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
           <Form>
             <ConfirmNotice module={props.values.module}></ConfirmNotice>
             <ConfirmDetails></ConfirmDetails>
-            <RoundedButton type="submit" isLoading={props.isSubmitting}>
+            <RoundedButton
+              type="submit"
+              isLoading={props.isSubmitting}
+              isDisabled={isAwaitingBalanceCheck || insufficientBalance}
+            >
               {buttonText}
             </RoundedButton>
           </Form>
