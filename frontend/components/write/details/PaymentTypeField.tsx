@@ -36,7 +36,7 @@ const PAYMENT_TYPE_OPTIONS: {
     {
       value: "withReceipt",
       label: "With receipt",
-      description: "Mints an NFT receipt to the recipient along with the payment transfer.",
+      description: "Transfers payment and mints an NFT receipt for the recipient.",
       icon: MdReceiptLong,
     },
     {
