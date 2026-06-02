@@ -60,6 +60,8 @@ interface Props {
   tooltip?: string;
   copyValue?: string;
   fontColor?: string;
+  /** When false, show full addresses on desktop-style layouts. Default true. */
+  shortenAddresses?: boolean;
 }
 
 function DetailsRow({
@@ -69,6 +71,7 @@ function DetailsRow({
   tooltip,
   copyValue,
   fontColor,
+  shortenAddresses = true,
 }: Props) {
   const { onCopy } = useClipboard(copyValue ?? "");
   const toast = useToast();
@@ -87,7 +90,7 @@ function DetailsRow({
       if (value.match(/^http?:\/\//) || value.match(/^ipfs:\/\//)) {
         value = value.charAt(0).toUpperCase() + value.slice(1);
       } else if (isAddress(value)) {
-        value = formatAddress(value);
+        value = formatAddress(value, { shorten: shortenAddresses });
       }
     } else if (value instanceof Date) {
       value = value.toDateString();
@@ -114,7 +117,8 @@ function DetailsRow({
             fontWeight={200}
             fontSize="md"
             textAlign="right"
-            noOfLines={1}
+            noOfLines={shortenAddresses ? 1 : undefined}
+            wordBreak={shortenAddresses ? undefined : "break-all"}
             color={fontColor}
           >
             {value}
@@ -129,24 +133,42 @@ function DetailsRow({
               <QuestionOutlineIcon ml={2} mb={1} />
             </Tooltip>
           )}
-          {link && (
-            <Link href={link} isExternal>
-              <ExternalLinkIcon mb={1} />
-            </Link>
-          )}
           {copyValue && (
-            <CopyIcon
-              cursor={"pointer"}
-              onClick={() => {
-                onCopy();
-                toast({
-                  title: "Address copied",
-                  status: "success",
-                  duration: 1000,
-                  isClosable: true,
-                });
-              }}
-            />
+            <Tooltip label="Copy address" placement="top" shouldWrapChildren>
+              <CopyIcon
+                cursor="pointer"
+                onClick={() => {
+                  onCopy();
+                  toast({
+                    title: "Address copied",
+                    status: "success",
+                    duration: 1000,
+                    isClosable: true,
+                  });
+                }}
+              />
+            </Tooltip>
+          )}
+          {link && (
+            <Tooltip label="View on block explorer" placement="top" shouldWrapChildren>
+              <Link
+                href={link}
+                isExternal
+                aria-label="View on block explorer"
+                display="inline-flex"
+                alignItems="center"
+                justifyContent="center"
+                color="blue.500"
+                borderWidth="1px"
+                borderColor="blue.500"
+                borderRadius="sm"
+                p={0.5}
+                lineHeight={0}
+                _hover={{ bg: "blue.50", textDecoration: "none" }}
+              >
+                <ExternalLinkIcon boxSize={3.5} />
+              </Link>
+            </Tooltip>
           )}
         </HStack>
       </Flex>

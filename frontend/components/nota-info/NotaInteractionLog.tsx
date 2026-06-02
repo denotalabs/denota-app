@@ -6,6 +6,7 @@ import {
   Spinner,
   Stack,
   Table,
+  useBreakpointValue,
   Tbody,
   Td,
   Text,
@@ -33,7 +34,13 @@ function formatDate(date: Date): string {
   });
 }
 
-function AddressCell({ address }: { address: string | null }) {
+function AddressCell({
+  address,
+  shortenAddresses,
+}: {
+  address: string | null;
+  shortenAddresses: boolean;
+}) {
   const { formatAddress } = useFormatAddress();
 
   if (!address || address === ethersZeroAddress()) {
@@ -45,8 +52,12 @@ function AddressCell({ address }: { address: string | null }) {
   }
 
   return (
-    <Text fontSize="sm" title={address}>
-      {formatAddress(address)}
+    <Text
+      fontSize="sm"
+      title={address}
+      wordBreak={shortenAddresses ? undefined : "break-all"}
+    >
+      {formatAddress(address, { shorten: shortenAddresses })}
     </Text>
   );
 }
@@ -60,6 +71,8 @@ function NotaInteractionLog({
 }: Props) {
   const { blockchainState } = useBlockchainData();
   const explorer = blockchainState.explorer || "https://polygonscan.com/tx/";
+  const shortenAddresses =
+    useBreakpointValue({ base: true, md: false }) ?? false;
 
   return (
     <Box w="100%">
@@ -94,10 +107,16 @@ function NotaInteractionLog({
                 <Tr key={interaction.id}>
                   <Td fontWeight="medium">{interaction.action}</Td>
                   <Td>
-                    <AddressCell address={interaction.from} />
+                    <AddressCell
+                      address={interaction.from}
+                      shortenAddresses={shortenAddresses}
+                    />
                   </Td>
                   <Td>
-                    <AddressCell address={interaction.to} />
+                    <AddressCell
+                      address={interaction.to}
+                      shortenAddresses={shortenAddresses}
+                    />
                   </Td>
                   <Td fontSize="sm">
                     {interaction.amount ?? (

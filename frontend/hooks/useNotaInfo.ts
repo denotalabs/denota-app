@@ -20,10 +20,18 @@ import {
   TokenMetadata,
 } from "../utils/notaTokenUri";
 import {
+  displayNameForCurrency as displayNameForCurrencyImpl,
+  currencyForSymbol,
+} from "../components/designSystem/CurrencyIcon";
+import { normalizeSymbol } from "../context/TokenListProvider";
+import { TokenInfo } from "../context/config/tokenList";
+import {
   fetchNotaTokenUri,
+  loadPolygonTokens,
   POLYGON_REGISTRAR_ADDRESS,
 } from "./usePublicNotas";
-import { useTokens } from "./useTokens";
+
+const DEFAULT_DECIMALS = 18;
 
 const GRAPH_QUERY_TIMEOUT_MS = 8_000;
 
@@ -247,38 +255,40 @@ const NOTA_QUERY = gql`
   }
 `;
 
+const tokenDisplayForAddress = (
+  tokenAddress: string,
+  polygonTokens: Map<string, TokenInfo>
+): { decimals: number; symbol: string } => {
+  const token = polygonTokens.get(tokenAddress.toLowerCase());
+  if (!token) {
+    return { decimals: DEFAULT_DECIMALS, symbol: "Unknown" };
+  }
+  const currencyKey = currencyForSymbol(normalizeSymbol(token.symbol));
+  return {
+    decimals: token.decimals ?? DEFAULT_DECIMALS,
+    symbol: displayNameForCurrencyImpl(currencyKey),
+  };
+};
+
+const buildOnChainStateFromInfo = (
+  info: { escrowed: ethers.BigNumber; currency: string; module: string },
+  polygonTokens: Map<string, TokenInfo>
+): NotaOnChainState => {
+  const currency = String(info.currency).toLowerCase();
+  const { decimals, symbol } = tokenDisplayForAddress(currency, polygonTokens);
+  return {
+    currency,
+    currencySymbol: symbol,
+    escrow: ethers.utils.formatUnits(info.escrowed, decimals),
+    hook: String(info.module),
+  };
+};
+
 export const useNotaInfo = (notaId: string | undefined) => {
-  const { currencyForTokenId, displayNameForCurrency, getTokenUnits } = useTokens();
   const [data, setData] = useState<NotaInfoData>(emptyNotaInfoData);
 
   const chainConfig = getChainConfig(DEFAULT_CHAIN_ID);
   const graphUrl = chainConfig?.graphUrl ?? "";
-
-  const formatAmountForToken = useCallback(
-    (tokenAddress: string, value: BigNumber | string) => {
-      const currency = currencyForTokenId(tokenAddress);
-      const decimals = getTokenUnits(currency);
-      const symbol = displayNameForCurrency(currency);
-      return formatWeiAmount(value, decimals, symbol);
-    },
-    [currencyForTokenId, displayNameForCurrency, getTokenUnits]
-  );
-
-  const buildOnChainState = useCallback(
-    (info: { escrowed: ethers.BigNumber; currency: string; module: string }) => {
-      const currency = String(info.currency).toLowerCase();
-      const currencyKey = currencyForTokenId(currency);
-      const decimals = getTokenUnits(currencyKey);
-      const symbol = displayNameForCurrency(currencyKey);
-      return {
-        currency,
-        currencySymbol: symbol,
-        escrow: ethers.utils.formatUnits(info.escrowed, decimals),
-        hook: String(info.module),
-      };
-    },
-    [currencyForTokenId, displayNameForCurrency, getTokenUnits]
-  );
 
   const load = useCallback(() => {
     if (!notaId || notaId.trim() === "") {
@@ -292,6 +302,7 @@ export const useNotaInfo = (notaId: string | undefined) => {
 
     const id = notaId;
     const registrar = getRegistrarReadContract();
+    const polygonTokensPromise = loadPolygonTokens();
 
     setData({
       ...emptyNotaInfoData(),
@@ -342,12 +353,18 @@ export const useNotaInfo = (notaId: string | undefined) => {
         }));
       });
 
-    registrar
-      .notaInfo(id)
-      .then((info: { escrowed: ethers.BigNumber; currency: string; module: string }) => {
+    polygonTokensPromise
+      .then((polygonTokens) =>
+        registrar.notaInfo(id).then((info: {
+          escrowed: ethers.BigNumber;
+          currency: string;
+          module: string;
+        }) => ({ info, polygonTokens }))
+      )
+      .then(({ info, polygonTokens }) => {
         setData((prev) => ({
           ...prev,
-          onChainState: buildOnChainState(info),
+          onChainState: buildOnChainStateFromInfo(info, polygonTokens),
           onChainStateLoading: false,
         }));
       })
@@ -389,14 +406,17 @@ export const useNotaInfo = (notaId: string | undefined) => {
       cache: new InMemoryCache(),
     });
 
-    queryWithTimeout(
-      client.query({
-        query: NOTA_QUERY,
-        variables: { id },
-      }),
-      GRAPH_QUERY_TIMEOUT_MS
-    )
-      .then((result) => {
+    Promise.all([
+      queryWithTimeout(
+        client.query({
+          query: NOTA_QUERY,
+          variables: { id },
+        }),
+        GRAPH_QUERY_TIMEOUT_MS
+      ),
+      polygonTokensPromise,
+    ])
+      .then(([result, polygonTokens]) => {
         const gqlNota = result.data?.nota;
         if (!gqlNota) {
           setData((prev) => ({
@@ -414,12 +434,13 @@ export const useNotaInfo = (notaId: string | undefined) => {
           sender: gqlNota.sender?.id ?? null,
           receiver: gqlNota.receiver?.id ?? null,
           interactions: dedupeInteractions(
-            buildInteractionsFromSubgraph(gqlNota, (value) =>
-              formatAmountForToken(
+            buildInteractionsFromSubgraph(gqlNota, (value) => {
+              const { decimals, symbol } = tokenDisplayForAddress(
                 tokenAddress || prev.onChainState?.currency || "",
-                value
-              )
-            )
+                polygonTokens
+              );
+              return formatWeiAmount(value, decimals, symbol);
+            })
           ),
           interactionsLoading: false,
           interactionsSource: "subgraph",
@@ -433,7 +454,7 @@ export const useNotaInfo = (notaId: string | undefined) => {
           interactionsSource: "none",
         }));
       });
-  }, [buildOnChainState, formatAmountForToken, graphUrl, notaId]);
+  }, [graphUrl, notaId]);
 
   useEffect(() => {
     load();

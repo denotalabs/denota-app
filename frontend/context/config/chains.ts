@@ -149,3 +149,22 @@ export const blockExplorerTxBasesFor = (config: DenotaChainConfig): string[] =>
   config.chain.blockExplorers
     ? [`${config.chain.blockExplorers.default.url}/tx/`]
     : [];
+
+const POLYGONSCAN_TX_BASE = "https://polygonscan.com/tx/";
+
+/** Block-explorer base URL derived from a `/tx/` explorer link base. */
+export const blockExplorerBaseFromTxBase = (explorerTxBase: string): string =>
+  explorerTxBase.replace(/\/tx\/?$/, "");
+
+/** Polygonscan (or chain explorer) address page for copy/link. */
+export const blockExplorerAddressUrl = (
+  explorerTxBase: string,
+  address: string
+): string =>
+  `${blockExplorerBaseFromTxBase(explorerTxBase || POLYGONSCAN_TX_BASE)}/address/${address}`;
+
+/** Polygonscan contract tab (verified source) for hook addresses. */
+export const blockExplorerContractCodeUrl = (
+  explorerTxBase: string,
+  address: string
+): string => `${blockExplorerAddressUrl(explorerTxBase, address)}#code`;
