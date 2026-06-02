@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { useNotaContext } from "../../context/NotasContext";
-import { fetchNotaTokenUri, NotaRow } from "../../hooks/usePublicNotas";
+import { NotaRow } from "../../hooks/usePublicNotas";
 import { useTokens } from "../../hooks/useTokens";
 import PublicNotas from "./PublicNotas";
 import { NotaTable } from "./table/NotaTable";
@@ -97,7 +97,7 @@ function MyNotas() {
           }}
         />
       </HStack>
-      <NotaTable rows={subgraphRows} getTokenUri={fetchNotaTokenUri} />
+      <NotaTable rows={subgraphRows} />
     </VStack>
   );
 }

@@ -3,18 +3,11 @@ import {
   Box,
   Button,
   Center,
-  Code,
   Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   Spinner,
   Table,
   Tbody,
@@ -24,7 +17,6 @@ import {
   Thead,
   Tr,
   chakra,
-  useDisclosure,
 } from "@chakra-ui/react";
 import {
   ColumnDef,
@@ -34,11 +26,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import NextLink from "next/link";
 import { useState } from "react";
 import {
   NotaRow,
   POLYGON_REGISTRAR_ADDRESS,
 } from "../../../hooks/usePublicNotas";
+import { truncateAddress } from "../../../utils/notaTokenUri";
 
 export type DataTableProps<Data extends object> = {
   data: Data[];
@@ -117,69 +111,15 @@ export function DataTable<Data extends object>({
   );
 }
 
-const truncateAddress = (address: string): string =>
-  address && address.length > 10
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : address;
-
 const openSeaUrlFor = (notaId: string): string =>
   `https://opensea.io/assets/matic/${POLYGON_REGISTRAR_ADDRESS}/${notaId}`;
-
-// tokenURI returns either a base64- or utf8-encoded data URI of JSON metadata.
-const decodeTokenUri = (uri: string): string => {
-  try {
-    const base64Marker = "base64,";
-    const base64Index = uri.indexOf(base64Marker);
-    if (base64Index >= 0) {
-      const decoded = atob(uri.slice(base64Index + base64Marker.length));
-      return JSON.stringify(JSON.parse(decoded), null, 2);
-    }
-    const utf8Marker = "utf8,";
-    const utf8Index = uri.indexOf(utf8Marker);
-    if (utf8Index >= 0) {
-      return JSON.stringify(
-        JSON.parse(uri.slice(utf8Index + utf8Marker.length)),
-        null,
-        2
-      );
-    }
-    return uri;
-  } catch {
-    return uri;
-  }
-};
 
 interface NotaTableProps {
   /** undefined => loading state, [] => empty state. */
   rows?: NotaRow[];
-  /** Fetches a nota's tokenURI for the "View metadata" action. */
-  getTokenUri?: (notaId: string) => Promise<string>;
 }
 
-export function NotaTable({ rows, getTokenUri }: NotaTableProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [metadata, setMetadata] = useState<string | null>(null);
-  const [isFetching, setIsFetching] = useState(false);
-
-  const openMetadata = async (notaId: string) => {
-    setSelectedId(notaId);
-    setMetadata(null);
-    onOpen();
-    if (!getTokenUri) {
-      return;
-    }
-    setIsFetching(true);
-    try {
-      const uri = await getTokenUri(notaId);
-      setMetadata(decodeTokenUri(uri));
-    } catch {
-      setMetadata("Failed to load metadata");
-    } finally {
-      setIsFetching(false);
-    }
-  };
-
+export function NotaTable({ rows }: NotaTableProps) {
   if (rows === undefined) {
     return (
       <Center w="100%" py={10}>
@@ -201,11 +141,11 @@ export function NotaTable({ rows, getTokenUri }: NotaTableProps) {
       <Table size="sm">
         <Thead>
           <Tr>
-            <Th>Nota ID</Th>
+            <Th>Payment ID</Th>
             <Th>Owner</Th>
             <Th>Currency</Th>
             <Th isNumeric>Escrow</Th>
-            <Th>Hook</Th>
+            <Th>Payment Terms</Th>
             <Th />
           </Tr>
         </Thead>
@@ -227,8 +167,8 @@ export function NotaTable({ rows, getTokenUri }: NotaTableProps) {
                     See more
                   </MenuButton>
                   <MenuList>
-                    <MenuItem onClick={() => openMetadata(row.notaId)}>
-                      View metadata
+                    <MenuItem as={NextLink} href={`/nota/${row.notaId}`}>
+                      Open info
                     </MenuItem>
                     <MenuItem
                       as={Link}
@@ -244,32 +184,6 @@ export function NotaTable({ rows, getTokenUri }: NotaTableProps) {
           ))}
         </Tbody>
       </Table>
-
-      <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Nota #{selectedId} metadata</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            {isFetching ? (
-              <Center py={6}>
-                <Spinner />
-              </Center>
-            ) : (
-              <Code
-                display="block"
-                whiteSpace="pre-wrap"
-                wordBreak="break-all"
-                p={3}
-                borderRadius="md"
-                w="100%"
-              >
-                {metadata ?? "No metadata"}
-              </Code>
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </Box>
   );
 }

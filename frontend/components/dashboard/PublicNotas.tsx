@@ -5,7 +5,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { fetchNotaTokenUri, usePublicNotas } from "../../hooks/usePublicNotas";
+import { usePublicNotas } from "../../hooks/usePublicNotas";
 import { NotaTable } from "./table/NotaTable";
 
 /** Recent notas from RPC (no wallet / no subgraph required). */
@@ -24,7 +24,7 @@ function PublicNotas() {
       bg="brand.100"
     >
       <Heading size="md">Recent Notas</Heading>
-      <NotaTable rows={notas} getTokenUri={fetchNotaTokenUri} />
+      <NotaTable rows={notas} />
       <HStack justifyContent="space-between">
         <Button
           onClick={showNewer}
