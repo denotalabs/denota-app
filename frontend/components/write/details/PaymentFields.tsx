@@ -17,14 +17,21 @@ function PaymentFields({ token, mode }: Props) {
   const { updateNotaFormValues } = useNotaForm();
 
   useEffect(() => {
-    const { token, amount, address, mode } = values;
     updateNotaFormValues({
-      token,
-      amount: amount ? String(Number(amount)) : "",
-      address,
-      mode,
+      token: values.token,
+      amount: values.amount ? String(Number(values.amount)) : "",
+      address: values.address,
+      resolvedAddress: values.resolvedAddress,
+      mode: values.mode,
     });
-  }, [updateNotaFormValues, values]);
+  }, [
+    updateNotaFormValues,
+    values.token,
+    values.amount,
+    values.address,
+    values.resolvedAddress,
+    values.mode,
+  ]);
 
   return (
     <Flex
@@ -37,7 +44,12 @@ function PaymentFields({ token, mode }: Props) {
     >
       <FormControl flex={1} minW={0}>
         <FormLabel mb={2}>Recipient Address</FormLabel>
-        <AccountField fieldName="address" placeholder="0x..." />
+        <AccountField
+          fieldName="address"
+          resolvedFieldName="resolvedAddress"
+          allowEns
+          placeholder="almaraz.eth, 0x..."
+        />
       </FormControl>
       <FormControl flexShrink={0} w={{ base: "100%", md: "200px" }}>
         <FormLabel mb={2}>Amount</FormLabel>

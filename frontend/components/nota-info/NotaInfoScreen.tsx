@@ -1,5 +1,6 @@
 import {
   ArrowBackIcon,
+  CopyIcon,
   ExternalLinkIcon,
 } from "@chakra-ui/icons";
 import {
@@ -7,28 +8,36 @@ import {
   Button,
   Center,
   Heading,
+  HStack,
   Image,
   Link,
   Stack,
   Tag,
   Text,
+  Tooltip,
   useBreakpointValue,
+  useClipboard,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import {
   blockExplorerAddressUrl,
   blockExplorerContractCodeUrl,
 } from "../../context/config/chains";
-import { useFormatAddress } from "../../hooks/useFormatAddress";
+import { useEnsNames } from "../../hooks/useEnsNames";
 import { NotaInfoData } from "../../hooks/useNotaInfo";
 import { POLYGON_REGISTRAR_ADDRESS } from "../../hooks/usePublicNotas";
 import {
+  collectMetadataAddresses,
   formatMetadataAttributeValue,
+  isMetadataAddressValue,
   resolveMetadataImageUrl,
+  TokenMetadataAttribute,
 } from "../../utils/notaTokenUri";
+import AddressDisplay from "../designSystem/AddressDisplay";
 import DetailsRow from "../designSystem/DetailsRow";
 import RoundedBox from "../designSystem/RoundedBox";
 import NotaInteractionLog from "./NotaInteractionLog";
@@ -83,8 +92,74 @@ function loadingOrValue(loading: boolean, value: string | null | undefined): str
   return value ?? "—";
 }
 
+function MetadataAttributeValue({
+  attribute,
+  ensNames,
+  shortenAddresses,
+  explorerTxBase,
+}: {
+  attribute: TokenMetadataAttribute;
+  ensNames: Map<string, string | null>;
+  shortenAddresses: boolean;
+  explorerTxBase: string;
+}) {
+  const { value } = attribute;
+  const address = isMetadataAddressValue(value) ? value : "";
+  const { onCopy } = useClipboard(address);
+  const toast = useToast();
+
+  if (!isMetadataAddressValue(value)) {
+    return <>{formatMetadataAttributeValue(attribute)}</>;
+  }
+
+  return (
+    <HStack as="span" display="inline-flex" spacing={1} alignItems="center">
+      <AddressDisplay
+        address={value}
+        shorten={shortenAddresses}
+        ensNames={ensNames}
+        as="span"
+        display="inline"
+      />
+      <Tooltip label="Copy address" placement="top" shouldWrapChildren>
+        <CopyIcon
+          boxSize={3}
+          cursor="pointer"
+          onClick={() => {
+            onCopy();
+            toast({
+              title: "Address copied",
+              status: "success",
+              duration: 1000,
+              isClosable: true,
+            });
+          }}
+        />
+      </Tooltip>
+      <Tooltip label="View on block explorer" placement="top" shouldWrapChildren>
+        <Link
+          href={blockExplorerAddressUrl(explorerTxBase, value)}
+          isExternal
+          aria-label="View on block explorer"
+          display="inline-flex"
+          alignItems="center"
+          justifyContent="center"
+          color="blue.500"
+          borderWidth="1px"
+          borderColor="blue.500"
+          borderRadius="sm"
+          p={0.5}
+          lineHeight={0}
+          _hover={{ bg: "blue.50", textDecoration: "none" }}
+        >
+          <ExternalLinkIcon boxSize={3} />
+        </Link>
+      </Tooltip>
+    </HStack>
+  );
+}
+
 function NotaInfoScreen({ notaId, data }: Props) {
-  const { formatAddress } = useFormatAddress();
   const shortenAddresses =
     useBreakpointValue({ base: true, md: false }) ?? false;
   const { blockchainState } = useBlockchainData();
@@ -106,6 +181,20 @@ function NotaInfoScreen({ notaId, data }: Props) {
     interactionsSource,
   } = data;
 
+  const ensAddresses = useMemo(
+    () =>
+      [
+        owner,
+        approved,
+        onChainState?.hook,
+        sender,
+        receiver,
+        ...collectMetadataAddresses(metadata),
+      ].filter((address): address is string => !!address),
+    [owner, approved, onChainState, sender, receiver, metadata]
+  );
+  const ensNames = useEnsNames(ensAddresses);
+
   if (data.notFound && !ownerLoading) {
     return (
       <VStack spacing={4} py={10}>
@@ -121,10 +210,12 @@ function NotaInfoScreen({ notaId, data }: Props) {
 
   const openSeaUrl = `https://opensea.io/assets/matic/${POLYGON_REGISTRAR_ADDRESS}/${notaId}`;
 
-  const approvedDisplay =
-    approved && approved !== ZERO_ADDRESS
-      ? formatAddress(approved, { shorten: shortenAddresses })
-      : "None";
+  const approvedValue =
+    approvedLoading
+      ? "…"
+      : !approved || approved === ZERO_ADDRESS
+        ? "None"
+        : approved;
   const approvedCopy =
     approved && approved !== ZERO_ADDRESS ? approved : "";
 
@@ -180,6 +271,7 @@ function NotaInfoScreen({ notaId, data }: Props) {
           <DetailsRow
             title="Owner"
             shortenAddresses={shortenAddresses}
+            ensNames={ensNames}
             value={
               owner && !ownerLoading
                 ? owner
@@ -195,11 +287,8 @@ function NotaInfoScreen({ notaId, data }: Props) {
           <DetailsRow
             title="Approved"
             shortenAddresses={shortenAddresses}
-            value={
-              approvedLoading
-                ? "…"
-                : approvedDisplay
-            }
+            ensNames={ensNames}
+            value={approvedValue}
             copyValue={approvedCopy}
             link={
               approved && approved !== ZERO_ADDRESS
@@ -219,6 +308,7 @@ function NotaInfoScreen({ notaId, data }: Props) {
           <DetailsRow
             title="Currency"
             shortenAddresses={shortenAddresses}
+            ensNames={ensNames}
             value={
               onChainState && !onChainStateLoading
                 ? onChainState.currency
@@ -236,6 +326,7 @@ function NotaInfoScreen({ notaId, data }: Props) {
           <DetailsRow
             title="Hook"
             shortenAddresses={shortenAddresses}
+            ensNames={ensNames}
             value={
               onChainState && !onChainStateLoading
                 ? onChainState.hook
@@ -254,6 +345,7 @@ function NotaInfoScreen({ notaId, data }: Props) {
             <DetailsRow
               title="Payer"
               shortenAddresses={shortenAddresses}
+              ensNames={ensNames}
               value={sender}
               copyValue={sender}
               link={blockExplorerAddressUrl(explorerTxBase, sender)}
@@ -263,6 +355,7 @@ function NotaInfoScreen({ notaId, data }: Props) {
             <DetailsRow
               title="Recipient"
               shortenAddresses={shortenAddresses}
+              ensNames={ensNames}
               value={receiver}
               copyValue={receiver}
               link={blockExplorerAddressUrl(explorerTxBase, receiver)}
@@ -302,7 +395,12 @@ function NotaInfoScreen({ notaId, data }: Props) {
                 {displayAttributes.map((attribute, index) => (
                   <Tag key={`${attribute.trait_type}-${index}`} size="md">
                     {attribute.trait_type}:{" "}
-                    {formatMetadataAttributeValue(attribute)}
+                    <MetadataAttributeValue
+                      attribute={attribute}
+                      ensNames={ensNames}
+                      shortenAddresses={shortenAddresses}
+                      explorerTxBase={explorerTxBase}
+                    />
                   </Tag>
                 ))}
               </Stack>

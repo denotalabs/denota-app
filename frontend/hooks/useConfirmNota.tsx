@@ -11,6 +11,7 @@ import { useReversibleRelease } from "./modules/useReversibleRelease";
 import { useSimpleCash } from "./modules/useSimpleCash";
 import { useEmail } from "./useEmail";
 import { useRegistrarApproval } from "./useRegistrarApproval";
+import { getEffectiveAddress } from "../utils/ensAddress";
 
 interface Props {
   onSuccess?: () => void;
@@ -42,7 +43,10 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
 
   const writeNota = useCallback(async () => {
     try {
-      const owner = notaFormValues.address;
+      const owner = getEffectiveAddress(
+        notaFormValues.address,
+        notaFormValues.resolvedAddress
+      );
       let receipt: { txHash: string; notaId: string };
 
       // TODO need to add more modules
@@ -134,6 +138,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     blockchainState.chainId,
     notaFormValues.module,
     notaFormValues.address,
+    notaFormValues.resolvedAddress,
     notaFormValues.amount,
     notaFormValues.token,
     notaFormValues.email,

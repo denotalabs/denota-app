@@ -5,15 +5,44 @@ import axios from "axios";
 import { isAddress } from "ethers/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
-import { useFormatAddress } from "../../../hooks/useFormatAddress";
+import { useEnsNames } from "../../../hooks/useEnsNames";
 import { useTokens } from "../../../hooks/useTokens";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
-function formatModuleDataRows(moduleData: ModuleData) {
-  const filterCondition = (key: string, value: any) => {
-    return key !== "moduleName" && key !== "externalURI" && key !== "imageURI" &&
-      key !== "writeBytes" && value !== null && value !== undefined;
+function collectModuleDataAddresses(moduleData: ModuleData): string[] {
+  const seen = new Set<string>();
+  for (const [key, value] of Object.entries(moduleData)) {
+    if (
+      key === "moduleName" ||
+      key === "externalURI" ||
+      key === "imageURI" ||
+      key === "writeBytes" ||
+      value === null ||
+      value === undefined
+    ) {
+      continue;
+    }
+    if (typeof value === "string" && isAddress(value)) {
+      seen.add(value.toLowerCase());
+    }
+  }
+  return [...seen];
+}
+
+function formatModuleDataRows(
+  moduleData: ModuleData,
+  ensNames: Map<string, string | null>
+) {
+  const filterCondition = (key: string, value: unknown) => {
+    return (
+      key !== "moduleName" &&
+      key !== "externalURI" &&
+      key !== "imageURI" &&
+      key !== "writeBytes" &&
+      value !== null &&
+      value !== undefined
+    );
   };
   return Object.entries(moduleData)
     .filter(([key, value]) => filterCondition(key, value))
@@ -22,8 +51,10 @@ function formatModuleDataRows(moduleData: ModuleData) {
         key={key}
         title={key}
         value={value}
-        copyValue={isAddress(value) ? value : ""} />
-    ))
+        ensNames={ensNames}
+        copyValue={isAddress(value) ? value : ""}
+      />
+    ));
 }
 
 interface Props {
@@ -40,15 +71,28 @@ function NotaDetails({ nota }: Props) {
   const [fileName, setFilename] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
+  const ensAddresses = useMemo(
+    () => [
+      nota.sender,
+      nota.receiver,
+      ...collectModuleDataAddresses(nota.moduleData),
+    ],
+    [nota.sender, nota.receiver, nota.moduleData]
+  );
+  const ensNames = useEnsNames(ensAddresses);
+
   // TODO need to handle both imageURI and externalURIs with and without lighthouse
   useEffect(() => {
     async function fetchData() {
       try {
-        if (nota.moduleData.externalURI) {  // TODO need to check if it's just a hash or a full URL
+        if (nota.moduleData.externalURI) {
+          // TODO need to check if it's just a hash or a full URL
           if (nota.moduleData.externalURI.startsWith("ipfs://")) {
             const resp = await axios.get(nota.moduleData.externalURI);
             if (resp.data.file) {
-              setFile(`https://gateway.lighthouse.storage/ipfs/${resp.data.file}`);
+              setFile(
+                `https://gateway.lighthouse.storage/ipfs/${resp.data.file}`
+              );
               setFilename(resp.data.filename);
             }
             setIsLoading(false);
@@ -79,8 +123,8 @@ function NotaDetails({ nota }: Props) {
     fetchData();
   }, [nota.moduleData.externalURI]);
 
-  const { displayNameForCurrency, weiAddressToDisplay, currencyForTokenId } = useTokens();
-  const { formatAddress } = useFormatAddress();
+  const { displayNameForCurrency, weiAddressToDisplay, currencyForTokenId } =
+    useTokens();
 
   const moduleName = useMemo(() => {
     switch (nota.moduleData.moduleName) {
@@ -126,33 +170,44 @@ function NotaDetails({ nota }: Props) {
         <VStack gap={0}>
           <DetailsRow
             title="Payer"
-            value={formatAddress(nota.sender)}
+            value={nota.sender}
+            ensNames={ensNames}
             copyValue={nota.sender}
           />
           <DetailsRow
             title="Recipient"
-            value={formatAddress(nota.receiver)}
+            value={nota.receiver}
+            ensNames={ensNames}
             copyValue={nota.receiver}
           />
           <DetailsRow
             title="Amount"
-            value={weiAddressToDisplay(nota.totalAmountSent, nota.token)
-              + " " +
+            value={
+              weiAddressToDisplay(nota.totalAmountSent, nota.token) +
+              " " +
               displayNameForCurrency(currencyForTokenId(nota.token))
             }
           />
-          <DetailsRow title="Payment Terms" value={moduleName} tooltip={moduleDesc} />
-          {formatModuleDataRows(nota.moduleData)}
-          {nota.moduleData.externalURI && (<DetailsRow
-            title="External URI"
-            value={nota.moduleData.externalURI}
-            link={`${nota.moduleData.externalURI}`}
-          />)}
-          {nota.moduleData.imageURI && (<DetailsRow
-            title="Image"
-            value={nota.moduleData.imageURI}
-            link={`${nota.moduleData.imageURI}`}
-          />)}
+          <DetailsRow
+            title="Payment Terms"
+            value={moduleName}
+            tooltip={moduleDesc}
+          />
+          {formatModuleDataRows(nota.moduleData, ensNames)}
+          {nota.moduleData.externalURI && (
+            <DetailsRow
+              title="External URI"
+              value={nota.moduleData.externalURI}
+              link={`${nota.moduleData.externalURI}`}
+            />
+          )}
+          {nota.moduleData.imageURI && (
+            <DetailsRow
+              title="Image"
+              value={nota.moduleData.imageURI}
+              link={`${nota.moduleData.imageURI}`}
+            />
+          )}
           <DetailsRow
             title="Created On"
             value={nota.createdAt.toLocaleDateString()}
@@ -161,7 +216,9 @@ function NotaDetails({ nota }: Props) {
           {nota.funds.length > 0 && (
             <DetailsRow
               title="Funded Date"
-              value={new Date(nota.funds[0].transaction.timestamp).toString()}
+              value={new Date(
+                nota.funds[0].transaction.timestamp
+              ).toString()}
               link={`${explorer}${nota.funds[0].transaction.hash}`}
             />
           )}

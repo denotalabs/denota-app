@@ -30,8 +30,9 @@ import {
   MdSwapHorizontalCircle
 } from "react-icons/md";
 import { useCashNota } from "../../hooks/useCashNota";
-import { useFormatAddress } from "../../hooks/useFormatAddress";
+import { useEnsNames } from "../../hooks/useEnsNames";
 import { useTokens } from "../../hooks/useTokens";
+import AddressDisplay from "../designSystem/AddressDisplay";
 import CurrencyIcon from "../designSystem/CurrencyIcon";
 import DetailsModal from "./details/DetailsModal";
 // import ApproveAndPayModal from "./pay/ApproveAndPayModal";
@@ -96,7 +97,7 @@ function NotaCard({ nota }: Props) {
     onClose: onClosePay,
   } = useDisclosure();
 
-  const { formatAddress } = useFormatAddress();
+  const ensNames = useEnsNames([nota.sender, nota.receiver]);
 
   const icon = useMemo(() => {
     switch (nota.moduleData.status) {
@@ -218,23 +219,23 @@ function NotaCard({ nota }: Props) {
             </Tooltip>
           </HStack>
           <HStack maxW="100%">
-            <Text
+            <AddressDisplay
+              address={nota.sender}
+              ensNames={ensNames}
               fontWeight={600}
-              fontSize={"xl"}
+              fontSize="xl"
               textOverflow="clip"
               noOfLines={1}
-            >
-              {formatAddress(nota.sender)}
-            </Text>
+            />
             <ArrowForwardIcon mx={2} />
-            <Text
+            <AddressDisplay
+              address={nota.receiver}
+              ensNames={ensNames}
               fontWeight={600}
-              fontSize={"xl"}
+              fontSize="xl"
               textOverflow="clip"
               noOfLines={1}
-            >
-              {formatAddress(nota.receiver)}
-            </Text>
+            />
           </HStack>
 
           <HStack>
