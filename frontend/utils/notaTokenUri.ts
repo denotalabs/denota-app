@@ -1,3 +1,5 @@
+import { isAddress } from "ethers/lib/utils";
+
 export interface TokenMetadata {
   name?: string;
   description?: string;
@@ -25,6 +27,41 @@ export interface TokenMetadataAttribute {
   value?: string | number;
   display_type?: string;
 }
+
+const isHexAddress = (value: unknown): value is string =>
+  typeof value === "string" && isAddress(value.trim());
+
+/** Collect hex addresses from tokenURI metadata fields and attribute values. */
+export const collectMetadataAddresses = (
+  metadata: TokenMetadata | null | undefined
+): string[] => {
+  if (!metadata) {
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const add = (value: unknown) => {
+    if (!isHexAddress(value)) {
+      return;
+    }
+    seen.add(value.trim().toLowerCase());
+  };
+
+  for (const attribute of metadata.attributes ?? []) {
+    add(attribute.value);
+  }
+
+  for (const [key, value] of Object.entries(metadata)) {
+    if (key === "attributes") {
+      continue;
+    }
+    add(value);
+  }
+
+  return [...seen];
+};
+
+export const isMetadataAddressValue = isHexAddress;
 
 const DATE_DISPLAY_TYPES = new Set(["date", "datetime"]);
 const DATE_TRAIT_PATTERN = /(date|time|timestamp|deadline|expir)/i;
@@ -159,11 +196,6 @@ export const parseTokenMetadata = (uri: string): TokenMetadata | null => {
     return null;
   }
 };
-
-export const truncateAddress = (address: string): string =>
-  address && address.length > 10
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : address;
 
 /** HTTP URL suitable for <img src> (IPFS → Lighthouse gateway). */
 export const resolveMetadataImageUrl = (uri: string): string => {

@@ -1,5 +1,6 @@
 import { useToast } from "@chakra-ui/react";
 import { Form, FormikProvider, useFormik } from "formik";
+import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useRef } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
@@ -23,12 +24,14 @@ import {
   requiresRegistrarApproval,
   showsMetadataForm,
 } from "./paymentMetadata";
+import { getEffectiveAddress } from "../../../utils/ensAddress";
 import { PaymentType } from "./PaymentTypeField";
 
 export type DetailsStepFormValues = {
   token: string;
   amount: string | undefined;
   address: string;
+  resolvedAddress: string;
   mode: string;
   paymentType: PaymentType;
   note: string;
@@ -71,6 +74,7 @@ export function DetailsStepForm() {
       token: notaFormValues.token ?? "USDC",
       amount: notaFormValues.amount ?? undefined,
       address: notaFormValues.address ?? "",
+      resolvedAddress: notaFormValues.resolvedAddress ?? "",
       mode: "pay",
       paymentType: (notaFormValues.paymentType as PaymentType) ?? "withTerms",
       note: notaFormValues.note ?? "",
@@ -114,6 +118,11 @@ export function DetailsStepForm() {
         }
       }
 
+      const recipientAddress = getEffectiveAddress(
+        values.address,
+        values.resolvedAddress
+      );
+
       ctx.updateNotaFormValues({
         note: values.note,
         email: values.email,
@@ -125,6 +134,7 @@ export function DetailsStepForm() {
         token: values.token,
         amount: values.amount ? String(Number(values.amount)) : "",
         address: values.address,
+        resolvedAddress: values.resolvedAddress,
         mode: values.mode,
         ...(paymentType !== "withTerms" && { module: "directSend" }),
       });
@@ -151,7 +161,7 @@ export function DetailsStepForm() {
       await ctx.executeQuickPayment({
         token: values.token,
         amount: values.amount,
-        address: values.address,
+        address: recipientAddress,
         paymentType,
         note: values.note,
         email: values.email,
@@ -195,10 +205,19 @@ export function DetailsStepForm() {
     executeQuickPayment,
   };
 
+  const recipientAddress = getEffectiveAddress(
+    formik.values.address,
+    formik.values.resolvedAddress
+  );
+  const hasValidRecipient =
+    !!formik.values.address &&
+    (ethers.utils.isAddress(formik.values.address) ||
+      ethers.utils.isAddress(recipientAddress));
+
   const isValid =
     !formik.errors.address &&
     !formik.errors.amount &&
-    !!formik.values.address &&
+    hasValidRecipient &&
     hasAmount;
 
   const isAwaitingBalanceCheck =

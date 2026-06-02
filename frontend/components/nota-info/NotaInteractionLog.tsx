@@ -14,9 +14,11 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import { useMemo } from "react";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
-import { useFormatAddress } from "../../hooks/useFormatAddress";
+import { useEnsNames } from "../../hooks/useEnsNames";
 import { NotaInteraction } from "../../utils/notaInteractions";
+import AddressDisplay from "../designSystem/AddressDisplay";
 
 interface Props {
   interactions: NotaInteraction[];
@@ -37,12 +39,12 @@ function formatDate(date: Date): string {
 function AddressCell({
   address,
   shortenAddresses,
+  ensNames,
 }: {
   address: string | null;
   shortenAddresses: boolean;
+  ensNames: Map<string, string | null>;
 }) {
-  const { formatAddress } = useFormatAddress();
-
   if (!address || address === ethersZeroAddress()) {
     return (
       <Text color="gray.400" fontSize="sm">
@@ -52,13 +54,12 @@ function AddressCell({
   }
 
   return (
-    <Text
+    <AddressDisplay
+      address={address}
+      shorten={shortenAddresses}
+      ensNames={ensNames}
       fontSize="sm"
-      title={address}
-      wordBreak={shortenAddresses ? undefined : "break-all"}
-    >
-      {formatAddress(address, { shorten: shortenAddresses })}
-    </Text>
+    />
   );
 }
 
@@ -73,6 +74,11 @@ function NotaInteractionLog({
   const explorer = blockchainState.explorer || "https://polygonscan.com/tx/";
   const shortenAddresses =
     useBreakpointValue({ base: true, md: false }) ?? false;
+  const ensAddresses = useMemo(
+    () => interactions.flatMap((interaction) => [interaction.from, interaction.to]),
+    [interactions]
+  );
+  const ensNames = useEnsNames(ensAddresses);
 
   return (
     <Box w="100%">
@@ -110,12 +116,14 @@ function NotaInteractionLog({
                     <AddressCell
                       address={interaction.from}
                       shortenAddresses={shortenAddresses}
+                      ensNames={ensNames}
                     />
                   </Td>
                   <Td>
                     <AddressCell
                       address={interaction.to}
                       shortenAddresses={shortenAddresses}
+                      ensNames={ensNames}
                     />
                   </Td>
                   <Td fontSize="sm">

@@ -15,7 +15,8 @@ import {
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { isAddress } from "ethers/lib/utils";
-import { useFormatAddress } from "../../hooks/useFormatAddress";
+import type { ReactNode } from "react";
+import AddressDisplay from "./AddressDisplay";
 
 function formatTime(seconds: number) {
   const years = Math.floor(seconds / 31536000);
@@ -62,6 +63,7 @@ interface Props {
   fontColor?: string;
   /** When false, show full addresses on desktop-style layouts. Default true. */
   shortenAddresses?: boolean;
+  ensNames?: Map<string, string | null>;
 }
 
 function DetailsRow({
@@ -72,30 +74,47 @@ function DetailsRow({
   copyValue,
   fontColor,
   shortenAddresses = true,
+  ensNames,
 }: Props) {
   const { onCopy } = useClipboard(copyValue ?? "");
   const toast = useToast();
-  const { formatAddress } = useFormatAddress();
 
-  title = title.charAt(0).toUpperCase() + title.slice(1)
+  const displayTitle = title.charAt(0).toUpperCase() + title.slice(1);
+
+  const isAddressValue =
+    typeof value === "string" && isAddress(value) && value !== "None";
+
+  let displayValue: ReactNode = value;
   if (value !== null && value !== undefined) {
     if (BigNumber.isBigNumber(value)) {
       if (title === "DripAmount") {
-        value = value.toString();
+        displayValue = value.toString();
         // ethers.utils.formatUnits(Number(value), 6)  // TODO need to format this using the nota.token decimals
       } else if (title === "DripPeriod") {
-        value = formatTime(Number(value) / 1000).toString();
+        displayValue = formatTime(Number(value) / 1000).toString();
+      } else {
+        displayValue = value.toString();
       }
     } else if (typeof value === "string") {
-      if (value.match(/^http?:\/\//) || value.match(/^ipfs:\/\//)) {
-        value = value.charAt(0).toUpperCase() + value.slice(1);
-      } else if (isAddress(value)) {
-        value = formatAddress(value, { shorten: shortenAddresses });
+      if (isAddressValue) {
+        displayValue = (
+          <AddressDisplay
+            address={value}
+            shorten={shortenAddresses}
+            ensNames={ensNames}
+            fontWeight={200}
+            fontSize="md"
+            textAlign="right"
+            color={fontColor}
+          />
+        );
+      } else if (value.match(/^http?:\/\//) || value.match(/^ipfs:\/\//)) {
+        displayValue = value.charAt(0).toUpperCase() + value.slice(1);
       }
     } else if (value instanceof Date) {
-      value = value.toDateString();
+      displayValue = value.toDateString();
     } else {
-      value = value.toString();
+      displayValue = value.toString();
     }
   }
 
@@ -110,19 +129,23 @@ function DetailsRow({
           noOfLines={1}
           color={fontColor}
         >
-          {title}
+          {displayTitle}
         </Text>
         <HStack minWidth={0} pl={4}>
-          <Text
-            fontWeight={200}
-            fontSize="md"
-            textAlign="right"
-            noOfLines={shortenAddresses ? 1 : undefined}
-            wordBreak={shortenAddresses ? undefined : "break-all"}
-            color={fontColor}
-          >
-            {value}
-          </Text>
+          {typeof displayValue === "string" || typeof displayValue === "number" ? (
+            <Text
+              fontWeight={200}
+              fontSize="md"
+              textAlign="right"
+              noOfLines={shortenAddresses ? 1 : undefined}
+              wordBreak={shortenAddresses ? undefined : "break-all"}
+              color={fontColor}
+            >
+              {displayValue}
+            </Text>
+          ) : (
+            displayValue
+          )}
 
           {tooltip && (
             <Tooltip

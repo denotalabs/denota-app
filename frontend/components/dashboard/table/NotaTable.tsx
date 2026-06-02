@@ -27,12 +27,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import NextLink from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import AddressDisplay from "../../../components/designSystem/AddressDisplay";
+import { useEnsNames } from "../../../hooks/useEnsNames";
 import {
   NotaRow,
   POLYGON_REGISTRAR_ADDRESS,
 } from "../../../hooks/usePublicNotas";
-import { truncateAddress } from "../../../utils/notaTokenUri";
 
 export type DataTableProps<Data extends object> = {
   data: Data[];
@@ -120,6 +121,12 @@ interface NotaTableProps {
 }
 
 export function NotaTable({ rows }: NotaTableProps) {
+  const ensAddresses = useMemo(
+    () => rows?.flatMap((row) => [row.owner, row.hook]) ?? [],
+    [rows]
+  );
+  const ensNames = useEnsNames(ensAddresses);
+
   if (rows === undefined) {
     return (
       <Center w="100%" py={10}>
@@ -153,10 +160,22 @@ export function NotaTable({ rows }: NotaTableProps) {
           {rows.map((row) => (
             <Tr key={row.notaId}>
               <Td>{row.notaId}</Td>
-              <Td>{truncateAddress(row.owner)}</Td>
+              <Td>
+                <AddressDisplay
+                  address={row.owner}
+                  ensNames={ensNames}
+                  fontSize="sm"
+                />
+              </Td>
               <Td>{row.currency}</Td>
               <Td isNumeric>{row.escrow}</Td>
-              <Td>{truncateAddress(row.hook)}</Td>
+              <Td>
+                <AddressDisplay
+                  address={row.hook}
+                  ensNames={ensNames}
+                  fontSize="sm"
+                />
+              </Td>
               <Td>
                 <Menu>
                   <MenuButton

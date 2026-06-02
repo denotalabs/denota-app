@@ -1,23 +1,47 @@
 import { VStack } from "@chakra-ui/react";
+import { isAddress } from "ethers/lib/utils";
+import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import { useFormatAddress } from "../../../hooks/useFormatAddress";
+import { useEnsNames } from "../../../hooks/useEnsNames";
 import { useTokens } from "../../../hooks/useTokens";
+import { getEffectiveAddress } from "../../../utils/ensAddress";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
 function ConfirmDetails() {
   const { notaFormValues } = useNotaForm();
-  const { formatAddress } = useFormatAddress();
-
   const { displayNameForCurrency } = useTokens();
+
+  const recipient = getEffectiveAddress(
+    notaFormValues.address,
+    notaFormValues.resolvedAddress
+  );
+
+  const ensAddresses = useMemo(() => {
+    const addresses = [recipient];
+    const arbitrator = notaFormValues.arbitrator;
+    if (arbitrator && isAddress(arbitrator)) {
+      addresses.push(arbitrator);
+    }
+    return addresses;
+  }, [recipient, notaFormValues.arbitrator]);
+  const ensNames = useEnsNames(ensAddresses);
+
+  const showInspector =
+    notaFormValues.module === "reversibleRelease" ||
+    notaFormValues.module === "reversibleByBeforeDate";
+  const showExpiration =
+    notaFormValues.module === "cashBeforeDate" ||
+    notaFormValues.module === "reversibleByBeforeDate";
 
   return (
     <RoundedBox p={6}>
       <VStack>
         <DetailsRow
           title="Recipient address"
-          value={formatAddress(notaFormValues.address)}
+          value={recipient}
+          ensNames={ensNames}
         />
         <DetailsRow
           title="Payment Amount"
@@ -27,17 +51,14 @@ function ConfirmDetails() {
             displayNameForCurrency(notaFormValues.token as NotaCurrency)
           }
         />
-        {notaFormValues.module === "reversibleRelease" || notaFormValues.module === "reversibleByBeforeDate" && (
+        {showInspector && (
           <DetailsRow
             title="Inspector"
-            value={
-              notaFormValues.arbitrator
-                ? formatAddress(notaFormValues.arbitrator)
-                : "Self-signed"
-            }
+            ensNames={ensNames}
+            value={notaFormValues.arbitrator ?? "Self-signed"}
           />
         )}
-        {notaFormValues.module === "cashBeforeDate" || notaFormValues.module === "reversibleByBeforeDate" && (
+        {showExpiration && (
           <DetailsRow
             title="Expiration Date"
             value={notaFormValues.expirationDate}
