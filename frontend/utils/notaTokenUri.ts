@@ -164,3 +164,14 @@ export const truncateAddress = (address: string): string =>
   address && address.length > 10
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
     : address;
+
+/** HTTP URL suitable for <img src> (IPFS → Lighthouse gateway). */
+export const resolveMetadataImageUrl = (uri: string): string => {
+  if (uri.startsWith("ipfs://")) {
+    return `https://gateway.lighthouse.storage/ipfs/${uri.slice(7)}`;
+  }
+  if (uri.startsWith("http://") || uri.startsWith("https://")) {
+    return uri;
+  }
+  return uri;
+};

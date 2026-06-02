@@ -12,15 +12,22 @@ import {
   Stack,
   Tag,
   Text,
+  useBreakpointValue,
   VStack,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
+import { useEffect, useState } from "react";
+import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import {
+  blockExplorerAddressUrl,
+  blockExplorerContractCodeUrl,
+} from "../../context/config/chains";
 import { useFormatAddress } from "../../hooks/useFormatAddress";
 import { NotaInfoData } from "../../hooks/useNotaInfo";
 import { POLYGON_REGISTRAR_ADDRESS } from "../../hooks/usePublicNotas";
 import {
   formatMetadataAttributeValue,
-  truncateAddress,
+  resolveMetadataImageUrl,
 } from "../../utils/notaTokenUri";
 import DetailsRow from "../designSystem/DetailsRow";
 import RoundedBox from "../designSystem/RoundedBox";
@@ -33,6 +40,42 @@ interface Props {
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
+function MetadataImage({
+  imageURI,
+  alt,
+}: {
+  imageURI: string;
+  alt: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  const src = resolveMetadataImageUrl(imageURI);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [imageURI]);
+
+  if (failed) {
+    return (
+      <Text fontSize="sm" wordBreak="break-all">
+        ImageURI: {imageURI}
+      </Text>
+    );
+  }
+
+  return (
+    <Center mb={4}>
+      <Image
+        src={src}
+        alt={alt}
+        maxH="200px"
+        borderRadius="md"
+        objectFit="contain"
+        onError={() => setFailed(true)}
+      />
+    </Center>
+  );
+}
+
 function loadingOrValue(loading: boolean, value: string | null | undefined): string {
   if (loading) {
     return "…";
@@ -42,6 +85,11 @@ function loadingOrValue(loading: boolean, value: string | null | undefined): str
 
 function NotaInfoScreen({ notaId, data }: Props) {
   const { formatAddress } = useFormatAddress();
+  const shortenAddresses =
+    useBreakpointValue({ base: true, md: false }) ?? false;
+  const { blockchainState } = useBlockchainData();
+  const explorerTxBase =
+    blockchainState.explorer || "https://polygonscan.com/tx/";
   const {
     owner,
     ownerLoading,
@@ -74,7 +122,9 @@ function NotaInfoScreen({ notaId, data }: Props) {
   const openSeaUrl = `https://opensea.io/assets/matic/${POLYGON_REGISTRAR_ADDRESS}/${notaId}`;
 
   const approvedDisplay =
-    approved && approved !== ZERO_ADDRESS ? formatAddress(approved) : "None";
+    approved && approved !== ZERO_ADDRESS
+      ? formatAddress(approved, { shorten: shortenAddresses })
+      : "None";
   const approvedCopy =
     approved && approved !== ZERO_ADDRESS ? approved : "";
 
@@ -129,24 +179,37 @@ function NotaInfoScreen({ notaId, data }: Props) {
         <VStack gap={0} align="stretch">
           <DetailsRow
             title="Owner"
+            shortenAddresses={shortenAddresses}
             value={
               owner && !ownerLoading
-                ? formatAddress(owner)
+                ? owner
                 : loadingOrValue(ownerLoading, null)
             }
             copyValue={owner && !ownerLoading ? owner : ""}
+            link={
+              owner && !ownerLoading
+                ? blockExplorerAddressUrl(explorerTxBase, owner)
+                : undefined
+            }
           />
           <DetailsRow
             title="Approved"
+            shortenAddresses={shortenAddresses}
             value={
               approvedLoading
                 ? "…"
                 : approvedDisplay
             }
             copyValue={approvedCopy}
+            link={
+              approved && approved !== ZERO_ADDRESS
+                ? blockExplorerAddressUrl(explorerTxBase, approved)
+                : undefined
+            }
           />
           <DetailsRow
             title="Escrow"
+            shortenAddresses={shortenAddresses}
             value={
               onChainState && !onChainStateLoading
                 ? `${onChainState.escrow} ${onChainState.currencySymbol}`
@@ -155,6 +218,7 @@ function NotaInfoScreen({ notaId, data }: Props) {
           />
           <DetailsRow
             title="Currency"
+            shortenAddresses={shortenAddresses}
             value={
               onChainState && !onChainStateLoading
                 ? onChainState.currency
@@ -163,30 +227,45 @@ function NotaInfoScreen({ notaId, data }: Props) {
             copyValue={
               onChainState && !onChainStateLoading ? onChainState.currency : ""
             }
+            link={
+              onChainState && !onChainStateLoading
+                ? blockExplorerAddressUrl(explorerTxBase, onChainState.currency)
+                : undefined
+            }
           />
           <DetailsRow
             title="Hook"
+            shortenAddresses={shortenAddresses}
             value={
               onChainState && !onChainStateLoading
-                ? truncateAddress(onChainState.hook)
+                ? onChainState.hook
                 : loadingOrValue(onChainStateLoading, null)
             }
             copyValue={
               onChainState && !onChainStateLoading ? onChainState.hook : ""
             }
+            link={
+              onChainState && !onChainStateLoading
+                ? blockExplorerContractCodeUrl(explorerTxBase, onChainState.hook)
+                : undefined
+            }
           />
           {sender && (
             <DetailsRow
               title="Payer"
-              value={formatAddress(sender)}
+              shortenAddresses={shortenAddresses}
+              value={sender}
               copyValue={sender}
+              link={blockExplorerAddressUrl(explorerTxBase, sender)}
             />
           )}
           {receiver && (
             <DetailsRow
               title="Recipient"
-              value={formatAddress(receiver)}
+              shortenAddresses={shortenAddresses}
+              value={receiver}
               copyValue={receiver}
+              link={blockExplorerAddressUrl(explorerTxBase, receiver)}
             />
           )}
         </VStack>
@@ -202,19 +281,19 @@ function NotaInfoScreen({ notaId, data }: Props) {
           </Text>
         ) : (
           <>
+            {metadata?.name && (
+              <Text fontSize="sm" mb={metadata?.image ? 2 : 4}>
+                Name: {metadata.name}
+              </Text>
+            )}
             {metadata?.image && (
-              <Center mb={4}>
-                <Image
-                  src={metadata.image}
-                  alt={metadata.name ?? `Nota ${notaId}`}
-                  maxH="200px"
-                  borderRadius="md"
-                  objectFit="contain"
-                />
-              </Center>
+              <MetadataImage
+                imageURI={metadata.image}
+                alt={metadata.name ?? `Nota ${notaId}`}
+              />
             )}
             {metadata?.description && (
-              <Text fontSize="sm" mb={4} whiteSpace="pre-wrap">
+              <Text fontSize="sm" my={4} whiteSpace="pre-wrap">
                 {metadata.description}
               </Text>
             )}

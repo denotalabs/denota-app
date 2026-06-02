@@ -68,7 +68,9 @@ export const useAccountNotaBalance = (account: string) => {
 
 // Polygon token list cached at module scope so the landing page loads it once.
 let polygonTokensCache: Map<string, TokenInfo> | null = null;
-const loadPolygonTokens = async (): Promise<Map<string, TokenInfo>> => {
+
+/** Token metadata for Polygon nota reads (independent of wallet chain). */
+export const loadPolygonTokens = async (): Promise<Map<string, TokenInfo>> => {
   if (polygonTokensCache) {
     return polygonTokensCache;
   }
