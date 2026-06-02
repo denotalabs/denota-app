@@ -28,21 +28,21 @@ function PaymentFields({ token, mode }: Props) {
 
   return (
     <Flex
-      gap={"18px"}
-      direction={"row"}
+      gap="18px"
+      direction="row"
       mt={5}
+      w="100%"
+      align="flex-start"
       flexWrap={{ base: "wrap", md: "nowrap" }}
     >
-      <FormControl flexShrink={1}>
+      <FormControl flex={1} minW={0}>
         <FormLabel mb={2}>Recipient Address</FormLabel>
         <AccountField fieldName="address" placeholder="0x..." />
       </FormControl>
-      <Flex justifyContent="space-between" flexShrink={0} maxW="100%">
-        <FormControl w="200px" mr={5}>
-          <FormLabel>Amount</FormLabel>
-          <AmountField token={token} mode={mode} />
-        </FormControl>
-      </Flex>
+      <FormControl flexShrink={0} w={{ base: "100%", md: "200px" }}>
+        <FormLabel mb={2}>Amount</FormLabel>
+        <AmountField token={token} mode={mode} />
+      </FormControl>
     </Flex>
   );
 }

@@ -1,99 +1,89 @@
-import {
-  ButtonProps,
-  FormControl,
-  FormControlProps,
-  IconButton,
-  InputGroup,
-  useToast,
-} from "@chakra-ui/react";
+import { ButtonProps, IconButton, useToast } from "@chakra-ui/react";
 import { useField } from "formik";
-import React, { ChangeEvent, ForwardedRef, useRef, useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import { BsUpload } from "react-icons/bs";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
 
-type FileUploadProps = {
+type UploadValueKey = "imageURI" | "ipfsHash";
+
+type FileUploadButtonProps = {
+  name: string;
   accept?: string;
   multiple?: boolean;
-  name: string;
+  buttonProps?: ButtonProps;
+  uploadValueKey?: UploadValueKey;
 };
 
-export type FileControlProps = FormControlProps &
-  FileUploadProps & { buttonProps?: ButtonProps };
+export function FileUploadButton({
+  name,
+  buttonProps,
+  multiple = false,
+  accept = ".jpg,.jpeg,.png,.gif,.pdf,.docx,.csv",
+  uploadValueKey = "imageURI",
+}: FileUploadButtonProps) {
+  const [, , { setValue }] = useField(name);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const toast = useToast();
+  const { upload } = useUploadMetadata();
+  const [isLoading, setIsLoading] = useState(false);
 
-export const FileControl: React.FC<FileControlProps> = React.forwardRef(
-  (props: FileControlProps, ref: ForwardedRef<HTMLInputElement>) => {
-    const {
-      name,
-      label,
-      buttonProps,
-      multiple = false,
-      accept = ".jpg,.jpeg,.png,.gif,.pdf,.docx,.csv",
-      ...rest
-    } = props;
-    const [{ onChange, ...field }, , { setValue }] = useField(name);
-    const inputRef = useRef<HTMLInputElement | null>(null);
-    const toast = useToast();
-    const { upload } = useUploadMetadata();
+  const handleClick = () => {
+    inputRef.current?.click();
+  };
 
-    const handleClick = () => {
-      inputRef.current?.click();
-    };
-
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleChange = async (value: ChangeEvent<HTMLInputElement>) => {
-      if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
-        setIsLoading(true);
-        const { imageURI } = await upload(
-          value.target.files?.[0],
-          undefined,
-          undefined
-        );
-        if (!imageURI) {
-          toast({
-            title: "Upload error",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-        } else {
-          setValue(imageURI);
-        }
-        setIsLoading(false);
-      } else {
+  const handleChange = async (value: ChangeEvent<HTMLInputElement>) => {
+    if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
+      setIsLoading(true);
+      const { imageURI, ipfsHash } = await upload(
+        value.target.files?.[0],
+        undefined,
+        undefined
+      );
+      const uploadedValue =
+        uploadValueKey === "ipfsHash" ? ipfsHash : imageURI;
+      if (!uploadedValue) {
         toast({
-          title: "File too large (max size 10MB)",
+          title: "Upload error",
           status: "error",
           duration: 3000,
           isClosable: true,
         });
+      } else {
+        setValue(uploadedValue);
       }
-    };
+      setIsLoading(false);
+    } else {
+      toast({
+        title: "File too large (max size 10MB)",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
-    return (
-      <FormControl name={name} label={label} {...rest} {...ref} mt={8}>
-        <InputGroup onClick={handleClick}>
-          <input
-            onChange={handleChange}
-            type="file"
-            accept={accept}
-            multiple={multiple}
-            id={name}
-            ref={inputRef}
-            hidden
-          />
-          <IconButton
-            variant={"outline"}
-            aria-label="Upload"
-            {...buttonProps}
-            {...field}
-            icon={<BsUpload />}
-            isLoading={isLoading}
-          ></IconButton>
-        </InputGroup>
-      </FormControl>
-    );
-  }
-);
+  return (
+    <>
+      <input
+        onChange={handleChange}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        id={name}
+        ref={inputRef}
+        hidden
+      />
+      <IconButton
+        variant="outline"
+        aria-label="Upload"
+        flexShrink={0}
+        icon={<BsUpload />}
+        isLoading={isLoading}
+        onClick={handleClick}
+        {...buttonProps}
+      />
+    </>
+  );
+}
 
-export default FileControl;
+export default FileUploadButton;
