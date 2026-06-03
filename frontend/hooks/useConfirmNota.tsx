@@ -6,12 +6,21 @@ import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useNotaForm } from "../context/NotaFormProvider";
 import { useNotaContext } from "../context/NotasContext";
 // TODO need to switch to SDK for these
+import { getEffectiveAddress } from "../utils/ensAddress";
+import { resolveWriteModule } from "../utils/resolveWriteModule";
+import {
+  defaultDripPeriodFormValues,
+  DripPeriodPreset,
+  DripPeriodUnit,
+} from "../utils/dripPeriod";
+import { useCashBeforeDate } from "./modules/useCashBeforeDate";
+import { useCashBeforeDateDrip } from "./modules/useCashBeforeDateDrip";
 import { useDirectPay } from "./modules/useDirectPay";
+import { useReversibleByBeforeDate } from "./modules/useReversibleByBeforeDate";
 import { useReversibleRelease } from "./modules/useReversibleRelease";
 import { useSimpleCash } from "./modules/useSimpleCash";
 import { useEmail } from "./useEmail";
 import { useRegistrarApproval } from "./useRegistrarApproval";
-import { getEffectiveAddress } from "../utils/ensAddress";
 
 interface Props {
   onSuccess?: () => void;
@@ -36,8 +45,11 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { createLocalNota } = useNotaContext();
 
   const { writeNota: writeDirectPay } = useDirectPay();
+  const { writeNota: writeCashBeforeDate } = useCashBeforeDate();
+  const { writeNota: writeCashBeforeDateDrip } = useCashBeforeDateDrip();
 
   const { writeNota: writeReversibleRelease } = useReversibleRelease();
+  const { writeNota: writeReversibleByBeforeDate } = useReversibleByBeforeDate();
 
   const { writeNota: writeSimpleCash } = useSimpleCash();
 
@@ -50,13 +62,31 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       let receipt: { txHash: string; notaId: string };
 
       // TODO need to add more modules
-      switch (notaFormValues.module) {
+      const resolvedModule = resolveWriteModule(notaFormValues);
+
+      const inspector = notaFormValues.auditor?.trim()
+        ? getEffectiveAddress(
+            notaFormValues.auditor,
+            notaFormValues.resolvedAuditor
+          )
+        : undefined;
+
+      switch (resolvedModule) {
+        case "cashBeforeDate":
+          receipt = await writeCashBeforeDate({
+            token: notaFormValues.token,
+            amount: notaFormValues.amount,
+            address: owner,
+            expirationDate: notaFormValues.expirationDate,
+            externalURI: notaFormValues.externalURI ?? "",
+            imageURI: notaFormValues.imageURI ?? "",
+          });
+          break;
         case "directSend":
           receipt = await writeDirectPay({
             token: notaFormValues.token,
             amount: notaFormValues.amount,
             address: owner,
-            // dueDate: notaFormValues.dueDate,
             externalURI: notaFormValues.externalURI ?? "",
             imageURI: notaFormValues.imageURI,
           });
@@ -75,10 +105,36 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             token: notaFormValues.token,
             amount: notaFormValues.amount,
             address: owner,
-            inspector: getEffectiveAddress(
-              notaFormValues.auditor,
-              notaFormValues.resolvedAuditor
-            ) || undefined,
+            inspector,
+            externalURI: notaFormValues.externalURI ?? "",
+            imageURI: notaFormValues.imageURI ?? "",
+          });
+          break;
+        case "reversibleByBeforeDate":
+          receipt = await writeReversibleByBeforeDate({
+            token: notaFormValues.token,
+            amount: notaFormValues.amount,
+            address: owner,
+            inspector,
+            inspectionEndDate: notaFormValues.inspectionEndDate,
+            externalURI: notaFormValues.externalURI ?? "",
+            imageURI: notaFormValues.imageURI ?? "",
+          });
+          break;
+        case "cashBeforeDateDrip":
+          receipt = await writeCashBeforeDateDrip({
+            token: notaFormValues.token,
+            amount: notaFormValues.amount,
+            address: owner,
+            expirationDate: notaFormValues.expirationDate,
+            dripAmount: notaFormValues.dripAmount,
+            dripPeriodPreset: (notaFormValues.dripPeriodPreset ??
+              defaultDripPeriodFormValues.dripPeriodPreset) as DripPeriodPreset,
+            dripPeriodAmount:
+              notaFormValues.dripPeriodAmount ??
+              defaultDripPeriodFormValues.dripPeriodAmount,
+            dripPeriodUnit: (notaFormValues.dripPeriodUnit ??
+              defaultDripPeriodFormValues.dripPeriodUnit) as DripPeriodUnit,
             externalURI: notaFormValues.externalURI ?? "",
             imageURI: notaFormValues.imageURI ?? "",
           });
@@ -92,7 +148,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         id: receipt.notaId,
         token: notaFormValues.token as NotaCurrency,
         escrowed: notaFormValues.amount,
-        module: notaFormValues.module,
+        module: resolvedModule,
         moduleData: notaFormValues.moduleData as ModuleData,
         sender: blockchainState.account,
         receiver: owner,
@@ -110,7 +166,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           network: blockchainState.chainId,
           token: notaFormValues.token,
           amount: notaFormValues.amount,
-          module: "directSend",
+          module: resolvedModule,
         });
       }
 
@@ -150,12 +206,22 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.imageURI,
     notaFormValues.auditor,
     notaFormValues.resolvedAuditor,
+    notaFormValues.expirationDate,
+    notaFormValues.dripAmount,
+    notaFormValues.dripPeriodPreset,
+    notaFormValues.dripPeriodAmount,
+    notaFormValues.dripPeriodUnit,
+    notaFormValues.recoverableWhen,
+    notaFormValues.inspectionEndDate,
     notaFormValues.moduleData,
     createLocalNota,
     toast,
     onSuccess,
     writeDirectPay,
+    writeCashBeforeDate,
+    writeCashBeforeDateDrip,
     writeReversibleRelease,
+    writeReversibleByBeforeDate,
     writeSimpleCash,
     sendEmail,
   ]);

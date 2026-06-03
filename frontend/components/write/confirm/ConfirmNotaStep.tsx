@@ -71,9 +71,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   return (
     <Box w="100%" p={4}>
       <Formik
-        initialValues={{
-          module: notaFormValues.module ?? "directSend",
-        }}
+        initialValues={{}}
         onSubmit={async (_values, actions) => {
           try {
             if (!isWalletConnected) {
@@ -92,7 +90,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
       >
         {(props) => (
           <Form>
-            <ConfirmNotice module={props.values.module}></ConfirmNotice>
+            <ConfirmNotice />
             <ConfirmDetails></ConfirmDetails>
             <RoundedButton
               type="submit"

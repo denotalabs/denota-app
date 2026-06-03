@@ -1,30 +1,68 @@
 import { ArrowRightIcon, LockIcon, StarIcon } from "@chakra-ui/icons";
 import { Center, Text } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { useNotaForm } from "../../../context/NotaFormProvider";
+import { CASH_BEFORE_DATE_DRIP_MODULE } from "../../../utils/dripPeriod";
+import {
+  isClaimableModule,
+  resolveClaimableHook,
+} from "../../../utils/expirationDate";
+import {
+  isReversibleFormModule,
+  resolveReversibleHook,
+} from "../../../utils/reversibleModule";
 import RoundedBox from "../../designSystem/RoundedBox";
 
-interface Props {
-  module: string;
-}
+function ConfirmNotice() {
+  const { notaFormValues } = useNotaForm();
+  const module = notaFormValues.module ?? "";
 
-function ConfirmNotice({ module }: Props) {
+  const displayModule = useMemo(() => {
+    if (isClaimableModule(module)) {
+      return resolveClaimableHook(notaFormValues.expirationDate);
+    }
+    if (isReversibleFormModule(module)) {
+      return resolveReversibleHook(
+        notaFormValues.recoverableWhen,
+        notaFormValues.inspectionEndDate
+      );
+    }
+    return module;
+  }, [
+    module,
+    notaFormValues.expirationDate,
+    notaFormValues.recoverableWhen,
+    notaFormValues.inspectionEndDate,
+  ]);
+
   const iconForModule = useMemo(() => {
-    switch (module) {
+    switch (displayModule) {
       case "directSend":
         return <ArrowRightIcon />;
+      case "cashBeforeDate":
       case "reversibleRelease":
-        return <LockIcon />;
-      case "milestone":
-        return <StarIcon />;
+      case "reversibleByBeforeDate":
       case "simpleCash":
         return <LockIcon />;
+      case "milestone":
+      case "cashBeforeDateDrip":
+        return <StarIcon />;
       default:
         return <StarIcon />;
     }
-  }, [module]);
+  }, [displayModule]);
 
   const moduleTitle = useMemo(() => {
-    switch (module) {
+    if (isClaimableModule(module)) {
+      return "Claimable";
+    }
+    if (isReversibleFormModule(module)) {
+      return "Reversible";
+    }
+    if (module === CASH_BEFORE_DATE_DRIP_MODULE) {
+      return "Drip";
+    }
+    switch (displayModule) {
       case "directSend":
         return "Direct Pay";
       case "reversibleRelease":
@@ -36,14 +74,25 @@ function ConfirmNotice({ module }: Props) {
       default:
         return "";
     }
-  }, [module]);
+  }, [displayModule, module]);
 
   const moduleDescription = useMemo(() => {
-    switch (module) {
+    if (isClaimableModule(module)) {
+      return displayModule === "cashBeforeDate"
+        ? "The owner must manually claim the tokens before the deadline"
+        : "The owner must manually claim the tokens";
+    }
+    if (isReversibleFormModule(module)) {
+      return displayModule === "reversibleByBeforeDate"
+        ? "Funds are held in escrow; recovery is only allowed before the inspection end"
+        : "Funds are held in escrow until released by the reversible party";
+    }
+    if (module === CASH_BEFORE_DATE_DRIP_MODULE) {
+      return "The owner can claim drip amounts on a schedule until the expiration date";
+    }
+    switch (displayModule) {
       case "directSend":
         return "Funds will be released as soon as the payment is made";
-      case "reversibleRelease":
-        return "Funds will be held in escrow until released by the payer";
       case "milestone":
         return "Funds will be released on completion of milestones";
       case "simpleCash":
@@ -51,7 +100,8 @@ function ConfirmNotice({ module }: Props) {
       default:
         return "";
     }
-  }, [module]);
+  }, [displayModule, module]);
+
   return (
     <RoundedBox mb={5} padding={6}>
       <Center flexDirection="column">

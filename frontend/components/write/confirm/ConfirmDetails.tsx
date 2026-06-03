@@ -4,7 +4,16 @@ import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useEnsNames } from "../../../hooks/useEnsNames";
 import { useTokens } from "../../../hooks/useTokens";
+import {
+  CASH_BEFORE_DATE_DRIP_MODULE,
+  formatDripPeriodFormDisplay,
+} from "../../../utils/dripPeriod";
 import { getEffectiveAddress } from "../../../utils/ensAddress";
+import { formatExpirationDateDisplay } from "../../../utils/expirationDate";
+import {
+  isReversibleFormModule,
+  REVERSIBLE_BEFORE_DATE,
+} from "../../../utils/reversibleModule";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
@@ -32,12 +41,17 @@ function ConfirmDetails() {
   }, [recipient, inspector]);
   const ensNames = useEnsNames(ensAddresses);
 
-  const showInspector =
-    notaFormValues.module === "reversibleRelease" ||
-    notaFormValues.module === "reversibleByBeforeDate";
-  const showExpiration =
-    notaFormValues.module === "cashBeforeDate" ||
-    notaFormValues.module === "reversibleByBeforeDate";
+  const showInspector = isReversibleFormModule(notaFormValues.module);
+  const showClaimDeadline =
+    !!notaFormValues.expirationDate &&
+    (notaFormValues.module === "claimable" ||
+      notaFormValues.module === "cashBeforeDate" ||
+      notaFormValues.module === CASH_BEFORE_DATE_DRIP_MODULE);
+  const showDripTerms = notaFormValues.module === CASH_BEFORE_DATE_DRIP_MODULE;
+  const showInspectionEnd =
+    !!notaFormValues.inspectionEndDate &&
+    isReversibleFormModule(notaFormValues.module) &&
+    notaFormValues.recoverableWhen === REVERSIBLE_BEFORE_DATE;
 
   return (
     <RoundedBox p={6}>
@@ -57,15 +71,51 @@ function ConfirmDetails() {
         />
         {showInspector && (
           <DetailsRow
-            title="Inspector"
+            title="Reversible by"
             ensNames={ensNames}
-            value={inspector || "Self-signed"}
+            value={inspector || "Your connected wallet"}
           />
         )}
-        {showExpiration && (
+        {showClaimDeadline && !showDripTerms && (
           <DetailsRow
-            title="Expiration Date"
-            value={notaFormValues.expirationDate}
+            title="Must claim before"
+            value={formatExpirationDateDisplay(
+              notaFormValues.expirationDate ?? ""
+            )}
+          />
+        )}
+        {showDripTerms && (
+          <>
+            <DetailsRow
+              title="Drip amount"
+              value={
+                notaFormValues.dripAmount +
+                " " +
+                displayNameForCurrency(notaFormValues.token as NotaCurrency)
+              }
+            />
+            <DetailsRow
+              title="Drip period"
+              value={formatDripPeriodFormDisplay({
+                dripPeriodPreset: notaFormValues.dripPeriodPreset,
+                dripPeriodAmount: notaFormValues.dripPeriodAmount,
+                dripPeriodUnit: notaFormValues.dripPeriodUnit,
+              })}
+            />
+            <DetailsRow
+              title="Must claim before"
+              value={formatExpirationDateDisplay(
+                notaFormValues.expirationDate ?? ""
+              )}
+            />
+          </>
+        )}
+        {showInspectionEnd && (
+          <DetailsRow
+            title="Inspection end"
+            value={formatExpirationDateDisplay(
+              notaFormValues.inspectionEndDate ?? ""
+            )}
           />
         )}
       </VStack>
