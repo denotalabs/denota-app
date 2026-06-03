@@ -72,7 +72,7 @@ export function DetailsStepForm() {
   const formik = useFormik<DetailsStepFormValues>({
     initialValues: {
       token: notaFormValues.token ?? "USDC",
-      amount: notaFormValues.amount ?? undefined,
+      amount: notaFormValues.amount ?? "0",
       address: notaFormValues.address ?? "",
       resolvedAddress: notaFormValues.resolvedAddress ?? "",
       mode: "pay",
@@ -182,7 +182,13 @@ export function DetailsStepForm() {
     formik.values.token,
     formik.values.amount
   );
-  const hasAmount = hasValidPaymentAmount(formik.values.amount);
+  const hasAmount =
+    paymentType === "withTerms"
+      ? formik.values.amount !== undefined &&
+        formik.values.amount !== "" &&
+        !Number.isNaN(Number(formik.values.amount)) &&
+        Number(formik.values.amount) >= 0
+      : hasValidPaymentAmount(formik.values.amount);
   const requiresBalanceCheck =
     isWalletConnected && paymentType !== "withTerms" && hasAmount;
   const { insufficientBalance, isCheckingBalance, balanceChecked } =
@@ -227,6 +233,8 @@ export function DetailsStepForm() {
     paymentType !== "withTerms" &&
     (isAwaitingBalanceCheck || insufficientBalance);
 
+  const requiresWallet = paymentType !== "withTerms";
+
   const buttonLabel = quickPaymentButtonText(
     paymentType,
     needsApproval,
@@ -249,7 +257,9 @@ export function DetailsStepForm() {
           type="submit"
           isLoading={formik.isSubmitting}
           isDisabled={
-            !isValid || !isWalletConnected || balanceBlocksSubmit
+            !isValid ||
+            (requiresWallet && !isWalletConnected) ||
+            balanceBlocksSubmit
           }
         >
           {buttonLabel}

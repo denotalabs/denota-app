@@ -38,7 +38,13 @@ export function EscrowTerms() {
               <QuestionOutlineIcon ml={2} mb={1} />
             </Tooltip>
           </FormLabel>
-          <AccountField fieldName="auditor" isRequired={false} placeholder="0x" />
+          <AccountField
+            fieldName="auditor"
+            resolvedFieldName="resolvedAuditor"
+            allowEns
+            isRequired={false}
+            placeholder="almaraz.eth, 0x..."
+          />
         </FormControl>
       </HStack>
     </Flex>

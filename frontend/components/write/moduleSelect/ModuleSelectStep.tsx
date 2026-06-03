@@ -125,6 +125,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             module: notaFormValues.module ?? "directSend",
             // dueDate: notaFormValues.dueDate ?? currentDate,
             auditor: notaFormValues.auditor ?? "",
+            resolvedAuditor: notaFormValues.resolvedAuditor ?? "",
             milestones: notaFormValues.milestones
               ? notaFormValues.milestones.split(",")
               : [notaFormValues.amount],
@@ -135,6 +136,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
               milestones: values.milestones.join(","),
               // dueDate: values.dueDate,
               auditor: values.auditor,
+              resolvedAuditor: values.resolvedAuditor,
               // axelarEnabled: values.axelarEnabled ? "true" : undefined,
             });
             next?.();
