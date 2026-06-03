@@ -75,7 +75,10 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             token: notaFormValues.token,
             amount: notaFormValues.amount,
             address: owner,
-            inspector: notaFormValues.auditor,
+            inspector: getEffectiveAddress(
+              notaFormValues.auditor,
+              notaFormValues.resolvedAuditor
+            ) || undefined,
             externalURI: notaFormValues.externalURI ?? "",
             imageURI: notaFormValues.imageURI ?? "",
           });
@@ -146,6 +149,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.externalURI,
     notaFormValues.imageURI,
     notaFormValues.auditor,
+    notaFormValues.resolvedAuditor,
     notaFormValues.moduleData,
     createLocalNota,
     toast,

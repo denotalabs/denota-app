@@ -18,14 +18,18 @@ function ConfirmDetails() {
     notaFormValues.resolvedAddress
   );
 
+  const inspector = getEffectiveAddress(
+    notaFormValues.auditor,
+    notaFormValues.resolvedAuditor
+  );
+
   const ensAddresses = useMemo(() => {
     const addresses = [recipient];
-    const arbitrator = notaFormValues.arbitrator;
-    if (arbitrator && isAddress(arbitrator)) {
-      addresses.push(arbitrator);
+    if (inspector && isAddress(inspector)) {
+      addresses.push(inspector);
     }
     return addresses;
-  }, [recipient, notaFormValues.arbitrator]);
+  }, [recipient, inspector]);
   const ensNames = useEnsNames(ensAddresses);
 
   const showInspector =
@@ -55,7 +59,7 @@ function ConfirmDetails() {
           <DetailsRow
             title="Inspector"
             ensNames={ensNames}
-            value={notaFormValues.arbitrator ?? "Self-signed"}
+            value={inspector || "Self-signed"}
           />
         )}
         {showExpiration && (

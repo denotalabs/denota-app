@@ -2,6 +2,7 @@ import { Box } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useConfirmNota } from "../../../hooks/useConfirmNota";
 import {
@@ -16,6 +17,8 @@ import ConfirmNotice from "./ConfirmNotice";
 
 const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   const { notaFormValues } = useNotaForm();
+  const { blockchainState, connectWallet } = useBlockchainData();
+  const isWalletConnected = blockchainState.account !== "";
   const { needsApproval, approveAmount, writeNota } = useConfirmNota({
     onSuccess: () => {
       router.push("/", undefined, { shallow: true });
@@ -26,7 +29,9 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
 
   const isPayMode = notaFormValues.mode === "pay";
   const requiresBalanceCheck =
-    isPayMode && hasValidPaymentAmount(notaFormValues.amount);
+    isWalletConnected &&
+    isPayMode &&
+    hasValidPaymentAmount(notaFormValues.amount);
 
   const { insufficientBalance, isCheckingBalance, balanceChecked } =
     useInsufficientBalance(
@@ -39,6 +44,9 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
     requiresBalanceCheck && (!balanceChecked || isCheckingBalance);
 
   const buttonText = useMemo(() => {
+    if (!isWalletConnected) {
+      return "Connect wallet";
+    }
     if (isAwaitingBalanceCheck) {
       return "Confirm Payment";
     }
@@ -54,6 +62,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   }, [
     insufficientBalance,
     isAwaitingBalanceCheck,
+    isWalletConnected,
     needsApproval,
     notaFormValues.mode,
     notaFormValues.token,
@@ -67,6 +76,10 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
         }}
         onSubmit={async (_values, actions) => {
           try {
+            if (!isWalletConnected) {
+              await connectWallet?.();
+              return;
+            }
             if (needsApproval) {
               await approveAmount();
             } else {
@@ -84,7 +97,10 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
             <RoundedButton
               type="submit"
               isLoading={props.isSubmitting}
-              isDisabled={isAwaitingBalanceCheck || insufficientBalance}
+              isDisabled={
+                isWalletConnected &&
+                (isAwaitingBalanceCheck || insufficientBalance)
+              }
             >
               {buttonText}
             </RoundedButton>

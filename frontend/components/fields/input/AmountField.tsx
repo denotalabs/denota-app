@@ -9,23 +9,28 @@ import {
   NumberInputField,
   NumberInputStepper,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 
 interface Props {
   token: string;
   mode: string;
+  allowZero?: boolean;
 }
 
-function AmountField({ token, mode }: Props) {
+function AmountField({ token, mode, allowZero = false }: Props) {
   const { blockchainState } = useBlockchainData();
   const [hasStarted, setHasStarted] = useState(false);
 
-  function validateAmount(value: number) {
-    setHasStarted(true);
-    if (value <= 0) {
-      return "Value must be greater than 0";
-    }
+  const validateAmount = useCallback(
+    (value: number) => {
+      setHasStarted(true);
+      if (allowZero && value >= 0) {
+        return undefined;
+      }
+      if (value <= 0) {
+        return "Value must be greater than 0";
+      }
     // TODO (THIS PR): fix validation
     // if (mode === "pay") {
     //   switch (token) {
@@ -46,13 +51,20 @@ function AmountField({ token, mode }: Props) {
     //       break;
     //   }
     // }
-    return undefined;
-  }
+      return undefined;
+    },
+    [allowZero]
+  );
+
   return (
     <Field name="amount" validate={validateAmount}>
-      {({ field, form: { setFieldValue, errors, values } }: FieldProps) => {
+      {({ field, form: { setFieldValue, errors, values, touched } }: FieldProps) => {
+        const showError = Boolean(
+          errors.amount && (hasStarted || touched.amount)
+        );
+
         return (
-          <FormControl isInvalid={errors.amount && hasStarted}>
+          <FormControl isInvalid={showError}>
             <NumberInput
               {...field}
               onChange={(val) => setFieldValue(field.name, val)}
