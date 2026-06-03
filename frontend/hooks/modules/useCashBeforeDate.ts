@@ -4,24 +4,26 @@ import {
   NotaCurrency,
   sdkCurrencyFor,
 } from "../../components/designSystem/CurrencyIcon";
+import { expirationDateToCashBeforeDateMs } from "../../utils/expirationDate";
+
 interface Props {
   token: NotaCurrency;
   amount: string;
   address: string;
   externalURI: string;
   imageURI: string;
-  inspector?: string;
+  expirationDate: string;
 }
 
-export const useReversibleRelease = () => {
+export const useCashBeforeDate = () => {
   const writeNota = useCallback(
     async ({
       token,
       amount,
       address,
-      inspector,
       externalURI,
       imageURI,
+      expirationDate,
     }: Props) => {
       if (token === "UNKNOWN") {
         return;
@@ -32,8 +34,8 @@ export const useReversibleRelease = () => {
         instant: 0,
         owner: address,
         metadata: { type: "uploaded", externalURI, imageURI },
-        moduleName: "reversibleRelease",
-        ...(inspector ? { inspector } : {}),
+        moduleName: "cashBeforeDate",
+        cashBeforeDate: Math.floor(expirationDateToCashBeforeDateMs(expirationDate) / 1000),
       } as Parameters<typeof write>[0]);
       return receipt;
     },

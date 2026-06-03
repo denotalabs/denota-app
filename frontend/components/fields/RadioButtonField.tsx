@@ -17,20 +17,23 @@ interface Props {
 function RadioButtonField({ fieldName, values, label }: Props) {
   return (
     <Field name={fieldName}>
-      {({ field, form: { errors, touched } }: any) => (
-        <FormControl isInvalid={errors.name && touched.name}>
+      {({ field, form: { errors, touched, setFieldValue } }: any) => (
+        <FormControl
+          isInvalid={errors[fieldName] && touched[fieldName]}
+        >
           <FormLabel>{label}</FormLabel>
-          <RadioGroup {...field}>
+          <RadioGroup
+            value={field.value}
+            onChange={(val) => setFieldValue(fieldName, val)}
+          >
             {values.map((value) => (
               <div key={value}>
-                <Radio {...field} value={value}>
-                  {value}
-                </Radio>
+                <Radio value={value}>{value}</Radio>
                 <br />
               </div>
             ))}
           </RadioGroup>
-          <FormErrorMessage>{errors.name}</FormErrorMessage>
+          <FormErrorMessage>{errors[fieldName]}</FormErrorMessage>
         </FormControl>
       )}
     </Field>

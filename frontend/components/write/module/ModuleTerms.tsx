@@ -1,10 +1,11 @@
 import { Box } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { CashBeforeDateDripTerms } from "./CashBeforeDateDripTerms";
+import { ClaimableTerms } from "./ClaimableTerms";
 import { DirectPayTerms } from "./DirectPayTerms";
 import { EscrowTerms } from "./EscrowTerms";
 import { MilestoneTerms } from "./MilestoneTerms";
 import { MotionBox } from "./MotionBox";
-// import { SimpleCashTerms } from "./SimpleCashTerms";
 
 interface Props {
   module: string;
@@ -13,11 +14,12 @@ interface Props {
 function ModuleTerms({ module }: Props) {
   const moduleNameToCard = {
     directSend: "Direct",
-    simpleCash: "Direct",
-    cashBeforeDate: "Direct",
+    claimable: "Claimable",
+    cashBeforeDate: "Claimable",
+    simpleCash: "Claimable",
     reversibleRelease: "Reversible",
     reversibleByBeforeDate: "Reversible",
-    cashBeforeDateDrip: "Drip",
+    cashBeforeDateDrip: "CashBeforeDateDrip",
     milestone: "Drip",
     // "": "Cancelable",
     // "": "Grant",
@@ -27,16 +29,16 @@ function ModuleTerms({ module }: Props) {
   const selectedModule = useMemo(() => {
     const moduleType = moduleNameToCard[module];
     switch (moduleType) {
+      case "Claimable":
+        return <ClaimableTerms />;
       case "Direct":
         return <DirectPayTerms />;
       case "Reversible":
         return <EscrowTerms />;
+      case "CashBeforeDateDrip":
+        return <CashBeforeDateDripTerms />;
       case "Drip":
         return <MilestoneTerms />;
-      // case "simpleCash":
-      //   return <SimpleCashTerms />;
-      // case "cashBeforeDateDrip":
-      //   return <SimpleCashTerms />;
       default:
         return <DirectPayTerms />;
     }

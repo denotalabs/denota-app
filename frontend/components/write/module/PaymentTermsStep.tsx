@@ -1,60 +1,65 @@
 import { Box } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import { useMemo } from "react";
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import {
+  createValidatePaymentTerms,
+  getAuditorFieldsForPaymentTerms,
+  getPaymentTermsInitialValues,
+  PaymentTermsFormValues,
+  paymentTermsValuesToNotaForm,
+} from "../../../utils/paymentTermsForm";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ModuleTerms from "./ModuleTerms";
 
-export type PaymentTermsFormValues = {
-  inspection: number;
-  module: string;
-  dueDate: string;
-  milestones: string[];
-};
+export type { PaymentTermsFormValues };
 
 const PaymentTermsStep: React.FC<ScreenProps> = () => {
   const { next } = useStep();
   const { updateNotaFormValues, notaFormValues } = useNotaForm();
+  const { blockchainState } = useBlockchainData();
+  const connectedAccount = blockchainState.account ?? "";
 
-  const currentDate = useMemo(() => {
-    const d = new Date();
-    const today = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  const auditorFields = useMemo(
+    () => getAuditorFieldsForPaymentTerms(notaFormValues, connectedAccount),
+    [connectedAccount, notaFormValues]
+  );
 
-    return today.toISOString().slice(0, 10);
-  }, []);
+  const initialValues = useMemo(
+    () =>
+      getPaymentTermsInitialValues(notaFormValues, auditorFields, {
+        includeAxelar: true,
+      }),
+    [notaFormValues, auditorFields]
+  );
+
+  const validate = useMemo(
+    () => createValidatePaymentTerms(notaFormValues.module ?? ""),
+    [notaFormValues.module]
+  );
 
   return (
     <Box w="100%" p={4}>
       <Formik
-        initialValues={{
-          inspection: notaFormValues.inspection
-            ? Number(notaFormValues.inspection)
-            : 604800,
-          module: notaFormValues.module ?? "directSend",
-          dueDate: notaFormValues.dueDate ?? currentDate,
-          auditor: notaFormValues.auditor ?? "",
-          resolvedAuditor: notaFormValues.resolvedAuditor ?? "",
-          milestones: notaFormValues.milestones
-            ? notaFormValues.milestones.split(",")
-            : [notaFormValues.amount],
-          axelarEnabled: notaFormValues.axelarEnabled ?? false,
-        }}
+        enableReinitialize
+        initialValues={initialValues}
+        validate={validate}
         onSubmit={(values) => {
-          updateNotaFormValues({
-            milestones: values.milestones.join(","),
-            dueDate: values.dueDate,
-            auditor: values.auditor,
-            resolvedAuditor: values.resolvedAuditor,
-            axelarEnabled: values.axelarEnabled ? "true" : undefined,
-          });
+          updateNotaFormValues(paymentTermsValuesToNotaForm(values, { includeAxelar: true }));
           next?.();
         }}
       >
         {(props) => (
           <Form>
-            <ModuleTerms module={props.values.module} />
-            <RoundedButton type="submit">{"Next"}</RoundedButton>
+            <ModuleTerms module={notaFormValues.module ?? props.values.module} />
+            <RoundedButton
+              type="submit"
+              isDisabled={Object.keys(props.errors).length > 0}
+            >
+              {"Review and Confirm"}
+            </RoundedButton>
           </Form>
         )}
       </Formik>

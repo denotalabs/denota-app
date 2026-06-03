@@ -18,6 +18,10 @@ export function requiresRegistrarApproval(paymentType: string): boolean {
   return paymentType === "withReceipt";
 }
 
+export function allowsZeroPaymentAmount(paymentType: string): boolean {
+  return paymentType === "withTerms" || paymentType === "withReceipt";
+}
+
 export function showsMetadataForm(paymentType: string): boolean {
   return paymentType !== "sendOnly";
 }

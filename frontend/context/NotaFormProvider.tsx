@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useState } from "react";
+import { CLAIMABLE_MODULE } from "../utils/expirationDate";
 
 // TODO: make more type safe
 export type DataMap = { [key: string]: any };
@@ -33,7 +34,10 @@ export const NotaFormProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [notaFormValues, setFormData] = useState<DataMap>({});
+  const [notaFormValues, setFormData] = useState<DataMap>({
+    module: CLAIMABLE_MODULE,
+    expirationDate: "",
+  });
   const [file, setFile] = useState<File | undefined>(undefined);
   const [balanceCheckCache, setBalanceCheckCache] =
     useState<BalanceCheckCache | null>(null);

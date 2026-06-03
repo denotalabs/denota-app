@@ -6,6 +6,7 @@ import AccountField from "../../fields/input/AccountField";
 
 import AmountField from "../../fields/input/AmountField";
 import { DetailsStepFormValues } from "./DetailsStep";
+import { allowsZeroPaymentAmount } from "./paymentMetadata";
 
 interface Props {
   token: string;
@@ -17,13 +18,14 @@ function PaymentFields({ token, mode }: Props) {
     useFormikContext<DetailsStepFormValues>();
   const { updateNotaFormValues } = useNotaForm();
   const previousPaymentType = useRef(values.paymentType);
-  const allowZero = values.paymentType === "withTerms";
-  const amountLabel = allowZero ? "Escrow amount" : "Amount";
+  const allowZero = allowsZeroPaymentAmount(values.paymentType);
+  const amountLabel =
+    values.paymentType === "withTerms" ? "Escrow amount" : "Amount";
 
   useEffect(() => {
     if (
-      previousPaymentType.current === "withTerms" &&
-      values.paymentType !== "withTerms"
+      allowsZeroPaymentAmount(previousPaymentType.current) &&
+      !allowsZeroPaymentAmount(values.paymentType)
     ) {
       setFieldTouched("amount", true, false);
       validateField("amount");

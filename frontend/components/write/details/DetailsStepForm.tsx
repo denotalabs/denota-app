@@ -20,6 +20,7 @@ import RoundedButton from "../../designSystem/RoundedButton";
 import { useStep } from "../../designSystem/stepper/Stepper";
 import PaymentDetails from "./PaymentDetails";
 import {
+  allowsZeroPaymentAmount,
   hasPaymentMetadata,
   requiresRegistrarApproval,
   showsMetadataForm,
@@ -182,15 +183,17 @@ export function DetailsStepForm() {
     formik.values.token,
     formik.values.amount
   );
-  const hasAmount =
-    paymentType === "withTerms"
-      ? formik.values.amount !== undefined &&
-        formik.values.amount !== "" &&
-        !Number.isNaN(Number(formik.values.amount)) &&
-        Number(formik.values.amount) >= 0
-      : hasValidPaymentAmount(formik.values.amount);
+  const hasAmount = allowsZeroPaymentAmount(paymentType)
+    ? formik.values.amount !== undefined &&
+      formik.values.amount !== "" &&
+      !Number.isNaN(Number(formik.values.amount)) &&
+      Number(formik.values.amount) >= 0
+    : hasValidPaymentAmount(formik.values.amount);
   const requiresBalanceCheck =
-    isWalletConnected && paymentType !== "withTerms" && hasAmount;
+    isWalletConnected &&
+    paymentType !== "withTerms" &&
+    hasAmount &&
+    Number(formik.values.amount) > 0;
   const { insufficientBalance, isCheckingBalance, balanceChecked } =
     useInsufficientBalance(
       formik.values.token,
