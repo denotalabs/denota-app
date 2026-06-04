@@ -12,6 +12,7 @@ import {
   Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
+import { useWallets } from "@privy-io/react-auth";
 import Image from "next/image";
 
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
@@ -26,20 +27,19 @@ import StyledMenuItem from "../designSystem/StyledMenuItem";
 export default function ChainSwitcher() {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const { isInitializing, blockchainState } = useBlockchainData();
+  const { isInitializing, blockchainState, connectWallet } =
+    useBlockchainData();
   const { account, chainId } = blockchainState;
+  const { wallets } = useWallets();
 
   const selectedChain = getChainConfigByHex(chainId);
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { connectWallet } = useBlockchainData();
-
   const handleSelectChain = async (chainIdHex: string) => {
     setIsOpen(false);
-    await switchNetwork(chainIdHex);
+    await switchNetwork(chainIdHex, wallets[0]);
 
-    // Batch screen doesn't reload the page so force blockchain data refresh here
     if (window.location.pathname === "/batch/") {
       connectWallet?.();
     }

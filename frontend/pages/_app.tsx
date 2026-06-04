@@ -1,8 +1,5 @@
 import { Box, ChakraProvider } from "@chakra-ui/react";
-import coinbaseModule from "@web3-onboard/coinbase";
-import gnosisModule from "@web3-onboard/gnosis";
-import injectedModule from "@web3-onboard/injected-wallets";
-import { Web3OnboardProvider, init } from "@web3-onboard/react";
+import { PrivyProvider } from "@privy-io/react-auth";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import SidebarNav from "../components/nav/SidebarNav";
@@ -10,53 +7,22 @@ import { BlockchainDataProvider } from "../context/BlockchainDataProvider";
 import GoogleAnalytics from "../context/GoogleAnalytics";
 import { NotasProvider } from "../context/NotasContext";
 import { TokenListProvider } from "../context/TokenListProvider";
+import { PRIVY_APP_ID, privyConfig } from "../context/privyConfig";
 import customTheme from "../theme";
 
-const gnosis = gnosisModule();
+function AppProviders({ children }: { children: React.ReactNode }) {
+  if (!PRIVY_APP_ID) {
+    console.warn(
+      "NEXT_PUBLIC_PRIVY_APP_ID is not set. Wallet login will not work."
+    );
+  }
 
-const coinbase = coinbaseModule();
-
-const celoTestnet = {
-  id: "0xaef3",
-  token: "CELO",
-  label: "Celo Alfajores",
-  rpcUrl: `https://alfajores-forno.celo-testnet.org`,
-};
-
-const polygonTestnet = {
-  id: "0x89",
-  token: "MATIC",
-  label: "Polygon",
-  rpcUrl: "https://rpc-mumbai.maticvigil.com",
-};
-
-const chains = [celoTestnet, polygonTestnet];
-const wallets = [injectedModule(), coinbase, gnosis];
-
-const web3Onboard = init({
-  wallets,
-  chains,
-  appMetadata: {
-    name: "Denota",
-    description: "Denota demo app",
-    recommendedInjectedWallets: [
-      { name: "Coinbase", url: "https://wallet.coinbase.com/" },
-      { name: "MetaMask", url: "https://metamask.io" },
-    ],
-  },
-  connect: {
-    autoConnectAllPreviousWallet: true,
-  },
-  accountCenter: {
-    desktop: {
-      enabled: false,
-    },
-    mobile: {
-      enabled: false,
-    },
-  },
-  theme: "dark",
-});
+  return (
+    <PrivyProvider appId={PRIVY_APP_ID} config={privyConfig}>
+      {children}
+    </PrivyProvider>
+  );
+}
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -70,7 +36,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <GoogleAnalytics measurementId="G-RX5F5Q2B8D" />
       <ChakraProvider theme={customTheme} resetCSS={true}>
-        <Web3OnboardProvider web3Onboard={web3Onboard}>
+        <AppProviders>
           <BlockchainDataProvider>
             <TokenListProvider>
               <NotasProvider>
@@ -85,7 +51,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               </NotasProvider>
             </TokenListProvider>
           </BlockchainDataProvider>
-        </Web3OnboardProvider>
+        </AppProviders>
       </ChakraProvider>
     </>
   );

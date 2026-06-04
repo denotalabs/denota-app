@@ -7,15 +7,13 @@ import React, {
   useState,
 } from "react";
 
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 
 import {
   contractMappingForChainId,
   setProvider,
 } from "@denota-labs/denota-sdk";
-
-import type { WalletState } from "@web3-onboard/core";
-import { useConnectWallet, useWallets } from "@web3-onboard/react";
 
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
@@ -26,14 +24,6 @@ import {
   DenotaChainConfig,
   getChainConfig,
 } from "./config/chains";
-
-import { MetaMaskInpageProvider } from "@metamask/providers";
-
-declare global {
-  interface Window {
-    ethereum?: MetaMaskInpageProvider;
-  }
-}
 
 interface BlockchainDataInterface {
   account: string;
@@ -54,20 +44,16 @@ interface BlockchainDataContextInterface {
   isWrongChain: boolean;
 }
 
-const defaultBlockchainState = {
+const defaultBlockchainState: BlockchainDataInterface = {
   account: "",
   registrarAddress: "",
-  userDaiBalance: "",
-  userWethBalance: "",
   signer: null,
   explorer: "",
   chainId: "",
   graphUrl: "",
   nativeCurrencySymbol: "",
-  walletBalance: "",
   disperse: null,
   chainIdNumber: 0,
-  simpleCashAddress: "",
 };
 
 const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
@@ -76,146 +62,164 @@ const BlockchainDataContext = createContext<BlockchainDataContextInterface>({
   isWrongChain: false,
 });
 
+async function applySignerToState(
+  signer: ethers.Signer,
+  account: string,
+  chainId: number,
+  setBlockchainState: React.Dispatch<
+    React.SetStateAction<BlockchainDataInterface>
+  >,
+  setIsInitializing: (v: boolean) => void,
+  setIsWrongChain: (v: boolean) => void
+) {
+  try {
+    await setProvider({ signer, chainId });
+  } catch (error) {
+    console.error(error);
+  }
+
+  const contractMapping = contractMappingForChainId(chainId);
+  const deployedChainInfo: DenotaChainConfig | undefined =
+    getChainConfig(chainId);
+
+  if (contractMapping === undefined || deployedChainInfo === undefined) {
+    setIsInitializing(false);
+    setIsWrongChain(true);
+    setBlockchainState({
+      ...defaultBlockchainState,
+      account,
+      chainId: chainNumberToChainHex(chainId),
+      signer: signer as ethers.providers.JsonRpcSigner,
+      chainIdNumber: chainId,
+    });
+    return;
+  }
+
+  const batchContract = batchContractMappingForChainId(chainId);
+  const disperse = batchContract
+    ? new ethers.Contract(batchContract, MultiDisperse.abi, signer)
+    : null;
+
+  const firstBlockExplorer =
+    blockExplorerTxBasesFor(deployedChainInfo)[0] ?? "";
+
+  setBlockchainState({
+    signer: signer as ethers.providers.JsonRpcSigner,
+    account,
+    registrarAddress: contractMapping.registrar,
+    explorer: firstBlockExplorer,
+    chainId: chainNumberToChainHex(chainId),
+    graphUrl: deployedChainInfo.graphUrl,
+    nativeCurrencySymbol:
+      deployedChainInfo.chain.nativeCurrency?.symbol ?? "",
+    disperse,
+    chainIdNumber: chainId,
+  });
+  setIsInitializing(false);
+  setIsWrongChain(false);
+}
+
+function resetDisconnectedState(
+  setBlockchainState: React.Dispatch<
+    React.SetStateAction<BlockchainDataInterface>
+  >,
+  setIsInitializing: (v: boolean) => void,
+  setIsWrongChain: (v: boolean) => void
+) {
+  const deployedChainInfo = getChainConfig(DEFAULT_CHAIN_ID);
+  setBlockchainState({
+    ...defaultBlockchainState,
+    chainId: chainNumberToChainHex(DEFAULT_CHAIN_ID),
+    chainIdNumber: DEFAULT_CHAIN_ID,
+    graphUrl: deployedChainInfo?.graphUrl ?? "",
+    nativeCurrencySymbol:
+      deployedChainInfo?.chain.nativeCurrency?.symbol ?? "",
+  });
+  setIsWrongChain(false);
+  setIsInitializing(false);
+}
+
 export const BlockchainDataProvider = memo(
   ({ children }: { children: React.ReactNode }) => {
     const [blockchainState, setBlockchainState] =
       useState<BlockchainDataInterface>(defaultBlockchainState);
-
     const [isInitializing, setIsInitializing] = useState(true);
     const [isWrongChain, setIsWrongChain] = useState(false);
 
-    const [, connect] = useConnectWallet();
-    const connectedWallets = useWallets();
+    const { ready, authenticated, login } = usePrivy();
+    const { wallets } = useWallets();
 
-    const connectWalletWeb3Modal = useCallback(async () => {
-      let wallet: WalletState;
+    const loadBlockchainData = useCallback(
+      async (options?: { switchToDefaultChain?: boolean }) => {
+        const wallet = wallets[0];
+        if (!wallet) {
+          return;
+        }
 
-      if (connectedWallets[0]) {
-        wallet = connectedWallets[0];
-      } else {
-        const wallets = await connect();
-        wallet = wallets[0];
-      }
-      const provider = new ethers.providers.Web3Provider(
-        wallet.provider,
-        "any"
-      );
-      const signer = provider.getSigner(); //console.log(provider)
-      const account = await signer.getAddress(); //console.log(account)
+        setIsInitializing(true);
+        try {
+          if (options?.switchToDefaultChain) {
+            await wallet.switchChain(DEFAULT_CHAIN_ID);
+          }
 
-      return [provider, signer, account] as [
-        ethers.providers.Web3Provider,
-        ethers.providers.JsonRpcSigner,
-        string
-      ];
-    }, [connect, connectedWallets]);
+          const eip1193 = await wallet.getEthereumProvider();
+          const provider = new ethers.providers.Web3Provider(eip1193, "any");
+          const signer = provider.getSigner();
+          const account = await signer.getAddress();
+          const { chainId } = await provider.getNetwork();
 
-    const loadBlockchainData = useCallback(async () => {
-      if (
-        connectedWallets &&
-        connectedWallets.length > 0 &&
-        connectedWallets[0].chains[0].id === blockchainState.chainId
-      ) {
+          await applySignerToState(
+            signer,
+            account,
+            chainId,
+            setBlockchainState,
+            setIsInitializing,
+            setIsWrongChain
+          );
+        } catch (e) {
+          console.error(e);
+          window.alert("Error loading contracts");
+          setIsInitializing(false);
+        }
+      },
+      [wallets]
+    );
+
+    const connectWallet = useCallback(async () => {
+      if (!ready) {
         return;
       }
-      setIsInitializing(true);
-      try {
-        const [provider, signer, account] = await connectWalletWeb3Modal(); // console.log(provider, signer, account)
-        const { chainId } = await provider.getNetwork();
-
-        try {
-          await setProvider({
-            signer,
-            chainId,
-          });
-        } catch (error) {
-          console.log(error);
-        }
-
-        window.ethereum?.on("chainChanged", () => {
-          if (window.location.pathname !== "/batch/") {
-            document.location.reload();
-          }
-        });
-
-        window.ethereum?.on("accountsChanged", () => {
-          if (window.location.pathname !== "/batch/") {
-            document.location.reload();
-          }
-        });
-        const contractMapping = contractMappingForChainId(chainId);
-        const deployedChainInfo: DenotaChainConfig | undefined =
-          getChainConfig(chainId);
-
-        if (contractMapping === undefined || deployedChainInfo == undefined) {
-          setIsInitializing(false);
-          setIsWrongChain(true);
-          setBlockchainState({
-            ...defaultBlockchainState,
-            account,
-            chainId: chainNumberToChainHex(chainId),
-            signer,
-          });
-        } else {
-          const batchContract = batchContractMappingForChainId(chainId);
-
-          const disperse = batchContract
-            ? new ethers.Contract(batchContract, MultiDisperse.abi, signer)
-            : null;
-
-          const firstBlockExplorer =
-            blockExplorerTxBasesFor(deployedChainInfo)[0] ?? "";
-          // Load contracts
-          setBlockchainState({
-            signer,
-            account,
-            registrarAddress: contractMapping.registrar,
-            explorer: firstBlockExplorer,
-            chainId: chainNumberToChainHex(chainId),
-            graphUrl: deployedChainInfo.graphUrl, // Change to graphTestUrl for testing a local graph node
-            nativeCurrencySymbol:
-              deployedChainInfo.chain.nativeCurrency?.symbol ?? "",
-            disperse,
-            chainIdNumber: chainId,
-          });
-          setIsInitializing(false);
-        }
-      } catch (e) {
-        console.log("error", e);
-        window.alert("Error loading contracts");
-        setIsInitializing(false);
+      if (!authenticated) {
+        login();
+        return;
       }
-    }, [blockchainState.chainId, connectWalletWeb3Modal, connectedWallets]);
+      await loadBlockchainData({ switchToDefaultChain: true });
+    }, [authenticated, loadBlockchainData, login, ready]);
 
     useEffect(() => {
-      const lastWallet = localStorage.getItem(
-        "onboard.js:last_connected_wallet"
-      );
-      if (lastWallet && lastWallet !== "[]" && !connectedWallets[0]) {
-        // There is a wallet but onboardJS hasn't loaded it yet. Stay in the loading state
+      if (!ready) {
         return;
       }
-      if (connectedWallets[0]) {
-        loadBlockchainData();
-      } else {
-        const deployedChainInfo = getChainConfig(DEFAULT_CHAIN_ID);
-        setBlockchainState({
-          ...defaultBlockchainState,
-          chainId: chainNumberToChainHex(DEFAULT_CHAIN_ID),
-          chainIdNumber: DEFAULT_CHAIN_ID,
-          graphUrl: deployedChainInfo?.graphUrl ?? "",
-          nativeCurrencySymbol:
-            deployedChainInfo?.chain.nativeCurrency?.symbol ?? "",
-        });
-        setIsInitializing(false);
+
+      if (!authenticated) {
+        resetDisconnectedState(
+          setBlockchainState,
+          setIsInitializing,
+          setIsWrongChain
+        );
+        return;
       }
-    }, [connectedWallets, loadBlockchainData]);
+
+      if (wallets[0]) {
+        loadBlockchainData();
+      }
+    }, [ready, authenticated, wallets, loadBlockchainData]);
 
     return (
       <BlockchainDataContext.Provider
         value={{
           blockchainState,
-          connectWallet: loadBlockchainData,
+          connectWallet,
           isInitializing,
           isWrongChain,
         }}
