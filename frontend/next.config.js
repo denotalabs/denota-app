@@ -19,6 +19,10 @@ module.exports = {
     config.resolve.alias = {
       ...config.resolve.alias,
       "@farcaster/mini-app-solana": privyOptionalStub,
+      "@solana/kit": privyOptionalStub,
+      "@solana-program/memo": privyOptionalStub,
+      "@solana-program/system": privyOptionalStub,
+      "@solana-program/token": privyOptionalStub,
     };
     return config;
   },
