@@ -20,9 +20,9 @@ import { useRouter } from "next/router";
 import { ReactNode, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
-  MdOutlineAdd,
   MdOutlineDescription,
   MdOutlineDynamicFeed,
+  MdSend
 } from "react-icons/md";
 import { SiDiscord } from "react-icons/si";
 import { SocialIcon } from "react-social-icons";
@@ -37,15 +37,15 @@ interface LinkItemProps {
 }
 const LinkItems: Array<LinkItemProps> = [
   {
-    name: "Dashboard",
-    icon: MdOutlineDynamicFeed,
-    href: "/",
+    name: "Send",
+    icon: MdSend,
+    href: "/send",
     isExternal: false,
   },
   {
-    name: "New Nota",
-    icon: MdOutlineAdd,
-    href: "/send",
+    name: "Dashboard",
+    icon: MdOutlineDynamicFeed,
+    href: "/",
     isExternal: false,
   },
   {

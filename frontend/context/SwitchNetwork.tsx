@@ -1,3 +1,5 @@
+import type { ConnectedWallet } from "@privy-io/react-auth";
+
 import {
   blockExplorerTxBasesFor,
   getChainConfigByHex,
@@ -5,19 +7,34 @@ import {
   rpcUrlsFor,
 } from "./config/chains";
 
-export const switchNetwork = async (chainId: string) => {
-  const config = getChainConfigByHex(chainId);
+export const switchNetwork = async (
+  chainIdHex: string,
+  wallet?: ConnectedWallet
+) => {
+  const config = getChainConfigByHex(chainIdHex);
 
   if (!config) {
-    console.error(`Unsupported chain ID: ${chainId}`);
-    return;
+    console.error(`Unsupported chain ID: ${chainIdHex}`);
+    return false;
+  }
+
+  const chainId = parseInt(chainIdHex, 16);
+
+  if (wallet) {
+    try {
+      await wallet.switchChain(chainId);
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   }
 
   const { chain } = config;
   try {
     await window.ethereum?.request({
       method: "wallet_switchEthereumChain",
-      params: [{ chainId }],
+      params: [{ chainId: chainIdHex }],
     });
     return true;
   } catch (error: any) {
@@ -27,7 +44,7 @@ export const switchNetwork = async (chainId: string) => {
           method: "wallet_addEthereumChain",
           params: [
             {
-              chainId,
+              chainId: chainIdHex,
               chainName: chain.name,
               nativeCurrency: chain.nativeCurrency,
               blockExplorerUrls: blockExplorerTxBasesFor(config),

@@ -9,6 +9,11 @@ import {
   hasValidPaymentAmount,
   useInsufficientBalance,
 } from "../../../hooks/useInsufficientBalance";
+import {
+  purchaseLabelFor,
+  usePurchaseToken,
+} from "../../../hooks/usePurchaseToken";
+import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps } from "../../designSystem/stepper/Stepper";
@@ -26,7 +31,9 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   });
 
   const router = useRouter();
+  const { purchaseToken, canPurchaseToken } = usePurchaseToken();
 
+  const paymentToken = notaFormValues.token as NotaCurrency;
   const isPayMode = notaFormValues.mode === "pay";
   const requiresBalanceCheck =
     isWalletConnected &&
@@ -40,6 +47,9 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
       requiresBalanceCheck
     );
 
+  const showPurchaseOnInsufficient =
+    insufficientBalance && canPurchaseToken(paymentToken);
+
   const isAwaitingBalanceCheck =
     requiresBalanceCheck && (!balanceChecked || isCheckingBalance);
 
@@ -51,7 +61,9 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
       return "Confirm Payment";
     }
     if (insufficientBalance) {
-      return "Insufficient balance";
+      return showPurchaseOnInsufficient
+        ? purchaseLabelFor(paymentToken)
+        : "Insufficient balance";
     }
     if (needsApproval) {
       return "Approve " + notaFormValues.token;
@@ -65,7 +77,8 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
     isWalletConnected,
     needsApproval,
     notaFormValues.mode,
-    notaFormValues.token,
+    paymentToken,
+    showPurchaseOnInsufficient,
   ]);
 
   return (
@@ -76,6 +89,15 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
           try {
             if (!isWalletConnected) {
               await connectWallet?.();
+              return;
+            }
+            if (insufficientBalance) {
+              if (showPurchaseOnInsufficient) {
+                await purchaseToken(
+                  paymentToken,
+                  notaFormValues.amount as string
+                );
+              }
               return;
             }
             if (needsApproval) {
@@ -97,7 +119,8 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
               isLoading={props.isSubmitting}
               isDisabled={
                 isWalletConnected &&
-                (isAwaitingBalanceCheck || insufficientBalance)
+                (isAwaitingBalanceCheck ||
+                  (insufficientBalance && !showPurchaseOnInsufficient))
               }
             >
               {buttonText}

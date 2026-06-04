@@ -1,9 +1,25 @@
+const path = require("path");
+
+/** Stub optional Privy peer deps that Denota does not use. */
+const privyOptionalStub = path.join(__dirname, "lib/privy-optional-stub.js");
+
 module.exports = {
   reactStrictMode: true,
   swcMinify: true,
-  transpilePackages: ["@lifi/widget", "@lifi/wallet-management"],
+  transpilePackages: [
+    "@lifi/widget",
+    "@lifi/wallet-management",
+    "@privy-io/react-auth",
+  ],
   trailingSlash: true,
   images: {
     unoptimized: true,
+  },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@farcaster/mini-app-solana": privyOptionalStub,
+    };
+    return config;
   },
 };

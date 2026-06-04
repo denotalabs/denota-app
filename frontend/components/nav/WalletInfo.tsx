@@ -5,7 +5,6 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   CopyIcon,
-  MoonIcon,
   SmallCloseIcon
 } from "@chakra-ui/icons";
 import { useBreakpointValue } from "@chakra-ui/react";
@@ -18,32 +17,12 @@ import {
   MenuButton,
   MenuList,
   Spacer,
-  Switch,
   Text,
-  useColorMode,
 } from "@chakra-ui/react";
 
-import { useConnectWallet } from "@web3-onboard/react";
+import { usePrivy } from "@privy-io/react-auth";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
-
-const addToken = async (tokenAddress: string, symbol: string) => {
-  try {
-    await (window as any).ethereum.request({
-      method: "wallet_watchAsset",
-      params: {
-        type: "ERC20",
-        options: {
-          address: tokenAddress,
-          symbol: symbol,
-          decimals: 18,
-        },
-      },
-    });
-  } catch (error) {
-    console.error(error);
-  }
-};
 
 export default function WalletInfo() {
   const { isInitializing, connectWallet, blockchainState } =
@@ -51,24 +30,22 @@ export default function WalletInfo() {
   const { account } = blockchainState;
   const avatarRef = useRef<HTMLDivElement | null>(null);
 
-  const { colorMode, toggleColorMode } = useColorMode();
   const { onCopy } = useClipboard(blockchainState.account);
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const [{ wallet }, , disconnect] = useConnectWallet();
+  const { logout } = usePrivy();
 
-  const logout = useCallback(async () => {
-    await disconnect(wallet);
-    window.location.reload();
-  }, [disconnect, wallet]);
+  const handleLogout = useCallback(async () => {
+    await logout();
+  }, [logout]);
 
   useEffect(() => {
     const element = avatarRef.current;
     if (element && blockchainState.account) {
       const addr = blockchainState.account.slice(2, 10);
       const seed = parseInt(addr, 16);
-      const icon = jazzicon(30, seed); //generates a size 20 icon
+      const icon = jazzicon(30, seed);
       if (element.firstChild) {
         element.removeChild(element.firstChild);
       }
@@ -85,7 +62,7 @@ export default function WalletInfo() {
           connectWallet?.();
         }}
       >
-        Connect Wallet
+        Login/Sign Up
       </Button>
     );
   else
@@ -123,19 +100,6 @@ export default function WalletInfo() {
           </Flex>
         </MenuButton>
         <MenuList alignItems="center" bg="brand.100">
-          <StyledMenuItem closeOnSelect={false} justifyContent="space-between">
-            <MoonIcon mr={2} />
-            Dark Mode
-            <Switch
-              onChange={() => {
-                toggleColorMode();
-              }}
-              isChecked={colorMode === "dark"}
-              id="dark-mode"
-              disabled={true}
-            />
-          </StyledMenuItem>
-
           <StyledMenuItem
             onClick={onCopy}
             isDisabled={!blockchainState.account}
@@ -143,11 +107,7 @@ export default function WalletInfo() {
             <CopyIcon mr={2} />
             Copy Address
           </StyledMenuItem>
-          <StyledMenuItem
-            onClick={() => {
-              logout();
-            }}
-          >
+          <StyledMenuItem onClick={handleLogout}>
             <SmallCloseIcon mr={2} />
             Logout
           </StyledMenuItem>
