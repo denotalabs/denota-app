@@ -30,5 +30,8 @@ export function extractPayerFromMetadata(
   if (!metadata) {
     return null;
   }
-  return normalizeRoleAddress(getMetadataAttribute(metadata, "Payer"));
+  return (
+    normalizeRoleAddress(getMetadataAttribute(metadata, "Payer")) ??
+    normalizeRoleAddress(getMetadataAttribute(metadata, "Sender"))
+  );
 }

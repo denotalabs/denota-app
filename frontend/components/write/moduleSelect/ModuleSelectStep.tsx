@@ -12,9 +12,13 @@ import {
 import { Form, Formik } from "formik";
 import { useMemo, useState } from "react";
 import { IconType } from "react-icons";
-import { MdEdit, MdGavel, MdSchedule, MdTouchApp } from "react-icons/md";
+import { MdCollections, MdEdit, MdGavel, MdSchedule, MdTouchApp } from "react-icons/md";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import {
+  BALANCE_OF_CONDITIONAL_CASH_MODULE,
+  defaultBalanceOfConditionalCashFormValues,
+} from "../../../utils/balanceOfConditionalCash";
 import {
   CASH_BEFORE_DATE_DRIP_MODULE,
   defaultCashBeforeDateDripFormValues,
@@ -26,6 +30,7 @@ import {
   getPaymentTermsInitialValues,
   paymentTermsValuesToNotaForm,
 } from "../../../utils/paymentTermsForm";
+import { isPaymentTermsSubmitDisabled } from "../../../utils/paymentTermsSubmit";
 import {
   isReversibleFormModule,
   RECOVERABLE_ALWAYS,
@@ -38,7 +43,7 @@ interface Props extends ScreenProps {
   showTerms: boolean;
 }
 
-type ModuleOptionId = "claimable" | "reversible" | "drip";
+type ModuleOptionId = "claimable" | "reversible" | "drip" | "nftBalance";
 
 interface ModuleOption {
   id: ModuleOptionId;
@@ -69,6 +74,14 @@ const MODULE_OPTIONS: ModuleOption[] = [
     description: "Tokens are claimable in chunks over time. Unclaimed chunks will be forfeited",
     icon: MdSchedule,
     isSelected: (module) => module === CASH_BEFORE_DATE_DRIP_MODULE,
+  },
+  {
+    id: "nftBalance",
+    title: "NFT Balance Condition",
+    description:
+      "Release payment when the recipient holds the required NFT balance. After expiration, funds return to the sender.",
+    icon: MdCollections,
+    isSelected: (module) => module === BALANCE_OF_CONDITIONAL_CASH_MODULE,
   },
 ];
 
@@ -207,6 +220,12 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
           ...defaultCashBeforeDateDripFormValues(),
         });
         break;
+      case "nftBalance":
+        updateNotaFormValues({
+          module: BALANCE_OF_CONDITIONAL_CASH_MODULE,
+          ...defaultBalanceOfConditionalCashFormValues(),
+        });
+        break;
     }
 
     if (!showTerms) {
@@ -265,7 +284,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
                 <Form>
                   <ModuleTerms module={notaFormValues.module} />
                   <RoundedButton
-                    isDisabled={Object.keys(props.errors).length > 0}
+                    isDisabled={isPaymentTermsSubmitDisabled(props)}
                     type="submit"
                   >
                     {"Next"}

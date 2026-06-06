@@ -1,3 +1,5 @@
+import { ethers } from "ethers";
+import { BALANCE_OF_CONDITIONAL_CASH_MODULE } from "./balanceOfConditionalCash";
 import {
   CASH_BEFORE_DATE_DRIP_MODULE,
   DripPeriodPreset,
@@ -36,6 +38,9 @@ export function validatePaymentTerms(values: {
   recoverableWhen?: string;
   inspectionEndDate?: string;
   milestones?: string[];
+  nftCollectionAddress?: string;
+  conditionType?: string;
+  nftBalanceThreshold?: string;
 }) {
   const errors: Record<string, string> = {};
 
@@ -69,6 +74,33 @@ export function validatePaymentTerms(values: {
     });
     if (dripPeriodSeconds <= 0) {
       errors.dripPeriod = "Drip period must be at least 1 second";
+    }
+  }
+
+  if (values.module === BALANCE_OF_CONDITIONAL_CASH_MODULE) {
+    validateFutureExpirationDate(
+      values.expirationDate,
+      errors,
+      "Expiration date is required"
+    );
+
+    if (!values.nftCollectionAddress?.trim()) {
+      errors.nftCollectionAddress = "NFT collection address is required";
+    } else if (!ethers.utils.isAddress(values.nftCollectionAddress)) {
+      errors.nftCollectionAddress = "Invalid address";
+    }
+
+    if (
+      !values.nftBalanceThreshold?.trim() ||
+      Number(values.nftBalanceThreshold) < 0 ||
+      !Number.isInteger(Number(values.nftBalanceThreshold))
+    ) {
+      errors.nftBalanceThreshold =
+        "Threshold must be a whole number of 0 or greater";
+    }
+
+    if (!values.conditionType?.trim()) {
+      errors.conditionType = "Condition type is required";
     }
   }
 

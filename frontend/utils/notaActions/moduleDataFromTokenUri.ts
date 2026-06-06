@@ -4,7 +4,15 @@ import {
   NotaStatuses,
 } from "@denota-labs/denota-sdk";
 import { BigNumber } from "ethers";
-import { getMetadataDateAttribute, TokenMetadata } from "../notaTokenUri";
+import {
+  isBalanceOfConditionalCashHook,
+  traitLabelToConditionType,
+} from "../balanceOfConditionalCash";
+import {
+  getMetadataAttribute,
+  getMetadataDateAttribute,
+  TokenMetadata,
+} from "../notaTokenUri";
 import { extractInspectorFromMetadata } from "./metadataRoles";
 
 function reversibleInspectorStatus(
@@ -37,6 +45,32 @@ function reversibleByBeforeDateStatus(
   return inspector === account.toLowerCase()
     ? "releasable"
     : "awaiting_release";
+}
+
+function balanceOfConditionalCashStatus(
+  escrowWei: BigNumber,
+  owner: string,
+  account: string,
+  sender: string | null,
+  expirationDate: Date | null
+): NotaStatuses {
+  if (escrowWei.isZero()) {
+    return "claimed";
+  }
+  const beforeExpiry =
+    expirationDate === null || expirationDate.getTime() >= Date.now();
+  if (beforeExpiry) {
+    return owner.toLowerCase() === account.toLowerCase()
+      ? "claimable"
+      : "awaiting_claim";
+  }
+  if (sender?.toLowerCase() === account.toLowerCase()) {
+    return "returnable";
+  }
+  if (owner.toLowerCase() === account.toLowerCase()) {
+    return "expired";
+  }
+  return "awaiting_claim";
 }
 
 function cashBeforeDateStatus(
@@ -149,6 +183,34 @@ export function buildModuleDataFromTokenUri({
       externalURI,
       imageURI,
     };
+  }
+
+  if (isBalanceOfConditionalCashHook(hook, chainIdNumber)) {
+    const expirationDate = getMetadataDateAttribute(metadata, "Expiration Date");
+    const sender = getMetadataAttribute(metadata, "Sender");
+    const conditionTypeTrait = getMetadataAttribute(metadata, "Condition Type");
+    return {
+      moduleName: "balanceOfConditionalCash",
+      status: balanceOfConditionalCashStatus(
+        escrowWei,
+        owner,
+        account,
+        sender,
+        expirationDate
+      ),
+      writeBytes: "",
+      nftCollectionAddress: getMetadataAttribute(metadata, "NFT Address") ?? "",
+      conditionType:
+        traitLabelToConditionType(conditionTypeTrait) ??
+        conditionTypeTrait ??
+        "",
+      nftBalanceThreshold:
+        getMetadataAttribute(metadata, "Threshold Number") ?? "",
+      sender: sender ?? "",
+      expirationDate: expirationDate ?? new Date(0),
+      externalURI,
+      imageURI,
+    } as unknown as ModuleData;
   }
 
   return null;
