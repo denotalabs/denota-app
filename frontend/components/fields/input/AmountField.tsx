@@ -10,16 +10,12 @@ import {
   NumberInputStepper,
 } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
-import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 
 interface Props {
-  token: string;
-  mode: string;
   allowZero?: boolean;
 }
 
-function AmountField({ token, mode, allowZero = false }: Props) {
-  const { blockchainState } = useBlockchainData();
+function AmountField({ allowZero = false }: Props) {
   const [hasStarted, setHasStarted] = useState(false);
 
   const validateAmount = useCallback(
@@ -31,26 +27,6 @@ function AmountField({ token, mode, allowZero = false }: Props) {
       if (value <= 0) {
         return "Value must be greater than 0";
       }
-    // TODO (THIS PR): fix validation
-    // if (mode === "pay") {
-    //   switch (token) {
-    //     case "DAI":
-    //       if (Number(blockchainState.userDaiBalance) < value) {
-    //         return "Insufficient balance";
-    //       }
-    //       break;
-    //     case "WETH":
-    //       if (Number(blockchainState.userWethBalance) < value) {
-    //         return "Insufficient balance";
-    //       }
-    //       break;
-    //     case "NATIVE":
-    //       if (Number(blockchainState.walletBalance) < value) {
-    //         return "Insufficient balance";
-    //       }
-    //       break;
-    //   }
-    // }
       return undefined;
     },
     [allowZero]

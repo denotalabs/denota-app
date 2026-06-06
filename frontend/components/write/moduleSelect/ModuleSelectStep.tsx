@@ -66,7 +66,7 @@ const MODULE_OPTIONS: ModuleOption[] = [
   {
     id: "drip",
     title: "Drip",
-    description: "Tokens are released in chunks over time",
+    description: "Tokens are claimable in chunks over time. Unclaimed chunks will be forfeited",
     icon: MdSchedule,
     isSelected: (module) => module === CASH_BEFORE_DATE_DRIP_MODULE,
   },

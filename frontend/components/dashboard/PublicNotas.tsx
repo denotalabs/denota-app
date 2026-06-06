@@ -23,7 +23,7 @@ function PublicNotas() {
       align="stretch"
       bg="brand.100"
     >
-      <Heading size="md">Recent Notas</Heading>
+      <Heading size="md">Recent Payments</Heading>
       <NotaTable rows={notas} />
       <HStack justifyContent="space-between">
         <Button

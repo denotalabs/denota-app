@@ -10,7 +10,7 @@ import {
   UseRadioProps,
   VStack,
 } from "@chakra-ui/react";
-import { Field, FieldProps } from "formik";
+import { Field, FieldProps, useFormikContext } from "formik";
 import { IconType } from "react-icons";
 import {
   MdFormatListBulleted,
@@ -50,32 +50,27 @@ const PAYMENT_TYPE_OPTIONS: {
 export function PaymentTypeField() {
   return (
     <Field name="paymentType">
-      {({ form: { setFieldValue, values } }: FieldProps) => (
+      {({ form: { values } }: FieldProps) => (
         <FormControl pt={5} maxW="100%">
           <Divider borderColor="whiteAlpha.300" mb={4} />
           <FormLabel mb={2}>Payment type</FormLabel>
-          <PaymentTypeSelector
-            value={values.paymentType}
-            setFieldValue={setFieldValue}
-          />
+          <PaymentTypeSelector value={values.paymentType} />
         </FormControl>
       )}
     </Field>
   );
 }
 
-function PaymentTypeSelector({
-  value,
-  setFieldValue,
-}: {
-  value: PaymentType;
-  setFieldValue: (field: string, value: PaymentType) => void;
-}) {
+function PaymentTypeSelector({ value }: { value: PaymentType }) {
+  const { setFieldValue } = useFormikContext<{ paymentType: PaymentType }>();
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "paymentType",
     value,
     onChange: (val: PaymentType) => {
-      setFieldValue("paymentType", val);
+      // Skip Formik's default validate-on-change: amount rules depend on
+      // paymentType, but the amount field's validator is not re-registered
+      // until after this render. PaymentFields re-validates once rules change.
+      setFieldValue("paymentType", val, false);
     },
   });
 

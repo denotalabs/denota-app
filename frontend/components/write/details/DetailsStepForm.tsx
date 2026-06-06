@@ -1,20 +1,22 @@
 import { useToast } from "@chakra-ui/react";
-import { Form, FormikProvider, useFormik } from "formik";
 import { ethers } from "ethers";
+import { Form, FormikProvider, useFormik } from "formik";
 import { useRouter } from "next/router";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
+import { usePaymentReadiness } from "../../../hooks/usePaymentReadiness";
 import {
-  hasValidPaymentAmount,
-  useInsufficientBalance,
-} from "../../../hooks/useInsufficientBalance";
+  usePurchaseToken,
+} from "../../../hooks/usePurchaseToken";
 import {
   quickPaymentButtonText,
   useQuickPayment,
 } from "../../../hooks/useQuickPayment";
-import { useRegistrarApproval } from "../../../hooks/useRegistrarApproval";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
+import { getEffectiveAddress } from "../../../utils/ensAddress";
+import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedBox from "../../designSystem/RoundedBox";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { useStep } from "../../designSystem/stepper/Stepper";
@@ -25,7 +27,6 @@ import {
   requiresRegistrarApproval,
   showsMetadataForm,
 } from "./paymentMetadata";
-import { getEffectiveAddress } from "../../../utils/ensAddress";
 import { PaymentType } from "./PaymentTypeField";
 
 export type DetailsStepFormValues = {
@@ -54,6 +55,9 @@ type DetailsSubmitContext = {
   updateNotaFormValues: ReturnType<typeof useNotaForm>["updateNotaFormValues"];
   setFile: ReturnType<typeof useNotaForm>["setFile"];
   executeQuickPayment: ReturnType<typeof useQuickPayment>["executeQuickPayment"];
+  insufficientBalance: boolean;
+  showPurchaseOnInsufficient: boolean;
+  purchaseToken: ReturnType<typeof usePurchaseToken>["purchaseToken"];
 };
 
 export function DetailsStepForm() {
@@ -67,6 +71,7 @@ export function DetailsStepForm() {
   const { executeQuickPayment } = useQuickPayment({
     onSuccess: () => router.push("/", undefined, { shallow: true }),
   });
+  const { purchaseToken, canPurchaseToken } = usePurchaseToken();
 
   const submitContext = useRef<DetailsSubmitContext | null>(null);
 
@@ -149,6 +154,16 @@ export function DetailsStepForm() {
         return;
       }
 
+      if (ctx.insufficientBalance) {
+        if (ctx.showPurchaseOnInsufficient && values.amount) {
+          await ctx.purchaseToken(
+            values.token as NotaCurrency,
+            values.amount
+          );
+        }
+        return;
+      }
+
       if (!values.amount) {
         return;
       }
@@ -175,14 +190,28 @@ export function DetailsStepForm() {
     },
   });
 
+  useEffect(() => {
+    updateNotaFormValues({
+      paymentType: formik.values.paymentType,
+      note: formik.values.note,
+      email: formik.values.email,
+      tags: formik.values.tags,
+      externalURI: formik.values.externalURI,
+      imageURI: formik.values.imageURI,
+    });
+  }, [
+    formik.values.email,
+    formik.values.externalURI,
+    formik.values.imageURI,
+    formik.values.note,
+    formik.values.paymentType,
+    formik.values.tags,
+    updateNotaFormValues,
+  ]);
+
   const paymentType = formik.values.paymentType;
   const showMetadataForm = showsMetadataForm(paymentType);
   const needsRegistrar = requiresRegistrarApproval(paymentType);
-  const { needsApproval, approveAmount } = useRegistrarApproval(
-    needsRegistrar,
-    formik.values.token,
-    formik.values.amount
-  );
   const hasAmount = allowsZeroPaymentAmount(paymentType)
     ? formik.values.amount !== undefined &&
       formik.values.amount !== "" &&
@@ -194,12 +223,21 @@ export function DetailsStepForm() {
     paymentType !== "withTerms" &&
     hasAmount &&
     Number(formik.values.amount) > 0;
-  const { insufficientBalance, isCheckingBalance, balanceChecked } =
-    useInsufficientBalance(
-      formik.values.token,
-      formik.values.amount,
-      requiresBalanceCheck
-    );
+  const approvalCheckEnabled = isWalletConnected && needsRegistrar;
+  const {
+    insufficientBalance,
+    needsApproval,
+    isChecking: isCheckingReadiness,
+    approveAmount,
+  } = usePaymentReadiness({
+    token: formik.values.token,
+    amount: formik.values.amount,
+    balanceCheckEnabled: requiresBalanceCheck,
+    approvalCheckEnabled,
+  });
+  const paymentToken = formik.values.token as NotaCurrency;
+  const showPurchaseOnInsufficient =
+    insufficientBalance && canPurchaseToken(paymentToken);
 
   submitContext.current = {
     needsApproval,
@@ -212,6 +250,9 @@ export function DetailsStepForm() {
     updateNotaFormValues,
     setFile,
     executeQuickPayment,
+    insufficientBalance,
+    showPurchaseOnInsufficient,
+    purchaseToken,
   };
 
   const recipientAddress = getEffectiveAddress(
@@ -229,12 +270,10 @@ export function DetailsStepForm() {
     hasValidRecipient &&
     hasAmount;
 
-  const isAwaitingBalanceCheck =
-    requiresBalanceCheck && (!balanceChecked || isCheckingBalance);
-
   const balanceBlocksSubmit =
     paymentType !== "withTerms" &&
-    (isAwaitingBalanceCheck || insufficientBalance);
+    (isCheckingReadiness ||
+      (insufficientBalance && !showPurchaseOnInsufficient));
 
   const requiresWallet = paymentType !== "withTerms";
 
@@ -242,18 +281,15 @@ export function DetailsStepForm() {
     paymentType,
     needsApproval,
     formik.values.token,
-    paymentType !== "withTerms" && insufficientBalance
+    paymentType !== "withTerms" && insufficientBalance,
+    isCheckingReadiness
   );
 
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
         <RoundedBox p={4}>
-          <PaymentDetails
-            token={formik.values.token}
-            mode={formik.values.mode}
-            showMetadata={showMetadataForm}
-          />
+          <PaymentDetails showMetadata={showMetadataForm} />
         </RoundedBox>
         <RoundedButton
           mt={4}

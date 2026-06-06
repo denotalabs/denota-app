@@ -4,10 +4,11 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
-import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { usePrivy, useSendTransaction, useWallets } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 
 import {
@@ -15,6 +16,11 @@ import {
   setProvider,
 } from "@denota-labs/denota-sdk";
 
+import {
+  createSponsoredEthersSigner,
+  isGasSponsorshipEnabled,
+  isPrivyEmbeddedWallet,
+} from "../lib/sponsoredEthersSigner";
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
   batchContractMappingForChainId,
@@ -28,7 +34,7 @@ import {
 interface BlockchainDataInterface {
   account: string;
   registrarAddress: string;
-  signer: null | ethers.providers.JsonRpcSigner;
+  signer: null | ethers.Signer;
   explorer: string;
   chainId: string;
   chainIdNumber: number;
@@ -89,7 +95,7 @@ async function applySignerToState(
       ...defaultBlockchainState,
       account,
       chainId: chainNumberToChainHex(chainId),
-      signer: signer as ethers.providers.JsonRpcSigner,
+      signer,
       chainIdNumber: chainId,
     });
     return;
@@ -104,7 +110,7 @@ async function applySignerToState(
     blockExplorerTxBasesFor(deployedChainInfo)[0] ?? "";
 
   setBlockchainState({
-    signer: signer as ethers.providers.JsonRpcSigner,
+    signer,
     account,
     registrarAddress: contractMapping.registrar,
     explorer: firstBlockExplorer,
@@ -145,9 +151,11 @@ export const BlockchainDataProvider = memo(
       useState<BlockchainDataInterface>(defaultBlockchainState);
     const [isInitializing, setIsInitializing] = useState(true);
     const [isWrongChain, setIsWrongChain] = useState(false);
+    const hasCompletedInitialLoad = useRef(false);
 
     const { ready, authenticated, login } = usePrivy();
     const { wallets } = useWallets();
+    const { sendTransaction: privySendTransaction } = useSendTransaction();
 
     const loadBlockchainData = useCallback(
       async (options?: { switchToDefaultChain?: boolean }) => {
@@ -156,7 +164,9 @@ export const BlockchainDataProvider = memo(
           return;
         }
 
-        setIsInitializing(true);
+        if (!hasCompletedInitialLoad.current) {
+          setIsInitializing(true);
+        }
         try {
           if (options?.switchToDefaultChain) {
             await wallet.switchChain(DEFAULT_CHAIN_ID);
@@ -164,9 +174,20 @@ export const BlockchainDataProvider = memo(
 
           const eip1193 = await wallet.getEthereumProvider();
           const provider = new ethers.providers.Web3Provider(eip1193, "any");
-          const signer = provider.getSigner();
-          const account = await signer.getAddress();
+          const baseSigner = provider.getSigner();
+          const account = await baseSigner.getAddress();
           const { chainId } = await provider.getNetwork();
+
+          const useSponsoredGas =
+            isGasSponsorshipEnabled() &&
+            isPrivyEmbeddedWallet(wallet.walletClientType);
+
+          const signer = useSponsoredGas
+            ? createSponsoredEthersSigner(baseSigner, privySendTransaction, {
+                sponsor: true,
+                walletAddress: account,
+              })
+            : baseSigner;
 
           await applySignerToState(
             signer,
@@ -176,13 +197,14 @@ export const BlockchainDataProvider = memo(
             setIsInitializing,
             setIsWrongChain
           );
+          hasCompletedInitialLoad.current = true;
         } catch (e) {
           console.error(e);
           window.alert("Error loading contracts");
           setIsInitializing(false);
         }
       },
-      [wallets]
+      [privySendTransaction, wallets]
     );
 
     const connectWallet = useCallback(async () => {
@@ -202,6 +224,7 @@ export const BlockchainDataProvider = memo(
       }
 
       if (!authenticated) {
+        hasCompletedInitialLoad.current = false;
         resetDisconnectedState(
           setBlockchainState,
           setIsInitializing,

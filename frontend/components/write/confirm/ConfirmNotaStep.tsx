@@ -5,14 +5,10 @@ import { useMemo } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useConfirmNota } from "../../../hooks/useConfirmNota";
-import {
-  hasValidPaymentAmount,
-  useInsufficientBalance,
-} from "../../../hooks/useInsufficientBalance";
-import {
-  purchaseLabelFor,
-  usePurchaseToken,
-} from "../../../hooks/usePurchaseToken";
+import { usePaymentReadiness } from "../../../hooks/usePaymentReadiness";
+import { usePurchaseToken } from "../../../hooks/usePurchaseToken";
+import { paymentButtonText } from "../../../utils/paymentButtonText";
+import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 
 import RoundedButton from "../../designSystem/RoundedButton";
@@ -24,12 +20,6 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   const { notaFormValues } = useNotaForm();
   const { blockchainState, connectWallet } = useBlockchainData();
   const isWalletConnected = blockchainState.account !== "";
-  const { needsApproval, approveAmount, writeNota } = useConfirmNota({
-    onSuccess: () => {
-      router.push("/", undefined, { shallow: true });
-    },
-  });
-
   const router = useRouter();
   const { purchaseToken, canPurchaseToken } = usePurchaseToken();
 
@@ -40,46 +30,48 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
     isPayMode &&
     hasValidPaymentAmount(notaFormValues.amount);
 
-  const { insufficientBalance, isCheckingBalance, balanceChecked } =
-    useInsufficientBalance(
-      notaFormValues.token,
-      notaFormValues.amount,
-      requiresBalanceCheck
-    );
+  const approvalCheckEnabled = isWalletConnected && isPayMode;
+
+  const {
+    insufficientBalance,
+    needsApproval,
+    isChecking: isCheckingReadiness,
+    approveAmount,
+  } = usePaymentReadiness({
+    token: notaFormValues.token,
+    amount: notaFormValues.amount,
+    balanceCheckEnabled: requiresBalanceCheck,
+    approvalCheckEnabled,
+  });
 
   const showPurchaseOnInsufficient =
     insufficientBalance && canPurchaseToken(paymentToken);
 
-  const isAwaitingBalanceCheck =
-    requiresBalanceCheck && (!balanceChecked || isCheckingBalance);
+  const { writeNota } = useConfirmNota({
+    onSuccess: () => {
+      router.push("/", undefined, { shallow: true });
+    },
+  });
 
-  const buttonText = useMemo(() => {
-    if (!isWalletConnected) {
-      return "Connect wallet";
-    }
-    if (isAwaitingBalanceCheck) {
-      return "Confirm Payment";
-    }
-    if (insufficientBalance) {
-      return showPurchaseOnInsufficient
-        ? purchaseLabelFor(paymentToken)
-        : "Insufficient balance";
-    }
-    if (needsApproval) {
-      return "Approve " + notaFormValues.token;
-    }
-    return notaFormValues.mode === "invoice"
-      ? "Create Invoice"
-      : "Confirm Payment";
-  }, [
-    insufficientBalance,
-    isAwaitingBalanceCheck,
-    isWalletConnected,
-    needsApproval,
-    notaFormValues.mode,
-    paymentToken,
-    showPurchaseOnInsufficient,
-  ]);
+  const buttonText = useMemo(
+    () =>
+      paymentButtonText({
+        token: notaFormValues.token,
+        isWalletConnected,
+        isCheckingReadiness,
+        insufficientBalance,
+        needsApproval,
+        mode: notaFormValues.mode,
+      }),
+    [
+      insufficientBalance,
+      isCheckingReadiness,
+      isWalletConnected,
+      needsApproval,
+      notaFormValues.mode,
+      notaFormValues.token,
+    ]
+  );
 
   return (
     <Box w="100%" p={4}>
@@ -119,7 +111,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
               isLoading={props.isSubmitting}
               isDisabled={
                 isWalletConnected &&
-                (isAwaitingBalanceCheck ||
+                (isCheckingReadiness ||
                   (insufficientBalance && !showPurchaseOnInsufficient))
               }
             >
