@@ -28,6 +28,8 @@ import SlideOver from "../designSystem/SlideOver";
 interface Props {
   action: ResolvedAction | null;
   context: NotaActionContext;
+  canExecute: boolean;
+  isPreviewing: boolean;
   onClose: () => void;
   onSubmit: (actionId: string, values: ActionFormValues) => Promise<void>;
 }
@@ -102,7 +104,14 @@ function ActionField({
   );
 }
 
-function NotaActionPanel({ action, context, onClose, onSubmit }: Props) {
+function NotaActionPanel({
+  action,
+  context,
+  canExecute,
+  isPreviewing,
+  onClose,
+  onSubmit,
+}: Props) {
   const [values, setValues] = useState<ActionFormValues>({});
   const [confirmed, setConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -184,9 +193,17 @@ function NotaActionPanel({ action, context, onClose, onSubmit }: Props) {
     (ethers.utils.isAddress(toValue) ||
       (isEnsName(toValue) && resolvedTo && !ensLoading));
 
+  const previewBlocked = isPreviewing || !canExecute;
+
   const footer =
     !action.branch &&
-    (action.id === "fund" ? (
+    (previewBlocked ? (
+      <RoundedButton mt={0} isDisabled>
+        {isPreviewing
+          ? "Preview only — switch to your role to execute"
+          : "Connect a wallet to execute"}
+      </RoundedButton>
+    ) : action.id === "fund" ? (
       <RoundedButton
         mt={0}
         isDisabled={
@@ -228,12 +245,27 @@ function NotaActionPanel({ action, context, onClose, onSubmit }: Props) {
       isOpen
       onClose={onClose}
       title={action.label}
-      subtitle={`Nota #${context.id}`}
+      subtitle={`Payment #${context.id}`}
       icon={<Icon size={19} />}
       iconBg={destructive ? "red.900" : "brand.400"}
       footer={footer}
     >
       <VStack align="stretch" spacing={5}>
+        {isPreviewing && (
+          <Text
+            fontSize="sm"
+            color="orange.200"
+            bg="orange.900"
+            borderWidth="1px"
+            borderColor="orange.700"
+            borderRadius="lg"
+            px={3.5}
+            py={3}
+          >
+            Preview mode — forms are read-only until you switch back to your
+            connected role.
+          </Text>
+        )}
         {action.note && (
           <Text
             fontSize="sm"
@@ -259,7 +291,11 @@ function NotaActionPanel({ action, context, onClose, onSubmit }: Props) {
               return (
                 <Button
                   key={branch.key}
-                  isDisabled={!destination || !ethers.utils.isAddress(destination)}
+                  isDisabled={
+                    previewBlocked ||
+                    !destination ||
+                    !ethers.utils.isAddress(destination)
+                  }
                   onClick={() =>
                     handleSubmit({
                       escrow: context.escrow,
@@ -401,7 +437,7 @@ function NotaActionPanel({ action, context, onClose, onSubmit }: Props) {
             <HStack spacing={1.5}>
               <WarningIcon color="red.400" boxSize={3.5} />
               <Text fontSize="sm">
-                I understand this permanently destroys Nota #{context.id}.
+                I understand this permanently destroys payment #{context.id}.
               </Text>
             </HStack>
           </Checkbox>

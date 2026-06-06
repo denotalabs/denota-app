@@ -1,5 +1,5 @@
-import { Tag, useToast, VStack } from "@chakra-ui/react";
-import { useCallback, useState } from "react";
+import { useToast, VStack } from "@chakra-ui/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { lookupEnsAddress } from "../../utils/ensClient";
 import { isEnsName } from "../../utils/ensAddress";
 import { useCashNotaAction } from "../../hooks/useCashNotaAction";
@@ -9,10 +9,12 @@ import { useTransferNota } from "../../hooks/useTransferNota";
 import { NotaInfoData } from "../../hooks/useNotaInfo";
 import {
   ActionFormValues,
+  NotaRole,
   ResolvedAction,
 } from "../../utils/notaActions/types";
 import NotaActionBar from "./NotaActionBar";
 import NotaActionPanel from "./NotaActionPanel";
+import NotaRolePreview from "./NotaRolePreview";
 
 interface Props {
   notaId: string;
@@ -22,10 +24,38 @@ interface Props {
 
 function NotaActions({ notaId, data, onRefresh }: Props) {
   const [activeAction, setActiveAction] = useState<ResolvedAction | null>(null);
+  const [previewRole, setPreviewRole] = useState<NotaRole | null>(null);
   const toast = useToast();
 
-  const { context, role, actions, hookName, isLoading, isWalletConnected } =
-    useNotaActions(notaId, data);
+  const {
+    context,
+    walletRole,
+    actions,
+    hookName,
+    isLoading,
+    isWalletConnected,
+    canExecute,
+    isPreviewing,
+  } = useNotaActions(notaId, data, previewRole ?? undefined);
+
+  const prevWalletRole = useRef(walletRole);
+
+  useEffect(() => {
+    if (previewRole === null && !isLoading && context) {
+      setPreviewRole(walletRole);
+    }
+  }, [context, isLoading, previewRole, walletRole]);
+
+  useEffect(() => {
+    if (previewRole === prevWalletRole.current) {
+      setPreviewRole(walletRole);
+    }
+    prevWalletRole.current = walletRole;
+  }, [previewRole, walletRole]);
+
+  useEffect(() => {
+    setActiveAction(null);
+  }, [previewRole]);
 
   const { cashNota } = useCashNotaAction(onRefresh);
   const { fundNota } = useFundNota(onRefresh);
@@ -33,7 +63,7 @@ function NotaActions({ notaId, data, onRefresh }: Props) {
 
   const handleSubmit = useCallback(
     async (actionId: string, values: ActionFormValues) => {
-      if (!context) {
+      if (!context || !canExecute) {
         return;
       }
 
@@ -83,30 +113,37 @@ function NotaActions({ notaId, data, onRefresh }: Props) {
         throw error;
       }
     },
-    [cashNota, context, fundNota, toast, transferNota]
+    [canExecute, cashNota, context, fundNota, toast, transferNota]
   );
 
-  if (isLoading || !context) {
+  if (isLoading || !context || previewRole === null) {
     return null;
   }
 
   return (
     <VStack align="stretch" spacing={3}>
-      {isWalletConnected && (
-        <Tag size="sm" alignSelf="flex-start" colorScheme="blue">
-          Your role: {role}
-          {hookName ? ` · ${hookName}` : ""}
-        </Tag>
-      )}
+      <NotaRolePreview
+        context={context}
+        previewRole={previewRole}
+        walletRole={walletRole}
+        isWalletConnected={isWalletConnected}
+        hookName={hookName}
+        onPreviewRoleChange={setPreviewRole}
+        onResetToWalletRole={() => setPreviewRole(walletRole)}
+      />
       <NotaActionBar
         actions={actions}
         onPick={setActiveAction}
         isWalletConnected={isWalletConnected}
+        isPreviewing={isPreviewing}
+        previewRole={previewRole}
       />
       {activeAction && (
         <NotaActionPanel
           action={activeAction}
           context={context}
+          canExecute={canExecute}
+          isPreviewing={isPreviewing}
           onClose={() => setActiveAction(null)}
           onSubmit={handleSubmit}
         />

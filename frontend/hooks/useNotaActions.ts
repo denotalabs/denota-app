@@ -8,8 +8,9 @@ import {
   extractPayerFromMetadata,
 } from "../utils/notaActions/metadataRoles";
 import { buildModuleDataFromTokenUri } from "../utils/notaActions/moduleDataFromTokenUri";
+import { buildContextForRole } from "../utils/notaActions/rolePreview";
 import { resolveActions } from "../utils/notaActions/resolveActions";
-import { NotaActionContext } from "../utils/notaActions/types";
+import { NotaActionContext, NotaRole } from "../utils/notaActions/types";
 import { NotaInfoData } from "./useNotaInfo";
 
 const UNKNOWN_MODULE_DATA: ModuleData = {
@@ -41,7 +42,11 @@ function resolveModuleData(
   );
 }
 
-export function useNotaActions(notaId: string, data: NotaInfoData) {
+export function useNotaActions(
+  notaId: string,
+  data: NotaInfoData,
+  previewRole?: NotaRole
+) {
   const { blockchainState } = useBlockchainData();
   const account = blockchainState.account;
   const chainIdNumber = blockchainState.chainIdNumber;
@@ -84,7 +89,7 @@ export function useNotaActions(notaId: string, data: NotaInfoData) {
     };
   }, [account, chainIdNumber, data, notaId]);
 
-  const role = useMemo(
+  const walletRole = useMemo(
     () =>
       deriveNotaRole(account, {
         owner: context?.owner ?? null,
@@ -95,10 +100,29 @@ export function useNotaActions(notaId: string, data: NotaInfoData) {
     [account, context]
   );
 
+  const effectiveRole = previewRole ?? walletRole;
+
+  const displayContext = useMemo(() => {
+    if (!context) {
+      return null;
+    }
+    if (!previewRole || previewRole === walletRole) {
+      return context;
+    }
+    return buildContextForRole(context, previewRole, {
+      metadata: data.metadata,
+      chainIdNumber,
+    });
+  }, [chainIdNumber, context, data.metadata, previewRole, walletRole]);
+
   const actions = useMemo(
-    () => (context ? resolveActions(role, context) : []),
-    [context, role]
+    () =>
+      displayContext ? resolveActions(effectiveRole, displayContext) : [],
+    [displayContext, effectiveRole]
   );
+
+  const canExecute = !!account && effectiveRole === walletRole;
+  const isPreviewing = effectiveRole !== walletRole;
 
   const hookName = useMemo(
     () => (context ? hookDisplayName(context.hook) : null),
@@ -106,11 +130,14 @@ export function useNotaActions(notaId: string, data: NotaInfoData) {
   );
 
   return {
-    context,
-    role,
+    context: displayContext,
+    walletRole,
+    previewRole: effectiveRole,
     actions,
     hookName,
     isLoading,
     isWalletConnected: !!account,
+    canExecute,
+    isPreviewing,
   };
 }

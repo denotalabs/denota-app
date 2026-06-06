@@ -148,7 +148,7 @@ export function NotaTable({ rows }: NotaTableProps) {
       <Table size="sm">
         <Thead>
           <Tr>
-            <Th>Payment ID</Th>
+            <Th>ID</Th>
             <Th>Owner</Th>
             <Th>Currency</Th>
             <Th isNumeric>Escrow</Th>
