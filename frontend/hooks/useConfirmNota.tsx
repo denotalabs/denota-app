@@ -164,7 +164,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       const message =
         notaFormValues.mode === "invoice"
           ? "Invoice created"
-          : "Nota created";
+          : "Payment created";
       toast({
         title: "Transaction succeeded",
         description: message,
