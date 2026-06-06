@@ -9,7 +9,7 @@ function NotaInfoPage() {
     router.isReady && typeof router.query.id === "string"
       ? router.query.id
       : undefined;
-  const data = useNotaInfo(notaId);
+  const { refresh, ...data } = useNotaInfo(notaId);
 
   if (!router.isReady) {
     return (
@@ -21,7 +21,11 @@ function NotaInfoPage() {
 
   return (
     <Center alignItems="flex-start" width="100%" maxWidth="80rem" mx="auto">
-      <NotaInfoScreen notaId={notaId ?? ""} data={data} />
+      <NotaInfoScreen
+        notaId={notaId ?? ""}
+        data={data}
+        onRefresh={refresh}
+      />
     </Center>
   );
 }
