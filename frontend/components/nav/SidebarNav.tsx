@@ -45,7 +45,7 @@ const LinkItems: Array<LinkItemProps> = [
   {
     name: "Dashboard",
     icon: MdOutlineDynamicFeed,
-    href: "/",
+    href: "/dashboard",
     isExternal: false,
   },
   {

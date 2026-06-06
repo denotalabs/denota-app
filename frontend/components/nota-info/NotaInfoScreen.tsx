@@ -210,8 +210,8 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
   if (data.notFound && !ownerLoading) {
     return (
       <VStack spacing={4} py={10}>
-        <Text>{data.error ?? "Nota not found"}</Text>
-        <Button as={NextLink} href="/" leftIcon={<ArrowBackIcon />}>
+        <Text>{data.error ?? "Payment not found"}</Text>
+        <Button as={NextLink} href="/dashboard" leftIcon={<ArrowBackIcon />}>
           Back to dashboard
         </Button>
       </VStack>
@@ -252,7 +252,7 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
         <Box>
           <Button
             as={NextLink}
-            href="/"
+            href="/dashboard"
             variant="ghost"
             size="sm"
             leftIcon={<ArrowBackIcon />}
@@ -261,7 +261,7 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
           >
             Dashboard
           </Button>
-          <Heading size="lg">Nota #{notaId}</Heading>
+          <Heading size="lg">Payment #{notaId}</Heading>
         </Box>
         <Button
           as="a"

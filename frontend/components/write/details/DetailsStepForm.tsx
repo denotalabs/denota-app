@@ -69,7 +69,7 @@ export function DetailsStepForm() {
   const isWalletConnected = blockchainState.account !== "";
   const toast = useToast();
   const { executeQuickPayment } = useQuickPayment({
-    onSuccess: () => router.push("/", undefined, { shallow: true }),
+    onSuccess: () => router.push("/dashboard"),
   });
   const { purchaseToken, canPurchaseToken } = usePurchaseToken();
 

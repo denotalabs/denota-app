@@ -71,7 +71,7 @@ export function useFundNota(onSuccess?: () => void) {
 
         toast({
           title: "Transaction succeeded",
-          description: "Nota funded",
+          description: "Payment funded",
           status: "success",
           duration: 3000,
           isClosable: true,

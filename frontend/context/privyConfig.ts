@@ -23,5 +23,5 @@ export const privyConfig: PrivyClientConfig = {
   },
   defaultChain: privyDefaultChain,
   supportedChains: privySupportedChains,
-  loginMethods: ["sms", "email", "google", "twitter", "wallet"]
+  loginMethods: ["sms", "email", "google", "wallet"]
 };

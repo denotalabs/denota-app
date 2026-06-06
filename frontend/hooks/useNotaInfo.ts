@@ -303,13 +303,13 @@ export const useNotaInfo = (notaId: string | undefined) => {
         }));
       })
       .catch((loadError) => {
-        console.error("Failed to load nota owner", loadError);
+        console.error("Failed to load payment owner", loadError);
         setData((prev) => ({
           ...prev,
           owner: null,
           ownerLoading: false,
           notFound: true,
-          error: "Nota not found or failed to load",
+          error: "Payment not found or failed to load",
         }));
       });
 
@@ -323,7 +323,7 @@ export const useNotaInfo = (notaId: string | undefined) => {
         }));
       })
       .catch((loadError) => {
-        console.warn("Failed to load nota approved address", loadError);
+        console.warn("Failed to load payment approved address", loadError);
         setData((prev) => ({
           ...prev,
           approved: null,
@@ -347,7 +347,7 @@ export const useNotaInfo = (notaId: string | undefined) => {
         }));
       })
       .catch((loadError) => {
-        console.warn("Failed to load nota on-chain state", loadError);
+        console.warn("Failed to load payment on-chain state", loadError);
         setData((prev) => ({
           ...prev,
           onChainState: null,
@@ -367,7 +367,7 @@ export const useNotaInfo = (notaId: string | undefined) => {
         }));
       })
       .catch((loadError) => {
-        console.warn("Failed to load nota tokenURI", loadError);
+        console.warn("Failed to load payment tokenURI", loadError);
         setData((prev) => ({
           ...prev,
           metadata: null,
@@ -425,7 +425,7 @@ export const useNotaInfo = (notaId: string | undefined) => {
         }));
       })
       .catch((graphError) => {
-        console.warn("Subgraph nota query failed", graphError);
+        console.warn("Subgraph payment query failed", graphError);
         setData((prev) => ({
           ...prev,
           interactionsLoading: false,

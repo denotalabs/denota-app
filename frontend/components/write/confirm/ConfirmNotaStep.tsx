@@ -49,7 +49,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
 
   const { writeNota } = useConfirmNota({
     onSuccess: () => {
-      router.push("/", undefined, { shallow: true });
+      router.push("/dashboard");
     },
   });
 

@@ -44,7 +44,7 @@ export function useTransferNota(onSuccess?: () => void) {
 
         toast({
           title: "Transaction succeeded",
-          description: "Nota transferred",
+          description: "Payment transferred",
           status: "success",
           duration: 3000,
           isClosable: true,
