@@ -4,9 +4,9 @@ import { useCallback } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import {
   hasPaymentMetadata,
-  requiresRegistrarApproval,
 } from "../components/write/details/paymentMetadata";
 import { PaymentType } from "../components/write/details/PaymentTypeField";
+import { paymentButtonText } from "../utils/paymentButtonText";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEmail } from "./useEmail";
@@ -130,19 +130,14 @@ export function quickPaymentButtonText(
   paymentType: PaymentType,
   needsApproval: boolean,
   token: string,
-  insufficientBalance = false
+  insufficientBalance = false,
+  isCheckingReadiness = false
 ): string {
-  if (paymentType === "withTerms") {
-    return "Payment Terms";
-  }
-  if (insufficientBalance) {
-    return "Insufficient balance";
-  }
-  if (requiresRegistrarApproval(paymentType) && needsApproval) {
-    return `Approve ${token}`;
-  }
-  if (paymentType === "sendOnly") {
-    return "Send Payment";
-  }
-  return "Confirm Payment";
+  return paymentButtonText({
+    token,
+    isCheckingReadiness,
+    insufficientBalance,
+    needsApproval,
+    paymentType,
+  });
 }

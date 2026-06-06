@@ -4,15 +4,13 @@ import PaymentFields from "./PaymentFields";
 import { PaymentTypeField } from "./PaymentTypeField";
 
 interface Props {
-  token: string;
-  mode: string;
   showMetadata?: boolean;
 }
-function PaymentDetails({ token, mode, showMetadata }: Props) {
+function PaymentDetails({ showMetadata }: Props) {
   return (
     <>
       <CurrencySelectorField />
-      <PaymentFields token={token} mode={mode} />
+      <PaymentFields />
       <PaymentTypeField />
       {showMetadata && <MetadataBox />}
     </>

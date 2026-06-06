@@ -20,13 +20,11 @@ import { useReversibleByBeforeDate } from "./modules/useReversibleByBeforeDate";
 import { useReversibleRelease } from "./modules/useReversibleRelease";
 import { useSimpleCash } from "./modules/useSimpleCash";
 import { useEmail } from "./useEmail";
-import { useRegistrarApproval } from "./useRegistrarApproval";
-
 interface Props {
   onSuccess?: () => void;
 }
 
-// Asks for token approval if not already, tries writing nota and creates local version, sends email if provided
+// Tries writing nota and creates local version, sends email if provided
 export const useConfirmNota = ({ onSuccess }: Props) => {
   const toast = useToast();
 
@@ -34,13 +32,6 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { blockchainState } = useBlockchainData();
 
   const { sendEmail } = useEmail();
-
-  const approvalEnabled = notaFormValues.mode === "pay";
-  const { needsApproval, approveAmount } = useRegistrarApproval(
-    approvalEnabled,
-    notaFormValues.token,
-    notaFormValues.amount
-  );
 
   const { createLocalNota } = useNotaContext();
 
@@ -226,5 +217,5 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     sendEmail,
   ]);
 
-  return { needsApproval, approveAmount, writeNota };
+  return { writeNota };
 };
