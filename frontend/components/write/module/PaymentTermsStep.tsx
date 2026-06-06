@@ -10,6 +10,7 @@ import {
   PaymentTermsFormValues,
   paymentTermsValuesToNotaForm,
 } from "../../../utils/paymentTermsForm";
+import { isPaymentTermsSubmitDisabled } from "../../../utils/paymentTermsSubmit";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import ModuleTerms from "./ModuleTerms";
@@ -56,7 +57,7 @@ const PaymentTermsStep: React.FC<ScreenProps> = () => {
             <ModuleTerms module={notaFormValues.module ?? props.values.module} />
             <RoundedButton
               type="submit"
-              isDisabled={Object.keys(props.errors).length > 0}
+              isDisabled={isPaymentTermsSubmitDisabled(props)}
             >
               {"Review and Confirm"}
             </RoundedButton>

@@ -5,6 +5,11 @@ import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useEnsNames } from "../../../hooks/useEnsNames";
 import { useTokens } from "../../../hooks/useTokens";
 import {
+  BALANCE_OF_CONDITIONAL_CASH_MODULE,
+  CONDITION_TYPE_LABELS,
+  ConditionType,
+} from "../../../utils/balanceOfConditionalCash";
+import {
   CASH_BEFORE_DATE_DRIP_MODULE,
   formatDripPeriodFormDisplay,
 } from "../../../utils/dripPeriod";
@@ -48,6 +53,8 @@ function ConfirmDetails() {
       notaFormValues.module === "cashBeforeDate" ||
       notaFormValues.module === CASH_BEFORE_DATE_DRIP_MODULE);
   const showDripTerms = notaFormValues.module === CASH_BEFORE_DATE_DRIP_MODULE;
+  const showNftBalanceTerms =
+    notaFormValues.module === BALANCE_OF_CONDITIONAL_CASH_MODULE;
   const showInspectionEnd =
     !!notaFormValues.inspectionEndDate &&
     isReversibleFormModule(notaFormValues.module) &&
@@ -104,6 +111,24 @@ function ConfirmDetails() {
             />
             <DetailsRow
               title="Must claim before"
+              value={formatExpirationDateDisplay(
+                notaFormValues.expirationDate ?? ""
+              )}
+            />
+          </>
+        )}
+        {showNftBalanceTerms && (
+          <>
+            <DetailsRow
+              title="NFT collection"
+              value={notaFormValues.nftCollectionAddress ?? ""}
+            />
+            <DetailsRow
+              title="Condition"
+              value={`${CONDITION_TYPE_LABELS[notaFormValues.conditionType as ConditionType] ?? notaFormValues.conditionType} ${notaFormValues.nftBalanceThreshold}`}
+            />
+            <DetailsRow
+              title="Expiration"
               value={formatExpirationDateDisplay(
                 notaFormValues.expirationDate ?? ""
               )}

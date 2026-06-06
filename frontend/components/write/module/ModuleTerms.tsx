@@ -1,5 +1,7 @@
 import { Box } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { BALANCE_OF_CONDITIONAL_CASH_MODULE } from "../../../utils/balanceOfConditionalCash";
+import { BalanceOfConditionalCashTerms } from "./BalanceOfConditionalCashTerms";
 import { CashBeforeDateDripTerms } from "./CashBeforeDateDripTerms";
 import { ClaimableTerms } from "./ClaimableTerms";
 import { DirectPayTerms } from "./DirectPayTerms";
@@ -20,6 +22,7 @@ function ModuleTerms({ module }: Props) {
     reversibleRelease: "Reversible",
     reversibleByBeforeDate: "Reversible",
     cashBeforeDateDrip: "CashBeforeDateDrip",
+    [BALANCE_OF_CONDITIONAL_CASH_MODULE]: "BalanceOfConditionalCash",
     milestone: "Drip",
     // "": "Cancelable",
     // "": "Grant",
@@ -37,6 +40,8 @@ function ModuleTerms({ module }: Props) {
         return <EscrowTerms />;
       case "CashBeforeDateDrip":
         return <CashBeforeDateDripTerms />;
+      case "BalanceOfConditionalCash":
+        return <BalanceOfConditionalCashTerms />;
       case "Drip":
         return <MilestoneTerms />;
       default:

@@ -13,6 +13,8 @@ import {
   DripPeriodPreset,
   DripPeriodUnit,
 } from "../utils/dripPeriod";
+import { ConditionType } from "../utils/balanceOfConditionalCash";
+import { useBalanceOfConditionalCash } from "./modules/useBalanceOfConditionalCash";
 import { useCashBeforeDate } from "./modules/useCashBeforeDate";
 import { useCashBeforeDateDrip } from "./modules/useCashBeforeDateDrip";
 import { useDirectPay } from "./modules/useDirectPay";
@@ -43,6 +45,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { writeNota: writeReversibleByBeforeDate } = useReversibleByBeforeDate();
 
   const { writeNota: writeSimpleCash } = useSimpleCash();
+  const { writeNota: writeBalanceOfConditionalCash } =
+    useBalanceOfConditionalCash();
 
   const writeNota = useCallback(async () => {
     try {
@@ -108,6 +112,19 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             address: owner,
             inspector,
             inspectionEndDate: notaFormValues.inspectionEndDate,
+            externalURI: notaFormValues.externalURI ?? "",
+            imageURI: notaFormValues.imageURI ?? "",
+          });
+          break;
+        case "balanceOfConditionalCash":
+          receipt = await writeBalanceOfConditionalCash({
+            token: notaFormValues.token,
+            amount: notaFormValues.amount,
+            address: owner,
+            nftCollectionAddress: notaFormValues.nftCollectionAddress,
+            conditionType: notaFormValues.conditionType as ConditionType,
+            nftBalanceThreshold: notaFormValues.nftBalanceThreshold,
+            expirationDate: notaFormValues.expirationDate,
             externalURI: notaFormValues.externalURI ?? "",
             imageURI: notaFormValues.imageURI ?? "",
           });
@@ -204,6 +221,9 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.dripPeriodUnit,
     notaFormValues.recoverableWhen,
     notaFormValues.inspectionEndDate,
+    notaFormValues.nftCollectionAddress,
+    notaFormValues.conditionType,
+    notaFormValues.nftBalanceThreshold,
     notaFormValues.moduleData,
     createLocalNota,
     toast,
@@ -214,6 +234,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     writeReversibleRelease,
     writeReversibleByBeforeDate,
     writeSimpleCash,
+    writeBalanceOfConditionalCash,
     sendEmail,
   ]);
 

@@ -2,6 +2,7 @@ import { ArrowRightIcon, LockIcon, StarIcon } from "@chakra-ui/icons";
 import { Center, Text } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import { BALANCE_OF_CONDITIONAL_CASH_MODULE } from "../../../utils/balanceOfConditionalCash";
 import { CASH_BEFORE_DATE_DRIP_MODULE } from "../../../utils/dripPeriod";
 import {
   isClaimableModule,
@@ -62,6 +63,9 @@ function ConfirmNotice() {
     if (module === CASH_BEFORE_DATE_DRIP_MODULE) {
       return "Drip";
     }
+    if (module === BALANCE_OF_CONDITIONAL_CASH_MODULE) {
+      return "NFT Balance Condition";
+    }
     switch (displayModule) {
       case "directSend":
         return "Direct Pay";
@@ -90,6 +94,9 @@ function ConfirmNotice() {
     if (module === CASH_BEFORE_DATE_DRIP_MODULE) {
       return "The owner can claim drip amounts on a schedule until the expiration date";
     }
+    if (module === BALANCE_OF_CONDITIONAL_CASH_MODULE) {
+      return "Payment is released when the recipient's NFT balance meets the condition. After expiration, funds return to the sender.";
+    }
     switch (displayModule) {
       case "directSend":
         return "Funds will be released as soon as the payment is made";
@@ -113,7 +120,7 @@ function ConfirmNotice() {
           {moduleDescription}
         </Text>
         <Text fontWeight={600} fontSize={"md"} textAlign="center">
-          {"A nota NFT is issued for tracking"}
+          {"A payment NFT is issued for tracking"}
         </Text>
       </Center>
     </RoundedBox>

@@ -1,3 +1,7 @@
+import {
+  BALANCE_OF_CONDITIONAL_CASH_MODULE,
+  defaultBalanceOfConditionalCashFormValues,
+} from "./balanceOfConditionalCash";
 import { CLAIMABLE_MODULE } from "./expirationDate";
 import {
   initialAuditorFields,
@@ -25,6 +29,9 @@ export type PaymentTermsFormValues = {
   dripPeriodAmount: string;
   dripPeriodUnit: string;
   axelarEnabled: boolean;
+  nftCollectionAddress: string;
+  conditionType: string;
+  nftBalanceThreshold: string;
 };
 
 type NotaFormSlice = {
@@ -42,6 +49,9 @@ type NotaFormSlice = {
   dripPeriodPreset?: string;
   dripPeriodAmount?: string;
   dripPeriodUnit?: string;
+  nftCollectionAddress?: string;
+  conditionType?: string;
+  nftBalanceThreshold?: string;
 };
 
 export function getAuditorFieldsForPaymentTerms(
@@ -66,16 +76,24 @@ export function getPaymentTermsInitialValues(
   auditorFields: { auditor: string; resolvedAuditor: string },
   options?: { includeAxelar?: boolean }
 ): PaymentTermsFormValues {
+  const balanceOfConditionalCashDefaults =
+    notaFormValues.module === BALANCE_OF_CONDITIONAL_CASH_MODULE
+      ? defaultBalanceOfConditionalCashFormValues()
+      : null;
+
   return {
     inspection: notaFormValues.inspection
       ? Number(notaFormValues.inspection)
       : 604800,
     module: notaFormValues.module ?? CLAIMABLE_MODULE,
-    expirationDate:
-      notaFormValues.expirationDate ??
-      (notaFormValues.module === CASH_BEFORE_DATE_DRIP_MODULE
+    expirationDate: notaFormValues.expirationDate?.trim()
+      ? notaFormValues.expirationDate
+      : notaFormValues.module === CASH_BEFORE_DATE_DRIP_MODULE
         ? dateTimeLocalOneMonthFromNow()
-        : ""),
+        : notaFormValues.module === BALANCE_OF_CONDITIONAL_CASH_MODULE
+          ? (balanceOfConditionalCashDefaults?.expirationDate ??
+            dateTimeLocalOneMonthFromNow())
+          : (notaFormValues.expirationDate ?? ""),
     recoverableWhen: notaFormValues.recoverableWhen ?? RECOVERABLE_ALWAYS,
     inspectionEndDate: notaFormValues.inspectionEndDate ?? "",
     auditor: auditorFields.auditor,
@@ -91,6 +109,15 @@ export function getPaymentTermsInitialValues(
         ? notaFormValues.axelarEnabled === true ||
           notaFormValues.axelarEnabled === "true"
         : false,
+    nftCollectionAddress: notaFormValues.nftCollectionAddress ?? "",
+    conditionType:
+      notaFormValues.conditionType ??
+      balanceOfConditionalCashDefaults?.conditionType ??
+      "",
+    nftBalanceThreshold:
+      notaFormValues.nftBalanceThreshold ??
+      balanceOfConditionalCashDefaults?.nftBalanceThreshold ??
+      "",
   };
 }
 
@@ -109,6 +136,9 @@ export function paymentTermsValuesToNotaForm(
     dripPeriodPreset: values.dripPeriodPreset,
     dripPeriodAmount: values.dripPeriodAmount,
     dripPeriodUnit: values.dripPeriodUnit,
+    nftCollectionAddress: values.nftCollectionAddress,
+    conditionType: values.conditionType,
+    nftBalanceThreshold: values.nftBalanceThreshold,
     ...(options?.includeAxelar
       ? { axelarEnabled: values.axelarEnabled ? "true" : undefined }
       : {}),
