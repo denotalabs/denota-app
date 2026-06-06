@@ -6,7 +6,7 @@ export type { DetailsStepFormValues } from "./DetailsStepForm";
 
 const DetailsStep: React.FC<ScreenProps> = () => {
   return (
-    <Box w="100%" p={3}>
+    <Box w="100%" p={2}>
       <DetailsStepForm />
     </Box>
   );

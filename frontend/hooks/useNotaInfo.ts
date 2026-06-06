@@ -77,6 +77,7 @@ export interface NotaOnChainState {
   currency: string;
   currencySymbol: string;
   escrow: string;
+  escrowWei: BigNumber;
   hook: string;
 }
 
@@ -89,8 +90,6 @@ export interface NotaInfoData {
   onChainStateLoading: boolean;
   metadata: TokenMetadata | null;
   metadataLoading: boolean;
-  sender: string | null;
-  receiver: string | null;
   interactions: NotaInteraction[];
   interactionsLoading: boolean;
   interactionsSource: "subgraph" | "none";
@@ -107,8 +106,6 @@ const emptyNotaInfoData = (): NotaInfoData => ({
   onChainStateLoading: false,
   metadata: null,
   metadataLoading: false,
-  sender: null,
-  receiver: null,
   interactions: [],
   interactionsLoading: false,
   interactionsSource: "none",
@@ -116,33 +113,13 @@ const emptyNotaInfoData = (): NotaInfoData => ({
   error: null,
 });
 
-const NOTA_QUERY = gql`
-  query notaInfo($id: ID!) {
+/** Subgraph is used only for the interaction history log, not live nota state. */
+const NOTA_INTERACTIONS_QUERY = gql`
+  query notaInteractions($id: ID!) {
     nota(id: $id) {
       id
-      escrowed
       token {
         id
-      }
-      module {
-        id
-      }
-      owner {
-        id
-      }
-      approved {
-        id
-      }
-      sender {
-        id
-      }
-      receiver {
-        id
-      }
-      moduleData {
-        writeBytes
-        externalURI
-        imageURI
       }
       written {
         caller {
@@ -280,6 +257,7 @@ const buildOnChainStateFromInfo = (
     currency,
     currencySymbol: symbol,
     escrow: ethers.utils.formatUnits(info.escrowed, decimals),
+    escrowWei: info.escrowed,
     hook: String(info.module),
   };
 };
@@ -409,7 +387,7 @@ export const useNotaInfo = (notaId: string | undefined) => {
     Promise.all([
       queryWithTimeout(
         client.query({
-          query: NOTA_QUERY,
+          query: NOTA_INTERACTIONS_QUERY,
           variables: { id },
         }),
         GRAPH_QUERY_TIMEOUT_MS
@@ -427,12 +405,12 @@ export const useNotaInfo = (notaId: string | undefined) => {
           return;
         }
 
-        const tokenAddress = gqlNota.token?.id?.toLowerCase() ?? "";
+        const tokenAddress =
+          gqlNota.token?.id?.toLowerCase() ??
+          "";
 
         setData((prev) => ({
           ...prev,
-          sender: gqlNota.sender?.id ?? null,
-          receiver: gqlNota.receiver?.id ?? null,
           interactions: dedupeInteractions(
             buildInteractionsFromSubgraph(gqlNota, (value) => {
               const { decimals, symbol } = tokenDisplayForAddress(

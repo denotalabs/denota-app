@@ -31,6 +31,10 @@ import { useEnsNames } from "../../hooks/useEnsNames";
 import { NotaInfoData } from "../../hooks/useNotaInfo";
 import { POLYGON_REGISTRAR_ADDRESS } from "../../hooks/usePublicNotas";
 import {
+  extractPayerFromMetadata,
+  extractInspectorFromMetadata,
+} from "../../utils/notaActions/metadataRoles";
+import {
   collectMetadataAddresses,
   formatMetadataAttributeValue,
   isMetadataAddressValue,
@@ -40,11 +44,13 @@ import {
 import AddressDisplay from "../designSystem/AddressDisplay";
 import DetailsRow from "../designSystem/DetailsRow";
 import RoundedBox from "../designSystem/RoundedBox";
+import NotaActions from "../nota-actions/NotaActions";
 import NotaInteractionLog from "./NotaInteractionLog";
 
 interface Props {
   notaId: string;
   data: NotaInfoData;
+  onRefresh: () => void;
 }
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -159,7 +165,7 @@ function MetadataAttributeValue({
   );
 }
 
-function NotaInfoScreen({ notaId, data }: Props) {
+function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
   const shortenAddresses =
     useBreakpointValue({ base: true, md: false }) ?? false;
   const { blockchainState } = useBlockchainData();
@@ -174,24 +180,30 @@ function NotaInfoScreen({ notaId, data }: Props) {
     onChainStateLoading,
     metadata,
     metadataLoading,
-    sender,
-    receiver,
     interactions,
     interactionsLoading,
     interactionsSource,
   } = data;
 
+  const payerFromMetadata = useMemo(
+    () => extractPayerFromMetadata(metadata),
+    [metadata]
+  );
+  const inspectorFromMetadata = useMemo(
+    () => extractInspectorFromMetadata(metadata),
+    [metadata]
+  );
   const ensAddresses = useMemo(
     () =>
       [
         owner,
         approved,
         onChainState?.hook,
-        sender,
-        receiver,
+        payerFromMetadata,
+        inspectorFromMetadata,
         ...collectMetadataAddresses(metadata),
       ].filter((address): address is string => !!address),
-    [owner, approved, onChainState, sender, receiver, metadata]
+    [owner, approved, onChainState, payerFromMetadata, inspectorFromMetadata, metadata]
   );
   const ensNames = useEnsNames(ensAddresses);
 
@@ -262,6 +274,8 @@ function NotaInfoScreen({ notaId, data }: Props) {
           View on OpenSea
         </Button>
       </Stack>
+
+      <NotaActions notaId={notaId} data={data} onRefresh={onRefresh} />
 
       <RoundedBox px={6} py={2}>
         <Heading size="sm" pt={3} pb={1}>
@@ -341,24 +355,27 @@ function NotaInfoScreen({ notaId, data }: Props) {
                 : undefined
             }
           />
-          {sender && (
+          {payerFromMetadata && (
             <DetailsRow
               title="Payer"
               shortenAddresses={shortenAddresses}
               ensNames={ensNames}
-              value={sender}
-              copyValue={sender}
-              link={blockExplorerAddressUrl(explorerTxBase, sender)}
+              value={payerFromMetadata}
+              copyValue={payerFromMetadata}
+              link={blockExplorerAddressUrl(explorerTxBase, payerFromMetadata)}
             />
           )}
-          {receiver && (
+          {inspectorFromMetadata && (
             <DetailsRow
-              title="Recipient"
+              title="Inspector"
               shortenAddresses={shortenAddresses}
               ensNames={ensNames}
-              value={receiver}
-              copyValue={receiver}
-              link={blockExplorerAddressUrl(explorerTxBase, receiver)}
+              value={inspectorFromMetadata}
+              copyValue={inspectorFromMetadata}
+              link={blockExplorerAddressUrl(
+                explorerTxBase,
+                inspectorFromMetadata
+              )}
             />
           )}
         </VStack>

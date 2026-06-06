@@ -126,6 +126,36 @@ export const getMetadataAttribute = (
   return String(attr.value);
 };
 
+/** Parse a date/timestamp trait from tokenURI metadata (seconds or ms unix). */
+export const getMetadataDateAttribute = (
+  metadata: TokenMetadata | null | undefined,
+  traitType: string
+): Date | null => {
+  if (!metadata?.attributes?.length) {
+    return null;
+  }
+  const attr = metadata.attributes.find(
+    (a) => a.trait_type?.toLowerCase() === traitType.toLowerCase()
+  );
+  if (attr?.value == null) {
+    return null;
+  }
+  const displayType = attr.display_type?.toLowerCase();
+  const isDateAttribute =
+    (displayType && DATE_DISPLAY_TYPES.has(displayType)) ||
+    (!!attr.trait_type &&
+      DATE_TRAIT_PATTERN.test(attr.trait_type) &&
+      isUnixTimestamp(attr.value));
+  if (!isDateAttribute) {
+    return null;
+  }
+  const num =
+    typeof attr.value === "number" ? attr.value : Number(attr.value);
+  const ms = num >= 1_000_000_000_000 ? num : num * 1000;
+  const date = new Date(ms);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 export const extractTokenUriOnChainFields = (
   metadata: TokenMetadata
 ): TokenUriOnChainFields | null => {
