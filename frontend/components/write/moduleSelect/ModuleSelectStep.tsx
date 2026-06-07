@@ -14,17 +14,18 @@ import { Form, Formik } from "formik";
 import { useMemo, useState } from "react";
 import { IconType } from "react-icons";
 import { MdCollections, MdEdit, MdGavel, MdSchedule, MdTouchApp } from "react-icons/md";
-import {
-  COMING_SOON_MODULES,
-  ComingSoonModule,
-  ComingSoonModuleId,
-} from "../../../utils/comingSoonModules";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import {
   BALANCE_OF_CONDITIONAL_CASH_MODULE,
   defaultBalanceOfConditionalCashFormValues,
 } from "../../../utils/balanceOfConditionalCash";
+import {
+  COMING_SOON_MODULES,
+  ComingSoonModule,
+  ComingSoonModuleId,
+  getComingSoonModule,
+} from "../../../utils/comingSoonModules";
 import {
   CASH_BEFORE_DATE_DRIP_MODULE,
   defaultCashBeforeDateDripFormValues,
@@ -235,7 +236,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   const selectedComingSoonModule = useMemo(
     () =>
       selectedComingSoonId
-        ? COMING_SOON_MODULES.find((module) => module.id === selectedComingSoonId)
+        ? getComingSoonModule(selectedComingSoonId)
         : undefined,
     [selectedComingSoonId]
   );
@@ -315,7 +316,9 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
               onClick={() => selectModule(option.id)}
             />
           ))}
-          {COMING_SOON_MODULES.map((module) => (
+          {COMING_SOON_MODULES.filter((module) =>
+            getComingSoonModule(module.id)
+          ).map((module) => (
             <ModuleOptionBox
               key={module.id}
               title={module.title}

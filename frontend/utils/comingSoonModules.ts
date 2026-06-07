@@ -234,5 +234,14 @@ export const COMING_SOON_MODULES: ComingSoonModule[] = [
 export function getComingSoonModule(
   id: ComingSoonModuleId
 ): ComingSoonModule | undefined {
-  return COMING_SOON_MODULES.find((module) => module.id === id);
+  const hidden: ComingSoonModuleId[] = [
+    "kleros",
+    "tokenPrice",
+    "adminSigned",
+    "crowdRaise",
+  ];
+
+  return COMING_SOON_MODULES.find(
+    (module) => module.id === id && !hidden.includes(module.id)
+  );
 }
