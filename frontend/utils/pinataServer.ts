@@ -11,6 +11,7 @@ export async function createPinataSignedUploadUrl(options?: {
   const body: Record<string, unknown> = {
     network: "public",
     expires: 60,
+    date: Math.floor(Date.now() / 1000),
     max_file_size: MAX_UPLOAD_BYTES,
   };
 
