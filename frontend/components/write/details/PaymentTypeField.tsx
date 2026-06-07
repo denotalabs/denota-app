@@ -30,19 +30,19 @@ const PAYMENT_TYPE_OPTIONS: {
       value: "withTerms",
       label: "With terms",
       description:
-        "Mints an escrow NFT with ownership and release rules on the next page.",
+        "Creates an escrow agreement with ownership and release rules on the next page.",
       icon: MdFormatListBulleted,
     },
     {
       value: "withReceipt",
       label: "With receipt",
-      description: "Transfers payment and mints an NFT receipt for the recipient.",
+      description: "Transfers payment and issues a receipt to the recipient.",
       icon: MdReceiptLong,
     },
     {
       value: "sendOnly",
       label: "Send only",
-      description: "Transfers payment and emits logs when metadata is attached.",
+      description: "Transfers payment and emits the metadata if attached.",
       icon: MdSend,
     },
   ];
