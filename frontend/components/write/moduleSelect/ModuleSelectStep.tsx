@@ -6,6 +6,7 @@ import {
   HStack,
   Icon,
   SimpleGrid,
+  Tag,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -19,6 +20,12 @@ import {
   BALANCE_OF_CONDITIONAL_CASH_MODULE,
   defaultBalanceOfConditionalCashFormValues,
 } from "../../../utils/balanceOfConditionalCash";
+import {
+  COMING_SOON_MODULES,
+  ComingSoonModule,
+  ComingSoonModuleId,
+  getComingSoonModule,
+} from "../../../utils/comingSoonModules";
 import {
   CASH_BEFORE_DATE_DRIP_MODULE,
   defaultCashBeforeDateDripFormValues,
@@ -37,6 +44,7 @@ import {
 } from "../../../utils/reversibleModule";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
+import { ComingSoonTerms } from "../module/ComingSoonTerms";
 import ModuleTerms from "../module/ModuleTerms";
 
 interface Props extends ScreenProps {
@@ -98,11 +106,13 @@ function ModuleOptionBox({
   title,
   description,
   icon,
+  comingSoon,
   onClick,
 }: {
   title: string;
   description: string;
   icon: IconType;
+  comingSoon?: boolean;
   onClick: () => void;
 }) {
   return (
@@ -113,15 +123,16 @@ function ModuleOptionBox({
       textAlign="center"
       cursor="pointer"
       borderWidth="1px"
-      borderColor="whiteAlpha.300"
+      borderColor={comingSoon ? "whiteAlpha.200" : "whiteAlpha.300"}
       borderRadius="12px"
-      bg="brand.700"
+      bg={comingSoon ? "brand.800" : "brand.700"}
       px={4}
       py={6}
+      opacity={comingSoon ? 0.92 : 1}
       transition="border-color 0.15s, background 0.15s"
       _hover={{
-        borderColor: "whiteAlpha.500",
-        bg: "brand.600",
+        borderColor: comingSoon ? "whiteAlpha.400" : "whiteAlpha.500",
+        bg: comingSoon ? "brand.700" : "brand.600",
       }}
       _focusVisible={{
         outline: "2px solid",
@@ -131,6 +142,11 @@ function ModuleOptionBox({
       onClick={onClick}
     >
       <VStack spacing={3}>
+        {comingSoon ? (
+          <Tag size="sm" colorScheme="purple" alignSelf="center">
+            Coming Soon
+          </Tag>
+        ) : null}
         <Icon as={icon} boxSize={8} />
         <Heading size="md">{title}</Heading>
         <Text fontSize="sm" color="whiteAlpha.800">
@@ -145,11 +161,13 @@ function ModuleSelectedHeader({
   title,
   description,
   icon,
+  comingSoon,
   onChange,
 }: {
   title: string;
   description: string;
   icon: IconType;
+  comingSoon?: boolean;
   onChange: () => void;
 }) {
   return (
@@ -157,7 +175,14 @@ function ModuleSelectedHeader({
       <HStack align="flex-start" spacing={4} flex={1} minW={0}>
         <Icon as={icon} boxSize={8} flexShrink={0} mt={1} />
         <VStack align="flex-start" spacing={1} minW={0}>
-          <Heading size="md">{title}</Heading>
+          <HStack spacing={2} flexWrap="wrap">
+            <Heading size="md">{title}</Heading>
+            {comingSoon ? (
+              <Tag size="sm" colorScheme="purple">
+                Coming Soon
+              </Tag>
+            ) : null}
+          </HStack>
           <Text fontSize="sm" color="whiteAlpha.800">
             {description}
           </Text>
@@ -182,6 +207,8 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   const { blockchainState } = useBlockchainData();
   const connectedAccount = blockchainState.account ?? "";
   const [showPicker, setShowPicker] = useState(true);
+  const [selectedComingSoonId, setSelectedComingSoonId] =
+    useState<ComingSoonModuleId | null>(null);
 
   const auditorFields = useMemo(
     () => getAuditorFieldsForPaymentTerms(notaFormValues, connectedAccount),
@@ -206,7 +233,21 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
     [notaFormValues.module]
   );
 
+  const selectedComingSoonModule = useMemo(
+    () =>
+      selectedComingSoonId
+        ? getComingSoonModule(selectedComingSoonId)
+        : undefined,
+    [selectedComingSoonId]
+  );
+
+  const selectComingSoonModule = (module: ComingSoonModule) => {
+    setSelectedComingSoonId(module.id);
+    setShowPicker(false);
+  };
+
   const selectModule = (optionId: ModuleOptionId) => {
+    setSelectedComingSoonId(null);
     switch (optionId) {
       case "claimable":
         updateNotaFormValues({
@@ -246,7 +287,14 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   };
 
   const showModuleTerms =
-    showTerms && !showPicker && Boolean(notaFormValues.module);
+    showTerms &&
+    !showPicker &&
+    (Boolean(notaFormValues.module) || Boolean(selectedComingSoonModule));
+
+  const resetPicker = () => {
+    setSelectedComingSoonId(null);
+    setShowPicker(true);
+  };
 
   return (
     <Box w="100%" p={4}>
@@ -268,41 +316,69 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
               onClick={() => selectModule(option.id)}
             />
           ))}
+          {COMING_SOON_MODULES.filter((module) =>
+            getComingSoonModule(module.id)
+          ).map((module) => (
+            <ModuleOptionBox
+              key={module.id}
+              title={module.title}
+              description={module.shortDescription}
+              icon={module.icon}
+              comingSoon
+              onClick={() => selectComingSoonModule(module)}
+            />
+          ))}
         </SimpleGrid>
       ) : (
         showModuleTerms &&
-        selectedOption && (
+        (selectedComingSoonModule ? (
           <>
             <ModuleSelectedHeader
-              title={selectedOption.title}
-              description={selectedOption.description}
-              icon={selectedOption.icon}
-              onChange={() => setShowPicker(true)}
+              title={selectedComingSoonModule.title}
+              description={selectedComingSoonModule.description}
+              icon={selectedComingSoonModule.icon}
+              comingSoon
+              onChange={resetPicker}
             />
-            <Formik
-              key={notaFormValues.module}
-              enableReinitialize
-              initialValues={initialValues}
-              validate={validate}
-              onSubmit={(values) => {
-                updateNotaFormValues(paymentTermsValuesToNotaForm(values));
-                next?.();
-              }}
-            >
-              {(props) => (
-                <Form>
-                  <ModuleTerms module={notaFormValues.module} />
-                  <RoundedButton
-                    isDisabled={isPaymentTermsSubmitDisabled(props)}
-                    type="submit"
-                  >
-                    {"Next"}
-                  </RoundedButton>
-                </Form>
-              )}
-            </Formik>
+            <ComingSoonTerms module={selectedComingSoonModule} />
+            <RoundedButton isDisabled type="button">
+              Coming Soon
+            </RoundedButton>
           </>
-        )
+        ) : (
+          selectedOption && (
+            <>
+              <ModuleSelectedHeader
+                title={selectedOption.title}
+                description={selectedOption.description}
+                icon={selectedOption.icon}
+                onChange={resetPicker}
+              />
+              <Formik
+                key={notaFormValues.module}
+                enableReinitialize
+                initialValues={initialValues}
+                validate={validate}
+                onSubmit={(values) => {
+                  updateNotaFormValues(paymentTermsValuesToNotaForm(values));
+                  next?.();
+                }}
+              >
+                {(props) => (
+                  <Form>
+                    <ModuleTerms module={notaFormValues.module} />
+                    <RoundedButton
+                      isDisabled={isPaymentTermsSubmitDisabled(props)}
+                      type="submit"
+                    >
+                      {"Next"}
+                    </RoundedButton>
+                  </Form>
+                )}
+              </Formik>
+            </>
+          )
+        ))
       )}
     </Box>
   );
