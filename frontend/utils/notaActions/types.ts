@@ -11,7 +11,7 @@ export type NotaRole =
 
 export type ActionId = "transfer" | "fund" | "cash" | "update" | "burn";
 
-export type ActionRisk = "normal" | "destructive";
+export type ActionRisk = "normal" | "warning" | "destructive";
 
 export type FieldType = "address" | "amount" | "text";
 
@@ -20,7 +20,7 @@ export interface ActionField {
   label: string;
   type: FieldType;
   placeholder?: string;
-  hint?: string;
+  tooltipLabel?: string;
 }
 
 export interface ActionBranch {
@@ -60,7 +60,7 @@ export interface ActionDef {
   isAvailable?: (ctx: NotaActionContext) => boolean;
 }
 
-export interface ResolvedAction extends ActionDef {}
+export type ResolvedAction = ActionDef;
 
 export interface ActionFormValues {
   to?: string;

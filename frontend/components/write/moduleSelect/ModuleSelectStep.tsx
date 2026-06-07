@@ -48,6 +48,7 @@ type ModuleOptionId = "claimable" | "reversible" | "drip" | "nftBalance";
 interface ModuleOption {
   id: ModuleOptionId;
   title: string;
+  shortDescription: string;
   description: string;
   icon: IconType;
   isSelected: (module: string) => boolean;
@@ -57,29 +58,37 @@ const MODULE_OPTIONS: ModuleOption[] = [
   {
     id: "claimable",
     title: "Claimable",
-    description: "The owner must manually claim the tokens",
+    shortDescription: "The owner must manually claim the funds",
+    description: "The owner must manually claim the funds",
     icon: MdTouchApp,
     isSelected: isClaimableModule,
   },
   {
     id: "reversible",
     title: "Reversible",
-    description: "Funds are releasable by the arbitrator",
+    shortDescription: "Funds are releasable by the arbitrator",
+    description:
+      "Hold funds in escrow until you approve release. Ideal when goods or services may not arrive — an arbitrator can reverse payment if something goes wrong. Choose Before a date when delivery is expected by a deadline",
     icon: MdGavel,
     isSelected: isReversibleFormModule,
   },
   {
     id: "drip",
     title: "Drip",
-    description: "Tokens are claimable in chunks over time. Unclaimed chunks will be forfeited",
+    shortDescription:
+      "Funds are claimable in chunks over time. Unclaimed chunks will be forfeited",
+    description:
+      "Funds are claimable in chunks over time. Unclaimed chunks will be forfeited",
     icon: MdSchedule,
     isSelected: (module) => module === CASH_BEFORE_DATE_DRIP_MODULE,
   },
   {
     id: "nftBalance",
     title: "NFT Balance Condition",
+    shortDescription:
+      "Unlock funds when the recipient holds the required NFT balance",
     description:
-      "Release payment when the recipient holds the required NFT balance. After expiration, funds return to the sender.",
+      "Release payment when the recipient holds the required NFT balance. After expiration, funds return to the sender",
     icon: MdCollections,
     isSelected: (module) => module === BALANCE_OF_CONDITIONAL_CASH_MODULE,
   },
@@ -254,7 +263,7 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             <ModuleOptionBox
               key={option.id}
               title={option.title}
-              description={option.description}
+              description={option.shortDescription}
               icon={option.icon}
               onClick={() => selectModule(option.id)}
             />

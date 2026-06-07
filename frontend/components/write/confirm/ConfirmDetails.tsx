@@ -64,7 +64,7 @@ function ConfirmDetails() {
     <RoundedBox p={6}>
       <VStack>
         <DetailsRow
-          title="Recipient address"
+          title="Recipient"
           value={recipient}
           ensNames={ensNames}
         />
@@ -78,7 +78,7 @@ function ConfirmDetails() {
         />
         {showInspector && (
           <DetailsRow
-            title="Reversible by"
+            title="Arbitrator"
             ensNames={ensNames}
             value={inspector || "Your connected wallet"}
           />
