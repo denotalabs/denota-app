@@ -30,9 +30,10 @@ import {
 import { useEnsNames } from "../../hooks/useEnsNames";
 import { NotaInfoData } from "../../hooks/useNotaInfo";
 import { POLYGON_REGISTRAR_ADDRESS } from "../../hooks/usePublicNotas";
+import { ipfsToHttpUrl } from "../../utils/ipfsGateway";
 import {
-  extractPayerFromMetadata,
   extractInspectorFromMetadata,
+  extractPayerFromMetadata,
 } from "../../utils/notaActions/metadataRoles";
 import {
   collectMetadataAddresses,
@@ -422,15 +423,23 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
                 ))}
               </Stack>
             )}
-            {metadata?.external_url && (
-              <Link
-                href={metadata.external_url}
-                isExternal
-                color="blue.500"
-                fontSize="sm"
-              >
-                External link <ExternalLinkIcon mx="2px" />
-              </Link>
+            {(metadata?.external_url || metadata?.image) && (
+              <VStack gap={0} align="stretch" mt={2}>
+                {metadata?.external_url && (
+                  <DetailsRow
+                    title="Document"
+                    value={metadata.external_url}
+                    link={ipfsToHttpUrl(metadata.external_url)}
+                  />
+                )}
+                {metadata?.image && (
+                  <DetailsRow
+                    title="Image"
+                    value={metadata.image}
+                    link={resolveMetadataImageUrl(metadata.image)}
+                  />
+                )}
+              </VStack>
             )}
             {!metadata && !metadataLoading && (
               <Text fontSize="sm" color="gray.500">

@@ -6,8 +6,12 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
+import InfoTooltip from "../../designSystem/InfoTooltip";
 import ExternalURIField from "../../fields/input/ExternalURIField";
 import ImageURIField from "../../fields/input/ImageURIField";
+
+const METADATA_TOOLTIP =
+  "Memos, invoices, contracts, delivery proofs, receipts, purchase orders, quotes, etc.";
 
 function MetadataBox() {
   return (
@@ -19,11 +23,10 @@ function MetadataBox() {
         <Text fontSize="sm" color="whiteAlpha.600">
           (optional)
         </Text>
+        <InfoTooltip label={METADATA_TOOLTIP} />
       </HStack>
       <Text fontSize="sm" color="whiteAlpha.700" mb={3}>
-        Attach a document or image to record what this payment is for — invoices,
-        contracts, delivery proofs, or service agreements. Stored onchain with
-        the payment.
+        Attach a document or image to record what this payment is for.
       </Text>
       <VStack align="stretch" spacing={2}>
         <ExternalURIField
