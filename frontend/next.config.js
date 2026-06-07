@@ -23,6 +23,7 @@ module.exports = {
       "@solana-program/memo": privyOptionalStub,
       "@solana-program/system": privyOptionalStub,
       "@solana-program/token": privyOptionalStub,
+      "@stripe/crypto": privyOptionalStub,
     };
     return config;
   },
