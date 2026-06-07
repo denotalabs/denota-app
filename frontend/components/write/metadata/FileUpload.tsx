@@ -54,7 +54,7 @@ export function FileUploadButton({
       setIsLoading(false);
     } else {
       toast({
-        title: "File too large (max size 10MB)",
+        title: "File too large (max size 5MB)",
         status: "error",
         duration: 3000,
         isClosable: true,
