@@ -27,6 +27,7 @@ import {
   requiresRegistrarApproval,
   showsMetadataForm,
 } from "./paymentMetadata";
+import { normalizePaymentMetadataUris } from "../../../utils/metadataUri";
 import { PaymentType } from "./PaymentTypeField";
 
 export type DetailsStepFormValues = {
@@ -99,7 +100,9 @@ export function DetailsStepForm() {
       const metadataFilled = hasPaymentMetadata(values);
       const showMetadataForm = showsMetadataForm(paymentType);
       let ipfsHash = ctx.notaFormValues.ipfsHash as string | undefined;
-      let imageURI = values.imageURI;
+      const normalizedMetadata = normalizePaymentMetadataUris(values);
+      const { externalURI } = normalizedMetadata;
+      let imageURI = normalizedMetadata.imageURI;
 
       if (showMetadataForm && metadataFilled) {
         const metadataChanged =
@@ -133,7 +136,7 @@ export function DetailsStepForm() {
         note: values.note,
         email: values.email,
         tags: values.tags,
-        externalURI: values.externalURI,
+        externalURI,
         imageURI,
         ipfsHash,
         paymentType,
@@ -183,7 +186,7 @@ export function DetailsStepForm() {
         email: values.email,
         file: values.file,
         tags: values.tags,
-        externalURI: values.externalURI,
+        externalURI,
         imageURI,
         ipfsHash,
       });

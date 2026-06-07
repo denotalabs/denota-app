@@ -1,5 +1,7 @@
 import { isAddress } from "ethers/lib/utils";
 
+import { ipfsToHttpUrl } from "./ipfsGateway";
+
 export interface TokenMetadata {
   name?: string;
   description?: string;
@@ -227,13 +229,13 @@ export const parseTokenMetadata = (uri: string): TokenMetadata | null => {
   }
 };
 
-/** HTTP URL suitable for <img src> (IPFS → Lighthouse gateway). */
+/** HTTP URL suitable for <img src> (IPFS → Pinata gateway). */
 export const resolveMetadataImageUrl = (uri: string): string => {
-  if (uri.startsWith("ipfs://")) {
-    return `https://gateway.lighthouse.storage/ipfs/${uri.slice(7)}`;
-  }
   if (uri.startsWith("http://") || uri.startsWith("https://")) {
     return uri;
+  }
+  if (uri.startsWith("ipfs://") || uri.startsWith("bafy") || uri.startsWith("bafk")) {
+    return ipfsToHttpUrl(uri);
   }
   return uri;
 };

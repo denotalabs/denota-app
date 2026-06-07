@@ -1,6 +1,4 @@
-import { FormControl, FormErrorMessage, HStack, Input } from "@chakra-ui/react";
-import { Field } from "formik";
-import { FileUploadButton } from "../../write/metadata/FileUpload";
+import MetadataUriField from "./MetadataUriField";
 
 interface Props {
   fieldName: string;
@@ -9,16 +7,6 @@ interface Props {
 
 export default function ImageURIField({ fieldName, placeholder }: Props) {
   return (
-    <Field name={fieldName}>
-      {({ field, form: { errors, touched } }: any) => (
-        <FormControl isInvalid={errors.name && touched.name}>
-          <HStack align="center" spacing={2}>
-            <Input flex={1} {...field} placeholder={placeholder} />
-            <FileUploadButton name={fieldName} />
-          </HStack>
-          <FormErrorMessage>{errors.name}</FormErrorMessage>
-        </FormControl>
-      )}
-    </Field>
+    <MetadataUriField fieldName={fieldName} placeholder={placeholder} />
   );
 }

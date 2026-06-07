@@ -10,6 +10,7 @@ import { paymentButtonText } from "../utils/paymentButtonText";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useDirectPay } from "./modules/useDirectPay";
 import { useEmail } from "./useEmail";
+import { normalizePaymentMetadataUris } from "../utils/metadataUri";
 import { useTokens } from "./useTokens";
 
 export interface QuickPaymentValues {
@@ -68,12 +69,16 @@ export const useQuickPayment = ({ onSuccess }: Props) => {
             }
             break;
           case "withReceipt": {
+            const { externalURI, imageURI } = normalizePaymentMetadataUris({
+              externalURI: values.externalURI ?? values.ipfsHash ?? "",
+              imageURI: values.imageURI,
+            });
             const receipt = await writeDirectPay({
               token,
               amount: values.amount,
               address: recipient,
-              externalURI: values.externalURI ?? values.ipfsHash ?? "",
-              imageURI: values.imageURI ?? "",
+              externalURI,
+              imageURI,
             });
             if (!receipt) {
               return;

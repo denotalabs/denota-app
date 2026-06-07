@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useEnsNames } from "../../../hooks/useEnsNames";
 import { useTokens } from "../../../hooks/useTokens";
+import { ipfsToHttpUrl } from "../../../utils/ipfsGateway";
 import DetailsRow from "../../designSystem/DetailsRow";
 import RoundedBox from "../../designSystem/RoundedBox";
 
@@ -81,44 +82,47 @@ function NotaDetails({ nota }: Props) {
   );
   const ensNames = useEnsNames(ensAddresses);
 
-  // TODO need to handle both imageURI and externalURIs with and without lighthouse
   useEffect(() => {
     async function fetchData() {
+      const externalURI = nota.moduleData.externalURI;
+      if (!externalURI) {
+        setNote("");
+        setIsLoading(false);
+        return;
+      }
+
+      if (externalURI.startsWith("http")) {
+        setFile(externalURI);
+        setIsLoading(false);
+        return;
+      }
+
+      const url = ipfsToHttpUrl(externalURI);
       try {
-        if (nota.moduleData.externalURI) {
-          // TODO need to check if it's just a hash or a full URL
-          if (nota.moduleData.externalURI.startsWith("ipfs://")) {
-            const resp = await axios.get(nota.moduleData.externalURI);
-            if (resp.data.file) {
-              setFile(
-                `https://gateway.lighthouse.storage/ipfs/${resp.data.file}`
-              );
-              setFilename(resp.data.filename);
-            }
-            setIsLoading(false);
-          } else if (nota.moduleData.externalURI.startsWith("http")) {
-            setNote("");
-          } else {
-            const NOTE_URL = `https://gateway.lighthouse.storage/ipfs/${nota.moduleData.externalURI}`;
-            const resp = await axios.get(NOTE_URL);
-            setNote(resp.data.description);
-            setTags(resp.data.tags);
-            if (resp.data.file) {
-              setFile(
-                `https://gateway.lighthouse.storage/ipfs/${resp.data.file}`
-              );
-              setFilename(resp.data.filename);
-            }
-            setIsLoading(false);
+        const resp = await axios.get(url);
+        const data = resp.data;
+
+        // Legacy Lighthouse JSON metadata wrapper
+        if (
+          data &&
+          typeof data === "object" &&
+          (data.description || data.file || data.tags)
+        ) {
+          setNote(data.description ?? "");
+          setTags(Array.isArray(data.tags) ? data.tags : undefined);
+          if (data.file) {
+            setFile(ipfsToHttpUrl(data.file));
+            setFilename(data.filename ?? "file");
           }
         } else {
-          setNote("");
+          setFile(url);
+          setFilename(externalURI.replace(/^ipfs:\/\//, "").slice(0, 16));
         }
-      } catch (error) {
-        setNote("Error fetching note");
-        console.error(error);
-        setIsLoading(false);
+      } catch {
+        setFile(url);
+        setFilename(externalURI.replace(/^ipfs:\/\//, "").slice(0, 16));
       }
+      setIsLoading(false);
     }
     fetchData();
   }, [nota.moduleData.externalURI]);
@@ -198,14 +202,14 @@ function NotaDetails({ nota }: Props) {
             <DetailsRow
               title="External URI"
               value={nota.moduleData.externalURI}
-              link={`${nota.moduleData.externalURI}`}
+              link={ipfsToHttpUrl(nota.moduleData.externalURI)}
             />
           )}
           {nota.moduleData.imageURI && (
             <DetailsRow
               title="Image"
               value={nota.moduleData.imageURI}
-              link={`${nota.moduleData.imageURI}`}
+              link={ipfsToHttpUrl(nota.moduleData.imageURI)}
             />
           )}
           <DetailsRow
