@@ -1,4 +1,5 @@
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
+import { LOGIN_SIGN_UP_LABEL } from "./authLabels";
 import { requiresRegistrarApproval } from "../components/write/details/paymentMetadata";
 import { PaymentType } from "../components/write/details/PaymentTypeField";
 import { purchaseLabelFor } from "../hooks/usePurchaseToken";
@@ -27,7 +28,7 @@ export function paymentButtonText({
   }
 
   if (!isWalletConnected) {
-    return "Connect wallet";
+    return LOGIN_SIGN_UP_LABEL;
   }
 
   if (isCheckingReadiness) {

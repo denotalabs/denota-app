@@ -35,8 +35,8 @@ function NotaActionBar({
     );
   }
 
-  const primary = actions.filter((a) => a.risk !== "destructive").slice(0, 3);
-  const overflow = actions.filter((a) => !primary.includes(a));
+  const primary = actions.slice(0, 3);
+  const overflow = actions.slice(3);
 
   return (
     <VStackActions

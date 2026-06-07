@@ -110,13 +110,22 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             justifyContent={{ base: "space-between", md: "center" }}
           >
             <Box mt={3} mb={3}>
-              <Image
-                src="/logos/denota-logo-text.svg"
-                alt="denota logo text"
-                width={100}
-                height={20}
-                unoptimized={true}
-              />
+              <HStack spacing={2} justify="center" align="center">
+                <Image
+                  src="/logos/DenotaGoata.svg"
+                  alt="denota goat"
+                  width={32}
+                  height={32}
+                  unoptimized={true}
+                />
+                <Image
+                  src="/logos/denota-logo-text.svg"
+                  alt="denota logo text"
+                  width={100}
+                  height={20}
+                  unoptimized={true}
+                />
+              </HStack>
               <Center>
                 <Text>BETA</Text>
               </Center>

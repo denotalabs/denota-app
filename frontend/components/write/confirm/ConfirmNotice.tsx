@@ -1,128 +1,76 @@
-import { ArrowRightIcon, LockIcon, StarIcon } from "@chakra-ui/icons";
-import { Center, Text } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
+import { isAddress } from "ethers/lib/utils";
 import { useMemo } from "react";
+import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import { BALANCE_OF_CONDITIONAL_CASH_MODULE } from "../../../utils/balanceOfConditionalCash";
-import { CASH_BEFORE_DATE_DRIP_MODULE } from "../../../utils/dripPeriod";
-import {
-  isClaimableModule,
-  resolveClaimableHook,
-} from "../../../utils/expirationDate";
-import {
-  isReversibleFormModule,
-  resolveReversibleHook,
-} from "../../../utils/reversibleModule";
+import { useEnsNames } from "../../../hooks/useEnsNames";
+import { useTokens } from "../../../hooks/useTokens";
+import { getEffectiveAddress } from "../../../utils/ensAddress";
+import { buildPaymentStory } from "../../../utils/paymentStory";
+import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedBox from "../../designSystem/RoundedBox";
 
 function ConfirmNotice() {
   const { notaFormValues } = useNotaForm();
-  const module = notaFormValues.module ?? "";
+  const { blockchainState } = useBlockchainData();
+  const { displayNameForCurrency } = useTokens();
+  const senderAddress = blockchainState.account ?? "";
 
-  const displayModule = useMemo(() => {
-    if (isClaimableModule(module)) {
-      return resolveClaimableHook(notaFormValues.expirationDate);
-    }
-    if (isReversibleFormModule(module)) {
-      return resolveReversibleHook(
-        notaFormValues.recoverableWhen,
-        notaFormValues.inspectionEndDate
-      );
-    }
-    return module;
-  }, [
-    module,
-    notaFormValues.expirationDate,
-    notaFormValues.recoverableWhen,
-    notaFormValues.inspectionEndDate,
-  ]);
+  const recipient = getEffectiveAddress(
+    notaFormValues.address,
+    notaFormValues.resolvedAddress
+  );
 
-  const iconForModule = useMemo(() => {
-    switch (displayModule) {
-      case "directSend":
-        return <ArrowRightIcon />;
-      case "cashBeforeDate":
-      case "reversibleRelease":
-      case "reversibleByBeforeDate":
-      case "simpleCash":
-        return <LockIcon />;
-      case "milestone":
-      case "cashBeforeDateDrip":
-        return <StarIcon />;
-      default:
-        return <StarIcon />;
-    }
-  }, [displayModule]);
+  const inspector = getEffectiveAddress(
+    notaFormValues.auditor,
+    notaFormValues.resolvedAuditor
+  );
 
-  const moduleTitle = useMemo(() => {
-    if (isClaimableModule(module)) {
-      return "Claimable";
+  const ensAddresses = useMemo(() => {
+    const addresses: string[] = [];
+    if (recipient && isAddress(recipient)) {
+      addresses.push(recipient);
     }
-    if (isReversibleFormModule(module)) {
-      return "Reversible";
+    if (inspector && isAddress(inspector)) {
+      addresses.push(inspector);
     }
-    if (module === CASH_BEFORE_DATE_DRIP_MODULE) {
-      return "Drip";
+    if (senderAddress && isAddress(senderAddress)) {
+      addresses.push(senderAddress);
     }
-    if (module === BALANCE_OF_CONDITIONAL_CASH_MODULE) {
-      return "NFT Balance Condition";
-    }
-    switch (displayModule) {
-      case "directSend":
-        return "Direct Pay";
-      case "reversibleRelease":
-        return "Reversible Release";
-      case "simpleCash":
-        return "Simple Cash";
-      case "milestone":
-        return "Milestones";
-      default:
-        return "";
-    }
-  }, [displayModule, module]);
+    return addresses;
+  }, [recipient, inspector, senderAddress]);
 
-  const moduleDescription = useMemo(() => {
-    if (isClaimableModule(module)) {
-      return displayModule === "cashBeforeDate"
-        ? "The owner must manually claim the tokens before the deadline"
-        : "The owner must manually claim the tokens";
-    }
-    if (isReversibleFormModule(module)) {
-      return displayModule === "reversibleByBeforeDate"
-        ? "Funds are held in escrow; recovery is only allowed before the inspection end"
-        : "Funds are held in escrow until released by the reversible party";
-    }
-    if (module === CASH_BEFORE_DATE_DRIP_MODULE) {
-      return "The owner can claim drip amounts on a schedule until the expiration date";
-    }
-    if (module === BALANCE_OF_CONDITIONAL_CASH_MODULE) {
-      return "Payment is released when the recipient's NFT balance meets the condition. After expiration, funds return to the sender.";
-    }
-    switch (displayModule) {
-      case "directSend":
-        return "Funds will be released as soon as the payment is made";
-      case "milestone":
-        return "Funds will be released on completion of milestones";
-      case "simpleCash":
-        return "Funds are locked until cashed by the recipient";
-      default:
-        return "";
-    }
-  }, [displayModule, module]);
+  const ensNames = useEnsNames(ensAddresses);
+
+  const story = useMemo(
+    () =>
+      buildPaymentStory({
+        formValues: notaFormValues,
+        senderAddress,
+        ensNames,
+        tokenLabel: displayNameForCurrency(
+          notaFormValues.token as NotaCurrency
+        ),
+      }),
+    [displayNameForCurrency, ensNames, notaFormValues, senderAddress]
+  );
 
   return (
     <RoundedBox mb={5} padding={6}>
-      <Center flexDirection="column">
-        {iconForModule}
-        <Text fontWeight={600} fontSize={"2xl"} textAlign="center">
-          {moduleTitle}
-        </Text>
-        <Text fontWeight={600} fontSize={"lg"} textAlign="center">
-          {moduleDescription}
-        </Text>
-        <Text fontWeight={600} fontSize={"md"} textAlign="center">
-          {"A payment NFT is issued for tracking"}
-        </Text>
-      </Center>
+      <Text fontWeight={600} fontSize="xl" textAlign="center">
+        Payment story
+      </Text>
+      <Text fontSize="md" textAlign="center" mt={3} lineHeight="tall">
+        {story}
+      </Text>
+      {/* <Text
+        fontSize="sm"
+        color="whiteAlpha.700"
+        textAlign="center"
+        mt={4}
+      >
+        A nota NFT is issued for tracking
+      </Text> */}
     </RoundedBox>
   );
 }

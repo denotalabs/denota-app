@@ -12,7 +12,7 @@ import ImageURIField from "../../fields/input/ImageURIField";
 function MetadataBox() {
   return (
     <FormControl pt={5} maxW="100%">
-      <HStack align="baseline" spacing={1} mb={2}>
+      <HStack align="baseline" spacing={1} mb={1}>
         <FormLabel mb={0} mr={0}>
           Metadata
         </FormLabel>
@@ -20,6 +20,11 @@ function MetadataBox() {
           (optional)
         </Text>
       </HStack>
+      <Text fontSize="sm" color="whiteAlpha.700" mb={3}>
+        Attach a document or image to record what this payment is for — invoices,
+        contracts, delivery proofs, or service agreements. Stored onchain with
+        the payment.
+      </Text>
       <VStack align="stretch" spacing={2}>
         <ExternalURIField
           fieldName="externalURI"

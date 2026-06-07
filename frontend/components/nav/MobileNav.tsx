@@ -4,6 +4,7 @@ import {
   IconButton,
   useColorModeValue,
 } from "@chakra-ui/react";
+import Image from "next/image";
 import { FiMenu } from "react-icons/fi";
 import ChainSwitcher from "./ChainSwitcher";
 import WalletInfo from "./WalletInfo";
@@ -30,6 +31,13 @@ export const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         onClick={onOpen}
         aria-label="open menu"
         icon={<FiMenu />}
+      />
+      <Image
+        src="/logos/DenotaGoata.svg"
+        alt="denota goat"
+        width={28}
+        height={28}
+        unoptimized={true}
       />
       <Flex alignItems="center">
         <ChainSwitcher />

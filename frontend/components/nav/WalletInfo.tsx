@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { useClipboard } from "@chakra-ui/hooks";
 import {
   ChevronDownIcon,
-  ChevronUpIcon,
   CopyIcon,
-  SmallCloseIcon
+  SmallCloseIcon,
 } from "@chakra-ui/icons";
 import { useBreakpointValue } from "@chakra-ui/react";
 import jazzicon from "jazzicon-ts";
@@ -22,6 +21,7 @@ import {
 
 import { usePrivy } from "@privy-io/react-auth";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
+import { LOGIN_SIGN_UP_LABEL } from "../../utils/authLabels";
 import StyledMenuItem from "../designSystem/StyledMenuItem";
 
 export default function WalletInfo() {
@@ -51,8 +51,8 @@ export default function WalletInfo() {
       }
       element.appendChild(icon);
     }
-  }, [blockchainState.account, avatarRef]);
-  const [isOpen, setIsOpen] = useState(false);
+  }, [blockchainState.account]);
+
   if (isInitializing) return <></>;
   if (account === "")
     return (
@@ -62,56 +62,59 @@ export default function WalletInfo() {
           connectWallet?.();
         }}
       >
-        Login/Sign Up
+        {LOGIN_SIGN_UP_LABEL}
       </Button>
     );
-  else
-    return (
-      <Menu isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <MenuButton
-          as={Button}
-          rounded="full"
-          cursor="pointer"
-          bg="brand.600"
-          rightIcon={isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <Flex alignItems="center" justifyContent="center">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-              ref={avatarRef}
-            ></div>
-            <Spacer mx="1" />
-            {isMobile ? null : (
-              <>
-                <Spacer mx="1" />
-                <Text fontSize="lg">
-                  {blockchainState.account &&
-                    blockchainState.account.slice(0, 6) +
+
+  return (
+    <Menu>
+      <MenuButton
+        as={Button}
+        rounded="full"
+        cursor="pointer"
+        bg="brand.600"
+        rightIcon={<ChevronDownIcon />}
+      >
+        <Flex alignItems="center" justifyContent="center">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            ref={avatarRef}
+          ></div>
+          {!isMobile && (
+            <>
+              <Spacer mx="1" />
+              <Text fontSize="lg">
+                {blockchainState.account &&
+                  blockchainState.account.slice(0, 6) +
                     "..." +
                     blockchainState.account.slice(-4)}
-                </Text>
-              </>
-            )}
-          </Flex>
-        </MenuButton>
-        <MenuList alignItems="center" bg="brand.100">
-          <StyledMenuItem
-            onClick={onCopy}
-            isDisabled={!blockchainState.account}
-          >
-            <CopyIcon mr={2} />
-            Copy Address
-          </StyledMenuItem>
-          <StyledMenuItem onClick={handleLogout}>
-            <SmallCloseIcon mr={2} />
-            Logout
-          </StyledMenuItem>
-        </MenuList>
-      </Menu>
-    );
+              </Text>
+            </>
+          )}
+        </Flex>
+      </MenuButton>
+      <MenuList alignItems="center" bg="brand.100" zIndex={1500}>
+        <StyledMenuItem
+          onClick={onCopy}
+          isDisabled={!blockchainState.account}
+        >
+          <CopyIcon mr={2} />
+          Copy Address
+        </StyledMenuItem>
+        <StyledMenuItem
+          onClick={(e) => {
+            e.stopPropagation();
+            void handleLogout();
+          }}
+        >
+          <SmallCloseIcon mr={2} />
+          Logout
+        </StyledMenuItem>
+      </MenuList>
+    </Menu>
+  );
 }

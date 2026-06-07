@@ -22,6 +22,7 @@ import {
   ResolvedAction,
 } from "../../utils/notaActions/types";
 import AddressDisplay from "../designSystem/AddressDisplay";
+import InfoTooltip from "../designSystem/InfoTooltip";
 import RoundedButton from "../designSystem/RoundedButton";
 import SlideOver from "../designSystem/SlideOver";
 
@@ -40,7 +41,7 @@ function ActionField({
   onChange,
   type,
   placeholder,
-  hint,
+  tooltipLabel,
   symbol,
   maxEscrow,
   onMax,
@@ -50,7 +51,7 @@ function ActionField({
   onChange: (value: string) => void;
   type: "address" | "amount" | "text";
   placeholder?: string;
-  hint?: string;
+  tooltipLabel?: string;
   symbol?: string;
   maxEscrow?: string | null;
   onMax?: () => void;
@@ -59,6 +60,7 @@ function ActionField({
     <FormControl>
       <FormLabel fontSize="sm" color="gray.400">
         {label}
+        {tooltipLabel ? <InfoTooltip label={tooltipLabel} /> : null}
       </FormLabel>
       <Box position="relative">
         <Input
@@ -84,11 +86,6 @@ function ActionField({
           </Text>
         )}
       </Box>
-      {hint && (
-        <Text fontSize="xs" color="gray.500" mt={1.5}>
-          {hint}
-        </Text>
-      )}
       {maxEscrow != null && onMax && (
         <Button
           variant="link"
@@ -138,6 +135,7 @@ function NotaActionPanel({
   }
 
   const Icon = action.icon;
+  const warning = action.risk === "warning";
   const destructive = action.risk === "destructive";
   const needsConfirm = action.confirm && !confirmed;
 
@@ -267,18 +265,21 @@ function NotaActionPanel({
           </Text>
         )}
         {action.note && (
-          <Text
+          <HStack
+            align="flex-start"
+            spacing={2}
             fontSize="sm"
-            color="gray.400"
-            bg="brand.400"
+            color={warning ? "yellow.200" : "gray.400"}
+            bg={warning ? "yellow.900" : "brand.400"}
             borderWidth="1px"
-            borderColor="brand.500"
+            borderColor={warning ? "yellow.700" : "brand.500"}
             borderRadius="lg"
             px={3.5}
             py={3}
           >
-            {action.note}
-          </Text>
+            {warning && <WarningIcon color="yellow.400" boxSize={4} mt={0.5} flexShrink={0} />}
+            <Text>{action.note}</Text>
+          </HStack>
         )}
 
         {action.branch && action.branches ? (
@@ -343,7 +344,7 @@ function NotaActionPanel({
                 onChange={(v) => set(field.name as keyof ActionFormValues, v)}
                 type={field.type}
                 placeholder={field.placeholder}
-                hint={field.hint}
+                tooltipLabel={field.tooltipLabel}
                 symbol={
                   field.type === "amount" ? context.currencySymbol : undefined
                 }

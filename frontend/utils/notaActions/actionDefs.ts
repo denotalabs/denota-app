@@ -12,9 +12,9 @@ export const ACTION_DEFS: Record<string, ActionDef> = {
     id: "transfer",
     label: "Transfer",
     icon: MdSend,
-    risk: "normal",
+    risk: "warning",
     roles: ["owner", "approved"],
-    note: "Escrow travels with the nota to the new owner.",
+    note: "The recipient becomes the new owner and gains escrow access. As the previous owner, you lose your entitlement to claim or release those funds.",
     fields: [
       {
         name: "to",
@@ -37,14 +37,15 @@ export const ACTION_DEFS: Record<string, ActionDef> = {
         label: "Escrow amount",
         type: "amount",
         placeholder: "0.0",
-        hint: "Funds held in the nota",
+        tooltipLabel: "Funds transferred into the payment escrow.",
       },
       {
         name: "instant",
         label: "Instant amount",
         type: "amount",
         placeholder: "0.0",
-        hint: "Funds sent to the owner",
+        tooltipLabel:
+          "Funds sent immediately to the payment owner, separate from the escrow amount.",
       },
     ],
     isAvailable: (ctx) => ctx.moduleData.moduleName !== "directSend",
