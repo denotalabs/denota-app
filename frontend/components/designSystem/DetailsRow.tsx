@@ -54,6 +54,28 @@ function formatTime(seconds: number) {
   return timeParts.join(' ');
 }
 
+const FILE_EXTENSION_PATTERN =
+  /\.(pdf|doc|docx|csv|png|jpe?g|gif|webp|svg|json)(\?|#|$)/i;
+const BLOCK_EXPLORER_PATTERN =
+  /(etherscan|polygonscan|basescan|arbiscan|snowtrace|bscscan|blockscout)/i;
+
+function linkTooltipLabel(url: string): string {
+  if (
+    BLOCK_EXPLORER_PATTERN.test(url) &&
+    (url.includes("/tx/") || url.includes("/address/"))
+  ) {
+    return "View on block explorer";
+  }
+  if (
+    url.startsWith("ipfs://") ||
+    url.includes("/ipfs/") ||
+    FILE_EXTENSION_PATTERN.test(url)
+  ) {
+    return "View file";
+  }
+  return "View link";
+}
+
 interface Props {
   title: string;
   value: any;
@@ -80,6 +102,7 @@ function DetailsRow({
   const toast = useToast();
 
   const displayTitle = title.charAt(0).toUpperCase() + title.slice(1);
+  const linkLabel = link ? linkTooltipLabel(link) : undefined;
 
   const isAddressValue =
     typeof value === "string" && isAddress(value) && value !== "None";
@@ -172,12 +195,12 @@ function DetailsRow({
               />
             </Tooltip>
           )}
-          {link && (
-            <Tooltip label="View on block explorer" placement="top" shouldWrapChildren>
+          {link && linkLabel && (
+            <Tooltip label={linkLabel} placement="top" shouldWrapChildren>
               <Link
                 href={link}
                 isExternal
-                aria-label="View on block explorer"
+                aria-label={linkLabel}
                 display="inline-flex"
                 alignItems="center"
                 justifyContent="center"

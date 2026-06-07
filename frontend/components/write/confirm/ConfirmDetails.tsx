@@ -15,6 +15,8 @@ import {
 } from "../../../utils/dripPeriod";
 import { getEffectiveAddress } from "../../../utils/ensAddress";
 import { formatExpirationDateDisplay } from "../../../utils/expirationDate";
+import { ipfsToHttpUrl } from "../../../utils/ipfsGateway";
+import { normalizePaymentMetadataUris } from "../../../utils/metadataUri";
 import {
   isReversibleFormModule,
   REVERSIBLE_BEFORE_DATE,
@@ -45,6 +47,11 @@ function ConfirmDetails() {
     return addresses;
   }, [recipient, inspector]);
   const ensNames = useEnsNames(ensAddresses);
+
+  const { externalURI, imageURI } = useMemo(
+    () => normalizePaymentMetadataUris(notaFormValues),
+    [notaFormValues.externalURI, notaFormValues.imageURI]
+  );
 
   const showInspector = isReversibleFormModule(notaFormValues.module);
   const showClaimDeadline =
@@ -141,6 +148,20 @@ function ConfirmDetails() {
             value={formatExpirationDateDisplay(
               notaFormValues.inspectionEndDate ?? ""
             )}
+          />
+        )}
+        {externalURI && (
+          <DetailsRow
+            title="Document"
+            value={externalURI}
+            link={ipfsToHttpUrl(externalURI)}
+          />
+        )}
+        {imageURI && (
+          <DetailsRow
+            title="Image"
+            value={imageURI}
+            link={ipfsToHttpUrl(imageURI)}
           />
         )}
       </VStack>
