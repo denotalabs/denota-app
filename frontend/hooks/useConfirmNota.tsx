@@ -21,6 +21,7 @@ import { useDirectPay } from "./modules/useDirectPay";
 import { useReversibleByBeforeDate } from "./modules/useReversibleByBeforeDate";
 import { useReversibleRelease } from "./modules/useReversibleRelease";
 import { useSimpleCash } from "./modules/useSimpleCash";
+import { normalizePaymentMetadataUris } from "../utils/metadataUri";
 import { useEmail } from "./useEmail";
 interface Props {
   onSuccess?: () => void;
@@ -54,6 +55,9 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         notaFormValues.address,
         notaFormValues.resolvedAddress
       );
+      const { externalURI, imageURI } = normalizePaymentMetadataUris(
+        notaFormValues
+      );
       let receipt: { txHash: string; notaId: string };
 
       // TODO need to add more modules
@@ -73,8 +77,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             amount: notaFormValues.amount,
             address: owner,
             expirationDate: notaFormValues.expirationDate,
-            externalURI: notaFormValues.externalURI ?? "",
-            imageURI: notaFormValues.imageURI ?? "",
+            externalURI,
+            imageURI,
           });
           break;
         case "directSend":
@@ -82,8 +86,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             token: notaFormValues.token,
             amount: notaFormValues.amount,
             address: owner,
-            externalURI: notaFormValues.externalURI ?? "",
-            imageURI: notaFormValues.imageURI,
+            externalURI,
+            imageURI,
           });
           break;
         case "simpleCash":
@@ -91,8 +95,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             token: notaFormValues.token,
             amount: notaFormValues.amount,
             address: owner,
-            externalURI: notaFormValues.externalURI ?? "",
-            imageURI: notaFormValues.imageURI ?? "",
+            externalURI,
+            imageURI,
           });
           break;
         case "reversibleRelease":
@@ -101,8 +105,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             amount: notaFormValues.amount,
             address: owner,
             inspector,
-            externalURI: notaFormValues.externalURI ?? "",
-            imageURI: notaFormValues.imageURI ?? "",
+            externalURI,
+            imageURI,
           });
           break;
         case "reversibleByBeforeDate":
@@ -112,8 +116,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             address: owner,
             inspector,
             inspectionEndDate: notaFormValues.inspectionEndDate,
-            externalURI: notaFormValues.externalURI ?? "",
-            imageURI: notaFormValues.imageURI ?? "",
+            externalURI,
+            imageURI,
           });
           break;
         case "balanceOfConditionalCash":
@@ -125,8 +129,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
             conditionType: notaFormValues.conditionType as ConditionType,
             nftBalanceThreshold: notaFormValues.nftBalanceThreshold,
             expirationDate: notaFormValues.expirationDate,
-            externalURI: notaFormValues.externalURI ?? "",
-            imageURI: notaFormValues.imageURI ?? "",
+            externalURI,
+            imageURI,
           });
           break;
         case "cashBeforeDateDrip":
@@ -143,8 +147,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
               defaultDripPeriodFormValues.dripPeriodAmount,
             dripPeriodUnit: (notaFormValues.dripPeriodUnit ??
               defaultDripPeriodFormValues.dripPeriodUnit) as DripPeriodUnit,
-            externalURI: notaFormValues.externalURI ?? "",
-            imageURI: notaFormValues.imageURI ?? "",
+            externalURI,
+            imageURI,
           });
           break;
         default:
@@ -163,7 +167,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         instant: 0, // TODO this needs dynamic setting based on hook used
         owner: owner,
         createdHash: "",
-        uri: notaFormValues.externalURI ?? "",
+        uri: externalURI,
         isCrossChain: false,
       });
 

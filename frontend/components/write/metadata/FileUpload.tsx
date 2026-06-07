@@ -3,6 +3,7 @@ import { useField } from "formik";
 import React, { ChangeEvent, useRef, useState } from "react";
 import { BsUpload } from "react-icons/bs";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
+import { normalizeMetadataUri } from "../../../utils/metadataUri";
 
 type UploadValueKey = "imageURI" | "ipfsHash";
 
@@ -21,7 +22,7 @@ export function FileUploadButton({
   accept = ".jpg,.jpeg,.png,.gif,.pdf,.docx,.csv",
   uploadValueKey = "imageURI",
 }: FileUploadButtonProps) {
-  const [, , { setValue }] = useField(name);
+  const [, , { setValue, setTouched }] = useField(name);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const toast = useToast();
   const { upload } = useUploadMetadata();
@@ -39,8 +40,9 @@ export function FileUploadButton({
         undefined,
         undefined
       );
-      const uploadedValue =
-        uploadValueKey === "ipfsHash" ? ipfsHash : imageURI;
+      const uploadedValue = normalizeMetadataUri(
+        uploadValueKey === "ipfsHash" ? ipfsHash : imageURI
+      );
       if (!uploadedValue) {
         toast({
           title: "Upload error",
@@ -50,6 +52,7 @@ export function FileUploadButton({
         });
       } else {
         setValue(uploadedValue);
+        setTouched(true, false);
       }
       setIsLoading(false);
     } else {
