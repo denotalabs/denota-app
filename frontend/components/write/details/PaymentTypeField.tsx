@@ -30,7 +30,7 @@ const PAYMENT_TYPE_OPTIONS: {
       value: "withTerms",
       label: "With terms",
       description:
-        "Creates an escrow agreement with ownership and release rules on the next page.",
+        "Creates a payment agreement with ownership and release rules on the next page.",
       icon: MdFormatListBulleted,
     },
     {
