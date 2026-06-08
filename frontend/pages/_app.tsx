@@ -2,7 +2,7 @@ import { Box, ChakraProvider } from "@chakra-ui/react";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { AppProps } from "next/app";
 import Head from "next/head";
-import SidebarNav from "../components/nav/SidebarNav";
+import Navbar from "../components/nav/Navbar";
 import { BlockchainDataProvider } from "../context/BlockchainDataProvider";
 import GoogleAnalytics from "../context/GoogleAnalytics";
 import { NotasProvider } from "../context/NotasContext";
@@ -44,9 +44,9 @@ function MyApp({ Component, pageProps }: AppProps) {
                   minH="100vh"
                   bgGradient="linear(to-r, brand.400, brand.500)"
                 >
-                  <SidebarNav>
+                  <Navbar>
                     <Component {...pageProps} />
-                  </SidebarNav>
+                  </Navbar>
                 </Box>
               </NotasProvider>
             </TokenListProvider>

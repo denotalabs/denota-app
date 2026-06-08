@@ -8,18 +8,22 @@ function SendPage() {
 
   if (isInitializing) {
     return (
-      <Center flexDirection={"column"} w="100%" px={5}>
+      <Center flexDirection={"column"} w="100%" flex="1" px={5}>
         <Spinner size="xl" />
       </Center>
     );
   }
 
   if (isWrongChain) {
-    return <WrongChain />;
+    return (
+      <Center w="100%" flex="1">
+        <WrongChain />
+      </Center>
+    );
   }
 
   return (
-    <Center w="100%" h="100%">
+    <Center w="100%" flex="1">
       <WriteNotaFlow />
     </Center>
   );

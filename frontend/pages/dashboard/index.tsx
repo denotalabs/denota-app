@@ -3,7 +3,7 @@ import HomeScreen from "../../components/dashboard/HomeScreen";
 
 function DashboardPage() {
   return (
-    <Center w="100%">
+    <Center w="100%" flex="1">
       <HomeScreen />
     </Center>
   );
