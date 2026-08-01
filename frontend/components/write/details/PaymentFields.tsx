@@ -1,21 +1,31 @@
-import { Flex, FormControl, FormLabel } from "@chakra-ui/react";
+import { Box, Flex, Text, useBreakpointValue } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
+import { Wallet } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import { useTokenBalance } from "../../../hooks/useTokenBalance";
 import AccountField from "../../fields/input/AccountField";
-
 import AmountField from "../../fields/input/AmountField";
-import { DetailsStepFormValues } from "./DetailsStep";
+import {
+  displayNameForCurrency,
+  NotaCurrency,
+} from "../../designSystem/CurrencyIcon";
+import { FormSection } from "../../designSystem/form/FormSection";
+import { formTheme } from "../../designSystem/form/formTheme";
+import { DetailsStepFormValues } from "./DetailsStepForm";
 import { allowsZeroPaymentAmount } from "./paymentMetadata";
 
 function PaymentFields() {
-  const { values, setFieldTouched, validateField } =
+  const isDesktop = useBreakpointValue({ base: false, md: true }) ?? false;
+  const { values, setFieldTouched, validateField, setFieldValue } =
     useFormikContext<DetailsStepFormValues>();
   const { updateNotaFormValues } = useNotaForm();
+  const balance = useTokenBalance(values.token as NotaCurrency);
   const previousPaymentType = useRef(values.paymentType);
   const allowZero = allowsZeroPaymentAmount(values.paymentType);
   const amountLabel =
     values.paymentType === "withTerms" ? "Escrow amount" : "Amount";
+  const tokenLabel = displayNameForCurrency(values.token as NotaCurrency);
 
   useEffect(() => {
     const previousAllowsZero = allowsZeroPaymentAmount(
@@ -46,29 +56,85 @@ function PaymentFields() {
     values.mode,
   ]);
 
-  return (
-    <Flex
-      gap="18px"
-      direction="row"
-      mt={5}
-      w="100%"
-      align="flex-start"
-      flexWrap={{ base: "wrap", md: "nowrap" }}
+  const handleMax =
+    balance !== null
+      ? () => setFieldValue("amount", balance)
+      : undefined;
+
+  const formattedBalance =
+    balance !== null
+      ? Number(balance).toLocaleString(undefined, {
+          maximumFractionDigits: 4,
+        })
+      : null;
+
+  const amountSection = (
+    <FormSection
+      mb={0}
+      label={
+        <Flex justify="space-between" align="center" w="100%">
+          <Text
+            fontSize={{ base: "17px", md: "md" }}
+            fontWeight={700}
+            color={formTheme.text}
+          >
+            {amountLabel}
+          </Text>
+          {formattedBalance ? (
+            <Text
+              fontSize="12.5px"
+              color={formTheme.muted}
+              fontWeight={600}
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              <Wallet size={13} style={{ marginRight: 2 }} />
+              {formattedBalance} {tokenLabel}
+            </Text>
+          ) : null}
+        </Flex>
+      }
     >
-      <FormControl flex={1} minW={0}>
-        <FormLabel mb={2}>Recipient Address</FormLabel>
-        <AccountField
-          fieldName="address"
-          resolvedFieldName="resolvedAddress"
-          allowEns
-          placeholder="almaraz.eth, 0x..."
-        />
-      </FormControl>
-      <FormControl flexShrink={0} w={{ base: "100%", md: "200px" }}>
-        <FormLabel mb={2}>{amountLabel}</FormLabel>
-        <AmountField allowZero={allowZero} />
-      </FormControl>
-    </Flex>
+      <AmountField
+        allowZero={allowZero}
+        tokenLabel={tokenLabel}
+        onMax={handleMax}
+      />
+    </FormSection>
+  );
+
+  if (isDesktop) {
+    return (
+      <Flex gap={3} align="flex-start" mb={5}>
+        <Box flex={1} minW={0}>
+          <AccountField
+            fieldName="address"
+            resolvedFieldName="resolvedAddress"
+            allowEns
+            placeholder="almaraz.eth, 0x..."
+            label="Recipient Address"
+            sectionMb={0}
+          />
+        </Box>
+        <Box flex={1} minW={0}>
+          {amountSection}
+        </Box>
+      </Flex>
+    );
+  }
+
+  return (
+    <>
+      <AccountField
+        fieldName="address"
+        resolvedFieldName="resolvedAddress"
+        allowEns
+        placeholder="almaraz.eth, 0x..."
+        label="Recipient Address"
+      />
+      {amountSection}
+    </>
   );
 }
 

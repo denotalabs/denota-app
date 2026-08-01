@@ -2,12 +2,13 @@ import {
   FormControl,
   FormErrorMessage,
   FormHelperText,
-  HStack,
   Input,
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { FileUploadButton } from "../../write/metadata/FileUpload";
+import { FormInputWrap } from "../../designSystem/form/FormInputWrap";
+import { formTheme } from "../../designSystem/form/formTheme";
 import {
   IpfsVerificationStatus,
   metadataUriHelperText,
@@ -101,9 +102,16 @@ export default function MetadataUriField({
 
   return (
     <FormControl isInvalid={!!meta.error && meta.touched}>
-      <HStack align="center" spacing={2}>
+      <FormInputWrap>
         <Input
           flex={1}
+          minW={0}
+          variant="unstyled"
+          h="54px"
+          fontSize="17px"
+          color={formTheme.text}
+          autoCapitalize="none"
+          spellCheck={false}
           {...field}
           placeholder={placeholder}
           onBlur={handleBlur}
@@ -112,11 +120,13 @@ export default function MetadataUriField({
           name={fieldName}
           uploadValueKey={uploadValueKey}
         />
-      </HStack>
+      </FormInputWrap>
       {helperText ? (
         <FormHelperText
+          mt={2}
+          fontSize="13px"
           color={
-            verification === "missing" ? "orange.300" : "whiteAlpha.600"
+            verification === "missing" ? "orange.300" : formTheme.muted
           }
         >
           {helperText}

@@ -5,13 +5,12 @@ import {
   Heading,
   HStack,
   Icon,
-  SimpleGrid,
   Tag,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconType } from "react-icons";
 import { MdCollections, MdEdit, MdGavel, MdSchedule, MdTouchApp } from "react-icons/md";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
@@ -107,12 +106,14 @@ function ModuleOptionBox({
   description,
   icon,
   comingSoon,
+  selected,
   onClick,
 }: {
   title: string;
   description: string;
   icon: IconType;
   comingSoon?: boolean;
+  selected?: boolean;
   onClick: () => void;
 }) {
   return (
@@ -120,19 +121,32 @@ function ModuleOptionBox({
       as="button"
       type="button"
       w="100%"
-      textAlign="center"
+      textAlign="left"
       cursor="pointer"
       borderWidth="1px"
-      borderColor={comingSoon ? "whiteAlpha.200" : "whiteAlpha.300"}
-      borderRadius="12px"
-      bg={comingSoon ? "brand.800" : "brand.700"}
+      borderColor={
+        selected
+          ? "brand.200"
+          : comingSoon
+            ? "whiteAlpha.200"
+            : "whiteAlpha.300"
+      }
+      boxShadow={
+        selected ? "0 0 0 1px var(--chakra-colors-brand-200) inset" : undefined
+      }
+      borderRadius="16px"
+      bg={selected ? "brand.300" : comingSoon ? "brand.800" : "brand.700"}
       px={4}
-      py={6}
+      py={4}
       opacity={comingSoon ? 0.92 : 1}
       transition="border-color 0.15s, background 0.15s"
       _hover={{
-        borderColor: comingSoon ? "whiteAlpha.400" : "whiteAlpha.500",
-        bg: comingSoon ? "brand.700" : "brand.600",
+        borderColor: selected
+          ? "brand.200"
+          : comingSoon
+            ? "whiteAlpha.400"
+            : "whiteAlpha.500",
+        bg: selected ? "brand.300" : comingSoon ? "brand.700" : "brand.600",
       }}
       _focusVisible={{
         outline: "2px solid",
@@ -141,18 +155,31 @@ function ModuleOptionBox({
       }}
       onClick={onClick}
     >
-      <VStack spacing={3}>
-        {comingSoon ? (
-          <Tag size="sm" colorScheme="purple" alignSelf="center">
-            Coming Soon
-          </Tag>
-        ) : null}
-        <Icon as={icon} boxSize={8} />
-        <Heading size="md">{title}</Heading>
-        <Text fontSize="sm" color="whiteAlpha.800">
-          {description}
-        </Text>
-      </VStack>
+      <HStack align="center" spacing={3.5}>
+        <Flex
+          w="38px"
+          h="38px"
+          borderRadius="10px"
+          align="center"
+          justify="center"
+          flexShrink={0}
+          bg={selected ? "brand.200" : "brand.600"}
+          color={selected ? "brand.100" : undefined}
+        >
+          <Icon as={icon} boxSize={5} />
+        </Flex>
+        <HStack spacing={2} flexWrap="wrap" minW={0}>
+          <Heading size="sm">{title}</Heading>
+          {comingSoon ? (
+            <Tag size="sm" colorScheme="purple">
+              Coming Soon
+            </Tag>
+          ) : null}
+        </HStack>
+      </HStack>
+      <Text mt={2.5} fontSize="13.5px" lineHeight={1.5} color="whiteAlpha.700">
+        {description}
+      </Text>
     </Box>
   );
 }
@@ -202,7 +229,7 @@ function ModuleSelectedHeader({
 }
 
 const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
-  const { next } = useStep();
+  const { next, setBackHidden } = useStep();
   const { updateNotaFormValues, notaFormValues } = useNotaForm();
   const { blockchainState } = useBlockchainData();
   const connectedAccount = blockchainState.account ?? "";
@@ -291,28 +318,30 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
     !showPicker &&
     (Boolean(notaFormValues.module) || Boolean(selectedComingSoonModule));
 
+  useEffect(() => {
+    setBackHidden?.(showModuleTerms);
+    return () => setBackHidden?.(false);
+  }, [setBackHidden, showModuleTerms]);
+
   const resetPicker = () => {
     setSelectedComingSoonId(null);
     setShowPicker(true);
   };
 
   return (
-    <Box w="100%" p={4}>
+    <Box w="100%" px={{ base: 4, md: 1 }} py={4}>
       {showPicker ? (
-        <SimpleGrid
-          spacing={4}
-          templateColumns={{
-            base: "repeat(1, 1fr)",
-            md: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
-          }}
-        >
+        <VStack spacing={3} align="stretch">
           {MODULE_OPTIONS.map((option) => (
             <ModuleOptionBox
               key={option.id}
               title={option.title}
-              description={option.shortDescription}
+              description={option.description}
               icon={option.icon}
+              selected={
+                !selectedComingSoonId &&
+                option.isSelected(notaFormValues.module ?? "")
+              }
               onClick={() => selectModule(option.id)}
             />
           ))}
@@ -322,13 +351,14 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             <ModuleOptionBox
               key={module.id}
               title={module.title}
-              description={module.shortDescription}
+              description={module.description}
               icon={module.icon}
               comingSoon
+              selected={selectedComingSoonId === module.id}
               onClick={() => selectComingSoonModule(module)}
             />
           ))}
-        </SimpleGrid>
+        </VStack>
       ) : (
         showModuleTerms &&
         (selectedComingSoonModule ? (

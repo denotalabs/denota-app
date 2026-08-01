@@ -1,10 +1,13 @@
+import { Box } from "@chakra-ui/react";
 import {
   Children,
   ReactElement,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
   useReducer,
+  useState,
 } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import StepperContext, { StepperReducerInterface } from "./StepperContext";
@@ -75,6 +78,11 @@ function Stepper({ children, onClose }: StepperProps) {
     currentScreen,
     allScreens,
   });
+  const [backHidden, setBackHidden] = useState(false);
+
+  useEffect(() => {
+    setBackHidden(false);
+  }, [state.currentIndex]);
 
   const hasPaymentTermsStep = useMemo(
     () =>
@@ -118,6 +126,7 @@ function Stepper({ children, onClose }: StepperProps) {
         back,
         goToStep,
         onClose,
+        setBackHidden,
       }}
     >
       <StepperHeader
@@ -125,8 +134,11 @@ function Stepper({ children, onClose }: StepperProps) {
         onClose={onClose}
         currentIndex={state.currentIndex}
         title={screenTitle}
+        hideBack={backHidden}
       />
-      {state.currentScreen}
+      <Box w="100%" minH={{ base: "420px", md: "480px" }}>
+        {state.currentScreen}
+      </Box>
     </StepperContext.Provider>
   );
 }

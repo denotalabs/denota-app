@@ -1,9 +1,10 @@
 import { ButtonProps, IconButton, useToast } from "@chakra-ui/react";
 import { useField } from "formik";
+import { Upload } from "lucide-react";
 import React, { ChangeEvent, useRef, useState } from "react";
-import { BsUpload } from "react-icons/bs";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
 import { normalizeMetadataUri } from "../../../utils/metadataUri";
+import { formTheme } from "../../designSystem/form/formTheme";
 
 type UploadValueKey = "imageURI" | "ipfsHash";
 
@@ -77,12 +78,27 @@ export function FileUploadButton({
         hidden
       />
       <IconButton
-        variant="outline"
+        variant="unstyled"
         aria-label="Upload"
         flexShrink={0}
-        icon={<BsUpload />}
+        alignSelf="center"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        icon={<Upload size={18} strokeWidth={2} />}
         isLoading={isLoading}
         onClick={handleClick}
+        bg={formTheme.primaryButtonBg}
+        color={formTheme.primary}
+        border="none"
+        borderRadius="11px"
+        w="44px"
+        h="44px"
+        minW="44px"
+        minH="44px"
+        p={0}
+        lineHeight={0}
+        _hover={{ bg: formTheme.cardBgHover }}
         {...buttonProps}
       />
     </>

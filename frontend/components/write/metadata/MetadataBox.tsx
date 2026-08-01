@@ -1,11 +1,7 @@
-import {
-  FormControl,
-  FormLabel,
-  HStack,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { HStack, Text, VStack } from "@chakra-ui/react";
 
+import { FormSection } from "../../designSystem/form/FormSection";
+import { formTheme } from "../../designSystem/form/formTheme";
 import InfoTooltip from "../../designSystem/InfoTooltip";
 import ExternalURIField from "../../fields/input/ExternalURIField";
 import ImageURIField from "../../fields/input/ImageURIField";
@@ -15,17 +11,24 @@ const METADATA_TOOLTIP =
 
 function MetadataBox() {
   return (
-    <FormControl pt={5} maxW="100%">
-      <HStack align="baseline" spacing={1} mb={1}>
-        <FormLabel mb={0} mr={0}>
-          Metadata
-        </FormLabel>
-        <Text fontSize="sm" color="whiteAlpha.600">
-          (optional)
-        </Text>
-        <InfoTooltip label={METADATA_TOOLTIP} />
-      </HStack>
-      <Text fontSize="sm" color="whiteAlpha.700" mb={3}>
+    <FormSection
+      label={
+        <HStack align="baseline" spacing={1}>
+          <Text
+            fontSize={{ base: "17px", md: "md" }}
+            fontWeight={700}
+            color={formTheme.text}
+          >
+            Metadata
+          </Text>
+          <Text fontSize="sm" color={formTheme.muted}>
+            (optional)
+          </Text>
+          <InfoTooltip label={METADATA_TOOLTIP} />
+        </HStack>
+      }
+    >
+      <Text fontSize="sm" color={formTheme.mutedLight} mb={3}>
         Attach a document or image to record what this payment is for.
       </Text>
       <VStack align="stretch" spacing={2}>
@@ -38,7 +41,7 @@ function MetadataBox() {
           placeholder="Image URL, or upload a file"
         />
       </VStack>
-    </FormControl>
+    </FormSection>
   );
 }
 

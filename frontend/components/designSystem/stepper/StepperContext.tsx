@@ -13,6 +13,8 @@ export interface StepperContextInterface extends StepperReducerInterface {
   back?: () => void;
   goToStep?: (screenKey: string) => void;
   onClose?: () => void;
+  /** Allows a screen to hide the header back arrow (e.g. when it has its own navigation). */
+  setBackHidden?: (hidden: boolean) => void;
 }
 
 const stepperContext = createContext<StepperContextInterface>({
