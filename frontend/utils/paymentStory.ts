@@ -1,4 +1,5 @@
 import { isAddress } from "ethers/lib/utils";
+import { truncateAddress } from "./address";
 import {
   BALANCE_OF_CONDITIONAL_CASH_MODULE,
   CONDITION_TYPE_LABELS,
@@ -73,7 +74,7 @@ function formatPartyLabel(
     if (ens) {
       return ens;
     }
-    return `${effective.slice(0, 6)}…${effective.slice(-4)}`;
+    return truncateAddress(effective);
   }
 
   if (trimmedInput) {
@@ -191,7 +192,7 @@ export function buildPaymentStory(input: PaymentStoryInput): string {
       const collection =
         collectionAddress && isAddress(collectionAddress)
           ? (ensNames.get(collectionAddress.toLowerCase()) ??
-            `${collectionAddress.slice(0, 6)}…${collectionAddress.slice(-4)}`)
+            truncateAddress(collectionAddress))
           : "the specified collection";
       return `${amount} ${tokenLabel} shall be held in escrow for ${recipient}. ${recipient} may claim the funds when their NFT balance from ${collection} is ${conditionLabel.toLowerCase()} ${threshold}. After ${deadline}, unclaimed funds return to ${sender}.`;
     }

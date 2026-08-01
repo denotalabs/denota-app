@@ -14,23 +14,29 @@ export function WriteNotaFlow({ onClose }: Props) {
   return (
     <NotaFormProvider>
       <VStack
-        mt={5}
+        mt={{ base: 0, md: 5 }}
         bg="brand.100"
         py={2}
-        px={4}
-        borderRadius="30px"
+        px={3}
+        borderRadius={{ base: 0, md: "30px" }}
         display={{ base: "flex", md: "none" }}
-        maxW="100%"
+        maxW={{ base: "100%", md: "520px" }}
+        w="100%"
+        h="auto"
+        alignSelf="flex-start"
+        align="stretch"
       >
         <WriteStepperMobile onClose={onClose} />
       </VStack>
       <VStack
         w="650px"
+        maxW="650px"
         bg="brand.100"
         py={2}
-        px={4}
+        px={3}
         borderRadius="30px"
         display={{ base: "none", md: "flex" }}
+        align="stretch"
       >
         <WriteStepperDesktop onClose={onClose} />
       </VStack>

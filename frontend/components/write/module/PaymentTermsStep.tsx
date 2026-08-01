@@ -42,7 +42,7 @@ const PaymentTermsStep: React.FC<ScreenProps> = () => {
   );
 
   return (
-    <Box w="100%" p={4}>
+    <Box w="100%" px={{ base: 4, md: 1 }} py={4}>
       <Formik
         enableReinitialize
         initialValues={initialValues}

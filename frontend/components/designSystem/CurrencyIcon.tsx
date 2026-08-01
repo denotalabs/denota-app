@@ -70,6 +70,19 @@ const CURRENCY_DISPLAY_NAMES: Partial<Record<NotaCurrency, string>> = {
 export const displayNameForCurrency = (currency: NotaCurrency): string =>
   CURRENCY_DISPLAY_NAMES[currency] ?? currency;
 
+// Brand-colored glyph badges for supported write currencies, used by the
+// asset selector cards.
+export const currencyGlyphs: Partial<
+  Record<NotaCurrency, { color: string; glyph: string; dark?: boolean }>
+> = {
+  USDC: { color: "#2775CA", glyph: "$" },
+  WETH: { color: "#627EEA", glyph: "◈" },
+  ETH: { color: "#627EEA", glyph: "◈" },
+  USDT: { color: "#26A17B", glyph: "₮" },
+  DAI: { color: "#F5AC37", glyph: "◈", dark: true },
+  USDCE: { color: "#2775CA", glyph: "$" },
+};
+
 // Curated icons for supported write currencies (and ETH/WETH). Other tokens use the
 // runtime token list.
 const DEFAULT_CURRENCY_LOGOS: Partial<Record<NotaCurrency, string>> = {

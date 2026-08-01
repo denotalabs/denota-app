@@ -1,15 +1,19 @@
-import { useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  useBreakpointValue,
+  useToast,
+} from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { Form, FormikProvider, useFormik } from "formik";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
+import { useVisualViewportKeyboard } from "../../../hooks/useVisualViewportKeyboard";
 import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
 import { usePaymentReadiness } from "../../../hooks/usePaymentReadiness";
-import {
-  usePurchaseToken,
-} from "../../../hooks/usePurchaseToken";
+import { usePurchaseToken } from "../../../hooks/usePurchaseToken";
 import {
   quickPaymentButtonText,
   useQuickPayment,
@@ -17,10 +21,11 @@ import {
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
 import { getEffectiveAddress } from "../../../utils/ensAddress";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
-import RoundedBox from "../../designSystem/RoundedBox";
-import RoundedButton from "../../designSystem/RoundedButton";
 import { useStep } from "../../designSystem/stepper/Stepper";
+import { formTheme } from "../../designSystem/form/formTheme";
 import PaymentDetails from "./PaymentDetails";
+import { PaymentDetailsContinueButton } from "./PaymentDetailsContinueButton";
+import { PaymentFlowStepRow } from "./PaymentFlowStepRow";
 import {
   allowsZeroPaymentAmount,
   hasPaymentMetadata,
@@ -73,6 +78,8 @@ export function DetailsStepForm() {
     onSuccess: () => router.push("/dashboard"),
   });
   const { purchaseToken, canPurchaseToken } = usePurchaseToken();
+  const keyboardOpen = useVisualViewportKeyboard();
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
   const submitContext = useRef<DetailsSubmitContext | null>(null);
 
@@ -83,7 +90,8 @@ export function DetailsStepForm() {
       address: notaFormValues.address ?? "",
       resolvedAddress: notaFormValues.resolvedAddress ?? "",
       mode: "pay",
-      paymentType: (notaFormValues.paymentType as PaymentType) ?? "withTerms",
+      paymentType:
+        (notaFormValues.paymentType as PaymentType) || "withTerms",
       note: notaFormValues.note ?? "",
       email: notaFormValues.email ?? "",
       file: file,
@@ -288,24 +296,69 @@ export function DetailsStepForm() {
     isCheckingReadiness
   );
 
+  const isSubmitDisabled =
+    !isValid ||
+    (requiresWallet && !isWalletConnected) ||
+    balanceBlocksSubmit;
+
+  const continueButton = (
+    <PaymentDetailsContinueButton
+      isLoading={formik.isSubmitting}
+      isDisabled={isSubmitDisabled}
+    >
+      {buttonLabel}
+    </PaymentDetailsContinueButton>
+  );
+
+  const usePinnedCta = isMobile && !keyboardOpen;
+  const scrollBottomPadding = usePinnedCta ? "130px" : isMobile ? 4 : 0;
+
   return (
     <FormikProvider value={formik}>
       <Form onSubmit={formik.handleSubmit}>
-        <RoundedBox p={4}>
-          <PaymentDetails showMetadata={showMetadataForm} />
-        </RoundedBox>
-        <RoundedButton
-          mt={4}
-          type="submit"
-          isLoading={formik.isSubmitting}
-          isDisabled={
-            !isValid ||
-            (requiresWallet && !isWalletConnected) ||
-            balanceBlocksSubmit
-          }
+        <Box
+          w="100%"
+          maxW={{ base: "380px", md: "100%" }}
+          mx="auto"
+          mt={{ base: 3, md: 4 }}
+          px={{ base: 4, md: 1 }}
+          pb={scrollBottomPadding}
+          color={formTheme.text}
         >
-          {buttonLabel}
-        </RoundedButton>
+          <PaymentFlowStepRow paymentType={paymentType} activeIndex={0} />
+          <Text
+            fontSize={{ base: "28px", md: "xl" }}
+            fontWeight={700}
+            textAlign="center"
+            mb={5}
+            letterSpacing="-0.5px"
+            color={formTheme.textDark}
+            display={{ base: "block", md: "none" }}
+          >
+            Payment Details
+          </Text>
+          <PaymentDetails showMetadata={showMetadataForm} />
+          {isMobile && keyboardOpen ? (
+            <Box mt={2} mb={2}>{continueButton}</Box>
+          ) : null}
+          {!isMobile ? <Box mt={5}>{continueButton}</Box> : null}
+          {usePinnedCta ? (
+            <Box
+              position="fixed"
+              bottom={0}
+              left={0}
+              right={0}
+              zIndex={10}
+              px={5}
+              pt={4}
+              pb="calc(18px + env(safe-area-inset-bottom))"
+              bgGradient={formTheme.ctaBarGradient}
+              pointerEvents="none"
+            >
+              <Box pointerEvents="auto">{continueButton}</Box>
+            </Box>
+          ) : null}
+        </Box>
       </Form>
     </FormikProvider>
   );

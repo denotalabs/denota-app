@@ -1,4 +1,4 @@
-import { Center, Spinner } from "@chakra-ui/react";
+import { Center, Flex, Spinner } from "@chakra-ui/react";
 import { WrongChain } from "../../components/WrongChain";
 import WriteNotaFlow from "../../components/write/WriteNotaFlow";
 import { useBlockchainData } from "../../context/BlockchainDataProvider";
@@ -23,9 +23,16 @@ function SendPage() {
   }
 
   return (
-    <Center w="100%" flex="1">
+    <Flex
+      w="100%"
+      flex="1"
+      justify="center"
+      align={{ base: "stretch", md: "flex-start" }}
+      pt={{ base: 0, md: "40px" }}
+      pb={{ base: 0, md: 10 }}
+    >
       <WriteNotaFlow />
-    </Center>
+    </Flex>
   );
 }
 

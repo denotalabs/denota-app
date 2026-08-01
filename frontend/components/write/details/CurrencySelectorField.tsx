@@ -1,26 +1,28 @@
 import {
+  Flex,
   FormControl,
   FormErrorMessage,
-  FormLabel,
   HStack,
   Spinner,
   Text,
   useRadioGroup,
 } from "@chakra-ui/react";
 import { Field, FieldProps } from "formik";
-
 import { useMemo } from "react";
 import {
   normalizeSymbol,
   useTokenList,
 } from "../../../context/TokenListProvider";
 import { useTokens } from "../../../hooks/useTokens";
-import CurrencyIcon, {
+import {
+  currencyGlyphs,
   NotaCurrency,
   SUPPORTED_CURRENCIES,
   tokenListSymbolForCurrency,
 } from "../../designSystem/CurrencyIcon";
-import { TokenChoice } from "../../designSystem/TokenChoice";
+import { FormSection } from "../../designSystem/form/FormSection";
+import { formTheme } from "../../designSystem/form/formTheme";
+import { SelectableCardRow } from "../../designSystem/form/SelectableCardRow";
 
 interface CurrencySelectorProps {
   setFieldValue: (field: string, value: NotaCurrency) => void;
@@ -35,11 +37,12 @@ export function CurrencySelectorField() {
           maxW="100%"
           isInvalid={Boolean(errors.name && touched.name)}
         >
-          <FormLabel mb={2}>Select Asset</FormLabel>
-          <CurrencySelector
-            setFieldValue={setFieldValue}
-            value={values.token}
-          />
+          <FormSection label="Select Asset">
+            <CurrencySelector
+              setFieldValue={setFieldValue}
+              value={values.token}
+            />
+          </FormSection>
           <FormErrorMessage>
             {errors.name && errors.name.toString()}
           </FormErrorMessage>
@@ -49,11 +52,34 @@ export function CurrencySelectorField() {
   );
 }
 
+function AssetGlyph({ currency, label }: { currency: NotaCurrency; label: string }) {
+  const glyph = currencyGlyphs[currency] ?? {
+    color: formTheme.selectedBorder,
+    glyph: label.charAt(0),
+  };
+
+  return (
+    <Flex
+      w="30px"
+      h="30px"
+      borderRadius="full"
+      align="center"
+      justify="center"
+      fontSize="15px"
+      fontWeight={700}
+      flexShrink={0}
+      bg={glyph.color}
+      color={glyph.dark ? "#111" : "white"}
+    >
+      {glyph.glyph}
+    </Flex>
+  );
+}
+
 function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
   const { bySymbol, isLoading } = useTokenList();
-  const { displayNameForCurrency } = useTokens();
+  const { displayNameForCurrency: displayName } = useTokens();
 
-  // Only show currencies that resolve to a token on the active chain.
   const options = useMemo(() => {
     const available = SUPPORTED_CURRENCIES.filter((currency) =>
       bySymbol.has(normalizeSymbol(tokenListSymbolForCurrency(currency)))
@@ -62,8 +88,8 @@ function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
   }, [bySymbol]);
 
   const { getRootProps, getRadioProps } = useRadioGroup({
-    name: "framework",
-    defaultValue: value,
+    name: "token",
+    value,
     onChange: (val: NotaCurrency) => {
       setFieldValue("token", val);
     },
@@ -81,20 +107,26 @@ function CurrencySelector({ setFieldValue, value }: CurrencySelectorProps) {
   }
 
   return (
-    <HStack flexWrap="wrap" {...group} maxW="100%" rowGap={3}>
+    <Flex
+      direction={{ base: "column", md: "row" }}
+      gap={3}
+      align="stretch"
+      {...group}
+    >
       {options.map((option) => {
-        const radio = getRadioProps({ value: option });
+        const label = displayName(option);
         return (
-          <TokenChoice key={option} radioProps={radio}>
-            <HStack>
-              <CurrencyIcon currency={option} />
-              <Text fontSize="sm" textAlign="center">
-                {displayNameForCurrency(option)}
-              </Text>
-            </HStack>
-          </TokenChoice>
+          <SelectableCardRow
+            key={option}
+            radioProps={getRadioProps({ value: option })}
+            title={label}
+            leading={() => <AssetGlyph currency={option} label={label} />}
+            flex={{ base: "none", md: 1 }}
+            px={{ base: 4, md: 3 }}
+            titleFontSize={{ base: "16px", md: "15px" }}
+          />
         );
       })}
-    </HStack>
+    </Flex>
   );
 }

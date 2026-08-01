@@ -6,6 +6,7 @@ import { PaymentTypeField } from "./PaymentTypeField";
 interface Props {
   showMetadata?: boolean;
 }
+
 function PaymentDetails({ showMetadata }: Props) {
   return (
     <>
