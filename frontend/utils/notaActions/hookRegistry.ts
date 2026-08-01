@@ -19,6 +19,26 @@ function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
     balanceOfConditionalCashHookAddress(chainId)?.toLowerCase();
 
   const registry: Record<string, HookRegistryEntry> = {
+    [mapping.directSend.toLowerCase()]: {
+      name: "Direct Pay",
+      overrides: {},
+    },
+    [mapping.simpleCash.toLowerCase()]: {
+      name: "Simple Cash",
+      overrides: {},
+    },
+    [mapping.cashBeforeDate.toLowerCase()]: {
+      name: "Cash Before Date",
+      overrides: {},
+    },
+    [mapping.reversibleByBeforeDate.toLowerCase()]: {
+      name: "Reversible By Before Date",
+      overrides: {},
+    },
+    [mapping.cashBeforeDateDrip.toLowerCase()]: {
+      name: "Cash Before Date Drip",
+      overrides: {},
+    },
     [reversibleRelease]: {
       name: "Reversible Release",
       overrides: {
