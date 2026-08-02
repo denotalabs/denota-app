@@ -432,8 +432,12 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
         <EscrowAgreementCard
           escrow={onChainState?.escrow ?? null}
           currencySymbol={onChainState?.currencySymbol ?? null}
+          currencyDecimals={onChainState?.currencyDecimals ?? null}
+          hasPayer={!!payerFromMetadata}
           hasInspector={!!inspectorFromMetadata}
           hook={onChainState?.hook ?? null}
+          metadata={metadata}
+          ensNames={ensNames}
           explorerTxBase={explorerTxBase}
           moduleDescription={metadata?.description ?? null}
           isLoading={onChainStateLoading}
@@ -483,6 +487,12 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
             </Text>
           ) : (
             <>
+              {metadata?.image && (
+                <MetadataImage
+                  imageURI={metadata.image}
+                  alt={metadata.name ?? `Nota ${notaId}`}
+                />
+              )}
               {metadata?.name && (
                 <KVRow label="Name">
                   <Text color={t.text} noOfLines={1}>
@@ -573,25 +583,19 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
                   </ExternalKVLink>
                 </KVRow>
               )}
-              {metadata?.image && (
-                <MetadataImage
-                  imageURI={metadata.image}
-                  alt={metadata.name ?? `Nota ${notaId}`}
-                />
-              )}
-            {displayAttributes.map((attribute, index) => (
-              <KVRow
-                key={`${attribute.trait_type}-${index}`}
-                label={attribute.trait_type ?? "Attribute"}
-              >
-                <MetadataAttributeValue
-                  attribute={attribute}
-                  ensNames={ensNames}
-                  shortenAddresses={shortenAddresses}
-                  explorerTxBase={explorerTxBase}
-                />
-              </KVRow>
-            ))}
+              {displayAttributes.map((attribute, index) => (
+                <KVRow
+                  key={`${attribute.trait_type}-${index}`}
+                  label={attribute.trait_type ?? "Attribute"}
+                >
+                  <MetadataAttributeValue
+                    attribute={attribute}
+                    ensNames={ensNames}
+                    shortenAddresses={shortenAddresses}
+                    explorerTxBase={explorerTxBase}
+                  />
+                </KVRow>
+              ))}
               {!metadata && !metadataLoading && !onChainState && (
                 <Text fontSize="13.5px" color={t.muted2} py={3}>
                   No readable metadata found for this nota.
@@ -602,9 +606,9 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
 
           {interactionsLoading || interactions.length > 0 ? (
             <>
-            <Text fontSize="13.5px" color={t.muted} pt={4} pb={1}>
-              History
-            </Text>
+              <Text fontSize="13.5px" color={t.muted} pt={4} pb={1}>
+                History
+              </Text>
               <NotaInteractionLog
                 interactions={interactions}
                 interactionsLoading={interactionsLoading}

@@ -2,7 +2,7 @@ import { isAddress } from "ethers/lib/utils";
 import { truncateAddress } from "./address";
 import {
   BALANCE_OF_CONDITIONAL_CASH_MODULE,
-  CONDITION_TYPE_LABELS,
+  CONDITION_TYPE_PHRASES,
   ConditionType,
 } from "./balanceOfConditionalCash";
 import {
@@ -165,7 +165,7 @@ export function buildPaymentStory(input: PaymentStoryInput): string {
       const deadline = formatExpirationDateDisplay(
         formValues.expirationDate ?? ""
       );
-      return `${amount} ${tokenLabel} shall be held in escrow for ${recipient}. ${recipient} must claim before ${deadline} or funds return to ${sender}.`;
+      return `${amount} ${tokenLabel} shall be held in escrow for ${recipient}. ${recipient} must claim before ${deadline}; after that only ${sender} may recover the escrow.`;
     }
     case "simpleCash":
       return `${amount} ${tokenLabel} shall be held in escrow for ${recipient}. ${recipient} may claim the funds at any time.`;
@@ -175,7 +175,7 @@ export function buildPaymentStory(input: PaymentStoryInput): string {
       );
       const dripAmount = formValues.dripAmount ?? "1";
       const period = formatDripPeriodPhrase(formValues);
-      return `${amount} ${tokenLabel} shall be held in escrow for ${recipient}. ${recipient} may claim ${dripAmount} ${tokenLabel} ${period} until ${deadline}. Unclaimed amounts in a period are forfeited.`;
+      return `${amount} ${tokenLabel} shall be held in escrow for ${recipient}. ${recipient} may claim ${dripAmount} ${tokenLabel} ${period} until ${deadline}. Unclaimed amounts in a period are forfeited, and ${sender} may recover the remainder after ${deadline}.`;
     }
     case "directSend":
       return `${amount} ${tokenLabel} shall be sent directly to ${recipient} upon confirmation.`;
@@ -184,17 +184,18 @@ export function buildPaymentStory(input: PaymentStoryInput): string {
         formValues.expirationDate ?? ""
       );
       const threshold = formValues.nftBalanceThreshold ?? "1";
-      const conditionLabel =
-        CONDITION_TYPE_LABELS[
+      const comparison =
+        CONDITION_TYPE_PHRASES[
         (formValues.conditionType as ConditionType) ?? "GTEQ"
         ] ?? "at least";
+      const nftCount = threshold === "1" ? "1 NFT" : `${threshold} NFTs`;
       const collectionAddress = formValues.nftCollectionAddress?.trim() ?? "";
       const collection =
         collectionAddress && isAddress(collectionAddress)
           ? (ensNames.get(collectionAddress.toLowerCase()) ??
             truncateAddress(collectionAddress))
           : "the specified collection";
-      return `${amount} ${tokenLabel} shall be held in escrow for ${recipient}. ${recipient} may claim the funds when their NFT balance from ${collection} is ${conditionLabel.toLowerCase()} ${threshold}. After ${deadline}, unclaimed funds return to ${sender}.`;
+      return `${amount} ${tokenLabel} shall be held in escrow for ${recipient}. ${recipient} may claim the funds only while holding ${comparison} ${nftCount} from ${collection}. After ${deadline}, ${recipient} can no longer claim and ${sender} may recover the escrow.`;
     }
     default:
       return `${amount} ${tokenLabel} shall be held in escrow for ${recipient} under the selected payment terms.`;

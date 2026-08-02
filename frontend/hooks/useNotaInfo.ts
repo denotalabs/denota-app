@@ -76,6 +76,7 @@ const queryWithTimeout = <T,>(
 export interface NotaOnChainState {
   currency: string;
   currencySymbol: string;
+  currencyDecimals: number;
   escrow: string;
   escrowWei: BigNumber;
   hook: string;
@@ -256,6 +257,7 @@ const buildOnChainStateFromInfo = (
   return {
     currency,
     currencySymbol: symbol,
+    currencyDecimals: decimals,
     escrow: ethers.utils.formatUnits(info.escrowed, decimals),
     escrowWei: info.escrowed,
     hook: String(info.module),

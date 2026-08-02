@@ -26,6 +26,15 @@ export const CONDITION_TYPE_LABELS: Record<ConditionType, string> = {
   GTEQ: "Greater than or equal to",
 };
 
+/** Comparison read as prose, e.g. "at least 2 NFTs from …". */
+export const CONDITION_TYPE_PHRASES: Record<ConditionType, string> = {
+  LT: "fewer than",
+  GT: "more than",
+  EQ: "exactly",
+  LTEQ: "at most",
+  GTEQ: "at least",
+};
+
 /** Maps form shorthand to the trait string emitted by the hook's tokenURI. */
 export const CONDITION_TYPE_TRAIT_LABELS: Record<ConditionType, string> = {
   LT: "Less Than",

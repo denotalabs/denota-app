@@ -1,14 +1,24 @@
 import { ArrowUpIcon, InfoOutlineIcon } from "@chakra-ui/icons";
 import { Box, Flex, HStack, Link, Text, Tooltip } from "@chakra-ui/react";
+import { useMemo } from "react";
 import { BsBook, BsCode } from "react-icons/bs";
 import { blockExplorerContractCodeUrl } from "../../context/config/chains";
+import {
+  AgreementRole,
+  buildAgreementStory,
+} from "../../utils/notaAgreementStory";
+import { TokenMetadata } from "../../utils/notaTokenUri";
 import { notaInfoTheme as t } from "./notaInfoTheme";
 
 interface Props {
   escrow: string | null;
   currencySymbol: string | null;
+  currencyDecimals: number | null;
+  hasPayer: boolean;
   hasInspector: boolean;
   hook: string | null;
+  metadata: TokenMetadata | null;
+  ensNames: Map<string, string | null>;
   explorerTxBase: string;
   moduleDescription: string | null;
   isLoading: boolean;
@@ -34,8 +44,12 @@ function Role({ children }: { children: string }) {
 function EscrowAgreementCard({
   escrow,
   currencySymbol,
+  currencyDecimals,
+  hasPayer,
   hasInspector,
   hook,
+  metadata,
+  ensNames,
   explorerTxBase,
   moduleDescription,
   isLoading,
@@ -44,6 +58,25 @@ function EscrowAgreementCard({
   const symbolLabel = currencySymbol ?? "";
   const amountLabel = isLoading || escrow === null ? "…" : escrow;
   const showEmpty = !isLoading && escrow !== null && isEmpty;
+
+  const knownRoles: Record<AgreementRole, boolean> = {
+    payer: hasPayer,
+    recipient: true,
+    arbitrator: hasInspector,
+  };
+
+  const story = useMemo(
+    () =>
+      buildAgreementStory({
+        hookAddress: hook,
+        metadata,
+        currencySymbol: currencySymbol ?? "",
+        currencyDecimals: currencyDecimals ?? 18,
+        isEmpty: showEmpty,
+        ensNames,
+      }),
+    [hook, metadata, currencySymbol, currencyDecimals, showEmpty, ensNames]
+  );
 
   return (
     <Box
@@ -139,29 +172,34 @@ function EscrowAgreementCard({
       </HStack>
 
       <Text fontSize="md" lineHeight={1.75} color={t.storyText}>
-        {showEmpty ? (
-          <>Funds sent to this payment are held in escrow for </>
-        ) : (
-          <>
-            <Text as="b" fontWeight={500} color={t.textBright}>
-              {amountLabel} {symbolLabel}
-            </Text>{" "}
-            is held in escrow for{" "}
-          </>
-        )}
-        <Role>the recipient</Role>.{" "}
-        {hasInspector ? (
-          <>
-            <Role>The arbitrator</Role> may release funds to{" "}
-            <Role>the recipient</Role> or reverse them to{" "}
-            <Role>the payer</Role> at any time.
-          </>
-        ) : (
-          <>
-            Funds release to <Role>the recipient</Role> under the hook&rsquo;s
-            conditions, with no arbitrator assigned.
-          </>
-        )}
+        {story.map((segment, index) => {
+          if (segment.kind === "amount") {
+            return (
+              <Text
+                as="b"
+                key={index}
+                fontWeight={500}
+                color={t.textBright}
+              >
+                {amountLabel} {symbolLabel}
+              </Text>
+            );
+          }
+          if (segment.kind === "role") {
+            return knownRoles[segment.role] ? (
+              <Role key={index}>{segment.label}</Role>
+            ) : (
+              <Text as="span" key={index}>
+                {segment.label}
+              </Text>
+            );
+          }
+          return (
+            <Text as="span" key={index}>
+              {segment.text}
+            </Text>
+          );
+        })}
       </Text>
 
       {hook && (

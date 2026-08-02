@@ -3,8 +3,19 @@ import { DEFAULT_CHAIN_ID } from "../../context/config/chains";
 import { balanceOfConditionalCashHookAddress } from "../balanceOfConditionalCash";
 import { ActionDef, NotaActionContext } from "./types";
 
+/** Module keys shared with the SDK's `ModuleData.moduleName`. */
+export type HookModuleName =
+  | "directSend"
+  | "simpleCash"
+  | "cashBeforeDate"
+  | "reversibleByBeforeDate"
+  | "cashBeforeDateDrip"
+  | "reversibleRelease"
+  | "balanceOfConditionalCash";
+
 export interface HookRegistryEntry {
   name: string;
+  module: HookModuleName;
   overrides: Partial<Record<string, Partial<ActionDef>>>;
 }
 
@@ -21,26 +32,32 @@ function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
   const registry: Record<string, HookRegistryEntry> = {
     [mapping.directSend.toLowerCase()]: {
       name: "Direct Pay",
+      module: "directSend",
       overrides: {},
     },
     [mapping.simpleCash.toLowerCase()]: {
       name: "Simple Cash",
+      module: "simpleCash",
       overrides: {},
     },
     [mapping.cashBeforeDate.toLowerCase()]: {
       name: "Cash Before Date",
+      module: "cashBeforeDate",
       overrides: {},
     },
     [mapping.reversibleByBeforeDate.toLowerCase()]: {
       name: "Reversible By Before Date",
+      module: "reversibleByBeforeDate",
       overrides: {},
     },
     [mapping.cashBeforeDateDrip.toLowerCase()]: {
       name: "Cash Before Date Drip",
+      module: "cashBeforeDateDrip",
       overrides: {},
     },
     [reversibleRelease]: {
       name: "Reversible Release",
+      module: "reversibleRelease",
       overrides: {
         cash: {
           label: "Release escrow",
@@ -77,6 +94,7 @@ function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
   if (balanceOfConditionalCash) {
     registry[balanceOfConditionalCash] = {
       name: "NFT Balance Condition",
+      module: "balanceOfConditionalCash",
       overrides: {
         cash: {
           label: "Release escrow",
@@ -134,4 +152,8 @@ export const HOOK_REGISTRY = buildHookRegistry(DEFAULT_CHAIN_ID);
 
 export function hookDisplayName(hookAddress: string): string | null {
   return HOOK_REGISTRY[hookAddress.toLowerCase()]?.name ?? null;
+}
+
+export function hookModuleName(hookAddress: string): HookModuleName | null {
+  return HOOK_REGISTRY[hookAddress.toLowerCase()]?.module ?? null;
 }

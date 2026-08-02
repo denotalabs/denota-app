@@ -1,6 +1,7 @@
 import { isAddress } from "ethers/lib/utils";
 
 import { ipfsToHttpUrl } from "./ipfsGateway";
+import { isIpfsCid } from "./metadataUri";
 
 export interface TokenMetadata {
   name?: string;
@@ -116,10 +117,10 @@ export interface TokenUriOnChainFields {
 }
 
 export const getMetadataAttribute = (
-  metadata: TokenMetadata,
+  metadata: TokenMetadata | null | undefined,
   traitType: string
 ): string | null => {
-  const attr = metadata.attributes?.find(
+  const attr = metadata?.attributes?.find(
     (a) => a.trait_type?.toLowerCase() === traitType.toLowerCase()
   );
   if (attr?.value == null) {
@@ -234,7 +235,7 @@ export const resolveMetadataImageUrl = (uri: string): string => {
   if (uri.startsWith("http://") || uri.startsWith("https://")) {
     return uri;
   }
-  if (uri.startsWith("ipfs://") || uri.startsWith("bafy") || uri.startsWith("bafk")) {
+  if (uri.startsWith("ipfs://") || isIpfsCid(uri)) {
     return ipfsToHttpUrl(uri);
   }
   return uri;
