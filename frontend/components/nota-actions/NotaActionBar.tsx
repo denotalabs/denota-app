@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { ROLE_LABELS } from "../../utils/notaActions/rolePreview";
 import { NotaRole, ResolvedAction } from "../../utils/notaActions/types";
-import { notaInfoTheme as t } from "../nota-info/notaInfoTheme";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 
 interface Props {
   actions: ResolvedAction[];
@@ -19,9 +19,6 @@ interface Props {
   isPreviewing: boolean;
   previewRole: NotaRole;
 }
-
-/** The escrow-moving action gets primary emphasis, matching the design. */
-const isPrimaryAction = (action: ResolvedAction) => action.id === "cash";
 
 function NotaActionBar({
   actions,
@@ -54,7 +51,7 @@ function NotaActionBar({
     <Flex gap={2.5} flexWrap="wrap" align="center">
       {primary.map((action) => {
         const Icon = action.icon;
-        const emphasized = isPrimaryAction(action) && !isPreviewing;
+        const emphasized = action.emphasis === "primary" && !isPreviewing;
         return (
           <Button
             key={action.id}

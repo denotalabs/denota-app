@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { blockExplorerAddressUrl } from "../../context/config/chains";
 import AddressDisplay from "../designSystem/AddressDisplay";
-import { notaInfoTheme as t } from "./notaInfoTheme";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 
 export interface Participant {
   name: string;
@@ -132,7 +132,7 @@ function ParticipantRow({
   );
 }
 
-function ParticipantsCard({
+function ParticipantsList({
   participants,
   ensNames,
   shortenAddresses,
@@ -154,4 +154,4 @@ function ParticipantsCard({
   );
 }
 
-export default ParticipantsCard;
+export default ParticipantsList;

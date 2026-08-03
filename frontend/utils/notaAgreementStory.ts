@@ -4,13 +4,15 @@ import { truncateAddress } from "./address";
 import {
   CONDITION_TYPE_PHRASES,
   ConditionType,
+  NFT_COLLECTION_FALLBACK_LABEL,
+  nftCountPhrase,
   traitLabelToConditionType,
 } from "./balanceOfConditionalCash";
+import { formatOnChainDripPeriod } from "./dripPeriod";
+import { HookModuleName, hookModuleName } from "./notaActions/hookRegistry";
+import { TRAIT } from "./notaActions/metadataTraits";
 import {
-  hookModuleName,
-  HookModuleName,
-} from "./notaActions/hookRegistry";
-import {
+  formatMetadataTimestamp,
   getMetadataAttribute,
   getMetadataDateAttribute,
   TokenMetadata,
@@ -40,13 +42,7 @@ function formatDate(date: Date | null): string | null {
   if (!date || date.getTime() === 0) {
     return null;
   }
-  return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return formatMetadataTimestamp(date);
 }
 
 function formatCollection(
@@ -54,7 +50,7 @@ function formatCollection(
   ensNames: Map<string, string | null> | undefined
 ): string {
   if (!address) {
-    return "the required collection";
+    return NFT_COLLECTION_FALLBACK_LABEL;
   }
   return ensNames?.get(address.toLowerCase()) ?? truncateAddress(address);
 }
@@ -74,23 +70,6 @@ function formatTokenAmount(
   }
 }
 
-function nftCountPhrase(threshold: string): string {
-  return threshold === "1" ? "1 NFT" : `${threshold} NFTs`;
-}
-
-/** The hook writes periods as "7 day(s)" / "1 month(s) 2 day(s)". */
-function formatDripPeriod(raw: string): string {
-  const singleUnit = /^1\s+([a-z]+)\(s\)$/i.exec(raw);
-  if (singleUnit) {
-    return singleUnit[1];
-  }
-  return raw.replace(
-    /(\d+)\s+([a-z]+)\(s\)/gi,
-    (_match, count: string, unit: string) =>
-      `${count} ${unit}${count === "1" ? "" : "s"}`
-  );
-}
-
 function conditionsForModule(
   module: HookModuleName,
   input: AgreementStoryInput
@@ -103,7 +82,7 @@ function conditionsForModule(
 
     case "cashBeforeDate": {
       const deadline = formatDate(
-        getMetadataDateAttribute(metadata, "Expiration Date")
+        getMetadataDateAttribute(metadata, TRAIT.expirationDate)
       );
       if (!deadline) {
         return "{recipient} must claim before the expiration date recorded on-chain. Once it passes, only {payer} can recover the escrow.";
@@ -116,7 +95,7 @@ function conditionsForModule(
 
     case "reversibleByBeforeDate": {
       const inspectionEnd = formatDate(
-        getMetadataDateAttribute(metadata, "Inspection End")
+        getMetadataDateAttribute(metadata, TRAIT.inspectionEnd)
       );
       if (!inspectionEnd) {
         return "{arbitrator} may release the escrow to {recipient} or reverse it to {payer} until the inspection period ends. After that, only {recipient} can claim it.";
@@ -126,16 +105,16 @@ function conditionsForModule(
 
     case "cashBeforeDateDrip": {
       const deadline = formatDate(
-        getMetadataDateAttribute(metadata, "Expiration Date")
+        getMetadataDateAttribute(metadata, TRAIT.expirationDate)
       );
       const dripAmount = formatTokenAmount(
-        getMetadataAttribute(metadata, "Drip Amount"),
+        getMetadataAttribute(metadata, TRAIT.dripAmount),
         currencyDecimals
       );
-      const dripPeriod = getMetadataAttribute(metadata, "Drip Period")?.trim();
+      const dripPeriod = getMetadataAttribute(metadata, TRAIT.dripPeriod)?.trim();
       const allowance =
         dripAmount && dripPeriod
-          ? `up to ${dripAmount} ${currencySymbol} every ${formatDripPeriod(dripPeriod)}`
+          ? `up to ${dripAmount} ${currencySymbol} every ${formatOnChainDripPeriod(dripPeriod)}`
           : "a fixed amount once per drip period";
       const untilClause = deadline ? ` until ${deadline}` : "";
       const recovery = deadline
@@ -146,17 +125,17 @@ function conditionsForModule(
 
     case "balanceOfConditionalCash": {
       const collection = formatCollection(
-        getMetadataAttribute(metadata, "NFT Address"),
+        getMetadataAttribute(metadata, TRAIT.nftAddress),
         ensNames
       );
-      const threshold = getMetadataAttribute(metadata, "Threshold Number") ?? "1";
+      const threshold = getMetadataAttribute(metadata, TRAIT.thresholdNumber) ?? "1";
       const conditionType =
         traitLabelToConditionType(
-          getMetadataAttribute(metadata, "Condition Type")
+          getMetadataAttribute(metadata, TRAIT.conditionType)
         ) ?? ("GTEQ" as ConditionType);
       const comparison = CONDITION_TYPE_PHRASES[conditionType];
       const deadline = formatDate(
-        getMetadataDateAttribute(metadata, "Expiration Date")
+        getMetadataDateAttribute(metadata, TRAIT.expirationDate)
       );
       const recovery = deadline
         ? `After ${deadline}, {recipient} loses the right to claim and {payer} can recover the escrow.`

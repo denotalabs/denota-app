@@ -81,7 +81,17 @@ const isUnixTimestamp = (value: string | number): boolean => {
   );
 };
 
-/** Format a metadata attribute value for display (ISO 8601 for dates/timestamps). */
+/** The one timestamp format for nota metadata, shared by every surface. */
+export const formatMetadataTimestamp = (date: Date): string =>
+  date.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+/** Format a metadata attribute value for display. */
 export const formatMetadataAttributeValue = (
   attribute: TokenMetadataAttribute
 ): string => {
@@ -107,7 +117,7 @@ export const formatMetadataAttributeValue = (
   if (Number.isNaN(date.getTime())) {
     return String(value);
   }
-  return date.toISOString();
+  return formatMetadataTimestamp(date);
 };
 
 export interface TokenUriOnChainFields {
@@ -192,19 +202,6 @@ export const metadataWithoutStateAttributes = (
     ...metadata,
     attributes: attributes.length > 0 ? attributes : undefined,
   };
-};
-
-/** Decode a registrar tokenURI into pretty-printed JSON text. */
-export const decodeTokenUri = (uri: string): string => {
-  try {
-    const parsed = parseTokenMetadata(uri);
-    if (parsed) {
-      return JSON.stringify(parsed, null, 2);
-    }
-    return uri;
-  } catch {
-    return uri;
-  }
 };
 
 /** Parse tokenURI data into a metadata object when possible. */

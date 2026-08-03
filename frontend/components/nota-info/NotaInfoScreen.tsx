@@ -5,7 +5,8 @@ import {
   ChevronUpIcon,
   CopyIcon,
   ExternalLinkIcon,
-  TimeIcon
+  TimeIcon,
+  WarningIcon,
 } from "@chakra-ui/icons";
 import {
   Box,
@@ -49,12 +50,17 @@ import {
   resolveMetadataImageUrl,
   TokenMetadataAttribute,
 } from "../../utils/notaTokenUri";
+import {
+  NotaDisplayStatus,
+  notaDisplayStatus,
+  NotaStatusTone,
+} from "../../utils/notaStatus";
 import AddressDisplay from "../designSystem/AddressDisplay";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 import NotaActions from "../nota-actions/NotaActions";
 import EscrowAgreementCard from "./EscrowAgreementCard";
-import { notaInfoTheme as t } from "./notaInfoTheme";
 import NotaInteractionLog from "./NotaInteractionLog";
-import ParticipantsCard, { Participant } from "./ParticipantsCard";
+import ParticipantsList, { Participant } from "./ParticipantsList";
 
 interface Props {
   notaId: string;
@@ -82,6 +88,43 @@ function SectionHeading({ children }: { children: ReactNode }) {
     >
       {children}
     </Heading>
+  );
+}
+
+const STATUS_TONE_STYLES: Record<
+  NotaStatusTone,
+  { icon: typeof TimeIcon; color: string; bg: string }
+> = {
+  pending: { icon: TimeIcon, color: t.primaryLight, bg: t.primaryDim },
+  settled: {
+    icon: CheckCircleIcon,
+    color: "green.200",
+    bg: "rgba(72,187,120,0.14)",
+  },
+  expired: {
+    icon: WarningIcon,
+    color: "orange.200",
+    bg: "rgba(237,137,54,0.14)",
+  },
+};
+
+function StatusTag({ status }: { status: NotaDisplayStatus }) {
+  const { icon: Icon, color, bg } = STATUS_TONE_STYLES[status.tone];
+
+  return (
+    <Tag
+      fontSize="11.5px"
+      px="11px"
+      py={1}
+      borderRadius="full"
+      bg={bg}
+      color={color}
+      border="0.5px solid"
+      borderColor={t.line}
+    >
+      <Icon boxSize={3} mr={1} />
+      {status.label}
+    </Tag>
   );
 }
 
@@ -241,7 +284,6 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
     owner,
     ownerLoading,
     approved,
-    approvedLoading,
     onChainState,
     onChainStateLoading,
     metadata,
@@ -291,6 +333,13 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
   const hasApproved = !!approved && approved !== ZERO_ADDRESS;
   const escrowHeld =
     !!onChainState && !onChainState.escrowWei.isZero();
+  const status = notaDisplayStatus({
+    hookAddress: onChainState?.hook ?? null,
+    metadata,
+    escrowHeld,
+    interactions,
+    hasInteractionHistory: interactionsSource === "subgraph",
+  });
 
   const participants: Participant[] = [
     ...(payerFromMetadata
@@ -384,23 +433,7 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
               Payment #{notaId}
             </Heading>
             {onChainState && !onChainStateLoading && (
-              <Tag
-                fontSize="11.5px"
-                px="11px"
-                py={1}
-                borderRadius="full"
-                bg={t.primaryDim}
-                color={t.primaryLight}
-                border="0.5px solid"
-                borderColor={t.line}
-              >
-                {escrowHeld ? (
-                  <TimeIcon boxSize={3} mr={1} />
-                ) : (
-                  <CheckCircleIcon boxSize={3} mr={1} />
-                )}
-                {escrowHeld ? "Awaiting release" : "Not funded"}
-              </Tag>
+              <StatusTag status={status} />
             )}
           </Flex>
           <Text mt="7px" fontSize="13.5px" color={t.muted}>
@@ -439,7 +472,7 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
           metadata={metadata}
           ensNames={ensNames}
           explorerTxBase={explorerTxBase}
-          moduleDescription={metadata?.description ?? null}
+          metadataDescription={metadata?.description ?? null}
           isLoading={onChainStateLoading}
           isEmpty={!escrowHeld}
         />
@@ -451,7 +484,7 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
 
       <SectionHeading>Participants</SectionHeading>
       <Box mb={6}>
-        <ParticipantsCard
+        <ParticipantsList
           participants={participants}
           ensNames={ensNames}
           shortenAddresses={shortenAddresses}

@@ -109,6 +109,48 @@ export function formatDripPeriodFormDisplay(
   return `Every ${amountNum} ${amountNum === 1 ? singular : plural}`;
 }
 
+/** Units in the `"1 month(s) 2 day(s)"` strings the drip hook's tokenURI emits. */
+const ON_CHAIN_UNIT_SECONDS: Record<string, number> = {
+  year: 31536000,
+  month: 2592000,
+  week: 604800,
+  day: 86400,
+  hour: 3600,
+  minute: 60,
+  second: 1,
+};
+
+const ON_CHAIN_PERIOD_PATTERN = /(\d+)\s+([a-z]+)\(s\)/gi;
+
+/** Length of an on-chain drip period in seconds, or 0 when unreadable. */
+export function onChainDripPeriodSeconds(
+  raw: string | null | undefined
+): number {
+  if (!raw?.trim()) {
+    return 0;
+  }
+  let seconds = 0;
+  for (const [, count, unit] of raw.matchAll(ON_CHAIN_PERIOD_PATTERN)) {
+    seconds += Number(count) * (ON_CHAIN_UNIT_SECONDS[unit.toLowerCase()] ?? 0);
+  }
+  return seconds;
+}
+
+/** `"7 day(s)"` → `"7 days"`; `"1 day(s)"` → `"day"`, to read as "every day". */
+export function formatOnChainDripPeriod(raw: string): string {
+  const singleUnit = /^1\s+([a-z]+)\(s\)$/i.exec(raw.trim());
+  if (singleUnit) {
+    return singleUnit[1];
+  }
+  return raw
+    .trim()
+    .replace(
+      /(\d+)\s+([a-z]+)\(s\)/gi,
+      (_match, count: string, unit: string) =>
+        `${count} ${unit}${count === "1" ? "" : "s"}`
+    );
+}
+
 export function dripFieldsFromNotaForm(notaFormValues: Partial<DripPeriodFormValues>) {
   return {
     dripPeriodPreset:

@@ -1,6 +1,6 @@
 import { ViewIcon } from "@chakra-ui/icons";
 import { Flex, HStack, Select, Text } from "@chakra-ui/react";
-import { notaInfoTheme as t } from "../nota-info/notaInfoTheme";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 import {
   previewableRoles,
   ROLE_LABELS,

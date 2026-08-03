@@ -1,6 +1,6 @@
 import { Box, Heading, useToast, VStack } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { notaInfoTheme as t } from "../nota-info/notaInfoTheme";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 import { lookupEnsAddress } from "../../utils/ensClient";
 import { isEnsName } from "../../utils/ensAddress";
 import { useCashNotaAction } from "../../hooks/useCashNotaAction";

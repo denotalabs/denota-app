@@ -50,6 +50,8 @@ export interface ActionDef {
   label: string;
   icon: IconType;
   risk: ActionRisk;
+  /** Rendered as the filled call-to-action; at most one per nota. */
+  emphasis?: "primary";
   roles: NotaRole[];
   note?: string;
   fields: ActionField[];

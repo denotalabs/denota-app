@@ -8,7 +8,7 @@ import {
   buildAgreementStory,
 } from "../../utils/notaAgreementStory";
 import { TokenMetadata } from "../../utils/notaTokenUri";
-import { notaInfoTheme as t } from "./notaInfoTheme";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 
 interface Props {
   escrow: string | null;
@@ -20,7 +20,7 @@ interface Props {
   metadata: TokenMetadata | null;
   ensNames: Map<string, string | null>;
   explorerTxBase: string;
-  moduleDescription: string | null;
+  metadataDescription: string | null;
   isLoading: boolean;
   /** True when the escrow balance is zero (nothing funded yet). */
   isEmpty: boolean;
@@ -51,7 +51,7 @@ function EscrowAgreementCard({
   metadata,
   ensNames,
   explorerTxBase,
-  moduleDescription,
+  metadataDescription,
   isLoading,
   isEmpty,
 }: Props) {
@@ -135,11 +135,6 @@ function EscrowAgreementCard({
             </Text>
           </Box>
         )}
-        {/* <Text fontSize="12.5px" color={t.muted2} textAlign="right">
-          by the Denota protocol
-          <br />
-          until released or reversed
-        </Text> */}
       </Flex>
 
       <HStack
@@ -152,9 +147,9 @@ function EscrowAgreementCard({
       >
         <BsBook size={13} aria-hidden />
         <Text as="span">The agreement</Text>
-        {moduleDescription && (
+        {metadataDescription && (
           <Tooltip
-            label={moduleDescription}
+            label={metadataDescription}
             placement="top"
             shouldWrapChildren
             textTransform="none"

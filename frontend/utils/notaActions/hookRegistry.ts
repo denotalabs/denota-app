@@ -1,7 +1,7 @@
 import { contractMappingForChainId } from "@denota-labs/denota-sdk";
 import { DEFAULT_CHAIN_ID } from "../../context/config/chains";
 import { balanceOfConditionalCashHookAddress } from "../balanceOfConditionalCash";
-import { ActionDef, NotaActionContext } from "./types";
+import { ActionDef, ActionId, NotaActionContext } from "./types";
 
 /** Module keys shared with the SDK's `ModuleData.moduleName`. */
 export type HookModuleName =
@@ -16,7 +16,7 @@ export type HookModuleName =
 export interface HookRegistryEntry {
   name: string;
   module: HookModuleName;
-  overrides: Partial<Record<string, Partial<ActionDef>>>;
+  overrides: Partial<Record<ActionId, Partial<ActionDef>>>;
 }
 
 function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
@@ -53,7 +53,27 @@ function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
     [mapping.cashBeforeDateDrip.toLowerCase()]: {
       name: "Cash Before Date Drip",
       module: "cashBeforeDateDrip",
-      overrides: {},
+      overrides: {
+        cash: {
+          label: "Claim drip",
+          roles: ["owner", "approved"],
+          branch: true,
+          // The claim amount and destination are fixed by the hook, so this is
+          // a single confirm rather than a form.
+          branches: [
+            {
+              key: "owner",
+              label: "Claim this period's drip",
+              to: (ctx: NotaActionContext) => ctx.owner,
+              tone: "go",
+            },
+          ],
+          note: "Claims one drip period's amount to the owner. The next claim unlocks when the period rolls over.",
+          fields: [],
+          isAvailable: (ctx) =>
+            !ctx.escrowWei.isZero() && ctx.moduleData.status === "claimable",
+        },
+      },
     },
     [reversibleRelease]: {
       name: "Reversible Release",
@@ -148,12 +168,40 @@ function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
   return registry;
 }
 
-export const HOOK_REGISTRY = buildHookRegistry(DEFAULT_CHAIN_ID);
+const registryByChainId = new Map<number, Record<string, HookRegistryEntry>>();
 
-export function hookDisplayName(hookAddress: string): string | null {
-  return HOOK_REGISTRY[hookAddress.toLowerCase()]?.name ?? null;
+/** Registry for a chain; built once per chain since the addresses are static. */
+function hookRegistryForChain(
+  chainId: number
+): Record<string, HookRegistryEntry> {
+  const cached = registryByChainId.get(chainId);
+  if (cached) {
+    return cached;
+  }
+  const registry = buildHookRegistry(chainId);
+  registryByChainId.set(chainId, registry);
+  return registry;
 }
 
-export function hookModuleName(hookAddress: string): HookModuleName | null {
-  return HOOK_REGISTRY[hookAddress.toLowerCase()]?.module ?? null;
+export function hookRegistryEntry(
+  hookAddress: string,
+  chainId: number = DEFAULT_CHAIN_ID
+): HookRegistryEntry | null {
+  return (
+    hookRegistryForChain(chainId)[(hookAddress || "").toLowerCase()] ?? null
+  );
+}
+
+export function hookDisplayName(
+  hookAddress: string,
+  chainId?: number
+): string | null {
+  return hookRegistryEntry(hookAddress, chainId)?.name ?? null;
+}
+
+export function hookModuleName(
+  hookAddress: string,
+  chainId?: number
+): HookModuleName | null {
+  return hookRegistryEntry(hookAddress, chainId)?.module ?? null;
 }

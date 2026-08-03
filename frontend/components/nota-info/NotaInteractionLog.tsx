@@ -19,7 +19,7 @@ import { useBlockchainData } from "../../context/BlockchainDataProvider";
 import { useEnsNames } from "../../hooks/useEnsNames";
 import { NotaInteraction } from "../../utils/notaInteractions";
 import AddressDisplay from "../designSystem/AddressDisplay";
-import { notaInfoTheme as t } from "./notaInfoTheme";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 
 interface Props {
   interactions: NotaInteraction[];

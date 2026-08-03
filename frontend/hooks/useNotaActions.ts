@@ -2,7 +2,6 @@ import { ModuleData } from "@denota-labs/denota-sdk";
 import { useMemo } from "react";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { deriveNotaRole } from "../utils/notaActions/deriveRole";
-import { hookDisplayName } from "../utils/notaActions/hookRegistry";
 import {
   extractInspectorFromMetadata,
   extractPayerFromMetadata,
@@ -124,17 +123,11 @@ export function useNotaActions(
   const canExecute = !!account && effectiveRole === walletRole;
   const isPreviewing = effectiveRole !== walletRole;
 
-  const hookName = useMemo(
-    () => (context ? hookDisplayName(context.hook) : null),
-    [context]
-  );
-
   return {
     context: displayContext,
     walletRole,
     previewRole: effectiveRole,
     actions,
-    hookName,
     isLoading,
     isWalletConnected: !!account,
     canExecute,
