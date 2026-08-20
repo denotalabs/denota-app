@@ -28,10 +28,16 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Denota App</title>
+        <title>Denota</title>
         <meta
           name="description"
-          content="Putting trust back into crypto payments."
+          content="Denota holds the money first, then releases it when your conditions are met."
+          key="description"
+        />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1"
+          key="viewport"
         />
       </Head>
       <GoogleAnalytics measurementId="G-RX5F5Q2B8D" />

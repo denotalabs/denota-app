@@ -36,6 +36,7 @@ const LinkItems: Array<LinkItemProps> = [
 ];
 
 export default function Navbar({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const bg = useColorModeValue("white", "gray.900");
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -77,7 +78,18 @@ export default function Navbar({ children }: { children: ReactNode }) {
             justify={{ base: "center", md: "flex-start" }}
             mx={{ base: 2, md: 0 }}
           >
-            <HStack spacing={2} align="center">
+            <HStack
+              as="button"
+              type="button"
+              spacing={2}
+              align="center"
+              cursor="pointer"
+              bg="transparent"
+              border="none"
+              p={0}
+              onClick={() => router.push("/")}
+              aria-label="Denota home"
+            >
               <Image
                 src="/logos/DenotaGoata.svg"
                 alt="denota goat"
