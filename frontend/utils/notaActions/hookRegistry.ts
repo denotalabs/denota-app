@@ -81,7 +81,7 @@ function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
       overrides: {
         cash: {
           label: "Release escrow",
-          roles: ["inspector"],
+          roles: ["owner", "approved", "inspector", "payer", "stranger"],
           branch: true,
           branches: [
             {
@@ -99,13 +99,10 @@ function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
           ],
           note: "As inspector, release the full escrow to the owner or refund it to the payer.",
           fields: [],
-          isAvailable: (ctx) => {
-            const status = ctx.moduleData.status;
-            return (
-              !ctx.escrowWei.isZero() &&
-              (status === "releasable" || status === "returnable")
-            );
-          },
+          isAvailable: (ctx) =>
+            !ctx.escrowWei.isZero() &&
+            !!ctx.inspector &&
+            ctx.viewer === ctx.inspector,
         },
       },
     },
@@ -152,7 +149,7 @@ function buildHookRegistry(chainId: number): Record<string, HookRegistryEntry> {
             }
             const expirationDate =
               "expirationDate" in ctx.moduleData &&
-              ctx.moduleData.expirationDate instanceof Date
+                ctx.moduleData.expirationDate instanceof Date
                 ? ctx.moduleData.expirationDate
                 : null;
             const notExpired =

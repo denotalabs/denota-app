@@ -85,6 +85,7 @@ export function useNotaActions(
       hook: data.onChainState.hook,
       moduleData,
       inspector,
+      viewer: (account || "").toLowerCase(),
     };
   }, [account, chainIdNumber, data, notaId]);
 

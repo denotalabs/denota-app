@@ -43,6 +43,8 @@ export interface NotaActionContext {
   hook: string;
   moduleData: ModuleData;
   inspector: string | null;
+  /** Address of the connected wallet, or of the role being previewed. */
+  viewer: string;
 }
 
 export interface ActionDef {
