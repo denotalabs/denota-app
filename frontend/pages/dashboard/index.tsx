@@ -1,11 +1,11 @@
-import { Center } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import HomeScreen from "../../components/dashboard/HomeScreen";
 
 function DashboardPage() {
   return (
-    <Center w="100%" flex="1">
+    <Flex w="100%" flex="1" justifyContent="center" alignItems="flex-start">
       <HomeScreen />
-    </Center>
+    </Flex>
   );
 }
 

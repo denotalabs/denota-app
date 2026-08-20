@@ -1,13 +1,8 @@
-import { ChevronDownIcon, TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import {
   Box,
-  Button,
   Center,
   Link,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Spinner,
   Table,
   Tbody,
@@ -27,13 +22,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import AddressDisplay from "../../../components/designSystem/AddressDisplay";
 import { useEnsNames } from "../../../hooks/useEnsNames";
-import {
-  NotaRow,
-  POLYGON_REGISTRAR_ADDRESS,
-} from "../../../hooks/usePublicNotas";
+import { NotaRow } from "../../../hooks/usePublicNotas";
+import { hookDisplayName } from "../../../utils/notaActions/hookRegistry";
 
 export type DataTableProps<Data extends object> = {
   data: Data[];
@@ -112,15 +106,13 @@ export function DataTable<Data extends object>({
   );
 }
 
-const openSeaUrlFor = (notaId: string): string =>
-  `https://opensea.io/assets/matic/${POLYGON_REGISTRAR_ADDRESS}/${notaId}`;
-
 interface NotaTableProps {
   /** undefined => loading state, [] => empty state. */
   rows?: NotaRow[];
 }
 
 export function NotaTable({ rows }: NotaTableProps) {
+  const router = useRouter();
   const ensAddresses = useMemo(
     () => rows?.flatMap((row) => [row.owner, row.hook]) ?? [],
     [rows]
@@ -145,7 +137,7 @@ export function NotaTable({ rows }: NotaTableProps) {
 
   return (
     <Box w="100%" overflowX="auto">
-      <Table size="sm">
+      <Table size={{ base: "sm", md: "md" }}>
         <Thead>
           <Tr>
             <Th>ID</Th>
@@ -153,54 +145,53 @@ export function NotaTable({ rows }: NotaTableProps) {
             <Th>Currency</Th>
             <Th isNumeric>Escrow</Th>
             <Th>Payment Terms</Th>
-            <Th />
           </Tr>
         </Thead>
         <Tbody>
-          {rows.map((row) => (
-            <Tr key={row.notaId}>
-              <Td>{row.notaId}</Td>
-              <Td>
-                <AddressDisplay
-                  address={row.owner}
-                  ensNames={ensNames}
-                  fontSize="sm"
-                />
-              </Td>
-              <Td>{row.currency}</Td>
-              <Td isNumeric>{row.escrow}</Td>
-              <Td>
-                <AddressDisplay
-                  address={row.hook}
-                  ensNames={ensNames}
-                  fontSize="sm"
-                />
-              </Td>
-              <Td>
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    size="sm"
-                    rightIcon={<ChevronDownIcon />}
+          {rows.map((row) => {
+            const hookName = hookDisplayName(row.hook);
+            return (
+              <Tr
+                key={row.notaId}
+                onClick={() => router.push(`/nota/${row.notaId}`)}
+                cursor="pointer"
+                _hover={{ bg: "whiteAlpha.100" }}
+              >
+                <Td>
+                  {/* The real link: keyboard focus, and open-in-new-tab still
+                      work even though the whole row is clickable. */}
+                  <Link
+                    as={NextLink}
+                    href={`/nota/${row.notaId}`}
+                    onClick={(event) => event.stopPropagation()}
+                    aria-label={`Open nota ${row.notaId}`}
+                    color="inherit"
+                    _hover={{ textDecoration: "underline" }}
                   >
-                    See more
-                  </MenuButton>
-                  <MenuList>
-                    <MenuItem as={NextLink} href={`/nota/${row.notaId}`}>
-                      Open info
-                    </MenuItem>
-                    <MenuItem
-                      as={Link}
-                      href={openSeaUrlFor(row.notaId)}
-                      isExternal
-                    >
-                      View on OpenSea
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </Td>
-            </Tr>
-          ))}
+                    {row.notaId}
+                  </Link>
+                </Td>
+                <Td>
+                  <AddressDisplay
+                    address={row.owner}
+                    ensNames={ensNames}
+                    fontSize="sm"
+                  />
+                </Td>
+                <Td>{row.currency}</Td>
+                <Td isNumeric>{row.escrow}</Td>
+                <Td>
+                  {hookName ?? (
+                    <AddressDisplay
+                      address={row.hook}
+                      ensNames={ensNames}
+                      fontSize="sm"
+                    />
+                  )}
+                </Td>
+              </Tr>
+            );
+          })}
         </Tbody>
       </Table>
     </Box>
