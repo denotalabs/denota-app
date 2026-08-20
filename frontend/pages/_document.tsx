@@ -4,7 +4,7 @@ import customTheme from "../theme";
 
 export default function Document() {
   return (
-    <Html>
+    <Html lang="en">
       <Head />
       <body>
         <ColorModeScript
