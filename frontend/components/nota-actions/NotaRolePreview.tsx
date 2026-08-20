@@ -1,14 +1,6 @@
-import { ChevronDownIcon } from "@chakra-ui/icons";
-import {
-  Button,
-  HStack,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Tag,
-  Text,
-} from "@chakra-ui/react";
+import { ViewIcon } from "@chakra-ui/icons";
+import { Flex, HStack, Select, Text } from "@chakra-ui/react";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 import {
   previewableRoles,
   ROLE_LABELS,
@@ -20,74 +12,71 @@ interface Props {
   previewRole: NotaRole;
   walletRole: NotaRole;
   isWalletConnected: boolean;
-  hookName: string | null;
   onPreviewRoleChange: (role: NotaRole) => void;
-  onResetToWalletRole: () => void;
 }
+
+const ROLE_NOTES: Record<NotaRole, string> = {
+  owner: "You receive funds if released",
+  approved: "You can act on the owner's behalf",
+  inspector: "You decide the outcome",
+  payer: "You funded this escrow",
+  stranger: "No role on this payment",
+};
 
 function NotaRolePreview({
   context,
   previewRole,
   walletRole,
   isWalletConnected,
-  hookName,
   onPreviewRoleChange,
-  onResetToWalletRole,
 }: Props) {
   const roles = previewableRoles(context);
   const isPreviewing = previewRole !== walletRole;
 
   return (
-    <HStack spacing={2} flexWrap="wrap" align="center">
-      <Menu>
-        <MenuButton
-          as={Button}
-          size="sm"
-          rightIcon={<ChevronDownIcon />}
-          bg="brand.400"
-          borderWidth="1px"
-          borderColor="brand.500"
-          _hover={{ borderColor: "brand.200", bg: "brand.500" }}
-          fontWeight="normal"
-        >
-          <Text as="span" color="gray.400" mr={1}>
-            View as
-          </Text>
-          {ROLE_LABELS[previewRole]}
-        </MenuButton>
-        <MenuList bg="brand.400" borderColor="brand.500" minW="12rem">
-          {roles.map((role) => {
-            const isYou = isWalletConnected && role === walletRole;
-            return (
-              <MenuItem
-                key={role}
-                onClick={() => onPreviewRoleChange(role)}
-                bg={role === previewRole ? "brand.500" : undefined}
-                _hover={{ bg: "brand.500" }}
-              >
-                {ROLE_LABELS[role]}
-                {isYou ? " (you)" : ""}
-              </MenuItem>
-            );
-          })}
-        </MenuList>
-      </Menu>
-
-      {isPreviewing ? (
-        <>
-          <Tag size="sm" colorScheme="orange">
-            Preview only — connect as {ROLE_LABELS[previewRole].toLowerCase()}{" "}
-            to execute
-          </Tag>
-        </>
-      ) : (
-        isWalletConnected && (
-          <Tag size="sm" colorScheme="blue">
-            Your role: {ROLE_LABELS[walletRole]}
-          </Tag>
-        )
-      )}
-    </HStack>
+    <Flex
+      align="center"
+      gap={2.5}
+      fontSize="13px"
+      color={t.muted}
+      flexWrap="wrap"
+      pb={3.5}
+      mb={3.5}
+      borderBottom="0.5px solid"
+      borderColor={t.line}
+    >
+      <HStack spacing={2} flexShrink={0}>
+        <ViewIcon color={t.primaryLight} boxSize={4} />
+        <Text as="span">Viewing as</Text>
+      </HStack>
+      <Select
+        value={previewRole}
+        onChange={(e) => onPreviewRoleChange(e.target.value as NotaRole)}
+        size="sm"
+        width="auto"
+        minW="118px"
+        bg={t.pageBg}
+        color={t.text}
+        borderColor={t.line}
+        borderRadius="8px"
+        _hover={{ borderColor: t.primary }}
+        _focus={{ borderColor: t.primary }}
+      >
+        {roles.map((role) => (
+          <option key={role} value={role}>
+            {ROLE_LABELS[role]}
+            {isWalletConnected && role === walletRole ? " (you)" : ""}
+          </option>
+        ))}
+      </Select>
+      <Text ml="auto" fontSize="xs" color={isPreviewing ? "orange.300" : t.muted2}>
+        {isPreviewing
+          ? `Preview only — connect as ${ROLE_LABELS[
+              previewRole
+            ].toLowerCase()} to execute`
+          : ROLE_NOTES[previewRole]}
+      </Text>
+    </Flex>
   );
 }
 

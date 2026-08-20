@@ -55,6 +55,7 @@ export const ACTION_DEFS: Record<string, ActionDef> = {
     label: "Cash",
     icon: MdMonetizationOn,
     risk: "normal",
+    emphasis: "primary",
     roles: ["owner", "approved", "inspector"],
     note: "Withdraw escrow to a destination address.",
     fields: [

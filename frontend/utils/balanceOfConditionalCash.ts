@@ -26,6 +26,23 @@ export const CONDITION_TYPE_LABELS: Record<ConditionType, string> = {
   GTEQ: "Greater than or equal to",
 };
 
+/** Comparison read as prose, e.g. "at least 2 NFTs from …". */
+export const CONDITION_TYPE_PHRASES: Record<ConditionType, string> = {
+  LT: "fewer than",
+  GT: "more than",
+  EQ: "exactly",
+  LTEQ: "at most",
+  GTEQ: "at least",
+};
+
+/** Stand-in used when the collection address is missing or unreadable. */
+export const NFT_COLLECTION_FALLBACK_LABEL = "the specified collection";
+
+/** e.g. "1 NFT" / "2 NFTs", for reading a threshold as prose. */
+export function nftCountPhrase(threshold: string): string {
+  return threshold === "1" ? "1 NFT" : `${threshold} NFTs`;
+}
+
 /** Maps form shorthand to the trait string emitted by the hook's tokenURI. */
 export const CONDITION_TYPE_TRAIT_LABELS: Record<ConditionType, string> = {
   LT: "Less Than",
@@ -109,8 +126,5 @@ export function isBalanceOfConditionalCashHook(
   chainId?: number
 ): boolean {
   const configured = balanceOfConditionalCashHookAddress(chainId);
-  return (
-    !!configured &&
-    configured.toLowerCase() === hookAddress.trim().toLowerCase()
-  );
+  return configured.toLowerCase() === hookAddress.trim().toLowerCase();
 }

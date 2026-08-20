@@ -43,6 +43,8 @@ export interface NotaActionContext {
   hook: string;
   moduleData: ModuleData;
   inspector: string | null;
+  /** Address of the connected wallet, or of the role being previewed. */
+  viewer: string;
 }
 
 export interface ActionDef {
@@ -50,6 +52,8 @@ export interface ActionDef {
   label: string;
   icon: IconType;
   risk: ActionRisk;
+  /** Rendered as the filled call-to-action; at most one per nota. */
+  emphasis?: "primary";
   roles: NotaRole[];
   note?: string;
   fields: ActionField[];

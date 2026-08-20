@@ -53,7 +53,8 @@ export default function Navbar({ children }: { children: ReactNode }) {
       >
         <Flex
           as="nav"
-          h={{ base: 13, md: 16 }}
+          minH={{ base: "52px", md: "64px" }}
+          h={{ base: "52px", md: "64px" }}
           px={{ base: 3, md: 6 }}
           align="center"
           justify="space-between"
@@ -61,10 +62,12 @@ export default function Navbar({ children }: { children: ReactNode }) {
           <IconButton
             display={{ base: "flex", md: "none" }}
             variant="outline"
+            size="sm"
             onClick={isOpen ? onClose : onOpen}
             aria-label="open menu"
             icon={<FiMenu />}
             flexShrink={0}
+            alignSelf="center"
           />
 
           <HStack
@@ -107,7 +110,7 @@ export default function Navbar({ children }: { children: ReactNode }) {
             </HStack>
           </HStack>
 
-          <HStack spacing={{ base: 2, md: 4 }} flexShrink={0}>
+          <HStack spacing={{ base: 2, md: 4 }} flexShrink={0} align="center">
             <HStack display={{ base: "none", lg: "flex" }}>
               <SocialIcons />
             </HStack>

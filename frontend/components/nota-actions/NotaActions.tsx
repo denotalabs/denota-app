@@ -1,5 +1,6 @@
-import { useToast, VStack } from "@chakra-ui/react";
+import { Box, Heading, useToast, VStack } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 import { lookupEnsAddress } from "../../utils/ensClient";
 import { isEnsName } from "../../utils/ensAddress";
 import { useCashNotaAction } from "../../hooks/useCashNotaAction";
@@ -31,7 +32,6 @@ function NotaActions({ notaId, data, onRefresh }: Props) {
     context,
     walletRole,
     actions,
-    hookName,
     isLoading,
     isWalletConnected,
     canExecute,
@@ -121,23 +121,32 @@ function NotaActions({ notaId, data, onRefresh }: Props) {
   }
 
   return (
-    <VStack align="stretch" spacing={3}>
-      <NotaRolePreview
-        context={context}
-        previewRole={previewRole}
-        walletRole={walletRole}
-        isWalletConnected={isWalletConnected}
-        hookName={hookName}
-        onPreviewRoleChange={setPreviewRole}
-        onResetToWalletRole={() => setPreviewRole(walletRole)}
-      />
-      <NotaActionBar
-        actions={actions}
-        onPick={setActiveAction}
-        isWalletConnected={isWalletConnected}
-        isPreviewing={isPreviewing}
-        previewRole={previewRole}
-      />
+    <VStack align="stretch" spacing={0}>
+      <Heading
+        as="h3"
+        fontSize="sm"
+        fontWeight={500}
+        color={t.textBright}
+        mb="11px"
+      >
+        Your actions
+      </Heading>
+      <Box>
+        <NotaRolePreview
+          context={context}
+          previewRole={previewRole}
+          walletRole={walletRole}
+          isWalletConnected={isWalletConnected}
+          onPreviewRoleChange={setPreviewRole}
+        />
+        <NotaActionBar
+          actions={actions}
+          onPick={setActiveAction}
+          isWalletConnected={isWalletConnected}
+          isPreviewing={isPreviewing}
+          previewRole={previewRole}
+        />
+      </Box>
       {activeAction && (
         <NotaActionPanel
           action={activeAction}

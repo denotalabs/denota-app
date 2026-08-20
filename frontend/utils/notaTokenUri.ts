@@ -1,6 +1,7 @@
 import { isAddress } from "ethers/lib/utils";
 
 import { ipfsToHttpUrl } from "./ipfsGateway";
+import { isIpfsCid } from "./metadataUri";
 
 export interface TokenMetadata {
   name?: string;
@@ -80,7 +81,17 @@ const isUnixTimestamp = (value: string | number): boolean => {
   );
 };
 
-/** Format a metadata attribute value for display (ISO 8601 for dates/timestamps). */
+/** The one timestamp format for nota metadata, shared by every surface. */
+export const formatMetadataTimestamp = (date: Date): string =>
+  date.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+/** Format a metadata attribute value for display. */
 export const formatMetadataAttributeValue = (
   attribute: TokenMetadataAttribute
 ): string => {
@@ -106,7 +117,7 @@ export const formatMetadataAttributeValue = (
   if (Number.isNaN(date.getTime())) {
     return String(value);
   }
-  return date.toISOString();
+  return formatMetadataTimestamp(date);
 };
 
 export interface TokenUriOnChainFields {
@@ -116,10 +127,10 @@ export interface TokenUriOnChainFields {
 }
 
 export const getMetadataAttribute = (
-  metadata: TokenMetadata,
+  metadata: TokenMetadata | null | undefined,
   traitType: string
 ): string | null => {
-  const attr = metadata.attributes?.find(
+  const attr = metadata?.attributes?.find(
     (a) => a.trait_type?.toLowerCase() === traitType.toLowerCase()
   );
   if (attr?.value == null) {
@@ -193,19 +204,6 @@ export const metadataWithoutStateAttributes = (
   };
 };
 
-/** Decode a registrar tokenURI into pretty-printed JSON text. */
-export const decodeTokenUri = (uri: string): string => {
-  try {
-    const parsed = parseTokenMetadata(uri);
-    if (parsed) {
-      return JSON.stringify(parsed, null, 2);
-    }
-    return uri;
-  } catch {
-    return uri;
-  }
-};
-
 /** Parse tokenURI data into a metadata object when possible. */
 export const parseTokenMetadata = (uri: string): TokenMetadata | null => {
   try {
@@ -234,7 +232,7 @@ export const resolveMetadataImageUrl = (uri: string): string => {
   if (uri.startsWith("http://") || uri.startsWith("https://")) {
     return uri;
   }
-  if (uri.startsWith("ipfs://") || uri.startsWith("bafy") || uri.startsWith("bafk")) {
+  if (uri.startsWith("ipfs://") || isIpfsCid(uri)) {
     return ipfsToHttpUrl(uri);
   }
   return uri;

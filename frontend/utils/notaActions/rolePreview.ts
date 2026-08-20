@@ -81,5 +81,5 @@ export function buildContextForRole(
       account,
     }) ?? UNKNOWN_MODULE_DATA;
 
-  return { ...base, moduleData };
+  return { ...base, moduleData, viewer: account.toLowerCase() };
 }

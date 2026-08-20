@@ -1,5 +1,5 @@
 import { ACTION_DEFS } from "./actionDefs";
-import { HOOK_REGISTRY } from "./hookRegistry";
+import { hookRegistryEntry } from "./hookRegistry";
 import { ActionId, NotaActionContext, NotaRole, ResolvedAction } from "./types";
 
 const PHASE_ONE_ACTIONS: ActionId[] = ["transfer", "fund", "cash"];
@@ -16,7 +16,7 @@ export function resolveActions(
   role: NotaRole,
   ctx: NotaActionContext
 ): ResolvedAction[] {
-  const reg = HOOK_REGISTRY[(ctx.hook || "").toLowerCase()];
+  const reg = hookRegistryEntry(ctx.hook);
 
   return ACTION_ORDER.map((id) => {
     const base = ACTION_DEFS[id];
