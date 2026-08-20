@@ -7,8 +7,8 @@ import {
   extractPayerFromMetadata,
 } from "../utils/notaActions/metadataRoles";
 import { buildModuleDataFromTokenUri } from "../utils/notaActions/moduleDataFromTokenUri";
-import { buildContextForRole } from "../utils/notaActions/rolePreview";
 import { resolveActions } from "../utils/notaActions/resolveActions";
+import { buildContextForRole } from "../utils/notaActions/rolePreview";
 import { NotaActionContext, NotaRole } from "../utils/notaActions/types";
 import { NotaInfoData } from "./useNotaInfo";
 
@@ -67,8 +67,8 @@ export function useNotaActions(
     const inspector =
       extractInspectorFromMetadata(data.metadata) ??
       ("inspector" in moduleData &&
-      typeof moduleData.inspector === "string" &&
-      moduleData.inspector
+        typeof moduleData.inspector === "string" &&
+        moduleData.inspector
         ? moduleData.inspector.toLowerCase()
         : null);
 
@@ -106,14 +106,11 @@ export function useNotaActions(
     if (!context) {
       return null;
     }
-    if (!previewRole || previewRole === walletRole) {
-      return context;
-    }
-    return buildContextForRole(context, previewRole, {
+    return buildContextForRole(context, effectiveRole, {
       metadata: data.metadata,
       chainIdNumber,
     });
-  }, [chainIdNumber, context, data.metadata, previewRole, walletRole]);
+  }, [chainIdNumber, context, data.metadata, effectiveRole]);
 
   const actions = useMemo(
     () =>
