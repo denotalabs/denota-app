@@ -11,7 +11,7 @@ import PublicNotas from "./PublicNotas";
 
 function HomeScreen() {
   return (
-    <Center alignItems={"flex-start"} width="100%" maxWidth="80rem">
+    <Center alignItems={"flex-start"} width="100%" maxWidth="100rem">
       <HomeScreenContent />
     </Center>
   );
@@ -47,13 +47,12 @@ function HomeScreenContent() {
   }
 
   return account === "" ? (
-    <Center flexDirection={"column"} width="100%" p={{ base: "4", lg: "0" }}>
+    <Center flexDirection={"column"} width="100%" p={{ base: 6, lg: 8 }}>
       <PublicNotas />
     </Center>
   ) : (
-    <Center flexDirection={"column"} width="100%" p={{ base: "4", lg: "0" }}>
+    <Center flexDirection={"column"} width="100%" p={{ base: 6, lg: 8 }}>
       <NewUserModal isOpen={isNuxOpen} onClose={onCloseNux} />
-      <br />
       <MyNotas />
     </Center>
   );

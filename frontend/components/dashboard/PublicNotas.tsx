@@ -15,8 +15,7 @@ function PublicNotas() {
 
   return (
     <VStack
-      width="95%"
-      mt={{ base: 6, lg: 12 }}
+      width="100%"
       p={4}
       borderRadius="30px"
       gap={3}

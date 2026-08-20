@@ -54,7 +54,7 @@ function MyNotas() {
 
   if (balanceChecking) {
     return (
-      <Center width="95%" minH="200px">
+      <Center width="100%" minH="200px">
         <Spinner size="xl" />
       </Center>
     );
@@ -66,7 +66,7 @@ function MyNotas() {
 
   return (
     <VStack
-      width="95%"
+      width="100%"
       p={6}
       borderRadius="30px"
       gap={6}
