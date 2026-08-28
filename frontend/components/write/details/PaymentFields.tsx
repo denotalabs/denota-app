@@ -4,14 +4,11 @@ import { Wallet } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useTokenBalance } from "../../../hooks/useTokenBalance";
-import AccountField from "../../fields/input/AccountField";
-import AmountField from "../../fields/input/AmountField";
-import {
-  displayNameForCurrency,
-  NotaCurrency,
-} from "../../designSystem/CurrencyIcon";
+import { useTokens } from "../../../hooks/useTokens";
 import { FormSection } from "../../designSystem/form/FormSection";
 import { formTheme } from "../../designSystem/form/formTheme";
+import AccountField from "../../fields/input/AccountField";
+import AmountField from "../../fields/input/AmountField";
 import { DetailsStepFormValues } from "./DetailsStepForm";
 import { allowsZeroPaymentAmount } from "./paymentMetadata";
 
@@ -20,12 +17,11 @@ function PaymentFields() {
   const { values, setFieldTouched, validateField, setFieldValue } =
     useFormikContext<DetailsStepFormValues>();
   const { updateNotaFormValues } = useNotaForm();
-  const balance = useTokenBalance(values.token as NotaCurrency);
+  const { displayNameForCurrency } = useTokens();
+  const balance = useTokenBalance(values.token);
   const previousPaymentType = useRef(values.paymentType);
   const allowZero = allowsZeroPaymentAmount(values.paymentType);
-  const amountLabel =
-    values.paymentType === "withTerms" ? "Escrow amount" : "Amount";
-  const tokenLabel = displayNameForCurrency(values.token as NotaCurrency);
+  const tokenLabel = displayNameForCurrency(values.token);
 
   useEffect(() => {
     const previousAllowsZero = allowsZeroPaymentAmount(
@@ -64,8 +60,8 @@ function PaymentFields() {
   const formattedBalance =
     balance !== null
       ? Number(balance).toLocaleString(undefined, {
-          maximumFractionDigits: 4,
-        })
+        maximumFractionDigits: 4,
+      })
       : null;
 
   const amountSection = (
@@ -78,7 +74,7 @@ function PaymentFields() {
             fontWeight={700}
             color={formTheme.text}
           >
-            {amountLabel}
+            Amount
           </Text>
           {formattedBalance ? (
             <Text
@@ -106,14 +102,14 @@ function PaymentFields() {
 
   if (isDesktop) {
     return (
-      <Flex gap={3} align="flex-start" mb={5}>
+      <Flex gap={2.5} align="flex-start" mb={4}>
         <Box flex={1} minW={0}>
           <AccountField
             fieldName="address"
             resolvedFieldName="resolvedAddress"
             allowEns
             placeholder="almaraz.eth, 0x..."
-            label="Recipient Address"
+            label="Recipient"
             sectionMb={0}
           />
         </Box>
@@ -131,7 +127,7 @@ function PaymentFields() {
         resolvedFieldName="resolvedAddress"
         allowEns
         placeholder="almaraz.eth, 0x..."
-        label="Recipient Address"
+        label="Recipient"
       />
       {amountSection}
     </>

@@ -78,8 +78,8 @@ export function usePurchaseToken() {
     (token: NotaCurrency) =>
       Boolean(
         blockchainState.account &&
-          getChainConfig(blockchainState.chainIdNumber)?.chain &&
-          privyAssetForToken(token, getTokenAddress(token))
+        getChainConfig(blockchainState.chainIdNumber)?.chain &&
+        privyAssetForToken(token, getTokenAddress(token))
       ),
     [
       blockchainState.account,

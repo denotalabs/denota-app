@@ -107,8 +107,8 @@ export default function MetadataUriField({
           flex={1}
           minW={0}
           variant="unstyled"
-          h="54px"
-          fontSize="17px"
+          h={{ base: "54px", md: "48px" }}
+          fontSize={{ base: "17px", md: "15px" }}
           color={formTheme.text}
           autoCapitalize="none"
           spellCheck={false}

@@ -60,7 +60,7 @@ export function SelectableCardRow({
         borderRadius="16px"
         px={px}
         py={2}
-        minH="56px"
+        minH={{ base: "56px", md: "50px" }}
         {...cardBaseProps}
         _checked={cardCheckedSx}
       >

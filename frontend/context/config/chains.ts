@@ -33,7 +33,43 @@ export const anvilChain = defineChain({
   rpcUrls: { default: { http: [ANVIL_RPC_URL] } },
 });
 
-const UNISWAP_TOKEN_LIST = "https://tokens.uniswap.org";
+// const UNISWAP_TOKEN_LIST = "https://tokens.uniswap.org";
+
+// Polygon write tokens. Addresses match @denota-labs/denota-sdk chainInfo.
+const polygonCustomTokens = (): TokenInfo[] => [
+  {
+    chainId: POLYGON_CHAIN_ID,
+    address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+    name: "USD Coin",
+    symbol: "USDC",
+    decimals: 6,
+    logoURI: "/logos/usdc.svg",
+  },
+  {
+    chainId: POLYGON_CHAIN_ID,
+    address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+    name: "Wrapped Ether",
+    symbol: "WETH",
+    decimals: 18,
+    logoURI: "/logos/weth.svg",
+  },
+  {
+    chainId: POLYGON_CHAIN_ID,
+    address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+    name: "Tether USD",
+    symbol: "USDT",
+    decimals: 6,
+    logoURI: "/logos/usdt.svg",
+  },
+  {
+    chainId: POLYGON_CHAIN_ID,
+    address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+    name: "Dai Stablecoin",
+    symbol: "DAI",
+    decimals: 18,
+    logoURI: "/logos/dai.svg",
+  },
+];
 
 // Test tokens deployed locally to Anvil are sourced from env (no hosted list).
 const anvilCustomTokens = (): TokenInfo[] => {
@@ -87,7 +123,8 @@ export const DENOTA_CHAINS: Record<number, DenotaChainConfig> = {
     logoSrc: "/logos/polygon-logo.svg",
     graphUrl: POLYGON_GRAPH_URL,
     graphTestUrl: envValue("NEXT_PUBLIC_POLYGON_GRAPH_TEST_URL"),
-    tokenListUrl: UNISWAP_TOKEN_LIST,
+    // tokenListUrl: UNISWAP_TOKEN_LIST,
+    customTokens: polygonCustomTokens(),
     batchAddress: "0x657eb9F744E49e6b31c42335C1662287d34465D4",
   },
   // [ETHEREUM_MAINNET_CHAIN_ID]: {

@@ -136,7 +136,7 @@ function Stepper({ children, onClose }: StepperProps) {
         title={screenTitle}
         hideBack={backHidden}
       />
-      <Box w="100%" minH={{ base: "420px", md: "480px" }}>
+      <Box w="100%">
         {state.currentScreen}
       </Box>
     </StepperContext.Provider>

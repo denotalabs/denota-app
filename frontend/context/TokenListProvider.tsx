@@ -1,13 +1,18 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
-import { DEFAULT_CHAIN_ID, getChainConfig } from "./config/chains";
-import { isTokenList, TokenInfo } from "./config/tokenList";
+import {
+  readStoredCustomTokens,
+  writeStoredCustomTokens,
+} from "../utils/customTokens";
 import { useBlockchainData } from "./BlockchainDataProvider";
+import { DEFAULT_CHAIN_ID, getChainConfig } from "./config/chains";
+import { TokenInfo } from "./config/tokenList";
 
 // Normalize symbols so the app's currency keys (e.g. "USDCE") match hosted
 // list symbols (e.g. "USDC.e").
@@ -19,6 +24,9 @@ interface TokenListContextValue {
   byAddress: Map<string, TokenInfo>;
   bySymbol: Map<string, TokenInfo>;
   isLoading: boolean;
+  /** Lowercase addresses the user imported (not on the hosted/chain list). */
+  importedAddresses: Set<string>;
+  addCustomToken: (token: TokenInfo) => void;
 }
 
 const EMPTY_VALUE: TokenListContextValue = {
@@ -26,11 +34,13 @@ const EMPTY_VALUE: TokenListContextValue = {
   byAddress: new Map(),
   bySymbol: new Map(),
   isLoading: false,
+  importedAddresses: new Set(),
+  addCustomToken: () => undefined,
 };
 
 const TokenListContext = createContext<TokenListContextValue>(EMPTY_VALUE);
 
-// Per-chain cache shared across mounts so we don't refetch the hosted list.
+// Per-chain cache of hosted + chain-config tokens (not user imports).
 const tokenCache = new Map<number, TokenInfo[]>();
 
 const mergeTokens = (
@@ -38,7 +48,7 @@ const mergeTokens = (
   custom: TokenInfo[]
 ): TokenInfo[] => {
   const byAddress = new Map<string, TokenInfo>();
-  // Hosted first, then custom so local/test tokens win on address collisions.
+  // Hosted first, then custom so local/test/imported tokens win on address collisions.
   [...hosted, ...custom].forEach((token) => {
     if (token.address) {
       byAddress.set(token.address.toLowerCase(), token);
@@ -55,75 +65,125 @@ export const TokenListProvider = ({
   const { blockchainState } = useBlockchainData();
   const chainId = blockchainState.chainIdNumber || DEFAULT_CHAIN_ID;
 
-  const [tokens, setTokens] = useState<TokenInfo[]>([]);
+  const [hostedTokens, setHostedTokens] = useState<TokenInfo[]>([]);
+  const [importedTokens, setImportedTokens] = useState<TokenInfo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-
     if (!chainId) {
-      setTokens([]);
+      setHostedTokens([]);
+      setImportedTokens([]);
       return;
     }
 
+    setImportedTokens(readStoredCustomTokens(chainId));
+
     const config = getChainConfig(chainId);
-    const tokenListUrl = config?.tokenListUrl;
+    // Hosted list fetch disabled; use chain-config tokens (USDC/USDT/WETH/DAI).
+    // const tokenListUrl = config?.tokenListUrl;
     const customTokens = config?.customTokens ?? [];
 
     const cached = tokenCache.get(chainId);
     if (cached) {
-      setTokens(cached);
+      setHostedTokens(cached);
+      setIsLoading(false);
       return;
     }
 
-    if (!tokenListUrl) {
-      const merged = mergeTokens([], customTokens);
-      tokenCache.set(chainId, merged);
-      setTokens(merged);
-      return;
-    }
+    const merged = mergeTokens([], customTokens);
+    tokenCache.set(chainId, merged);
+    setHostedTokens(merged);
+    setIsLoading(false);
 
-    setIsLoading(true);
-    fetch(tokenListUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        if (cancelled) {
-          return;
-        }
-        const hosted = isTokenList(data)
-          ? data.tokens.filter((token) => token.chainId === chainId)
-          : [];
-        const merged = mergeTokens(hosted, customTokens);
-        tokenCache.set(chainId, merged);
-        setTokens(merged);
-      })
-      .catch((error) => {
-        console.error("Failed to load token list", error);
-        if (!cancelled) {
-          // Fall back to whatever local tokens we have for the chain.
-          setTokens(mergeTokens([], customTokens));
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    // if (!tokenListUrl) {
+    //   const merged = mergeTokens([], customTokens);
+    //   tokenCache.set(chainId, merged);
+    //   setHostedTokens(merged);
+    //   setIsLoading(false);
+    //   return;
+    // }
+    //
+    // let cancelled = false;
+    // setIsLoading(true);
+    // fetch(tokenListUrl)
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     if (cancelled) {
+    //       return;
+    //     }
+    //     const hosted = isTokenList(data)
+    //       ? data.tokens.filter((token) => token.chainId === chainId)
+    //       : [];
+    //     const merged = mergeTokens(hosted, customTokens);
+    //     tokenCache.set(chainId, merged);
+    //     setHostedTokens(merged);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Failed to load token list", error);
+    //     if (!cancelled) {
+    //       setHostedTokens(mergeTokens([], customTokens));
+    //     }
+    //   })
+    //   .finally(() => {
+    //     if (!cancelled) {
+    //       setIsLoading(false);
+    //     }
+    //   });
+    //
+    // return () => {
+    //   cancelled = true;
+    // };
   }, [chainId]);
 
+  const addCustomToken = useCallback(
+    (token: TokenInfo) => {
+      const addr = token.address.toLowerCase();
+      setImportedTokens((prev) => {
+        const next = [
+          ...prev.filter((item) => item.address.toLowerCase() !== addr),
+          token,
+        ];
+        writeStoredCustomTokens(chainId, next);
+        return next;
+      });
+    },
+    [chainId]
+  );
+
   const value = useMemo<TokenListContextValue>(() => {
+    const tokens = mergeTokens(hostedTokens, importedTokens);
     const byAddress = new Map<string, TokenInfo>();
     const bySymbol = new Map<string, TokenInfo>();
-    tokens.forEach((token) => {
-      byAddress.set(token.address.toLowerCase(), token);
-      bySymbol.set(normalizeSymbol(token.symbol), token);
+    const importedAddresses = new Set(
+      importedTokens.map((token) => token.address.toLowerCase())
+    );
+
+    // Index hosted symbols first so an imported fake can't overwrite USDC etc.
+    hostedTokens.forEach((token) => {
+      if (token.address) {
+        byAddress.set(token.address.toLowerCase(), token);
+        bySymbol.set(normalizeSymbol(token.symbol), token);
+      }
     });
-    return { tokens, byAddress, bySymbol, isLoading };
-  }, [tokens, isLoading]);
+    importedTokens.forEach((token) => {
+      if (token.address) {
+        byAddress.set(token.address.toLowerCase(), token);
+        const symbol = normalizeSymbol(token.symbol);
+        if (!bySymbol.has(symbol)) {
+          bySymbol.set(symbol, token);
+        }
+      }
+    });
+
+    return {
+      tokens,
+      byAddress,
+      bySymbol,
+      isLoading,
+      importedAddresses,
+      addCustomToken,
+    };
+  }, [addCustomToken, hostedTokens, importedTokens, isLoading]);
 
   return (
     <TokenListContext.Provider value={value}>

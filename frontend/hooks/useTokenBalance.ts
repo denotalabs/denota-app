@@ -7,7 +7,7 @@ import { useTokens } from "./useTokens";
  * Connected wallet's balance of `token` as a decimal string, or null while
  * loading / when no wallet is connected / on fetch failure.
  */
-export function useTokenBalance(token: NotaCurrency): string | null {
+export function useTokenBalance(token: NotaCurrency | string): string | null {
   const { blockchainState } = useBlockchainData();
   const { getTokenBalance } = useTokens();
   const [balance, setBalance] = useState<string | null>(null);

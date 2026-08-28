@@ -7,6 +7,7 @@ import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useConfirmNota } from "../../../hooks/useConfirmNota";
 import { usePaymentReadiness } from "../../../hooks/usePaymentReadiness";
 import { usePurchaseToken } from "../../../hooks/usePurchaseToken";
+import { useTokens } from "../../../hooks/useTokens";
 import { paymentButtonText } from "../../../utils/paymentButtonText";
 import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
@@ -19,6 +20,7 @@ import ConfirmNotice from "./ConfirmNotice";
 const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   const { notaFormValues } = useNotaForm();
   const { blockchainState, connectWallet } = useBlockchainData();
+  const { displayNameForCurrency } = useTokens();
   const isWalletConnected = blockchainState.account !== "";
   const router = useRouter();
   const { purchaseToken, canPurchaseToken } = usePurchaseToken();
@@ -56,7 +58,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   const buttonText = useMemo(
     () =>
       paymentButtonText({
-        token: notaFormValues.token,
+        token: displayNameForCurrency(notaFormValues.token),
         isWalletConnected,
         isCheckingReadiness,
         insufficientBalance,
@@ -64,6 +66,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
         mode: notaFormValues.mode,
       }),
     [
+      displayNameForCurrency,
       insufficientBalance,
       isCheckingReadiness,
       isWalletConnected,

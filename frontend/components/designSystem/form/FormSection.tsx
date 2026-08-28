@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, type BoxProps, Text } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { formTheme } from "./formTheme";
 
@@ -6,11 +6,16 @@ interface Props {
   label: ReactNode;
   optional?: boolean;
   children: ReactNode;
-  mb?: number | string;
+  mb?: BoxProps["mb"];
 }
 
 /** A labeled section of a form: bold heading followed by the field(s). */
-export function FormSection({ label, optional, children, mb = 5 }: Props) {
+export function FormSection({
+  label,
+  optional,
+  children,
+  mb = { base: 5, md: 4 },
+}: Props) {
   return (
     <Box as="section" mb={mb}>
       {typeof label === "string" ? (
@@ -19,7 +24,7 @@ export function FormSection({ label, optional, children, mb = 5 }: Props) {
           fontWeight={700}
           color={formTheme.text}
           display="block"
-          mb={3.5}
+          mb={{ base: 3.5, md: 2.5 }}
         >
           {label}
           {optional ? (
@@ -35,7 +40,7 @@ export function FormSection({ label, optional, children, mb = 5 }: Props) {
           ) : null}
         </Text>
       ) : (
-        <Box mb={3.5}>{label}</Box>
+        <Box mb={{ base: 3.5, md: 2.5 }}>{label}</Box>
       )}
       {children}
     </Box>

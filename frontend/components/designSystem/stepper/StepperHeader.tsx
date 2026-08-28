@@ -16,7 +16,7 @@ function StepperHeader({ onClose, back, currentIndex, title, hideBack }: Props) 
       width="100%"
       justify="space-between"
       align="center"
-      pt={4}
+      pt={{ base: 4, md: 3 }}
       minH="40px"
     >
       {currentIndex != 0 && !hideBack ? (
@@ -33,7 +33,7 @@ function StepperHeader({ onClose, back, currentIndex, title, hideBack }: Props) 
       )}
       <Text
         fontWeight={600}
-        fontSize={"xl"}
+        fontSize="lg"
         textAlign="center"
         mb={0}
         display={{ base: "none", md: "block" }}

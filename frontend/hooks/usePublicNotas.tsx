@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { polygon } from "viem/chains";
 
 import { getChainConfig, POLYGON_CHAIN_ID } from "../context/config/chains";
-import { isTokenList, TokenInfo } from "../context/config/tokenList";
+import { TokenInfo } from "../context/config/tokenList";
 import NotaRegistrar from "../frontend-abi/NotaRegistrar.json";
 
 // Deployed NotaRegistrar (Polygon). Reads are wallet-free via a public RPC.
@@ -75,19 +75,26 @@ export const loadPolygonTokens = async (): Promise<Map<string, TokenInfo>> => {
     return polygonTokensCache;
   }
   const map = new Map<string, TokenInfo>();
-  const url = getChainConfig(POLYGON_CHAIN_ID)?.tokenListUrl;
-  if (url) {
-    try {
-      const data = await (await fetch(url)).json();
-      if (isTokenList(data)) {
-        data.tokens
-          .filter((token) => token.chainId === POLYGON_CHAIN_ID)
-          .forEach((token) => map.set(token.address.toLowerCase(), token));
-      }
-    } catch (error) {
-      console.error("Failed to load Polygon token list", error);
+  const customTokens = getChainConfig(POLYGON_CHAIN_ID)?.customTokens ?? [];
+  customTokens.forEach((token) => {
+    if (token.address) {
+      map.set(token.address.toLowerCase(), token);
     }
-  }
+  });
+  // Hosted Uniswap list fetch disabled; hardcoded USDC/USDT/WETH/DAI above.
+  // const url = getChainConfig(POLYGON_CHAIN_ID)?.tokenListUrl;
+  // if (url) {
+  //   try {
+  //     const data = await (await fetch(url)).json();
+  //     if (isTokenList(data)) {
+  //       data.tokens
+  //         .filter((token) => token.chainId === POLYGON_CHAIN_ID)
+  //         .forEach((token) => map.set(token.address.toLowerCase(), token));
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to load Polygon token list", error);
+  //   }
+  // }
   polygonTokensCache = map;
   return map;
 };
