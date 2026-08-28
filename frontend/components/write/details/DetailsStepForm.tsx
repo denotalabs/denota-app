@@ -10,8 +10,6 @@ import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
-import { useVisualViewportKeyboard } from "../../../hooks/useVisualViewportKeyboard";
-import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
 import { usePaymentReadiness } from "../../../hooks/usePaymentReadiness";
 import { usePurchaseToken } from "../../../hooks/usePurchaseToken";
 import {
@@ -19,10 +17,14 @@ import {
   useQuickPayment,
 } from "../../../hooks/useQuickPayment";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
+import { useVisualViewportKeyboard } from "../../../hooks/useVisualViewportKeyboard";
+import { useTokens } from "../../../hooks/useTokens";
 import { getEffectiveAddress } from "../../../utils/ensAddress";
+import { normalizePaymentMetadataUris } from "../../../utils/metadataUri";
+import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
-import { useStep } from "../../designSystem/stepper/Stepper";
 import { formTheme } from "../../designSystem/form/formTheme";
+import { useStep } from "../../designSystem/stepper/Stepper";
 import PaymentDetails from "./PaymentDetails";
 import { PaymentDetailsContinueButton } from "./PaymentDetailsContinueButton";
 import { PaymentFlowStepRow } from "./PaymentFlowStepRow";
@@ -32,7 +34,6 @@ import {
   requiresRegistrarApproval,
   showsMetadataForm,
 } from "./paymentMetadata";
-import { normalizePaymentMetadataUris } from "../../../utils/metadataUri";
 import { PaymentType } from "./PaymentTypeField";
 
 export type DetailsStepFormValues = {
@@ -72,6 +73,7 @@ export function DetailsStepForm() {
   const { notaFormValues, file, updateNotaFormValues, setFile } = useNotaForm();
   const { upload } = useUploadMetadata();
   const { blockchainState } = useBlockchainData();
+  const { displayNameForCurrency } = useTokens();
   const isWalletConnected = blockchainState.account !== "";
   const toast = useToast();
   const { executeQuickPayment } = useQuickPayment({
@@ -225,9 +227,9 @@ export function DetailsStepForm() {
   const needsRegistrar = requiresRegistrarApproval(paymentType);
   const hasAmount = allowsZeroPaymentAmount(paymentType)
     ? formik.values.amount !== undefined &&
-      formik.values.amount !== "" &&
-      !Number.isNaN(Number(formik.values.amount)) &&
-      Number(formik.values.amount) >= 0
+    formik.values.amount !== "" &&
+    !Number.isNaN(Number(formik.values.amount)) &&
+    Number(formik.values.amount) >= 0
     : hasValidPaymentAmount(formik.values.amount);
   const requiresBalanceCheck =
     isWalletConnected &&
@@ -291,7 +293,7 @@ export function DetailsStepForm() {
   const buttonLabel = quickPaymentButtonText(
     paymentType,
     needsApproval,
-    formik.values.token,
+    displayNameForCurrency(formik.values.token),
     paymentType !== "withTerms" && insufficientBalance,
     isCheckingReadiness
   );
@@ -320,7 +322,7 @@ export function DetailsStepForm() {
           w="100%"
           maxW={{ base: "380px", md: "100%" }}
           mx="auto"
-          mt={{ base: 3, md: 4 }}
+          mt={3}
           px={{ base: 4, md: 1 }}
           pb={scrollBottomPadding}
           color={formTheme.text}
@@ -341,7 +343,7 @@ export function DetailsStepForm() {
           {isMobile && keyboardOpen ? (
             <Box mt={2} mb={2}>{continueButton}</Box>
           ) : null}
-          {!isMobile ? <Box mt={5}>{continueButton}</Box> : null}
+          {!isMobile ? <Box mt={4}>{continueButton}</Box> : null}
           {usePinnedCta ? (
             <Box
               position="fixed"

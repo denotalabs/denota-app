@@ -41,7 +41,7 @@ export function PaymentTypeField() {
     <Field name="paymentType">
       {({ form: { values } }: FieldProps) => (
         <FormControl maxW="100%">
-          <FormSection label="Payment type" mb={0}>
+          <FormSection label="What Kind of Payment?" mb={0}>
             <PaymentTypeSelector value={values.paymentType} />
           </FormSection>
         </FormControl>
@@ -79,8 +79,8 @@ function PaymentTypeSelector({ value }: { value: PaymentType }) {
             titleFontSize={{ base: "14px", md: "15px" }}
             leading={(isChecked) => (
               <Flex
-                w={{ base: "28px", md: "34px" }}
-                h={{ base: "28px", md: "34px" }}
+                w={{ base: "28px", md: "30px" }}
+                h={{ base: "28px", md: "30px" }}
                 borderRadius="10px"
                 align="center"
                 justify="center"
@@ -94,7 +94,7 @@ function PaymentTypeSelector({ value }: { value: PaymentType }) {
           />
         ))}
       </Flex>
-      <Box minH="2.5rem" mt={3}>
+      <Box minH={{ base: "2.5rem", md: "2rem" }} mt={{ base: 3, md: 2 }}>
         {selectedOption ? (
           <Text
             fontSize="13px"

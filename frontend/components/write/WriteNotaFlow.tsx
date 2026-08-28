@@ -29,8 +29,8 @@ export function WriteNotaFlow({ onClose }: Props) {
         <WriteStepperMobile onClose={onClose} />
       </VStack>
       <VStack
-        w="650px"
-        maxW="650px"
+        w="100%"
+        maxW="520px"
         bg="brand.100"
         py={2}
         px={3}

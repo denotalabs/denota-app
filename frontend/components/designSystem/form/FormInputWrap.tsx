@@ -26,7 +26,7 @@ export function FormInputWrap({
       borderRadius="16px"
       px={{ base: 4, md: 3 }}
       pl={{ base: 4, md: 4 }}
-      minH="56px"
+      minH={{ base: "56px", md: "50px" }}
       _focusWithin={{
         borderColor: isInvalid ? formTheme.error : "notaPurple.100",
         boxShadow: isInvalid

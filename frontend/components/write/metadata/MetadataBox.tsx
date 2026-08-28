@@ -28,9 +28,9 @@ function MetadataBox() {
         </HStack>
       }
     >
-      <Text fontSize="sm" color={formTheme.mutedLight} mb={3}>
+      {/* <Text fontSize="sm" color={formTheme.mutedLight} mb={3}>
         Attach a document or image to record what this payment is for.
-      </Text>
+      </Text> */}
       <VStack align="stretch" spacing={2}>
         <ExternalURIField
           fieldName="externalURI"

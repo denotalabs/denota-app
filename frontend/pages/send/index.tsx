@@ -28,8 +28,8 @@ function SendPage() {
       flex="1"
       justify="center"
       align={{ base: "stretch", md: "flex-start" }}
-      pt={{ base: 0, md: "40px" }}
-      pb={{ base: 0, md: 10 }}
+      pt={{ base: 0, md: 4 }}
+      pb={{ base: 0, md: 6 }}
     >
       <WriteNotaFlow />
     </Flex>

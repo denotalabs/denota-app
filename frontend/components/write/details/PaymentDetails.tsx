@@ -10,9 +10,9 @@ interface Props {
 function PaymentDetails({ showMetadata }: Props) {
   return (
     <>
+      <PaymentTypeField />
       <CurrencySelectorField />
       <PaymentFields />
-      <PaymentTypeField />
       {showMetadata && <MetadataBox />}
     </>
   );

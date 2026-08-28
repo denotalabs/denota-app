@@ -203,8 +203,8 @@ function AccountFieldInner({
           variant="unstyled"
           flex={1}
           minW={0}
-          h="54px"
-          fontSize="17px"
+          h={{ base: "54px", md: "48px" }}
+          fontSize={{ base: "17px", md: "15px" }}
           color={formTheme.text}
           placeholder={placeholder}
           autoCapitalize="none"

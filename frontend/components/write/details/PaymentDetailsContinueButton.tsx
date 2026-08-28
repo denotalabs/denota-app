@@ -16,12 +16,12 @@ export function PaymentDetailsContinueButton({
     <Button
       type="submit"
       w="100%"
-      minH="56px"
+      minH={{ base: "56px", md: "50px" }}
       border="none"
       borderRadius="16px"
       bg="brand.200"
       color="brand.100"
-      fontSize="17px"
+      fontSize={{ base: "17px", md: "15px" }}
       fontWeight={700}
       display="flex"
       alignItems="center"
