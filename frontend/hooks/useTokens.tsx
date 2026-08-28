@@ -12,24 +12,44 @@ import {
   useTokenList,
 } from "../context/TokenListProvider";
 import erc20 from "../frontend-abi/ERC20.sol/TestERC20.json";
+import { truncateAddress } from "../utils/address";
+import type { TokenInfo } from "../context/config/tokenList";
 
 const DEFAULT_DECIMALS = 18;
+
+type TokenKey = NotaCurrency | string;
+
+function listedToken(
+  token: TokenKey,
+  bySymbol: Map<string, TokenInfo>,
+  byAddress: Map<string, TokenInfo>
+) {
+  if (!token || token === "UNKNOWN") {
+    return undefined;
+  }
+  if (ethers.utils.isAddress(token)) {
+    return byAddress.get(token.toLowerCase());
+  }
+  return bySymbol.get(
+    normalizeSymbol(tokenListSymbolForCurrency(token as NotaCurrency))
+  );
+}
 
 export const useTokens = () => {
   const { blockchainState } = useBlockchainData();
   const { bySymbol, byAddress } = useTokenList();
 
   const getTokenAddress = useCallback(
-    (token: NotaCurrency) => {
-      if (token === "UNKNOWN") {
+    (token: TokenKey) => {
+      if (!token || token === "UNKNOWN") {
         return "";
       }
-      return (
-        bySymbol.get(normalizeSymbol(tokenListSymbolForCurrency(token)))
-          ?.address ?? ""
-      );
+      if (ethers.utils.isAddress(token)) {
+        return ethers.utils.getAddress(token);
+      }
+      return listedToken(token, bySymbol, byAddress)?.address ?? "";
     },
-    [bySymbol]
+    [byAddress, bySymbol]
   );
 
   const currencyForTokenId = useCallback(
@@ -44,26 +64,32 @@ export const useTokens = () => {
   );
 
   const displayNameForCurrency = useCallback(
-    (currency: NotaCurrency) => displayNameForCurrencyImpl(currency),
-    []
+    (currency: TokenKey) => {
+      if (!currency) {
+        return "";
+      }
+      if (ethers.utils.isAddress(currency)) {
+        const token = byAddress.get(currency.toLowerCase());
+        return token?.symbol ?? truncateAddress(currency);
+      }
+      return displayNameForCurrencyImpl(currency as NotaCurrency);
+    },
+    [byAddress]
   );
 
   const getTokenUnits = useCallback(
-    (token: NotaCurrency) => {
-      if (token === "UNKNOWN") {
+    (token: TokenKey) => {
+      if (!token || token === "UNKNOWN") {
         return DEFAULT_DECIMALS;
       }
-      return (
-        bySymbol.get(normalizeSymbol(tokenListSymbolForCurrency(token)))
-          ?.decimals ?? DEFAULT_DECIMALS
-      );
+      return listedToken(token, bySymbol, byAddress)?.decimals ?? DEFAULT_DECIMALS;
     },
-    [bySymbol]
+    [byAddress, bySymbol]
   );
 
   const parseTokenValue = useCallback(
-    (token: NotaCurrency, value: number) => {
-      if (token === "UNKNOWN") {
+    (token: TokenKey, value: number) => {
+      if (!token || token === "UNKNOWN") {
         return "";
       }
       const units = getTokenUnits(token);
@@ -82,9 +108,9 @@ export const useTokens = () => {
   );
 
   const getTokenContract = useCallback(
-    (token: NotaCurrency) => {
+    (token: TokenKey) => {
       const address = getTokenAddress(token);
-      if (!address) {
+      if (!address || !blockchainState.signer) {
         return null;
       }
       return new ethers.Contract(address, erc20.abi, blockchainState.signer);
@@ -93,7 +119,7 @@ export const useTokens = () => {
   );
 
   const getTokenBalance = useCallback(
-    async (token: NotaCurrency) => {
+    async (token: TokenKey) => {
       const contract = getTokenContract(token);
       if (contract) {
         const rawBalance = await contract.balanceOf(blockchainState.account);
@@ -110,8 +136,11 @@ export const useTokens = () => {
   );
 
   const getTokenAllowance = useCallback(
-    async (token: NotaCurrency) => {
+    async (token: TokenKey) => {
       const contract = getTokenContract(token);
+      if (!contract) {
+        return { rawBalance: 0, parsedBalance: "0" };
+      }
       const rawBalance = await contract.allowance(
         blockchainState.account,
         blockchainState.registrarAddress
