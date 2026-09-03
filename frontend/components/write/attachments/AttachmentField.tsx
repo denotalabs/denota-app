@@ -6,13 +6,25 @@ import {
   attachmentDisplayName,
   validateAttachmentLink,
 } from "../../../utils/attachmentLink";
+import {
+  type AttachmentStorageSettings,
+  DEFAULT_ATTACHMENT_STORAGE_SETTINGS,
+} from "../../../utils/attachmentStorage";
 import { FormInputWrap } from "../../designSystem/form/FormInputWrap";
 import { formTheme } from "../../designSystem/form/formTheme";
+import { AttachmentStorageFooter } from "./AttachmentStorageFooter";
+import { AttachmentStorageModal } from "./AttachmentStorageModal";
 import { FileUploadButton } from "./FileUpload";
 
 export type AttachmentKind = "document" | "image";
 
-type AttachmentFormValues = { externalURI: string; imageURI: string };
+type AttachmentFormValues = {
+  externalURI: string;
+  imageURI: string;
+  attachmentStorage?: AttachmentStorageSettings;
+};
+
+const STORAGE_FIELD = "attachmentStorage";
 
 const KIND_FIELD: Record<AttachmentKind, keyof AttachmentFormValues> = {
   document: "externalURI",
@@ -30,15 +42,16 @@ const KIND_OPTIONS: { value: AttachmentKind; label: string }[] = [
 ];
 
 const PLACEHOLDER: Record<AttachmentKind, string> = {
-  document: "Document URL, or paste a link",
-  image: "Image URL, or paste a link",
+  document: "Paste a link or upload a file",
+  image: "Paste a link or upload an image",
 };
 
 const HELPER_TEXT =
-  "Paste a link and press enter to attach. Visible to the recipient.";
+  "Links are publicly visible on the blockchain.";
 const INVALID_TEXT = "That doesn't look like a valid link. Check the URL.";
 
-const CONTROL_HEIGHT = { base: "56px", md: "50px" };
+const ROW_MIN_HEIGHT = { base: "56px", md: "50px" };
+const UPLOAD_SIZE = { base: "40px", md: "36px" };
 
 type PerKind<T> = Record<AttachmentKind, T>;
 
@@ -51,9 +64,12 @@ export function useAttachedLinks(): PerKind<string> {
   };
 }
 
-export function MetadataAttachmentField() {
-  const { setFieldValue } = useFormikContext<AttachmentFormValues>();
+export function AttachmentField() {
+  const { values, setFieldValue } = useFormikContext<AttachmentFormValues>();
   const attached = useAttachedLinks();
+  const storageSettings =
+    values.attachmentStorage ?? DEFAULT_ATTACHMENT_STORAGE_SETTINGS;
+  const [isStorageModalOpen, setIsStorageModalOpen] = useState(false);
   const [kind, setKind] = useState<AttachmentKind>("document");
   const [drafts, setDrafts] = useState<PerKind<string>>({
     document: "",
@@ -108,6 +124,11 @@ export function MetadataAttachmentField() {
     setFieldValue(KIND_FIELD[kind], "");
   };
 
+  const openStorageModal = () => setIsStorageModalOpen(true);
+  const applyStorageSettings = (settings: AttachmentStorageSettings) => {
+    setFieldValue(STORAGE_FIELD, settings, false);
+  };
+
   return (
     <Box>
       <Flex
@@ -146,6 +167,7 @@ export function MetadataAttachmentField() {
       </Flex>
 
       {attachedValue ? (
+        /* Upload settings don't apply to an attached link, so no footer here. */
         <Flex
           align="center"
           gap={2}
@@ -193,11 +215,23 @@ export function MetadataAttachmentField() {
         </Flex>
       ) : (
         <>
-          <Flex gap={2} align="stretch">
-            <FormInputWrap
-              flex={1}
-              minW={0}
-              borderState={error ? "invalid" : "default"}
+          {/* One bordered box: input row on top, storage footer below. */}
+          <FormInputWrap
+            direction="column"
+            align="stretch"
+            gap={0}
+            px={0}
+            pl={0}
+            minH="auto"
+            overflow="hidden"
+            borderState={error ? "invalid" : "default"}
+          >
+            <Flex
+              align="center"
+              gap={2}
+              pl={{ base: 4, md: 4 }}
+              pr={{ base: 2, md: 1.5 }}
+              minH={ROW_MIN_HEIGHT}
             >
               <Input
                 ref={inputRef}
@@ -224,22 +258,23 @@ export function MetadataAttachmentField() {
                 onKeyDown={handleKeyDown}
                 onBlur={attach}
               />
-            </FormInputWrap>
-            <FileUploadButton
-              name={KIND_FIELD[kind]}
-              uploadValueKey={KIND_UPLOAD_KEY[kind]}
-              buttonProps={{
-                alignSelf: "stretch",
-                w: CONTROL_HEIGHT,
-                h: "auto",
-                minW: CONTROL_HEIGHT,
-                minH: CONTROL_HEIGHT,
-                borderRadius: "16px",
-                border: "1px solid",
-                borderColor: formTheme.borderDefault,
-              }}
+              <FileUploadButton
+                name={KIND_FIELD[kind]}
+                uploadValueKey={KIND_UPLOAD_KEY[kind]}
+                buttonProps={{
+                  w: UPLOAD_SIZE,
+                  h: UPLOAD_SIZE,
+                  minW: UPLOAD_SIZE,
+                  minH: UPLOAD_SIZE,
+                  borderRadius: "10px",
+                }}
+              />
+            </Flex>
+            <AttachmentStorageFooter
+              settings={storageSettings}
+              onOpenSettings={openStorageModal}
             />
-          </Flex>
+          </FormInputWrap>
           {error ? (
             <Flex
               align="center"
@@ -259,8 +294,14 @@ export function MetadataAttachmentField() {
           )}
         </>
       )}
+      <AttachmentStorageModal
+        isOpen={isStorageModalOpen}
+        onClose={() => setIsStorageModalOpen(false)}
+        value={storageSettings}
+        onApply={applyStorageSettings}
+      />
     </Box>
   );
 }
 
-export default MetadataAttachmentField;
+export default AttachmentField;

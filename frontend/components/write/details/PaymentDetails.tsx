@@ -1,17 +1,17 @@
-import MetadataBox from "../metadata/MetadataBox";
+import AttachmentsBox from "../attachments/AttachmentsBox";
 import PaymentFields from "./PaymentFields";
 import { PaymentTypeField } from "./PaymentTypeField";
 
 interface Props {
-  showMetadata?: boolean;
+  showAttachments?: boolean;
 }
 
-function PaymentDetails({ showMetadata }: Props) {
+function PaymentDetails({ showAttachments }: Props) {
   return (
     <>
       <PaymentTypeField />
       <PaymentFields />
-      {showMetadata && <MetadataBox />}
+      {showAttachments && <AttachmentsBox />}
     </>
   );
 }
