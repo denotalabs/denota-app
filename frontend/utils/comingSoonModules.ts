@@ -40,7 +40,7 @@ export const COMING_SOON_MODULES: ComingSoonModule[] = [
     id: "llmArbitrator",
     title: "LLM Arbitrator",
     shortDescription:
-      "An AI model resolves disputes over escrowed funds by reading submitted evidence and deciding the outcome.",
+      "An AI model resolves disputes over escrowed funds.",
     description:
       "This hook routes a contested nota to a large language model that ingests off-chain evidence and on-chain context, then returns a verdict that controls whether escrow is cashed or returned. It depends on a verifiable inference pipeline (an oracle or coprocessor) so the model output can be trusted and audited on-chain.",
     icon: MdAutoAwesome,
@@ -66,7 +66,7 @@ export const COMING_SOON_MODULES: ComingSoonModule[] = [
     id: "zkProof",
     title: "ZK Proof",
     shortDescription:
-      "Funds release only when a party submits a zero-knowledge proof satisfying some predefined condition.",
+      "Funds release with a valid zero-knowledge proof.",
     description:
       "This hook gates a cash or fund action behind verification of a zk-SNARK or zk-STARK, letting a user prove a fact (identity, threshold, computation result) without revealing the underlying data.",
     icon: MdLock,
@@ -87,7 +87,7 @@ export const COMING_SOON_MODULES: ComingSoonModule[] = [
     id: "privateVoting",
     title: "Private Voting",
     shortDescription:
-      "A group decides whether to release escrow through a vote whose individual ballots stay hidden.",
+      "A group decides whether to release escrow through a private vote.",
     description:
       "This hook collects encrypted or commitment-based votes and only reveals the aggregate result, preventing coercion and bribery during the decision window. It typically leans on commit-reveal schemes or homomorphic tallying.",
     icon: MdHowToVote,
@@ -113,7 +113,7 @@ export const COMING_SOON_MODULES: ComingSoonModule[] = [
     id: "kleros",
     title: "Kleros",
     shortDescription:
-      "Disputes are settled by Kleros, a live decentralized arbitration court that crowdsources jurors.",
+      "Disputes are settled by Kleros, a live decentralized arbitration court.",
     description:
       "This hook hands a contested nota to Kleros, where staked jurors review evidence and vote on the outcome, with the result enforced on-chain.",
     icon: MdGavel,
@@ -139,7 +139,7 @@ export const COMING_SOON_MODULES: ComingSoonModule[] = [
     id: "crowdRaise",
     title: "Crowd Raise",
     shortDescription:
-      "Multiple funders contribute escrow toward a single nota, pooling capital toward a target.",
+      "Multiple funders contribute funds toward a target amount.",
     description:
       "This hook lets many addresses call fund on the same nota, accumulating escrow until a goal is met or a deadline passes.",
     icon: MdGroups,
