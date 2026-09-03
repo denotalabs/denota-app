@@ -34,9 +34,17 @@ export function FormInputWrap({
           : "0 0 0 1px var(--chakra-colors-notaPurple-100) inset",
       }}
       sx={{
-        "& input": { color: formTheme.text },
+        "& input": { color: formTheme.text, bg: "transparent" },
         "& input::placeholder": { color: formTheme.placeholder },
         "& input:focus": { outline: "none", boxShadow: "none" },
+        "& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active":
+          {
+            WebkitBoxShadow:
+              "0 0 0 1000px var(--chakra-colors-brand-400) inset",
+            WebkitTextFillColor: "var(--chakra-colors-whiteAlpha-900)",
+            caretColor: "var(--chakra-colors-whiteAlpha-900)",
+            transition: "background-color 9999s ease-out 0s",
+          },
       }}
       {...props}
     >

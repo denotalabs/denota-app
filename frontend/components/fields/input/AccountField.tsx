@@ -193,11 +193,7 @@ function AccountFieldInner({
 
   const content = (
     <>
-      <FormInputWrap
-        borderState={
-          showInteraction && isInvalidValue ? "invalid" : "default"
-        }
-      >
+      <FormInputWrap>
         <Input
           {...field}
           variant="unstyled"
@@ -207,6 +203,7 @@ function AccountFieldInner({
           fontSize={{ base: "17px", md: "15px" }}
           color={formTheme.text}
           placeholder={placeholder}
+          autoComplete="off"
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
