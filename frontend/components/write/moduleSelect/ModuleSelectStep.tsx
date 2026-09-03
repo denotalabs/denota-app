@@ -5,6 +5,7 @@ import {
   Heading,
   HStack,
   Icon,
+  SimpleGrid,
   Tag,
   Text,
   VStack,
@@ -66,7 +67,7 @@ const MODULE_OPTIONS: ModuleOption[] = [
     id: "claimable",
     title: "Claimable",
     shortDescription: "The owner must manually claim the funds",
-    description: "The owner must manually claim the funds",
+    description: "The owner must manually claim the funds which acts as a UTXO the recipient can accept or ignore.",
     icon: MdTouchApp,
     isSelected: isClaimableModule,
   },
@@ -121,6 +122,10 @@ function ModuleOptionBox({
       as="button"
       type="button"
       w="100%"
+      h="100%"
+      display="flex"
+      flexDirection="column"
+      alignItems="flex-start"
       textAlign="left"
       cursor="pointer"
       borderWidth="1px"
@@ -136,8 +141,8 @@ function ModuleOptionBox({
       }
       borderRadius="16px"
       bg={selected ? "brand.300" : comingSoon ? "brand.800" : "brand.700"}
-      px={4}
-      py={4}
+      px={3.5}
+      py={3.5}
       opacity={comingSoon ? 0.92 : 1}
       transition="border-color 0.15s, background 0.15s"
       _hover={{
@@ -155,29 +160,27 @@ function ModuleOptionBox({
       }}
       onClick={onClick}
     >
-      <HStack align="center" spacing={3.5}>
-        <Flex
-          w="38px"
-          h="38px"
-          borderRadius="10px"
-          align="center"
-          justify="center"
-          flexShrink={0}
-          bg={selected ? "brand.200" : "brand.600"}
-          color={selected ? "brand.100" : undefined}
-        >
-          <Icon as={icon} boxSize={5} />
-        </Flex>
-        <HStack spacing={2} flexWrap="wrap" minW={0}>
-          <Heading size="sm">{title}</Heading>
-          {comingSoon ? (
-            <Tag size="sm" colorScheme="purple">
-              Coming Soon
-            </Tag>
-          ) : null}
-        </HStack>
+      <Flex
+        w="36px"
+        h="36px"
+        borderRadius="10px"
+        align="center"
+        justify="center"
+        flexShrink={0}
+        bg={selected ? "brand.200" : "brand.600"}
+        color={selected ? "brand.100" : undefined}
+      >
+        <Icon as={icon} boxSize={5} />
+      </Flex>
+      <HStack spacing={2} flexWrap="wrap" minW={0} mt={3}>
+        <Heading size="sm">{title}</Heading>
+        {comingSoon ? (
+          <Tag size="sm" colorScheme="purple">
+            Coming Soon
+          </Tag>
+        ) : null}
       </HStack>
-      <Text mt={2.5} fontSize="13.5px" lineHeight={1.5} color="whiteAlpha.700">
+      <Text mt={2} fontSize="13px" lineHeight={1.45} color="whiteAlpha.700">
         {description}
       </Text>
     </Box>
@@ -331,12 +334,12 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
   return (
     <Box w="100%" px={{ base: 4, md: 1 }} py={4}>
       {showPicker ? (
-        <VStack spacing={3} align="stretch">
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={3} alignItems="stretch">
           {MODULE_OPTIONS.map((option) => (
             <ModuleOptionBox
               key={option.id}
               title={option.title}
-              description={option.description}
+              description={option.shortDescription}
               icon={option.icon}
               selected={
                 !selectedComingSoonId &&
@@ -351,21 +354,21 @@ const ModuleSelectStep: React.FC<Props> = ({ showTerms }) => {
             <ModuleOptionBox
               key={module.id}
               title={module.title}
-              description={module.description}
+              description={module.shortDescription}
               icon={module.icon}
               comingSoon
               selected={selectedComingSoonId === module.id}
               onClick={() => selectComingSoonModule(module)}
             />
           ))}
-        </VStack>
+        </SimpleGrid>
       ) : (
         showModuleTerms &&
         (selectedComingSoonModule ? (
           <>
             <ModuleSelectedHeader
               title={selectedComingSoonModule.title}
-              description={selectedComingSoonModule.description}
+              description={selectedComingSoonModule.shortDescription}
               icon={selectedComingSoonModule.icon}
               comingSoon
               onChange={resetPicker}
