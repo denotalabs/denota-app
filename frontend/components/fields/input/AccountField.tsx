@@ -203,7 +203,6 @@ function AccountFieldInner({
           fontSize={{ base: "17px", md: "15px" }}
           color={formTheme.text}
           placeholder={placeholder}
-          autoComplete="off"
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
