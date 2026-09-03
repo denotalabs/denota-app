@@ -193,11 +193,7 @@ function AccountFieldInner({
 
   const content = (
     <>
-      <FormInputWrap
-        borderState={
-          showInteraction && isInvalidValue ? "invalid" : "default"
-        }
-      >
+      <FormInputWrap>
         <Input
           {...field}
           variant="unstyled"

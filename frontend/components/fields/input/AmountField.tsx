@@ -5,7 +5,6 @@ import {
   FormControl,
   FormErrorMessage,
   Input,
-  Text,
 } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import { FormInputWrap } from "../../designSystem/form/FormInputWrap";
@@ -13,18 +12,25 @@ import { formTheme } from "../../designSystem/form/formTheme";
 
 interface Props {
   allowZero?: boolean;
-  tokenLabel?: string;
+  /** Max fraction digits accepted, per the selected token. */
+  decimals?: number;
   onMax?: () => void;
 }
 
-/** Keep only digits and at most one decimal point. */
-function sanitizeAmount(raw: string): string {
+/** Keep only digits and at most one decimal point, capped at `decimals` places. */
+function sanitizeAmount(raw: string, decimals: number): string {
   const cleaned = raw.replace(/[^0-9.]/g, "");
   const [head, ...rest] = cleaned.split(".");
-  return rest.length > 0 ? `${head}.${rest.join("")}` : head;
+  if (rest.length === 0) {
+    return head;
+  }
+  if (decimals <= 0) {
+    return head;
+  }
+  return `${head}.${rest.join("").slice(0, decimals)}`;
 }
 
-function AmountField({ allowZero = false, tokenLabel, onMax }: Props) {
+function AmountField({ allowZero = false, decimals = 18, onMax }: Props) {
   const [hasStarted, setHasStarted] = useState(false);
 
   const validateAmount = useCallback(
@@ -59,7 +65,8 @@ function AmountField({ allowZero = false, tokenLabel, onMax }: Props) {
                 flex={1}
                 minW={0}
                 h={{ base: "54px", md: "48px" }}
-                fontSize={{ base: "17px", md: "15px" }}
+                fontSize={{ base: "20px", md: "18px" }}
+                fontWeight={600}
                 color={formTheme.text}
                 inputMode="decimal"
                 placeholder="0"
@@ -67,34 +74,25 @@ function AmountField({ allowZero = false, tokenLabel, onMax }: Props) {
                 value={values.amount ?? ""}
                 onChange={(event) => {
                   setHasStarted(true);
-                  setFieldValue(field.name, sanitizeAmount(event.target.value));
+                  setFieldValue(
+                    field.name,
+                    sanitizeAmount(event.target.value, decimals)
+                  );
                 }}
                 onBlur={field.onBlur}
               />
-              {tokenLabel ? (
-                <Text
-                  fontSize="14px"
-                  color={formTheme.muted}
-                  fontWeight={700}
-                  flexShrink={0}
-                >
-                  {tokenLabel}
-                </Text>
-              ) : null}
               {onMax ? (
                 <Button
-                  bg={formTheme.primaryButtonBg}
+                  variant="link"
                   color={formTheme.primary}
-                  border="none"
-                  borderRadius="11px"
-                  px={4}
-                  py={2.5}
                   fontSize="13px"
                   fontWeight={700}
                   letterSpacing="0.5px"
-                  minH={{ base: "44px", md: "36px" }}
+                  minW="auto"
+                  h="auto"
+                  px={1}
                   flexShrink={0}
-                  _hover={{ bg: formTheme.cardBgHover }}
+                  _hover={{ textDecoration: "none", color: "notaPurple.100" }}
                   onClick={onMax}
                 >
                   MAX
