@@ -1,4 +1,4 @@
-import { Box, Flex, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
 import { Wallet } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -11,17 +11,18 @@ import AccountField from "../../fields/input/AccountField";
 import AmountField from "../../fields/input/AmountField";
 import { DetailsStepFormValues } from "./DetailsStepForm";
 import { allowsZeroPaymentAmount } from "./paymentMetadata";
+import { TokenSelector } from "./TokenSelector";
 
 function PaymentFields() {
-  const isDesktop = useBreakpointValue({ base: false, md: true }) ?? false;
   const { values, setFieldTouched, validateField, setFieldValue } =
     useFormikContext<DetailsStepFormValues>();
   const { updateNotaFormValues } = useNotaForm();
-  const { displayNameForCurrency } = useTokens();
+  const { displayNameForCurrency, getTokenUnits } = useTokens();
   const balance = useTokenBalance(values.token);
   const previousPaymentType = useRef(values.paymentType);
   const allowZero = allowsZeroPaymentAmount(values.paymentType);
   const tokenLabel = displayNameForCurrency(values.token);
+  const tokenDecimals = getTokenUnits(values.token);
 
   useEffect(() => {
     const previousAllowsZero = allowsZeroPaymentAmount(
@@ -34,6 +35,25 @@ function PaymentFields() {
     }
     previousPaymentType.current = values.paymentType;
   }, [setFieldTouched, validateField, values.paymentType]);
+
+  // Switching to a token with fewer decimals must trim the typed amount, or
+  // parseUnits will throw downstream when paying / approving.
+  useEffect(() => {
+    const amount = values.amount ?? "";
+    const dotIndex = amount.indexOf(".");
+    if (dotIndex === -1) {
+      return;
+    }
+    const fraction = amount.slice(dotIndex + 1);
+    if (fraction.length <= tokenDecimals) {
+      return;
+    }
+    const head = amount.slice(0, dotIndex);
+    setFieldValue(
+      "amount",
+      tokenDecimals > 0 ? `${head}.${fraction.slice(0, tokenDecimals)}` : head
+    );
+  }, [setFieldValue, tokenDecimals, values.amount]);
 
   useEffect(() => {
     updateNotaFormValues({
@@ -62,21 +82,27 @@ function PaymentFields() {
       ? Number(balance).toLocaleString(undefined, {
         maximumFractionDigits: 4,
       })
-      : null;
+      : "0";
 
-  const amountSection = (
-    <FormSection
-      mb={0}
-      label={
-        <Flex justify="space-between" align="center" w="100%">
-          <Text
-            fontSize={{ base: "17px", md: "md" }}
-            fontWeight={700}
-            color={formTheme.text}
-          >
-            Amount
-          </Text>
-          {formattedBalance ? (
+  return (
+    <>
+      <AccountField
+        fieldName="address"
+        resolvedFieldName="resolvedAddress"
+        allowEns
+        placeholder="almaraz.eth, 0x..."
+        label="Recipient"
+      />
+      <FormSection
+        label={
+          <Flex justify="space-between" align="center" w="100%">
+            <Text
+              fontSize={{ base: "17px", md: "md" }}
+              fontWeight={700}
+              color={formTheme.text}
+            >
+              Amount
+            </Text>
             <Text
               fontSize="12.5px"
               color={formTheme.muted}
@@ -88,48 +114,23 @@ function PaymentFields() {
               <Wallet size={13} style={{ marginRight: 2 }} />
               {formattedBalance} {tokenLabel}
             </Text>
-          ) : null}
-        </Flex>
-      }
-    >
-      <AmountField
-        allowZero={allowZero}
-        tokenLabel={tokenLabel}
-        onMax={handleMax}
-      />
-    </FormSection>
-  );
-
-  if (isDesktop) {
-    return (
-      <Flex gap={2.5} align="flex-start" mb={4}>
-        <Box flex={1} minW={0}>
-          <AccountField
-            fieldName="address"
-            resolvedFieldName="resolvedAddress"
-            allowEns
-            placeholder="almaraz.eth, 0x..."
-            label="Recipient"
-            sectionMb={0}
+          </Flex>
+        }
+      >
+        <Flex gap={2} align="stretch">
+          <Box flex={1} minW={0}>
+            <AmountField
+              allowZero={allowZero}
+              decimals={tokenDecimals}
+              onMax={handleMax}
+            />
+          </Box>
+          <TokenSelector
+            value={values.token}
+            onChange={(token) => setFieldValue("token", token)}
           />
-        </Box>
-        <Box flex={1} minW={0}>
-          {amountSection}
-        </Box>
-      </Flex>
-    );
-  }
-
-  return (
-    <>
-      <AccountField
-        fieldName="address"
-        resolvedFieldName="resolvedAddress"
-        allowEns
-        placeholder="almaraz.eth, 0x..."
-        label="Recipient"
-      />
-      {amountSection}
+        </Flex>
+      </FormSection>
     </>
   );
 }

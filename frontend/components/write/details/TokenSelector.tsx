@@ -1,17 +1,21 @@
 import {
   Box,
   Button,
+  Divider,
   Flex,
   Image,
   Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   Spinner,
   Text,
 } from "@chakra-ui/react";
 import { ethers } from "ethers";
-import { AlertTriangle, ChevronDown, Plus, Search } from "lucide-react";
+import { Check, ChevronDown, Coins, Plus, Search } from "lucide-react";
 import {
   KeyboardEvent,
   useCallback,
@@ -28,7 +32,6 @@ import {
   normalizeSymbol,
   useTokenList,
 } from "../../../context/TokenListProvider";
-import { useTokenBalance } from "../../../hooks/useTokenBalance";
 import { truncateAddress } from "../../../utils/address";
 import { fetchErc20Metadata } from "../../../utils/erc20Metadata";
 import {
@@ -41,11 +44,14 @@ import {
 } from "../../designSystem/CurrencyIcon";
 import { formTheme } from "../../designSystem/form/formTheme";
 
-const PANEL_MAX_H = "260px";
+const PANEL_MAX_H = "300px";
 const FULL_ADDRESS = /^0x[a-fA-F0-9]{40}$/;
 const HEX_PREFIX = /^0x[a-fA-F0-9]*$/;
 const CAUTION_COPY =
   "Anyone can create a token, including fakes. Verify the address before sending.";
+
+/** One-tap shortcut chips shown above the list. */
+const QUICK_PICK_CURRENCIES: NotaCurrency[] = ["USDC", "WETH", "USDT"];
 
 type QueryKind =
   | "text"
@@ -104,11 +110,20 @@ function fallbackToken(value: string): TokenInfo | undefined {
   };
 }
 
+/** A symbol that is really just a shortened 0x address (no known ticker). */
+function isAddressLikeSymbol(symbol: string): boolean {
+  return symbol.startsWith("0x");
+}
+
 interface Props {
   value: string;
   onChange: (token: string) => void;
 }
 
+/**
+ * Token pill (icon + ticker + chevron) that opens a centered "Select a
+ * token" modal. Sized to sit flush beside the amount input at equal height.
+ */
 export function TokenSelector({ value, onChange }: Props) {
   const { blockchainState } = useBlockchainData();
   const chainId = blockchainState.chainIdNumber || DEFAULT_CHAIN_ID;
@@ -131,19 +146,19 @@ export function TokenSelector({ value, onChange }: Props) {
   const listRef = useRef<HTMLDivElement>(null);
   const importGeneration = useRef(0);
   const optionIdBase = useId();
-  const balance = useTokenBalance(value);
 
-  const supportedAddresses = useMemo(() => {
-    const addresses = new Set<string>();
+  // Lowercase address -> currency key for the write-supported assets.
+  const supportedCurrencyByAddress = useMemo(() => {
+    const map = new Map<string, NotaCurrency>();
     SUPPORTED_CURRENCIES.forEach((currency) => {
       const listed = bySymbol.get(
         normalizeSymbol(tokenListSymbolForCurrency(currency))
       );
       if (listed?.address) {
-        addresses.add(listed.address.toLowerCase());
+        map.set(listed.address.toLowerCase(), currency);
       }
     });
-    return addresses;
+    return map;
   }, [bySymbol]);
 
   // Only the write-supported assets and user-imported tokens — not the hosted list.
@@ -182,21 +197,27 @@ export function TokenSelector({ value, onChange }: Props) {
     return result;
   }, [bySymbol, importedAddresses, tokens]);
 
+  const quickPickTokens = useMemo(
+    () =>
+      QUICK_PICK_CURRENCIES.map(
+        (currency) =>
+          bySymbol.get(
+            normalizeSymbol(tokenListSymbolForCurrency(currency))
+          ) ?? fallbackToken(currency)
+      ).filter((token): token is TokenInfo => Boolean(token)),
+    [bySymbol]
+  );
+
   const toFormValue = useCallback(
     (token: TokenInfo) => {
-      if (
-        token.address &&
-        supportedAddresses.has(token.address.toLowerCase())
-      ) {
-        const currency = SUPPORTED_CURRENCIES.find((item) => {
-          const listed = bySymbol.get(
-            normalizeSymbol(tokenListSymbolForCurrency(item))
-          );
-          return listed?.address.toLowerCase() === token.address.toLowerCase();
-        });
-        if (currency) {
-          return currency;
-        }
+      if (!token.address) {
+        return token.symbol;
+      }
+      const currency = supportedCurrencyByAddress.get(
+        token.address.toLowerCase()
+      );
+      if (currency) {
+        return currency;
       }
       try {
         return ethers.utils.getAddress(token.address);
@@ -204,7 +225,7 @@ export function TokenSelector({ value, onChange }: Props) {
         return token.address;
       }
     },
-    [bySymbol, supportedAddresses]
+    [supportedCurrencyByAddress]
   );
 
   const selected =
@@ -296,12 +317,24 @@ export function TokenSelector({ value, onChange }: Props) {
     setIsImporting(false);
   }, []);
 
+  const isSameAsSelected = useCallback(
+    (token: TokenInfo) =>
+      !!selected &&
+      (token.address
+        ? selected.address.toLowerCase() === token.address.toLowerCase()
+        : normalizeSymbol(selected.symbol) === normalizeSymbol(token.symbol)),
+    [selected]
+  );
+
   const selectToken = useCallback(
     (token: TokenInfo) => {
-      onChange(toFormValue(token));
+      // Reselecting the current token just closes the modal with no change.
+      if (!isSameAsSelected(token)) {
+        onChange(toFormValue(token));
+      }
       handleClose();
     },
-    [handleClose, onChange, toFormValue]
+    [handleClose, isSameAsSelected, onChange, toFormValue]
   );
 
   const importToken = useCallback(async () => {
@@ -317,13 +350,14 @@ export function TokenSelector({ value, onChange }: Props) {
       blockchainState.signer?.provider ?? null
     );
     if (result.ok === false) {
+      // Invalid input never reaches the pill; the previous selection stays.
       if (generation === importGeneration.current) {
         setImportError(result.error);
         setIsImporting(false);
       }
       return;
     }
-    if (!supportedAddresses.has(result.token.address.toLowerCase())) {
+    if (!supportedCurrencyByAddress.has(result.token.address.toLowerCase())) {
       addCustomToken(result.token);
     }
     onChange(toFormValue(result.token));
@@ -339,7 +373,7 @@ export function TokenSelector({ value, onChange }: Props) {
     chainId,
     handleClose,
     onChange,
-    supportedAddresses,
+    supportedCurrencyByAddress,
     toFormValue,
     trimmedQuery,
   ]);
@@ -374,18 +408,8 @@ export function TokenSelector({ value, onChange }: Props) {
       event.preventDefault();
       event.stopPropagation();
       selectHighlighted();
-    } else if (event.key === "Escape") {
-      event.preventDefault();
-      handleClose();
     }
   };
-
-  const formattedBalance =
-    balance !== null
-      ? Number(balance).toLocaleString(undefined, {
-        maximumFractionDigits: 4,
-      })
-      : null;
 
   const checksumError =
     showImportRow && queryKind === "full-address" && !checksumValid
@@ -395,264 +419,276 @@ export function TokenSelector({ value, onChange }: Props) {
         : null;
   const inlineError = importError || checksumError;
 
+  // Pill label: known ticker, or a truncated address for symbol-less tokens.
+  const pillSymbol = selected?.symbol ?? "";
+  const pillIsGeneric = !selected || isAddressLikeSymbol(pillSymbol);
+  const pillLabel = selected
+    ? isAddressLikeSymbol(pillSymbol) && selected.address
+      ? truncateAddress(selected.address)
+      : pillSymbol
+    : ethers.utils.isAddress(value)
+      ? truncateAddress(value)
+      : "Select";
+
   return (
-    <Box>
-      <Popover
-        isOpen={isOpen}
-        onOpen={() => setIsOpen(true)}
-        onClose={handleClose}
-        placement="bottom-start"
-        matchWidth
-        gutter={6}
-        initialFocusRef={inputRef}
-        isLazy
+    <>
+      <Button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        h="auto"
+        minH={{ base: "56px", md: "50px" }}
+        maxW="180px"
+        borderRadius="16px"
+        border="1px solid"
+        borderColor={formTheme.borderDefault}
+        bg="brand.400"
+        px={3}
+        gap={2}
+        flexShrink={0}
+        justifyContent="center"
+        alignItems="center"
+        fontWeight={700}
+        transition="border-color 0.15s ease"
+        _hover={{ borderColor: "notaPurple.100", bg: "brand.400" }}
+        _active={{ bg: "brand.400" }}
+        pointerEvents={isImporting ? "none" : "auto"}
+        aria-label={
+          isImporting
+            ? "Resolving token"
+            : selected
+              ? `Change token, currently ${pillLabel}`
+              : "Select token"
+        }
       >
-        <PopoverTrigger>
-          <Button
-            type="button"
-            w="100%"
-            h="auto"
-            minH={{ base: "56px", md: "50px" }}
-            borderRadius="16px"
-            border="1px solid"
-            borderColor={isOpen ? "notaPurple.100" : formTheme.borderDefault}
-            bg="brand.600"
-            px={{ base: 4, md: 3 }}
-            py={2}
-            justifyContent="space-between"
-            alignItems="center"
-            gap={3}
-            fontWeight={600}
-            _hover={{ borderColor: "notaPurple.100", bg: "brand.600" }}
-            _active={{ bg: "brand.600" }}
-            aria-label={
-              selected
-                ? `Selected token ${selected.symbol}`
-                : "Select token"
-            }
-          >
-            <Flex align="center" gap={3} minW={0} flex={1}>
-              {selected ? (
-                <TokenIcon token={selected} imported={selectedImported} />
-              ) : (
-                <Flex
-                  w="30px"
-                  h="30px"
-                  borderRadius="full"
-                  bg="brand.500"
-                  flexShrink={0}
-                />
-              )}
-              <Box minW={0} textAlign="left">
-                <Text
-                  fontSize={{ base: "16px", md: "15px" }}
-                  fontWeight={700}
-                  color={formTheme.textDark}
-                  noOfLines={1}
-                >
-                  {selected?.symbol ?? "Select token"}
-                </Text>
-                {selected?.name && selected.name !== selected.symbol ? (
-                  <Text
-                    fontSize="12.5px"
-                    color={formTheme.muted}
-                    fontWeight={500}
-                    noOfLines={1}
-                  >
-                    {selected.name}
-                  </Text>
-                ) : null}
-              </Box>
-            </Flex>
-            <Flex align="center" gap={2} flexShrink={0}>
-              {/* {formattedBalance ? (
-                <Text
-                  fontSize="12.5px"
-                  color={formTheme.muted}
-                  fontWeight={600}
-                >
-                  {100000000}
-                </Text>
-              ) : null} */}
-              <Box
-                display="flex"
+        {isImporting ? (
+          <Spinner size="sm" color={formTheme.primary} />
+        ) : (
+          <>
+            {selected && !pillIsGeneric ? (
+              <TokenIcon
+                token={selected}
+                imported={selectedImported}
+                size="26px"
+              />
+            ) : (
+              <Flex
+                w="26px"
+                h="26px"
+                minW="26px"
+                borderRadius="full"
+                align="center"
+                justify="center"
+                flexShrink={0}
+                bg="brand.300"
                 color={formTheme.muted}
-                transform={isOpen ? "rotate(180deg)" : "rotate(0deg)"}
-                transition="transform 0.15s ease"
               >
-                <ChevronDown size={18} />
-              </Box>
-            </Flex>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          w="100%"
-          maxW="100%"
+                <Coins size={14} />
+              </Flex>
+            )}
+            <Text
+              fontSize={{ base: "16px", md: "15px" }}
+              fontWeight={700}
+              color="white"
+              maxW="104px"
+              overflow="hidden"
+              textOverflow="ellipsis"
+              whiteSpace="nowrap"
+            >
+              {pillLabel}
+            </Text>
+            <Box display="flex" color={formTheme.muted} flexShrink={0}>
+              <ChevronDown size={16} />
+            </Box>
+          </>
+        )}
+      </Button>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        isCentered
+        initialFocusRef={inputRef}
+        scrollBehavior="inside"
+      >
+        <ModalOverlay bg="blackAlpha.700" />
+        <ModalContent
           bg="brand.400"
           border="1px solid"
           borderColor="brand.500"
           borderRadius="16px"
-          overflow="hidden"
-          _focus={{ outline: "none", boxShadow: "none" }}
-          boxShadow="lg"
+          mx={4}
+          maxW="420px"
+          color={formTheme.text}
         >
-          <Flex
-            align="center"
-            gap={2}
-            mx={2}
-            mt={2}
-            mb={1}
-            px={3}
-            minH="44px"
-            bg="brand.600"
-            border="1px solid"
-            borderColor="brand.500"
-            borderRadius="12px"
+          <ModalHeader
+            fontSize="17px"
+            fontWeight={700}
+            color={formTheme.textDark}
+            pb={2}
           >
-            <Box color={formTheme.muted} display="flex" flexShrink={0}>
-              <Search size={16} />
-            </Box>
-            <Input
-              ref={inputRef}
-              variant="unstyled"
-              flex={1}
-              minW={0}
-              h="44px"
-              fontSize="15px"
-              color={formTheme.text}
-              placeholder="Search name or paste address"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="none"
-              spellCheck={false}
-              value={query}
-              role="combobox"
-              aria-expanded={isOpen}
-              aria-haspopup="listbox"
-              aria-autocomplete="list"
-              aria-controls={`${optionIdBase}-list`}
-              aria-activedescendant={
-                itemCount > 0 ? `${optionIdBase}-${highlightedIndex}` : undefined
-              }
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={onInputKeyDown}
-              sx={{
-                "&::placeholder": { color: formTheme.placeholder },
-              }}
-            />
-          </Flex>
-          {inlineError ? (
-            <Text
-              px={4}
-              pt={1}
-              pb={1}
-              fontSize="13px"
-              color={formTheme.error}
-              fontWeight={500}
+            Select a token
+          </ModalHeader>
+          <ModalCloseButton color={formTheme.muted} />
+          <ModalBody px={3} pt={0} pb={3}>
+            <Flex
+              align="center"
+              gap={2}
+              px={3}
+              minH="44px"
+              bg="brand.600"
+              border="1px solid"
+              borderColor="brand.500"
+              borderRadius="12px"
             >
-              {inlineError}
-            </Text>
-          ) : null}
-          <Box
-            ref={listRef}
-            id={`${optionIdBase}-list`}
-            role="listbox"
-            maxH={PANEL_MAX_H}
-            overflowY="auto"
-            py={1}
-          >
-            {isLoading && tokens.length === 0 && !showImportRow ? (
-              <Flex align="center" justify="center" gap={2} py={6}>
-                <Spinner size="sm" color={formTheme.primary} />
-                <Text fontSize="sm" color={formTheme.muted}>
-                  Loading tokens...
-                </Text>
-              </Flex>
-            ) : showImportRow ? (
-              <ImportRow
-                id={`${optionIdBase}-0`}
-                highlighted={highlightedIndex === 0}
-                canImport={canImport}
-                isImporting={isImporting}
-                address={checksumValid ? trimmedQuery : undefined}
-                onSelect={() => {
-                  void importToken();
+              <Box color={formTheme.muted} display="flex" flexShrink={0}>
+                <Search size={16} />
+              </Box>
+              <Input
+                ref={inputRef}
+                variant="unstyled"
+                flex={1}
+                minW={0}
+                h="44px"
+                fontSize="15px"
+                color={formTheme.text}
+                placeholder="Search name or paste address"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={query}
+                role="combobox"
+                aria-expanded={isOpen}
+                aria-haspopup="listbox"
+                aria-autocomplete="list"
+                aria-controls={`${optionIdBase}-list`}
+                aria-activedescendant={
+                  itemCount > 0
+                    ? `${optionIdBase}-${highlightedIndex}`
+                    : undefined
+                }
+                onChange={(event) => setQuery(event.target.value)}
+                onKeyDown={onInputKeyDown}
+                sx={{
+                  "&::placeholder": { color: formTheme.placeholder },
                 }}
               />
-            ) : visibleTokens.length === 0 ? (
+            </Flex>
+            {inlineError ? (
               <Text
-                px={4}
-                py={5}
-                fontSize="sm"
-                color={formTheme.muted}
-                textAlign="center"
+                px={1}
+                pt={2}
+                fontSize="13px"
+                color={formTheme.error}
+                fontWeight={500}
               >
-                No tokens found
+                {inlineError}
+              </Text>
+            ) : null}
+            {showImportRow ? (
+              <Text
+                px={1}
+                pt={2}
+                fontSize="12.5px"
+                color={formTheme.mutedFaded}
+                fontWeight={500}
+                lineHeight="1.4"
+              >
+                {CAUTION_COPY}
               </Text>
             ) : (
-              visibleTokens.map((token, index) => {
-                const imported = importedAddresses.has(
-                  token.address.toLowerCase()
-                );
-                return (
-                  <TokenRow
-                    key={token.address || token.symbol}
-                    id={`${optionIdBase}-${index}`}
-                    index={index}
-                    token={token}
-                    imported={imported}
-                    highlighted={index === highlightedIndex}
-                    selected={
-                      !!selected?.address &&
-                      selected.address.toLowerCase() ===
-                      token.address.toLowerCase()
-                    }
-                    onHighlight={setHighlightedIndex}
-                    onSelect={() => selectToken(token)}
-                  />
-                );
-              })
+              <Flex gap={2} mt={3} flexWrap="wrap">
+                {quickPickTokens.map((token) => {
+                  const active = isSameAsSelected(token);
+                  return (
+                    <Button
+                      key={token.address || token.symbol}
+                      type="button"
+                      size="sm"
+                      h="34px"
+                      px={2.5}
+                      gap={1.5}
+                      borderRadius="full"
+                      border="1px solid"
+                      borderColor={
+                        active ? formTheme.selectedBorder : "brand.500"
+                      }
+                      bg={active ? formTheme.selectedBgMuted : "brand.600"}
+                      color={formTheme.textDark}
+                      fontSize="13px"
+                      fontWeight={700}
+                      _hover={{ borderColor: "notaPurple.100" }}
+                      _active={{ bg: "brand.600" }}
+                      onClick={() => selectToken(token)}
+                    >
+                      <TokenIcon token={token} size="18px" />
+                      {token.symbol}
+                    </Button>
+                  );
+                })}
+              </Flex>
             )}
-          </Box>
-        </PopoverContent>
-      </Popover>
-      {selectedImported && selected?.address ? (
-        <Flex
-          mt={2.5}
-          gap={2.5}
-          align="flex-start"
-          px={3}
-          py={2.5}
-          borderRadius="12px"
-          border="1px solid"
-          borderColor="brand.500"
-          bg="brand.600"
-        >
-          <Box color={formTheme.primary} mt="1px" flexShrink={0}>
-            <AlertTriangle size={15} />
-          </Box>
-          <Box minW={0}>
-            <Text
-              fontSize="12.5px"
-              color={formTheme.mutedLight}
-              fontWeight={500}
-              lineHeight="1.4"
+            <Divider my={3} borderColor="brand.500" />
+            <Box
+              ref={listRef}
+              id={`${optionIdBase}-list`}
+              role="listbox"
+              maxH={PANEL_MAX_H}
+              overflowY="auto"
+              mx={-1}
             >
-              {CAUTION_COPY}
-            </Text>
-            <Text
-              mt={1}
-              fontSize="12px"
-              color={formTheme.muted}
-              fontWeight={600}
-              fontFamily="mono"
-            >
-              {truncateAddress(selected.address)}
-            </Text>
-          </Box>
-        </Flex>
-      ) : null}
-    </Box>
+              {isLoading && tokens.length === 0 && !showImportRow ? (
+                <Flex align="center" justify="center" gap={2} py={6}>
+                  <Spinner size="sm" color={formTheme.primary} />
+                  <Text fontSize="sm" color={formTheme.muted}>
+                    Loading tokens...
+                  </Text>
+                </Flex>
+              ) : showImportRow ? (
+                <ImportRow
+                  id={`${optionIdBase}-0`}
+                  highlighted={highlightedIndex === 0}
+                  canImport={canImport}
+                  isImporting={isImporting}
+                  address={checksumValid ? trimmedQuery : undefined}
+                  onSelect={() => {
+                    void importToken();
+                  }}
+                />
+              ) : visibleTokens.length === 0 ? (
+                <Text
+                  px={4}
+                  py={5}
+                  fontSize="sm"
+                  color={formTheme.muted}
+                  textAlign="center"
+                >
+                  No tokens found
+                </Text>
+              ) : (
+                visibleTokens.map((token, index) => {
+                  const imported = importedAddresses.has(
+                    token.address.toLowerCase()
+                  );
+                  return (
+                    <TokenRow
+                      key={token.address || token.symbol}
+                      id={`${optionIdBase}-${index}`}
+                      index={index}
+                      token={token}
+                      imported={imported}
+                      highlighted={index === highlightedIndex}
+                      selected={isSameAsSelected(token)}
+                      onHighlight={setHighlightedIndex}
+                      onSelect={() => selectToken(token)}
+                    />
+                  );
+                })
+              )}
+            </Box>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 
@@ -693,7 +729,7 @@ function TokenIcon({
       borderRadius="full"
       align="center"
       justify="center"
-      fontSize={size === "30px" ? "15px" : "13px"}
+      fontSize={size === "30px" ? "15px" : "12px"}
       fontWeight={700}
       flexShrink={0}
       bg={glyph?.color ?? "brand.200"}
@@ -735,6 +771,7 @@ function TokenRow({
       py={2}
       minH="48px"
       cursor="pointer"
+      borderRadius="10px"
       bg={highlighted ? "brand.300" : "transparent"}
       _hover={{ bg: "brand.300" }}
       onMouseEnter={() => onHighlight(index)}
@@ -772,7 +809,7 @@ function TokenRow({
           {token.name}
         </Text>
       </Box>
-      {token.address ? (
+      {token.address && !selected ? (
         <Text
           fontSize="12px"
           color={formTheme.mutedFaded}
@@ -782,6 +819,11 @@ function TokenRow({
         >
           {truncateAddress(token.address)}
         </Text>
+      ) : null}
+      {selected ? (
+        <Box color={formTheme.selectedBorder} flexShrink={0} display="flex">
+          <Check size={18} strokeWidth={3} />
+        </Box>
       ) : null}
     </Flex>
   );
@@ -816,7 +858,8 @@ function ImportRow({
       py={2.5}
       minH="52px"
       cursor={enabled ? "pointer" : "not-allowed"}
-      opacity={enabled ? 1 : 0.55}
+      opacity={enabled || isImporting ? 1 : 0.55}
+      borderRadius="10px"
       bg={highlighted && enabled ? "brand.300" : "transparent"}
       _hover={enabled ? { bg: "brand.300" } : undefined}
       onMouseDown={(event) => event.preventDefault()}
@@ -845,7 +888,7 @@ function ImportRow({
           color={formTheme.textDark}
           noOfLines={1}
         >
-          Import token
+          {isImporting ? "Resolving token..." : "Import token"}
         </Text>
         <Text
           fontSize="12.5px"
