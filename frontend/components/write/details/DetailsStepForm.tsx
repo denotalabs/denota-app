@@ -16,9 +16,13 @@ import {
   quickPaymentButtonText,
   useQuickPayment,
 } from "../../../hooks/useQuickPayment";
+import { useTokens } from "../../../hooks/useTokens";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
 import { useVisualViewportKeyboard } from "../../../hooks/useVisualViewportKeyboard";
-import { useTokens } from "../../../hooks/useTokens";
+import {
+  type AttachmentStorageSettings,
+  normalizeStorageSettings,
+} from "../../../utils/attachmentStorage";
 import { getEffectiveAddress } from "../../../utils/ensAddress";
 import { normalizePaymentMetadataUris } from "../../../utils/metadataUri";
 import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
@@ -49,6 +53,7 @@ export type DetailsStepFormValues = {
   tags: string;
   externalURI: string;
   imageURI: string;
+  attachmentStorage: AttachmentStorageSettings;
 };
 
 type DetailsSubmitContext = {
@@ -100,6 +105,9 @@ export function DetailsStepForm() {
       tags: notaFormValues.tags ?? "",
       externalURI: notaFormValues.externalURI ?? "",
       imageURI: notaFormValues.imageURI ?? "",
+      attachmentStorage: normalizeStorageSettings(
+        notaFormValues.attachmentStorage
+      ),
     },
     onSubmit: async (values) => {
       const ctx = submitContext.current;
@@ -211,8 +219,10 @@ export function DetailsStepForm() {
       tags: formik.values.tags,
       externalURI: formik.values.externalURI,
       imageURI: formik.values.imageURI,
+      attachmentStorage: formik.values.attachmentStorage,
     });
   }, [
+    formik.values.attachmentStorage,
     formik.values.email,
     formik.values.externalURI,
     formik.values.imageURI,

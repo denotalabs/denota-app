@@ -37,7 +37,7 @@ function MetadataBox() {
             fontWeight={700}
             color={formTheme.text}
           >
-            Metadata
+            Attachments
           </Text>
           <Text fontSize="sm" color={formTheme.muted}>
             (optional)
