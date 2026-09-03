@@ -185,7 +185,7 @@ function AdvancedMetadataForm({
         </Text>
 
         <SectionLabel icon={Eye} mt={4}>
-          Who can read it
+          Privacy
         </SectionLabel>
         <Box {...panelProps}>
           <HandlingOption
