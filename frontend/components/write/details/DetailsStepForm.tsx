@@ -349,7 +349,7 @@ export function DetailsStepForm() {
           >
             Payment Details
           </Text>
-          <PaymentDetails showMetadata={showMetadataForm} />
+          <PaymentDetails showAttachments={showMetadataForm} />
           {isMobile && keyboardOpen ? (
             <Box mt={2} mb={2}>{continueButton}</Box>
           ) : null}

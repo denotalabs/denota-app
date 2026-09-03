@@ -14,7 +14,7 @@ interface Props {
 
 /**
  * Bottom row of the attachment box: a text-styled button that opens the
- * advanced metadata modal, and a read-only chip projection of the applied
+ * attachment storage modal, and a read-only chip projection of the applied
  * settings (e.g. Durable · Public · Standard).
  */
 export function AttachmentStorageFooter({ settings, onOpenSettings }: Props) {

@@ -12,6 +12,7 @@ import {
   ModalOverlay,
   SimpleGrid,
   Text,
+  type TextProps,
   useRadio,
   useRadioGroup,
   type UseRadioProps,
@@ -33,7 +34,9 @@ import {
 import { type ReactNode, useId, useState } from "react";
 import {
   type AttachmentStorageSettings,
+  ENCRYPTION_AVAILABLE,
   getStorageOption,
+  NOTARIZATION_AVAILABLE,
   STORAGE_OPTIONS,
   type StorageId,
   type StorageOption,
@@ -85,7 +88,7 @@ interface Props {
  * Configures how an attachment is stored, who can read it, and how it's
  * proven. Cancel discards the draft; Apply commits it back to the parent.
  */
-export function AdvancedMetadataModal({
+export function AttachmentStorageModal({
   isOpen,
   onClose,
   value,
@@ -104,7 +107,7 @@ export function AdvancedMetadataModal({
         color={formTheme.text}
       >
         {/* Mounted only while open, so each open starts from the applied value. */}
-        <AdvancedMetadataForm
+        <AttachmentStorageForm
           initial={value}
           onCancel={onClose}
           onApply={(settings) => {
@@ -117,7 +120,7 @@ export function AdvancedMetadataModal({
   );
 }
 
-function AdvancedMetadataForm({
+function AttachmentStorageForm({
   initial,
   onCancel,
   onApply,
@@ -192,6 +195,7 @@ function AdvancedMetadataForm({
             label="Encrypt contents"
             description={ENCRYPT_DESCRIPTION}
             isChecked={draft.encrypted}
+            isDisabled={!ENCRYPTION_AVAILABLE}
             onChange={(encrypted) =>
               setDraft((current) => ({ ...current, encrypted }))
             }
@@ -206,6 +210,7 @@ function AdvancedMetadataForm({
             label="Notarize"
             description={NOTARIZE_DESCRIPTION}
             isChecked={draft.notarized}
+            isDisabled={!NOTARIZATION_AVAILABLE}
             onChange={(notarized) =>
               setDraft((current) => ({ ...current, notarized }))
             }
@@ -298,6 +303,28 @@ function SectionLabel({
   );
 }
 
+/** Marks a control whose backend isn't implemented yet. */
+function SoonBadge(props: TextProps) {
+  return (
+    <Text
+      as="span"
+      fontSize="9px"
+      fontWeight={700}
+      lineHeight={1}
+      letterSpacing="0.06em"
+      textTransform="uppercase"
+      px={1}
+      py="3px"
+      borderRadius="4px"
+      bg="brand.500"
+      color={formTheme.mutedLight}
+      {...props}
+    >
+      Soon
+    </Text>
+  );
+}
+
 function StorageTile({
   option,
   radioProps,
@@ -342,24 +369,7 @@ function StorageTile({
         }}
       >
         {!option.available ? (
-          <Text
-            as="span"
-            position="absolute"
-            top="6px"
-            left="6px"
-            fontSize="9px"
-            fontWeight={700}
-            lineHeight={1}
-            letterSpacing="0.06em"
-            textTransform="uppercase"
-            px={1}
-            py="3px"
-            borderRadius="4px"
-            bg="brand.500"
-            color={formTheme.mutedLight}
-          >
-            Soon
-          </Text>
+          <SoonBadge position="absolute" top="6px" left="6px" />
         ) : null}
         {option.onchain ? (
           <Flex
@@ -399,42 +409,52 @@ function HandlingOption({
   label,
   description,
   isChecked,
+  isDisabled,
   onChange,
 }: {
   label: string;
   description: string;
   isChecked: boolean;
+  isDisabled?: boolean;
   onChange: (checked: boolean) => void;
 }) {
   return (
     <Checkbox
       isChecked={isChecked}
+      isDisabled={isDisabled}
       onChange={(event) => onChange(event.target.checked)}
       w="100%"
       alignItems="flex-start"
       spacing={3}
       px={3}
       py={2.5}
-      cursor="pointer"
+      cursor={isDisabled ? "not-allowed" : "pointer"}
       sx={{
         ".chakra-checkbox__control": {
           mt: "2px",
           borderColor: "whiteAlpha.400",
           borderRadius: "5px",
         },
+        // The rule above would otherwise keep the disabled box looking active.
+        ".chakra-checkbox__control[data-disabled]": {
+          borderColor: "whiteAlpha.200",
+          bg: "whiteAlpha.100",
+        },
       }}
     >
       {/* Spans: the checkbox label slot is inline content. */}
-      <Text
-        as="span"
-        display="block"
-        fontSize="14px"
-        fontWeight={600}
-        lineHeight={1.3}
-        color={formTheme.text}
-      >
-        {label}
-      </Text>
+      <Flex as="span" align="center" gap={2}>
+        <Text
+          as="span"
+          fontSize="14px"
+          fontWeight={600}
+          lineHeight={1.3}
+          color={formTheme.text}
+        >
+          {label}
+        </Text>
+        {isDisabled ? <SoonBadge /> : null}
+      </Flex>
       <Text
         as="span"
         display="block"
@@ -449,4 +469,4 @@ function HandlingOption({
   );
 }
 
-export default AdvancedMetadataModal;
+export default AttachmentStorageModal;

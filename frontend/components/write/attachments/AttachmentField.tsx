@@ -12,8 +12,8 @@ import {
 } from "../../../utils/attachmentStorage";
 import { FormInputWrap } from "../../designSystem/form/FormInputWrap";
 import { formTheme } from "../../designSystem/form/formTheme";
-import { AdvancedMetadataModal } from "./AdvancedMetadataModal";
 import { AttachmentStorageFooter } from "./AttachmentStorageFooter";
+import { AttachmentStorageModal } from "./AttachmentStorageModal";
 import { FileUploadButton } from "./FileUpload";
 
 export type AttachmentKind = "document" | "image";
@@ -64,12 +64,12 @@ export function useAttachedLinks(): PerKind<string> {
   };
 }
 
-export function MetadataAttachmentField() {
+export function AttachmentField() {
   const { values, setFieldValue } = useFormikContext<AttachmentFormValues>();
   const attached = useAttachedLinks();
   const storageSettings =
     values.attachmentStorage ?? DEFAULT_ATTACHMENT_STORAGE_SETTINGS;
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [isStorageModalOpen, setIsStorageModalOpen] = useState(false);
   const [kind, setKind] = useState<AttachmentKind>("document");
   const [drafts, setDrafts] = useState<PerKind<string>>({
     document: "",
@@ -124,7 +124,7 @@ export function MetadataAttachmentField() {
     setFieldValue(KIND_FIELD[kind], "");
   };
 
-  const openAdvanced = () => setIsAdvancedOpen(true);
+  const openStorageModal = () => setIsStorageModalOpen(true);
   const applyStorageSettings = (settings: AttachmentStorageSettings) => {
     setFieldValue(STORAGE_FIELD, settings, false);
   };
@@ -272,7 +272,7 @@ export function MetadataAttachmentField() {
             </Flex>
             <AttachmentStorageFooter
               settings={storageSettings}
-              onOpenSettings={openAdvanced}
+              onOpenSettings={openStorageModal}
             />
           </FormInputWrap>
           {error ? (
@@ -294,9 +294,9 @@ export function MetadataAttachmentField() {
           )}
         </>
       )}
-      <AdvancedMetadataModal
-        isOpen={isAdvancedOpen}
-        onClose={() => setIsAdvancedOpen(false)}
+      <AttachmentStorageModal
+        isOpen={isStorageModalOpen}
+        onClose={() => setIsStorageModalOpen(false)}
         value={storageSettings}
         onApply={applyStorageSettings}
       />
@@ -304,4 +304,4 @@ export function MetadataAttachmentField() {
   );
 }
 
-export default MetadataAttachmentField;
+export default AttachmentField;

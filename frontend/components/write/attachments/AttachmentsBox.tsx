@@ -4,15 +4,12 @@ import { useState } from "react";
 
 import { formTheme } from "../../designSystem/form/formTheme";
 import InfoTooltip from "../../designSystem/InfoTooltip";
-import {
-  MetadataAttachmentField,
-  useAttachedLinks,
-} from "./MetadataAttachmentField";
+import { AttachmentField, useAttachedLinks } from "./AttachmentField";
 
-const METADATA_TOOLTIP =
+const ATTACHMENTS_TOOLTIP =
   "Memos, invoices, contracts, delivery proofs, receipts, purchase orders, quotes, etc.";
 
-function MetadataBox() {
+function AttachmentsBox() {
   const [isOpen, setIsOpen] = useState(false);
   const attached = useAttachedLinks();
   const attachedCount = Object.values(attached).filter(Boolean).length;
@@ -27,7 +24,7 @@ function MetadataBox() {
         justify="space-between"
         textAlign="left"
         aria-expanded={isOpen}
-        aria-controls="metadata-panel"
+        aria-controls="attachments-panel"
         onClick={() => setIsOpen((open) => !open)}
         py={1}
       >
@@ -44,7 +41,7 @@ function MetadataBox() {
           </Text>
           {/* Keep tooltip taps from toggling the panel on mobile. */}
           <Box as="span" onClick={(event) => event.stopPropagation()}>
-            <InfoTooltip label={METADATA_TOOLTIP} />
+            <InfoTooltip label={ATTACHMENTS_TOOLTIP} />
           </Box>
         </HStack>
         <HStack spacing={2}>
@@ -77,12 +74,12 @@ function MetadataBox() {
         </HStack>
       </Flex>
       <Collapse in={isOpen} animateOpacity>
-        <Box id="metadata-panel" pt={{ base: 3, md: 2.5 }}>
-          <MetadataAttachmentField />
+        <Box id="attachments-panel" pt={{ base: 3, md: 2.5 }}>
+          <AttachmentField />
         </Box>
       </Collapse>
     </Box>
   );
 }
 
-export default MetadataBox;
+export default AttachmentsBox;

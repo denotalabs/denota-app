@@ -69,6 +69,12 @@ export const DEFAULT_ATTACHMENT_STORAGE_SETTINGS: AttachmentStorageSettings = {
   notarized: false,
 };
 
+/** False while client-side encryption isn't implemented (control is disabled). */
+export const ENCRYPTION_AVAILABLE = false;
+
+/** False while notarization isn't implemented (control is disabled). */
+export const NOTARIZATION_AVAILABLE = false;
+
 const STORAGE_BY_ID = new Map(STORAGE_OPTIONS.map((option) => [option.id, option]));
 
 export function getStorageOption(id: StorageId): StorageOption {
@@ -81,7 +87,8 @@ export function isStorageId(value: unknown): value is StorageId {
 
 /**
  * Coerce a loosely typed value (e.g. from persisted form data) into valid
- * settings. Unknown or not-yet-available tiers fall back to the default.
+ * settings. Unknown or not-yet-available tiers fall back to the default, and
+ * handling flags stay off while their feature isn't implemented.
  */
 export function normalizeStorageSettings(
   value: unknown
@@ -93,8 +100,8 @@ export function normalizeStorageSettings(
       : DEFAULT_ATTACHMENT_STORAGE_SETTINGS.storage;
   return {
     storage,
-    encrypted: raw.encrypted === true,
-    notarized: raw.notarized === true,
+    encrypted: ENCRYPTION_AVAILABLE && raw.encrypted === true,
+    notarized: NOTARIZATION_AVAILABLE && raw.notarized === true,
   };
 }
 
