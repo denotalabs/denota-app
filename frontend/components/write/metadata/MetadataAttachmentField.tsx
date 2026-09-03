@@ -42,12 +42,12 @@ const KIND_OPTIONS: { value: AttachmentKind; label: string }[] = [
 ];
 
 const PLACEHOLDER: Record<AttachmentKind, string> = {
-  document: "Document URL",
-  image: "Image URL",
+  document: "Paste a link or upload a file",
+  image: "Paste a link or upload an image",
 };
 
 const HELPER_TEXT =
-  "Paste a link and press enter to attach. Visible to the recipient.";
+  "Links are publicly visible on the blockchain.";
 const INVALID_TEXT = "That doesn't look like a valid link. Check the URL.";
 
 const ROW_MIN_HEIGHT = { base: "56px", md: "50px" };
