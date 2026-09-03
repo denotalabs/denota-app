@@ -1,18 +1,36 @@
-import { HStack, Text, VStack } from "@chakra-ui/react";
+import { Box, Collapse, Flex, HStack, Text } from "@chakra-ui/react";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
-import { FormSection } from "../../designSystem/form/FormSection";
 import { formTheme } from "../../designSystem/form/formTheme";
 import InfoTooltip from "../../designSystem/InfoTooltip";
-import ExternalURIField from "../../fields/input/ExternalURIField";
-import ImageURIField from "../../fields/input/ImageURIField";
+import {
+  MetadataAttachmentField,
+  useAttachedLinks,
+} from "./MetadataAttachmentField";
 
 const METADATA_TOOLTIP =
   "Memos, invoices, contracts, delivery proofs, receipts, purchase orders, quotes, etc.";
 
 function MetadataBox() {
+  const [isOpen, setIsOpen] = useState(false);
+  const attached = useAttachedLinks();
+  const attachedCount = Object.values(attached).filter(Boolean).length;
+
   return (
-    <FormSection
-      label={
+    <Box as="section" mb={{ base: 5, md: 4 }}>
+      <Flex
+        as="button"
+        type="button"
+        w="100%"
+        align="center"
+        justify="space-between"
+        textAlign="left"
+        aria-expanded={isOpen}
+        aria-controls="metadata-panel"
+        onClick={() => setIsOpen((open) => !open)}
+        py={1}
+      >
         <HStack align="baseline" spacing={1}>
           <Text
             fontSize={{ base: "17px", md: "md" }}
@@ -24,24 +42,46 @@ function MetadataBox() {
           <Text fontSize="sm" color={formTheme.muted}>
             (optional)
           </Text>
-          <InfoTooltip label={METADATA_TOOLTIP} />
+          {/* Keep tooltip taps from toggling the panel on mobile. */}
+          <Box as="span" onClick={(event) => event.stopPropagation()}>
+            <InfoTooltip label={METADATA_TOOLTIP} />
+          </Box>
         </HStack>
-      }
-    >
-      {/* <Text fontSize="sm" color={formTheme.mutedLight} mb={3}>
-        Attach a document or image to record what this payment is for.
-      </Text> */}
-      <VStack align="stretch" spacing={2}>
-        <ExternalURIField
-          fieldName="externalURI"
-          placeholder="Document URL, or upload a file"
-        />
-        <ImageURIField
-          fieldName="imageURI"
-          placeholder="Image URL, or upload a file"
-        />
-      </VStack>
-    </FormSection>
+        <HStack spacing={2}>
+          {attachedCount > 0 ? (
+            <Text
+              as="span"
+              fontSize="11.5px"
+              fontWeight={700}
+              lineHeight={1}
+              px={2}
+              py={1}
+              borderRadius="full"
+              bg="green.900"
+              border="1px solid"
+              borderColor="green.700"
+              color="green.200"
+              whiteSpace="nowrap"
+            >
+              {attachedCount} attached
+            </Text>
+          ) : null}
+          <Box
+            color={formTheme.muted}
+            display="flex"
+            transition="transform 0.2s ease"
+            transform={isOpen ? "rotate(180deg)" : "rotate(0deg)"}
+          >
+            <ChevronDown size={18} strokeWidth={2.25} />
+          </Box>
+        </HStack>
+      </Flex>
+      <Collapse in={isOpen} animateOpacity>
+        <Box id="metadata-panel" pt={{ base: 3, md: 2.5 }}>
+          <MetadataAttachmentField />
+        </Box>
+      </Collapse>
+    </Box>
   );
 }
 

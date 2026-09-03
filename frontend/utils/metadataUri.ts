@@ -1,5 +1,3 @@
-import { ipfsToHttpUrl } from "./ipfsGateway";
-
 export type MetadataUriKind =
   | "empty"
   | "http"
@@ -29,10 +27,16 @@ function extractCidFromIpfsUri(value: string): string | null {
   return cid && isIpfsCid(cid) ? cid : null;
 }
 
-function extractCidFromGatewayUrl(value: string): string | null {
-  const match = value.match(/\/ipfs\/([^/?#]+)/i);
+/** CID from a gateway URL plus the path/query that follows it. */
+function extractCidFromGatewayUrl(
+  value: string
+): { cid: string; suffix: string } | null {
+  const match = /\/ipfs\/([^/?#]+)/i.exec(value);
   const cid = match?.[1]?.trim();
-  return cid && isIpfsCid(cid) ? cid : null;
+  if (!match || !cid || !isIpfsCid(cid)) {
+    return null;
+  }
+  return { cid, suffix: value.slice(match.index + match[0].length) };
 }
 
 /** Classify a metadata URI and produce the normalized onchain value. */
@@ -43,16 +47,12 @@ export function parseMetadataUri(input: string): ParsedMetadataUri {
   }
 
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    const gatewayCid = extractCidFromGatewayUrl(trimmed);
-    if (gatewayCid) {
-      const suffix = trimmed.slice(
-        trimmed.toLowerCase().indexOf(`/ipfs/${gatewayCid}`) +
-          `/ipfs/${gatewayCid}`.length
-      );
+    const gateway = extractCidFromGatewayUrl(trimmed);
+    if (gateway) {
       return {
         kind: "gateway",
-        normalized: `ipfs://${gatewayCid}${suffix}`,
-        cid: gatewayCid,
+        normalized: `ipfs://${gateway.cid}${gateway.suffix}`,
+        cid: gateway.cid,
       };
     }
     return { kind: "http", normalized: trimmed, cid: null };
@@ -95,79 +95,4 @@ export function normalizePaymentMetadataUris(values: {
     externalURI: normalizeMetadataUri(values.externalURI),
     imageURI: normalizeMetadataUri(values.imageURI),
   };
-}
-
-export type IpfsVerificationStatus = "idle" | "checking" | "found" | "missing";
-
-/** HEAD-check whether IPFS content is reachable via the configured gateway. */
-export async function verifyIpfsAvailability(
-  uri: string
-): Promise<boolean> {
-  const url = ipfsToHttpUrl(uri);
-  try {
-    const response = await fetch(url, {
-      method: "HEAD",
-      signal: AbortSignal.timeout(8_000),
-    });
-    if (response.ok) {
-      return true;
-    }
-    const getResponse = await fetch(url, {
-      method: "GET",
-      signal: AbortSignal.timeout(8_000),
-    });
-    return getResponse.ok;
-  } catch {
-    return false;
-  }
-}
-
-export function metadataUriNeedsNormalization(input: string): boolean {
-  const trimmed = input.trim();
-  if (!trimmed) {
-    return false;
-  }
-  return parseMetadataUri(trimmed).normalized !== trimmed;
-}
-
-export function metadataUriHelperText(
-  parsed: ParsedMetadataUri,
-  verification: IpfsVerificationStatus,
-  currentValue: string
-): string | undefined {
-  if (parsed.kind === "empty") {
-    return undefined;
-  }
-
-  const trimmed = currentValue.trim();
-  const isCommitted =
-    trimmed.length > 0 && parsed.normalized === trimmed;
-
-  if (parsed.cid) {
-    if (verification === "checking") {
-      return isCommitted
-        ? "Checking IPFS content…"
-        : `Will be stored as ${parsed.normalized}. Checking IPFS…`;
-    }
-    if (verification === "found") {
-      return isCommitted
-        ? "IPFS content found — this is what will be stored onchain."
-        : `IPFS content found. Will be stored as ${parsed.normalized}.`;
-    }
-    if (verification === "missing") {
-      return isCommitted
-        ? "Could not verify IPFS content — double-check before continuing."
-        : `Could not verify IPFS content. Will be stored as ${parsed.normalized}.`;
-    }
-    if (!isCommitted) {
-      return `Will be stored onchain as ${parsed.normalized}.`;
-    }
-    return "IPFS link — this is what will be stored onchain.";
-  }
-  if (parsed.kind === "http") {
-    return isCommitted
-      ? "HTTP/HTTPS URL — stored as entered."
-      : "HTTP/HTTPS URL.";
-  }
-  return undefined;
 }
