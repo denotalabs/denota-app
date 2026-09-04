@@ -225,7 +225,7 @@ function AttachmentStorageForm({
             gap={1.5}
             flex={1}
             minW={0}
-            color="orange.200"
+            color="orange.600"
             fontSize="12.5px"
             fontWeight={500}
             lineHeight={1.4}
@@ -431,13 +431,13 @@ function HandlingOption({
       sx={{
         ".chakra-checkbox__control": {
           mt: "2px",
-          borderColor: "whiteAlpha.400",
+          borderColor: "gray.400",
           borderRadius: "5px",
         },
         // The rule above would otherwise keep the disabled box looking active.
         ".chakra-checkbox__control[data-disabled]": {
-          borderColor: "whiteAlpha.200",
-          bg: "whiteAlpha.100",
+          borderColor: "gray.200",
+          bg: "gray.50",
         },
       }}
     >

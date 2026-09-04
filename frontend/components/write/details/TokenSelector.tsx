@@ -488,7 +488,7 @@ export function TokenSelector({ value, onChange }: Props) {
             <Text
               fontSize={{ base: "16px", md: "15px" }}
               fontWeight={700}
-              color="white"
+              color={formTheme.textDark}
               maxW="104px"
               overflow="hidden"
               textOverflow="ellipsis"

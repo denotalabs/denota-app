@@ -83,7 +83,7 @@ export function AttachmentStorageFooter({ settings, onOpenSettings }: Props) {
             px={1.5}
             py={1}
             borderRadius="full"
-            bg="whiteAlpha.100"
+            bg="gray.100"
             color={formTheme.mutedLight}
             whiteSpace="nowrap"
           >

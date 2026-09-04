@@ -57,7 +57,9 @@ export default function WalletInfo() {
   if (account === "")
     return (
       <Button
-        colorScheme="blue"
+        bg="brand.200"
+        color="brand.100"
+        _hover={{ bg: "black" }}
         onClick={() => {
           connectWallet?.();
         }}
@@ -73,6 +75,8 @@ export default function WalletInfo() {
         rounded="full"
         cursor="pointer"
         bg="brand.600"
+        border="1px solid"
+        borderColor="gray.200"
         rightIcon={<ChevronDownIcon />}
       >
         <Flex alignItems="center" justifyContent="center">

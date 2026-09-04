@@ -17,6 +17,8 @@ export function BatchBridgeFlow({ onClose }: Props) {
       py={2}
       px={4}
       borderRadius="30px"
+      border="1px solid"
+      borderColor="gray.200"
       spacing={0}
     >
       <NotaFormProvider>

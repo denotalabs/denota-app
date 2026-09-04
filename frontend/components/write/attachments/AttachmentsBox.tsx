@@ -57,7 +57,7 @@ function AttachmentsBox() {
               bg="green.900"
               border="1px solid"
               borderColor="green.700"
-              color="green.200"
+              color="green.600"
               whiteSpace="nowrap"
             >
               {attachedCount} attached

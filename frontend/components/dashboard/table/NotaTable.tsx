@@ -155,7 +155,7 @@ export function NotaTable({ rows }: NotaTableProps) {
                 key={row.notaId}
                 onClick={() => router.push(`/nota/${row.notaId}`)}
                 cursor="pointer"
-                _hover={{ bg: "whiteAlpha.100" }}
+                _hover={{ bg: "gray.50" }}
               >
                 <Td>
                   {/* The real link: keyboard focus, and open-in-new-tab still

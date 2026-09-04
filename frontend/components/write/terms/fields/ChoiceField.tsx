@@ -89,7 +89,7 @@ export function ChoiceField<
                 <Tag
                   size="sm"
                   variant="subtle"
-                  colorScheme="purple"
+                  colorScheme="gray"
                   borderRadius="full"
                   fontSize="10px"
                   px={1.5}

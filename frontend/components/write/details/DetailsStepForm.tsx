@@ -323,7 +323,7 @@ export function DetailsStepForm() {
   );
 
   const usePinnedCta = isMobile && !keyboardOpen;
-  const scrollBottomPadding = usePinnedCta ? "130px" : isMobile ? 4 : 0;
+  const scrollBottomPadding = usePinnedCta ? "130px" : { base: 5, md: 4 };
 
   return (
     <FormikProvider value={formik}>

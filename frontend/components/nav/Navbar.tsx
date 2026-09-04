@@ -38,8 +38,8 @@ const LinkItems: Array<LinkItemProps> = [
 export default function Navbar({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const bg = useColorModeValue("white", "gray.900");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const bg = useColorModeValue("white", "brand.100");
+  const borderColor = useColorModeValue("gray.200", "whiteAlpha.200");
 
   return (
     <Box minH="100vh" display="flex" flexDirection="column">
@@ -170,7 +170,7 @@ const SocialIcons = () => {
   return (
     <HStack>
       <SocialIcon
-        fgColor="white"
+        fgColor="#111111"
         bgColor="transparent"
         url="https://twitter.com/almarazETH"
         style={{ height: 26, width: 26 }}
@@ -182,7 +182,7 @@ const SocialIcons = () => {
         </Center>
       </Link> */}
       <SocialIcon
-        fgColor="white"
+        fgColor="#111111"
         bgColor="transparent"
         url="https://www.linkedin.com/in/alejandro-a-almaraz/"
         style={{ height: 26, width: 26 }}
@@ -233,11 +233,10 @@ const NavItem = ({
         cursor="pointer"
         w={isMobile ? "full" : undefined}
         _hover={{
-          bg: "brand.500",
-          color: "white",
+          bg: "gray.100",
         }}
-        bgColor={isSelected ? "brand.400" : undefined}
-        color={isSelected ? "white" : undefined}
+        bgColor={isSelected ? "gray.100" : undefined}
+        color="gray.900"
       >
         {name}
       </Text>

@@ -45,7 +45,7 @@ export function PaymentFlowStepRow({ paymentType, activeIndex }: Props) {
             minW={0}
           >
             <Text
-              color={isActive || isPast ? "brand.200" : "whiteAlpha.500"}
+              color={isActive || isPast ? "brand.200" : "gray.400"}
               letterSpacing="0.3px"
               flexShrink={0}
             >

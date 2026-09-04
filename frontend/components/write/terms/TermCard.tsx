@@ -153,7 +153,7 @@ export function PromotedTermCard({
                 {title}
               </Text>
               {tag ? (
-                <Tag size="sm" colorScheme="purple" borderRadius="full">
+                <Tag size="sm" colorScheme="gray" borderRadius="full">
                   {tag}
                 </Tag>
               ) : null}

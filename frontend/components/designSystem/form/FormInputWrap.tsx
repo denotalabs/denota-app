@@ -28,10 +28,10 @@ export function FormInputWrap({
       pl={{ base: 4, md: 4 }}
       minH={{ base: "56px", md: "50px" }}
       _focusWithin={{
-        borderColor: isInvalid ? formTheme.error : "notaPurple.100",
+        borderColor: isInvalid ? formTheme.error : "brand.200",
         boxShadow: isInvalid
           ? "0 0 0 1px var(--chakra-colors-red-400) inset"
-          : "0 0 0 1px var(--chakra-colors-notaPurple-100) inset",
+          : "0 0 0 1px var(--chakra-colors-brand-200) inset",
       }}
       sx={{
         "& input": { color: formTheme.text, bg: "transparent" },
@@ -41,8 +41,8 @@ export function FormInputWrap({
           {
             WebkitBoxShadow:
               "0 0 0 1000px var(--chakra-colors-brand-400) inset",
-            WebkitTextFillColor: "var(--chakra-colors-whiteAlpha-900)",
-            caretColor: "var(--chakra-colors-whiteAlpha-900)",
+            WebkitTextFillColor: "var(--chakra-colors-gray-900)",
+            caretColor: "var(--chakra-colors-gray-900)",
             transition: "background-color 9999s ease-out 0s",
           },
       }}

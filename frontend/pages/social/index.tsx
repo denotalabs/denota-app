@@ -104,6 +104,8 @@ function SocialPage() {
         borderRadius="30px"
         width="95%"
         maxWidth="65rem"
+        border="1px solid"
+        borderColor="gray.200"
       >
         <InputGroup>
           <InputLeftElement

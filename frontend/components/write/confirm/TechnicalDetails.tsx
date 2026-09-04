@@ -129,7 +129,7 @@ export function TechnicalDetails({ needsApproval, tokenLabel }: Props) {
               px={3}
               py={2.5}
               borderRadius="8px"
-              bg="rgba(89, 129, 243, 0.10)"
+              bg="gray.50"
               borderLeft="3px solid"
               borderLeftColor="brand.200"
             >

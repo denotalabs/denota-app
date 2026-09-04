@@ -63,7 +63,7 @@ function HomePage() {
           key="twitter:description"
         />
 
-        <meta name="theme-color" content="#1C203A" key="theme-color" />
+        <meta name="theme-color" content="#FFFFFF" key="theme-color" />
 
         <script
           type="application/ld+json"

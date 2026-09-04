@@ -46,10 +46,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <BlockchainDataProvider>
             <TokenListProvider>
               <NotasProvider>
-                <Box
-                  minH="100vh"
-                  bgGradient="linear(to-r, brand.400, brand.500)"
-                >
+                <Box minH="100vh" bg="brand.100">
                   <Navbar>
                     <Component {...pageProps} />
                   </Navbar>

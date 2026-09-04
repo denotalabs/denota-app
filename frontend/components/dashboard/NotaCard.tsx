@@ -62,14 +62,14 @@ function NotaCard({ nota }: Props) {
       return a & a;
     }, 0);
   const GRADIENT_COLORS = [
-    ["#6E7C9A", "#202C4F"],
-    ["#8691A4", "#3F444D"],
-    ["#9099A2", "#283455"],
-    ["#343C9B", "#292D5D"],
-    ["#A59EA9", "#3B475A"],
-    ["#B4A4D480", "#4E4D5C48"],
-    ["#C1C1C151", "#1C1C1C53"],
-    ["#6D4C41", "#E6B8B89F"],
+    ["#F4F4F5", "#E4E4E7"],
+    ["#FAFAFA", "#D4D4D8"],
+    ["#F5F5F5", "#E4E4E7"],
+    ["#F4F4F5", "#D1D5DB"],
+    ["#FAFAFA", "#E5E7EB"],
+    ["#F3F4F6", "#D4D4D8"],
+    ["#FAFAFA", "#E4E4E7"],
+    ["#F4F4F5", "#C4C4C4"],
   ];
 
   const generateNotaGradient = (nota: Nota): string => {
@@ -182,7 +182,15 @@ function NotaCard({ nota }: Props) {
   }, [nota, reverseNota]);
 
   return (
-    <GridItem bg={gradient} px={6} pt={4} pb={3} borderRadius={20}>
+    <GridItem
+      bg={gradient}
+      px={6}
+      pt={4}
+      pb={3}
+      borderRadius={20}
+      border="1px solid"
+      borderColor="gray.200"
+    >
       <VStack
         alignItems="flex-start"
         justifyContent="space-between"
@@ -204,7 +212,7 @@ function NotaCard({ nota }: Props) {
               label={TOOLTIP_MESSAGE_MAP[nota.moduleData.status]}
               aria-label="status tooltip"
               placement="bottom"
-              bg="brand.100"
+              bg="gray.900"
               textColor="white"
             >
               <Center

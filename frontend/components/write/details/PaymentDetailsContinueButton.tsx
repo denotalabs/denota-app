@@ -30,8 +30,8 @@ export function PaymentDetailsContinueButton({
       boxShadow={formTheme.ctaShadow}
       opacity={isDisabled ? 0.4 : 1}
       cursor={isDisabled ? "not-allowed" : "pointer"}
-      _hover={{ bg: "brand.200" }}
-      _active={{ bg: "brand.200" }}
+      _hover={{ bg: "black" }}
+      _active={{ bg: "black" }}
       isDisabled={isDisabled}
       {...props}
     >

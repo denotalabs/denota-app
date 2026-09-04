@@ -204,13 +204,13 @@ function DetailsRow({
                 display="inline-flex"
                 alignItems="center"
                 justifyContent="center"
-                color="blue.500"
+                color="brand.200"
                 borderWidth="1px"
-                borderColor="blue.500"
+                borderColor="gray.300"
                 borderRadius="sm"
                 p={0.5}
                 lineHeight={0}
-                _hover={{ bg: "blue.50", textDecoration: "none" }}
+                _hover={{ bg: "gray.50", textDecoration: "none" }}
               >
                 <ExternalLinkIcon boxSize={3.5} />
               </Link>

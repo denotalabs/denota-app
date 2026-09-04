@@ -14,7 +14,7 @@ export const privyDefaultChain =
 
 export const privyConfig: PrivyClientConfig = {
   appearance: {
-    theme: "dark",
+    theme: "light",
   },
   embeddedWallets: {
     ethereum: {
