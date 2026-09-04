@@ -41,7 +41,7 @@ export function PaymentTypeField() {
     <Field name="paymentType">
       {({ form: { values } }: FieldProps) => (
         <FormControl maxW="100%">
-          <FormSection label="What Kind of Payment?" mb={0}>
+          <FormSection label="What Kind of Payment?">
             <PaymentTypeSelector value={values.paymentType} />
           </FormSection>
         </FormControl>

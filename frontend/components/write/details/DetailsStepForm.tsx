@@ -28,9 +28,9 @@ import { normalizePaymentMetadataUris } from "../../../utils/metadataUri";
 import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import { formTheme } from "../../designSystem/form/formTheme";
+import RoundedButton from "../../designSystem/RoundedButton";
 import { useStep } from "../../designSystem/stepper/Stepper";
 import PaymentDetails from "./PaymentDetails";
-import { PaymentDetailsContinueButton } from "./PaymentDetailsContinueButton";
 import { PaymentFlowStepRow } from "./PaymentFlowStepRow";
 import {
   allowsZeroPaymentAmount,
@@ -313,17 +313,19 @@ export function DetailsStepForm() {
     (requiresWallet && !isWalletConnected) ||
     balanceBlocksSubmit;
 
-  const continueButton = (
-    <PaymentDetailsContinueButton
+  const continueButton = (mt?: number) => (
+    <RoundedButton
+      type="submit"
       isLoading={formik.isSubmitting}
       isDisabled={isSubmitDisabled}
+      {...(mt !== undefined ? { mt } : {})}
     >
       {buttonLabel}
-    </PaymentDetailsContinueButton>
+    </RoundedButton>
   );
 
   const usePinnedCta = isMobile && !keyboardOpen;
-  const scrollBottomPadding = usePinnedCta ? "130px" : { base: 5, md: 4 };
+  const scrollBottomPadding = usePinnedCta ? "130px" : 4;
 
   return (
     <FormikProvider value={formik}>
@@ -351,9 +353,11 @@ export function DetailsStepForm() {
           </Text>
           <PaymentDetails showAttachments={showMetadataForm} />
           {isMobile && keyboardOpen ? (
-            <Box mt={2} mb={2}>{continueButton}</Box>
+            <Box mt={2} mb={2}>
+              {continueButton(0)}
+            </Box>
           ) : null}
-          {!isMobile ? <Box mt={4}>{continueButton}</Box> : null}
+          {!isMobile ? continueButton() : null}
           {usePinnedCta ? (
             <Box
               position="fixed"
@@ -367,7 +371,7 @@ export function DetailsStepForm() {
               bgGradient={formTheme.ctaBarGradient}
               pointerEvents="none"
             >
-              <Box pointerEvents="auto">{continueButton}</Box>
+              <Box pointerEvents="auto">{continueButton(0)}</Box>
             </Box>
           ) : null}
         </Box>
