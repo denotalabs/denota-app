@@ -7,6 +7,8 @@ export const formTheme = {
   mutedFaded: "gray.500",
   placeholder: "gray.400",
   primary: "brand.200",
+  /** Confirm receipt: term keys/values, distinct from shared details. */
+  termsAccent: "#2563EB",
   selectedBorder: "#111111",
   selectedBgMuted: "brand.300",
   cardBgHover: "gray.100",

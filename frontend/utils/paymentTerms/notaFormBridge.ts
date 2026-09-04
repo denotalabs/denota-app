@@ -6,9 +6,9 @@ import { resolveHook } from "./resolveHook";
 import type { PaymentTermsValues } from "./types";
 
 /**
- * Keys the write path (`useConfirmNota`, `ConfirmDetails`, hookData preview)
+ * Keys the write path (`useConfirmNota`, Confirm card, hookData preview)
  * reads. The full answers are kept under `terms` so the screen can restore
- * itself and Confirm can rebuild the same summary sentence.
+ * itself and Confirm can rebuild the receipt.
  */
 export interface TermsNotaFormSlice {
   terms: PaymentTermsValues;

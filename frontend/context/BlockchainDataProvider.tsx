@@ -18,8 +18,7 @@ import {
 
 import {
   createSponsoredEthersSigner,
-  isGasSponsorshipEnabled,
-  isPrivyEmbeddedWallet,
+  isGasSponsoredForWallet,
 } from "../lib/sponsoredEthersSigner";
 import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
@@ -178,9 +177,9 @@ export const BlockchainDataProvider = memo(
           const account = await baseSigner.getAddress();
           const { chainId } = await provider.getNetwork();
 
-          const useSponsoredGas =
-            isGasSponsorshipEnabled() &&
-            isPrivyEmbeddedWallet(wallet.walletClientType);
+          const useSponsoredGas = isGasSponsoredForWallet(
+            wallet.walletClientType
+          );
 
           const signer = useSponsoredGas
             ? createSponsoredEthersSigner(baseSigner, privySendTransaction, {
