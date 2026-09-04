@@ -60,7 +60,7 @@ export function AttachmentStorageFooter({ settings, onOpenSettings }: Props) {
           <SlidersHorizontal size={14} strokeWidth={2.25} />
         </Box>
         <Text as="span" noOfLines={1}>
-          File upload settings
+          Upload settings
         </Text>
       </Box>
       <Flex

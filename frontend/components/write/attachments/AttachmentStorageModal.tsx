@@ -144,24 +144,23 @@ function AttachmentStorageForm({
   return (
     <>
       <ModalHeader pb={1} pr={12}>
-        <Flex align="flex-start" gap={2.5}>
-          <Box color={formTheme.primary} display="flex" flexShrink={0} mt="2px">
-            <SlidersHorizontal size={18} strokeWidth={2.25} />
-          </Box>
-          <Box minW={0}>
+        <Flex direction="column" align="flex-start" gap={1}>
+          <Flex align="flex-start" gap={2.5}>
+            <Box color={formTheme.primary} display="flex" flexShrink={0}>
+              <SlidersHorizontal size={24} strokeWidth={2.25} />
+            </Box>
             <Text fontSize="17px" fontWeight={700} color={formTheme.textDark}>
               Attachments
             </Text>
-            <Text
-              fontSize="13px"
-              fontWeight={400}
-              color={formTheme.muted}
-              lineHeight={1.45}
-              mt={0.5}
-            >
-              {SUBTITLE}
-            </Text>
-          </Box>
+          </Flex>
+          <Text
+            fontSize="13px"
+            fontWeight={400}
+            color={formTheme.muted}
+            lineHeight={1.45}
+          >
+            {SUBTITLE}
+          </Text>
         </Flex>
       </ModalHeader>
       <ModalCloseButton color={formTheme.muted} />

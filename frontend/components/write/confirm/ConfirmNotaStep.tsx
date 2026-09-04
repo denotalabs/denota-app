@@ -16,6 +16,7 @@ import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps } from "../../designSystem/stepper/Stepper";
 import ConfirmDetails from "./ConfirmDetails";
 import ConfirmNotice from "./ConfirmNotice";
+import { TechnicalDetails } from "./TechnicalDetails";
 
 const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   const { notaFormValues } = useNotaForm();
@@ -108,7 +109,11 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
         {(props) => (
           <Form>
             <ConfirmNotice />
-            <ConfirmDetails></ConfirmDetails>
+            <ConfirmDetails />
+            <TechnicalDetails
+              needsApproval={isWalletConnected && needsApproval}
+              tokenLabel={displayNameForCurrency(notaFormValues.token)}
+            />
             <RoundedButton
               type="submit"
               isLoading={props.isSubmitting}

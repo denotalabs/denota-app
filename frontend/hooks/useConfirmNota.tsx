@@ -63,12 +63,14 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
       // TODO need to add more modules
       const resolvedModule = resolveWriteModule(notaFormValues);
 
+      // "Me" as reviewer resolves to the connected wallet. Never leave this
+      // undefined: the SDK would default the inspector to the recipient.
       const inspector = notaFormValues.auditor?.trim()
         ? getEffectiveAddress(
             notaFormValues.auditor,
             notaFormValues.resolvedAuditor
           )
-        : undefined;
+        : blockchainState.account || undefined;
 
       switch (resolvedModule) {
         case "cashBeforeDate":

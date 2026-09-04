@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import { CLAIMABLE_MODULE } from "../utils/expirationDate";
 
 // TODO: make more type safe
 export type DataMap = { [key: string]: any };
@@ -34,8 +33,10 @@ export const NotaFormProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  // `module` is set by the Payment Terms step (or to "directSend" for
+  // payments without terms); nothing can be written until then.
   const [notaFormValues, setFormData] = useState<DataMap>({
-    module: CLAIMABLE_MODULE,
+    module: "",
     expirationDate: "",
   });
   const [file, setFile] = useState<File | undefined>(undefined);
