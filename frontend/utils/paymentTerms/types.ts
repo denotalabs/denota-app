@@ -32,6 +32,7 @@ export type ConditionTrigger =
   | "onchainState"
   | "attestation";
 export type PriceDirection = "above" | "below";
+export type OnchainUnlock = "succeeds" | "returnValue";
 export type AttestationKind = "eas" | "coinbaseKyc" | "hats" | "zk";
 
 export type Distribution = "fixedSplit" | "inOrder" | "sharedPot";
@@ -92,6 +93,8 @@ export interface PaymentTermsValues {
   priceTarget: string;
   onchainContract: string;
   onchainCalldata: string;
+  onchainUnlock: OnchainUnlock;
+  onchainCondition: ConditionType;
   onchainExpected: string;
   attestationKind: AttestationKind;
 

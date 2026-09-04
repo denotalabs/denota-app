@@ -121,7 +121,11 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
         case "price":
           return soon("UniswapPrice");
         case "onchainState":
-          return soon("CallCashCondition");
+          return soon(
+            values.onchainUnlock === "returnValue"
+              ? "CallCashCondition"
+              : "CallCash"
+          );
         case "attestation":
           switch (values.attestationKind) {
             case "eas":

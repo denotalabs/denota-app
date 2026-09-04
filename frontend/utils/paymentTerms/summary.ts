@@ -1,6 +1,7 @@
 import { isAddress } from "ethers/lib/utils";
 import { truncateAddress } from "../address";
 import {
+  CONDITION_TYPE_LABELS,
   CONDITION_TYPE_PHRASES,
   NFT_COLLECTION_FALLBACK_LABEL,
   nftCountPhrase,
@@ -250,8 +251,16 @@ export function buildTermsSummary(
           const target = values.priceTarget.trim() || "the target price";
           return `The recipient can claim ${money} once ${asset} is ${values.priceDirection} ${target}.`;
         }
-        case "onchainState":
-          return `The recipient can claim ${money} once the contract state you specify is met.`;
+        case "onchainState": {
+          if (values.onchainUnlock !== "returnValue") {
+            return `The recipient can claim ${money} once a specified contract call succeeds.`;
+          }
+          const comparison = (
+            CONDITION_TYPE_LABELS[values.onchainCondition] ?? "Equal to"
+          ).toLowerCase();
+          const expected = values.onchainExpected.trim() || "the expected value";
+          return `The recipient can claim ${money} once the contract read is ${comparison} ${expected}.`;
+        }
         case "attestation": {
           const kind =
             values.attestationKind === "eas"

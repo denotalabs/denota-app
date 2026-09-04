@@ -1,13 +1,12 @@
-import { Box, Collapse } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
-import { useState } from "react";
 import {
+  CONDITION_TYPE_LABELS,
   CONDITION_TYPE_PHRASES,
   CONDITION_TYPES,
   NFT_COLLECTION_SPOOFING_NOTICE,
 } from "../../../../utils/balanceOfConditionalCash";
 import type { PaymentTermsValues } from "../../../../utils/paymentTerms/types";
-import { DisclosureToggle } from "../../../designSystem/form/DisclosureToggle";
 import NftCollectionAddressField from "../../../fields/input/NftCollectionAddressField";
 import { ChoiceField } from "../fields/ChoiceField";
 import { FieldHelp, FieldLabel, FieldStack } from "../fields/FieldChrome";
@@ -52,38 +51,64 @@ function OwnershipFields() {
 }
 
 function OnchainStateFields() {
-  const [open, setOpen] = useState(false);
+  const { values } = useFormikContext<PaymentTermsValues>();
+  const compareReturn = values.onchainUnlock === "returnValue";
+
   return (
-    <Box>
-      <DisclosureToggle
-        label="Advanced: contract call"
-        open={open}
-        onToggle={() => setOpen((value) => !value)}
+    <>
+      <TermsTextField
+        name="onchainContract"
+        label="Contract"
+        placeholder="0x…"
+        help="Contract called when the recipient tries to claim."
       />
-      <Collapse in={open} animateOpacity>
-        <Box pt={3}>
-          <FieldStack>
-            <TermsTextField
-              name="onchainContract"
-              label="Contract"
-              placeholder="0x…"
-              help="Contract whose state is read when the recipient tries to claim."
-            />
-            <TermsTextField
-              name="onchainCalldata"
-              label="Read function call data"
-              placeholder="0x…"
-              help="Encoded call whose return value is compared."
-            />
-            <TermsTextField
-              name="onchainExpected"
-              label="Expected result"
-              placeholder="1"
-            />
-          </FieldStack>
-        </Box>
-      </Collapse>
-    </Box>
+      <TermsTextField
+        name="onchainCalldata"
+        label="Function call data"
+        placeholder="0x…"
+        help={
+          compareReturn
+            ? "Encoded call whose return value is compared."
+            : "Encoded call that must succeed for the claim to go through."
+        }
+      />
+      <ChoiceField
+        name="onchainUnlock"
+        label="The call unlocks when"
+        options={[
+          {
+            value: "succeeds",
+            label: "It succeeds",
+            description:
+              "If the call doesn't revert, the recipient can claim. Nothing about the return value is checked.",
+          },
+          {
+            value: "returnValue",
+            label: "The result matches",
+            description:
+              "The call must succeed and its return value must meet the rule you set.",
+          },
+        ]}
+      />
+      {compareReturn ? (
+        <>
+          <ChoiceField
+            name="onchainCondition"
+            label="Compare the result"
+            options={CONDITION_TYPES.map((type) => ({
+              value: type,
+              label: CONDITION_TYPE_LABELS[type],
+            }))}
+          />
+          <TermsTextField
+            name="onchainExpected"
+            label="To this value"
+            placeholder="1"
+            inputMode="numeric"
+          />
+        </>
+      ) : null}
+    </>
   );
 }
 
@@ -113,7 +138,7 @@ export function ConditionConfig() {
             label: "Onchain contract state",
             tag: "Coming soon",
             description:
-              "Release when a contract read returns the value you expect.",
+              "Release when a specified contract call succeeds, or when its return value meets a rule.",
           },
           {
             value: "attestation",

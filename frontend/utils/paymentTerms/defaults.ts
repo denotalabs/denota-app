@@ -64,6 +64,8 @@ export function baseTermsValues(
     priceTarget: "",
     onchainContract: "",
     onchainCalldata: "",
+    onchainUnlock: "succeeds",
+    onchainCondition: "EQ",
     onchainExpected: "",
     attestationKind: "eas",
 
