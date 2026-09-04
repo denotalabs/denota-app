@@ -85,7 +85,7 @@ function ConfirmDetails() {
         />
         {showInspector && (
           <DetailsRow
-            title="Arbitrator"
+            title="Reviewer"
             ensNames={ensNames}
             value={inspector || "Your connected wallet"}
           />
@@ -101,7 +101,7 @@ function ConfirmDetails() {
         {showDripTerms && (
           <>
             <DetailsRow
-              title="Drip amount"
+              title="Amount per release"
               value={
                 notaFormValues.dripAmount +
                 " " +
@@ -109,7 +109,7 @@ function ConfirmDetails() {
               }
             />
             <DetailsRow
-              title="Drip period"
+              title="Frequency"
               value={formatDripPeriodFormDisplay({
                 dripPeriodPreset: notaFormValues.dripPeriodPreset,
                 dripPeriodAmount: notaFormValues.dripPeriodAmount,
@@ -117,7 +117,7 @@ function ConfirmDetails() {
               })}
             />
             <DetailsRow
-              title="Must claim before"
+              title="Unclaimed returns after"
               value={formatExpirationDateDisplay(
                 notaFormValues.expirationDate ?? ""
               )}
@@ -144,7 +144,7 @@ function ConfirmDetails() {
         )}
         {showInspectionEnd && (
           <DetailsRow
-            title="Inspection end"
+            title="Refund window ends"
             value={formatExpirationDateDisplay(
               notaFormValues.inspectionEndDate ?? ""
             )}

@@ -9,7 +9,6 @@ import {
   useReducer,
   useState,
 } from "react";
-import { useNotaForm } from "../../../context/NotaFormProvider";
 import StepperContext, { StepperReducerInterface } from "./StepperContext";
 import StepperHeader from "./StepperHeader";
 
@@ -32,10 +31,6 @@ interface StepperAction {
 export interface ScreenProps {
   screenKey: string;
   screenTitle: string;
-}
-
-function screenKeyFromNode(screen: ReactNode): string | undefined {
-  return (screen as ReactElement)?.props?.screenKey;
 }
 
 function reducer(state: StepperReducerInterface, action: StepperAction) {
@@ -69,7 +64,6 @@ function reducer(state: StepperReducerInterface, action: StepperAction) {
 }
 
 function Stepper({ children, onClose }: StepperProps) {
-  const { notaFormValues } = useNotaForm();
   const allScreens: ReactNode[] = Children.toArray(children);
   const currentScreen: ReactNode =
     allScreens.length > 0 ? allScreens[0] : undefined;
@@ -84,14 +78,6 @@ function Stepper({ children, onClose }: StepperProps) {
     setBackHidden(false);
   }, [state.currentIndex]);
 
-  const hasPaymentTermsStep = useMemo(
-    () =>
-      allScreens.some(
-        (child) => screenKeyFromNode(child) === "module"
-      ),
-    [allScreens]
-  );
-
   const goToStep = (screenKey: string) => {
     dispatch({ type: StepperActionKind.SET_SCREEN, screenKey });
   };
@@ -101,17 +87,6 @@ function Stepper({ children, onClose }: StepperProps) {
   };
 
   const back = () => {
-    const currentKey = screenKeyFromNode(state.currentScreen);
-
-    if (currentKey === "confirm") {
-      if (notaFormValues.paymentType === "withTerms") {
-        goToStep(hasPaymentTermsStep ? "module" : "moduleSelect");
-      } else {
-        goToStep("write");
-      }
-      return;
-    }
-
     dispatch({ type: StepperActionKind.BACK });
   };
 
@@ -136,9 +111,7 @@ function Stepper({ children, onClose }: StepperProps) {
         title={screenTitle}
         hideBack={backHidden}
       />
-      <Box w="100%">
-        {state.currentScreen}
-      </Box>
+      <Box w="100%">{state.currentScreen}</Box>
     </StepperContext.Provider>
   );
 }

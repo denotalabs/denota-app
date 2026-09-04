@@ -32,7 +32,8 @@ interface OptimisticNotaProps {
   id: string;
   token: NotaCurrency;
   instant: number;
-  escrowed: number;
+  /** Integer wei amount, as a decimal string. */
+  escrowed: string;
   module: string;
   moduleData: ModuleData;
 

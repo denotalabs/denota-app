@@ -37,7 +37,7 @@ function NftCollectionAddressFieldInner({
   onInputStarted,
   placeholder = "0x…",
 }: InnerProps) {
-  const { setFieldError, setStatus } = form;
+  const { setStatus } = form;
   const checkedAddress = ethers.utils.isAddress(field.value)
     ? field.value
     : undefined;
@@ -50,34 +50,13 @@ function NftCollectionAddressFieldInner({
   >(null);
 
   useEffect(() => {
-    setStatus((prev: unknown) => {
-      const base = typeof prev === "object" && prev !== null ? prev : {};
-      return {
-        ...base,
-        erc721Checking: isLoading && !!checkedAddress,
-      };
+    // Formik's setStatus replaces `status`; it does not accept an updater.
+    setStatus({
+      erc721Checking: isLoading && !!checkedAddress,
+      erc721Address: checkedAddress?.toLowerCase() ?? "",
+      erc721IsErc721: isLoading ? null : isErc721,
     });
-  }, [checkedAddress, isLoading, setStatus]);
-
-  useEffect(() => {
-    if (!checkedAddress) {
-      return;
-    }
-    if (isLoading) {
-      setFieldError(fieldName, undefined);
-      return;
-    }
-    if (isErc721 === false) {
-      setFieldError(
-        fieldName,
-        "Contract does not implement ERC-721 (EIP-165)"
-      );
-      return;
-    }
-    if (isErc721 === true) {
-      setFieldError(fieldName, undefined);
-    }
-  }, [checkedAddress, fieldName, isErc721, isLoading, setFieldError]);
+  }, [checkedAddress, isErc721, isLoading, setStatus]);
 
   const fieldError = form.errors[fieldName] as string | undefined;
   const hasInteracted = touched || hasStarted;

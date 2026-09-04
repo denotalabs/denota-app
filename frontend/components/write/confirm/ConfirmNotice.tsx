@@ -1,59 +1,45 @@
 import { Text } from "@chakra-ui/react";
 import { isAddress } from "ethers/lib/utils";
 import { useMemo } from "react";
-import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useEnsNames } from "../../../hooks/useEnsNames";
 import { useTokens } from "../../../hooks/useTokens";
 import { getEffectiveAddress } from "../../../utils/ensAddress";
-import { buildPaymentStory } from "../../../utils/paymentStory";
+import { buildTermsSummary } from "../../../utils/paymentTerms/summary";
+import type { PaymentTermsValues } from "../../../utils/paymentTerms/types";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import RoundedBox from "../../designSystem/RoundedBox";
 
+/**
+ * Leads Confirm with a plain-language sentence describing exactly what the
+ * chosen terms enforce, so nothing here is a surprise.
+ */
 function ConfirmNotice() {
   const { notaFormValues } = useNotaForm();
-  const { blockchainState } = useBlockchainData();
   const { displayNameForCurrency } = useTokens();
-  const senderAddress = blockchainState.account ?? "";
 
-  const recipient = getEffectiveAddress(
-    notaFormValues.address,
-    notaFormValues.resolvedAddress
-  );
-
-  const inspector = getEffectiveAddress(
+  const reviewer = getEffectiveAddress(
     notaFormValues.auditor,
     notaFormValues.resolvedAuditor
   );
+  const ensNames = useEnsNames(
+    useMemo(() => (isAddress(reviewer) ? [reviewer] : []), [reviewer])
+  );
 
-  const ensAddresses = useMemo(() => {
-    const addresses: string[] = [];
-    if (recipient && isAddress(recipient)) {
-      addresses.push(recipient);
-    }
-    if (inspector && isAddress(inspector)) {
-      addresses.push(inspector);
-    }
-    if (senderAddress && isAddress(senderAddress)) {
-      addresses.push(senderAddress);
-    }
-    return addresses;
-  }, [recipient, inspector, senderAddress]);
-
-  const ensNames = useEnsNames(ensAddresses);
-
-  const story = useMemo(
-    () =>
-      buildPaymentStory({
-        formValues: notaFormValues,
-        senderAddress,
-        ensNames,
+  const terms = notaFormValues.terms as PaymentTermsValues | undefined;
+  const story = terms
+    ? buildTermsSummary(terms, {
+        amount: notaFormValues.amount,
         tokenLabel: displayNameForCurrency(
           notaFormValues.token as NotaCurrency
         ),
-      }),
-    [displayNameForCurrency, ensNames, notaFormValues, senderAddress]
-  );
+        ensNames,
+      })
+    : "";
+
+  if (!story) {
+    return null;
+  }
 
   return (
     <RoundedBox mb={5} padding={6}>
@@ -63,14 +49,6 @@ function ConfirmNotice() {
       <Text fontSize="md" textAlign="center" mt={3} lineHeight="tall">
         {story}
       </Text>
-      {/* <Text
-        fontSize="sm"
-        color="whiteAlpha.700"
-        textAlign="center"
-        mt={4}
-      >
-        A nota NFT is issued for tracking
-      </Text> */}
     </RoundedBox>
   );
 }
