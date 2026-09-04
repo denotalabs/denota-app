@@ -21,6 +21,7 @@ function RoundedButton({
       color="brand.100"
       mt={4}
       w="100%"
+      minH="48px"
       borderRadius={"10px"}
       onClick={onClick}
       type={type}
