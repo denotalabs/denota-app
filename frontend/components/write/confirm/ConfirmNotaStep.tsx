@@ -1,4 +1,5 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
+import { useWallets } from "@privy-io/react-auth";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
@@ -8,19 +9,22 @@ import { useConfirmNota } from "../../../hooks/useConfirmNota";
 import { usePaymentReadiness } from "../../../hooks/usePaymentReadiness";
 import { usePurchaseToken } from "../../../hooks/usePurchaseToken";
 import { useTokens } from "../../../hooks/useTokens";
+import { isGasSponsoredForWallet } from "../../../lib/sponsoredEthersSigner";
 import { paymentButtonText } from "../../../utils/paymentButtonText";
 import { hasValidPaymentAmount } from "../../../utils/paymentValidation";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
+import { formTheme } from "../../designSystem/form/formTheme";
 
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps } from "../../designSystem/stepper/Stepper";
-import ConfirmDetails from "./ConfirmDetails";
-import ConfirmNotice from "./ConfirmNotice";
+import { PaymentFlowStepRow } from "../details/PaymentFlowStepRow";
+import { ConfirmCard } from "./ConfirmCard";
 import { TechnicalDetails } from "./TechnicalDetails";
 
 const ConfirmNotaStep: React.FC<ScreenProps> = () => {
   const { notaFormValues } = useNotaForm();
   const { blockchainState, connectWallet } = useBlockchainData();
+  const { wallets } = useWallets();
   const { displayNameForCurrency } = useTokens();
   const isWalletConnected = blockchainState.account !== "";
   const router = useRouter();
@@ -77,8 +81,21 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
     ]
   );
 
+  const signatureCount = isWalletConnected && needsApproval ? 2 : 1;
+  const gasLabel = isGasSponsoredForWallet(wallets[0]?.walletClientType)
+    ? "Gas sponsored"
+    : "Network fee";
+
   return (
-    <Box w="100%" p={4}>
+    <Box
+      w="100%"
+      maxW={{ base: "380px", md: "100%" }}
+      mx="auto"
+      mt={3}
+      px={{ base: 4, md: 1 }}
+      pb={4}
+      color={formTheme.text}
+    >
       <Formik
         initialValues={{}}
         onSubmit={async (_values, actions) => {
@@ -108,8 +125,22 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
       >
         {(props) => (
           <Form>
-            <ConfirmNotice />
-            <ConfirmDetails />
+            <PaymentFlowStepRow paymentType="withTerms" activeIndex={2} />
+            <Text
+              fontSize={{ base: "28px", md: "xl" }}
+              fontWeight={700}
+              textAlign="center"
+              mb={4}
+              letterSpacing="-0.5px"
+              color={formTheme.textDark}
+              display={{ base: "block", md: "none" }}
+            >
+              Confirm
+            </Text>
+            <ConfirmCard
+              signatureCount={signatureCount}
+              gasLabel={gasLabel}
+            />
             <TechnicalDetails
               needsApproval={isWalletConnected && needsApproval}
               tokenLabel={displayNameForCurrency(notaFormValues.token)}

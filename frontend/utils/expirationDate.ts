@@ -30,7 +30,6 @@ export function expirationDateToCashBeforeDateMs(dateStr: string): number {
   return new Date(year, month - 1, day, 23, 59, 59, 999).getTime();
 }
 
-/** Human-readable label for confirm / details (includes seconds when set). */
 /** Local `datetime-local` value (YYYY-MM-DDTHH:mm:ss). */
 export function formatDateTimeLocal(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -44,18 +43,21 @@ export function dateTimeLocalOneMonthFromNow(from: Date = new Date()): string {
   return formatDateTimeLocal(d);
 }
 
-export function formatExpirationDateDisplay(dateStr: string): string {
+/** Confirm-row datetime: "Mar 14, 2026, 11:59 PM". */
+export function formatConfirmDate(dateStr: string): string {
   const trimmed = dateStr.trim();
   if (!trimmed) {
     return "";
   }
   const ms = expirationDateToCashBeforeDateMs(trimmed);
+  if (!Number.isFinite(ms)) {
+    return "";
+  }
   return new Date(ms).toLocaleString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    second: "2-digit",
   });
 }

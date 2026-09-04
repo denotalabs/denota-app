@@ -50,3 +50,35 @@ export function attachmentDisplayName(value: string): string {
   }
   return `${stripped.slice(0, MAX_DISPLAY_LENGTH)}…`;
 }
+
+const FILE_NAME_PATTERN =
+  /\.(pdf|doc|docx|csv|png|jpe?g|gif|webp|svg|json)(\?|#|$)/i;
+
+/**
+ * Prefer a real filename (vesting.pdf) when the URI path has one; otherwise
+ * fall back to the truncated host/path label.
+ */
+export function attachmentFileName(
+  uri: string,
+  uploadedName?: string
+): string {
+  const trimmed = uri.trim();
+  const path = trimmed.replace(HAS_SCHEME, "").split(/[?#]/)[0];
+  const last = path.split("/").filter(Boolean).pop() ?? "";
+  try {
+    const decoded = decodeURIComponent(last);
+    if (FILE_NAME_PATTERN.test(decoded)) {
+      return decoded;
+    }
+  } catch {
+    // Malformed percent-encoding; use the raw segment below.
+  }
+  if (FILE_NAME_PATTERN.test(last)) {
+    return last;
+  }
+  const uploaded = uploadedName?.trim();
+  if (uploaded) {
+    return uploaded;
+  }
+  return attachmentDisplayName(trimmed);
+}

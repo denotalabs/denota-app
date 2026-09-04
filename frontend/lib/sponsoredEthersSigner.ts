@@ -150,3 +150,10 @@ export function isGasSponsorshipEnabled(): boolean {
   }
   return true;
 }
+
+/** True only when this wallet's transactions will actually be sponsored. */
+export function isGasSponsoredForWallet(
+  walletClientType: string | undefined
+): boolean {
+  return isGasSponsorshipEnabled() && isPrivyEmbeddedWallet(walletClientType);
+}

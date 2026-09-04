@@ -8,7 +8,7 @@ import {
   useClipboard,
 } from "@chakra-ui/react";
 import { Check, Copy, ExternalLink } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import {
   blockExplorerContractCodeUrl,
@@ -20,7 +20,6 @@ import { buildTechnicalDetails } from "../../../utils/paymentTerms/technicalDeta
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
 import { DisclosureToggle } from "../../designSystem/form/DisclosureToggle";
 import { formTheme } from "../../designSystem/form/formTheme";
-import RoundedBox from "../../designSystem/RoundedBox";
 
 interface Props {
   /** True when an ERC-20 approval must be signed before the write. */
@@ -33,7 +32,7 @@ function Row({
   children,
 }: {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <Box>
@@ -115,7 +114,7 @@ export function TechnicalDetails({ needsApproval, tokenLabel }: Props) {
     : null;
 
   return (
-    <RoundedBox mt={4} px={5} py={3}>
+    <Box mt={4} px={1} py={1}>
       <DisclosureToggle
         label="Technical details"
         open={open}
@@ -190,6 +189,6 @@ export function TechnicalDetails({ needsApproval, tokenLabel }: Props) {
           ) : null}
         </Flex>
       </Collapse>
-    </RoundedBox>
+    </Box>
   );
 }
