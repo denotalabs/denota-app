@@ -35,7 +35,9 @@ export function WrongChain() {
         </Alert>
       ) : (
         <Button
-          colorScheme="blue"
+          bg="brand.200"
+          color="brand.100"
+          _hover={{ bg: "black" }}
           onClick={() => {
             switchToPolygon?.();
           }}

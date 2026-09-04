@@ -76,7 +76,7 @@ export function SpecializedOptions({ onSelect }: Props) {
                       <Tag
                         size="sm"
                         variant="subtle"
-                        colorScheme="purple"
+                        colorScheme="gray"
                         borderRadius="full"
                         fontSize="10px"
                       >

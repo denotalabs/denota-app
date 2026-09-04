@@ -39,7 +39,7 @@ function SlideOver({
     <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
       <DrawerOverlay bg="blackAlpha.700" />
       <DrawerContent bg="brand.100" maxW="440px">
-        <DrawerHeader borderBottomWidth="1px" borderColor="brand.400" py={6}>
+        <DrawerHeader borderBottomWidth="1px" borderColor="brand.500" py={6}>
           <Flex align="flex-start" justify="space-between">
             <Flex align="center" gap={3}>
               {icon && (
@@ -75,7 +75,7 @@ function SlideOver({
         </DrawerHeader>
         <DrawerBody py={5}>{children}</DrawerBody>
         {footer && (
-          <DrawerFooter borderTopWidth="1px" borderColor="brand.400" py={5}>
+          <DrawerFooter borderTopWidth="1px" borderColor="brand.500" py={5}>
             {footer}
           </DrawerFooter>
         )}

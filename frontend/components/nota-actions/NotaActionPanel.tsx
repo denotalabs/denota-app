@@ -90,7 +90,7 @@ function ActionField({
         <Button
           variant="link"
           size="xs"
-          color="blue.400"
+          color="brand.200"
           mt={1}
           onClick={onMax}
         >
@@ -252,7 +252,7 @@ function NotaActionPanel({
         {isPreviewing && (
           <Text
             fontSize="sm"
-            color="orange.200"
+            color="orange.600"
             bg="orange.900"
             borderWidth="1px"
             borderColor="orange.700"
@@ -316,7 +316,7 @@ function NotaActionPanel({
                     borderColor:
                       branch.tone === "go" ? "green.500" : "orange.500",
                   }}
-                  color={branch.tone === "go" ? "green.200" : "orange.200"}
+                  color={branch.tone === "go" ? "green.600" : "orange.600"}
                 >
                   <Box textAlign="left">
                     <Text fontWeight="medium">{branch.label}</Text>

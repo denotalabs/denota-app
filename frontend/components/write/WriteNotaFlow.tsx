@@ -20,6 +20,8 @@ export function WriteNotaFlow({ onClose }: Props) {
         py={2}
         px={3}
         borderRadius={{ base: 0, md: "30px" }}
+        border={{ md: "1px solid" }}
+        borderColor={{ md: "gray.200" }}
         alignSelf={{ base: "flex-start", md: "auto" }}
         align="stretch"
       >

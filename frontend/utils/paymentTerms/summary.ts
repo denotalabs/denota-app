@@ -89,8 +89,8 @@ function reviewerLabel(
   const address = isAddress(resolved)
     ? resolved
     : isAddress(input)
-    ? input
-    : "";
+      ? input
+      : "";
   if (!address) {
     return input || "the reviewer";
   }
@@ -154,15 +154,15 @@ export function buildTermsSummary(
         case "me":
           return values.refundWindow === "untilDate"
             ? `${held} You can release it to them or refund it to yourself until ${formatSummaryDate(
-                values.inspectionEndDate
-              )}. After that, the recipient can claim it.`
+              values.inspectionEndDate
+            )}. After that, the recipient can claim it.`
             : `${held} You can release it to them or refund it to yourself at any time.`;
         case "other": {
           const who = capitalize(reviewerLabel(values, ctx.ensNames));
           return values.refundWindow === "untilDate"
             ? `${held} ${who} can release it to them or refund it to you until ${formatSummaryDate(
-                values.inspectionEndDate
-              )}. After that, the recipient can claim it.`
+              values.inspectionEndDate
+            )}. After that, the recipient can claim it.`
             : `${held} ${who} can release it to them or refund it to you at any time.`;
         }
         case "group": {
@@ -180,12 +180,11 @@ export function buildTermsSummary(
             values.arbitrationProvider === "kleros"
               ? "Kleros jurors"
               : values.arbitrationProvider === "ai"
-              ? "an AI arbitrator"
-              : "a private vote";
+                ? "an AI arbitrator"
+                : "a private vote";
           return `${held} If either of you disputes it, ${provider} decide whether to release it to them or refund it to you.`;
         }
       }
-      return held;
     }
 
     case "releaseOverTime": {
@@ -205,8 +204,8 @@ export function buildTermsSummary(
             count === null
               ? ""
               : count === 1
-              ? ", a single release"
-              : `, about ${count} releases`;
+                ? ", a single release"
+                : `, about ${count} releases`;
           const lead = `The recipient can claim ${chunk} ${chunkPeriodPhrase(
             values
           )}${about}, starting when you send it.`;
@@ -226,7 +225,6 @@ export function buildTermsSummary(
         case "customVesting":
           return `${money} vests to the recipient on the custom schedule you define.`;
       }
-      return "";
     }
 
     case "conditionMet": {
@@ -240,7 +238,7 @@ export function buildTermsSummary(
           const address = values.nftCollectionAddress.trim();
           const collection = isAddress(address)
             ? ctx.ensNames?.get(address.toLowerCase()) ??
-              truncateAddress(address)
+            truncateAddress(address)
             : NFT_COLLECTION_FALLBACK_LABEL;
           return `The recipient can claim ${money} while holding ${comparison} ${count} from ${collection}. After ${formatSummaryDate(
             values.conditionExpiration
@@ -266,14 +264,13 @@ export function buildTermsSummary(
             values.attestationKind === "eas"
               ? "EAS attestation"
               : values.attestationKind === "coinbaseKyc"
-              ? "Coinbase verification"
-              : values.attestationKind === "hats"
-              ? "Hats Protocol role"
-              : "zero-knowledge proof";
+                ? "Coinbase verification"
+                : values.attestationKind === "hats"
+                  ? "Hats Protocol role"
+                  : "zero-knowledge proof";
           return `The recipient can claim ${money} once they hold a valid ${kind}.`;
         }
       }
-      return "";
     }
 
     case "payMultiple": {
@@ -292,8 +289,6 @@ export function buildTermsSummary(
               return `${money} is paid out to members in round-robin order.`;
           }
       }
-      return "";
     }
   }
-  return "";
 }

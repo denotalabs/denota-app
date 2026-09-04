@@ -44,8 +44,8 @@ function BridgeCard({
       w="500px"
       bg={
         chainDisplayName === "Gnosis"
-          ? "linear-gradient(180deg, #6E7C9A, #202C4F)"
-          : "linear-gradient(180deg, #343C9B, #292D5D)"
+          ? "linear-gradient(180deg, #F4F4F5, #E4E4E7)"
+          : "linear-gradient(180deg, #FAFAFA, #E4E4E7)"
       }
       borderRadius={20}
       px={6}

@@ -34,11 +34,11 @@ function NftCollectionVerifiedModal({
   return (
     <SimpleModal isOpen={isOpen} onClose={onClose}>
       <VStack align="stretch" spacing={4} py={2} px={1}>
-        <Text fontSize="sm" color="orange.200">
+        <Text fontSize="sm" color="orange.600">
           {NFT_COLLECTION_SPOOFING_NOTICE}
         </Text>
         {contractName ? (
-          <Text fontSize="md" color="whiteAlpha.900">
+          <Text fontSize="md" color="gray.900">
             Name: {contractName}
           </Text>
         ) : null}
@@ -46,11 +46,11 @@ function NftCollectionVerifiedModal({
           fontSize="sm"
           fontFamily="mono"
           wordBreak="break-all"
-          color="whiteAlpha.700"
+          color="gray.600"
         >
           {address}
         </Text>
-        <Link href={explorerUrl} isExternal fontSize="sm" color="teal.300">
+        <Link href={explorerUrl} isExternal fontSize="sm" color="gray.800">
           View contract on {chainName}
           <ExternalLinkIcon mx="2px" />
         </Link>

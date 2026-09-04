@@ -18,7 +18,9 @@ const ViewOnOpenSeaButton = ({
     <Button
       as="a"
       size="sm"
-      colorScheme="blue"
+      bg="brand.200"
+      color="brand.100"
+      _hover={{ bg: "black" }}
       href={url}
       target="_blank"
       rel="noopener noreferrer"

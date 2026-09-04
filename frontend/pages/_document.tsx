@@ -7,6 +7,11 @@ export default function Document() {
     <Html lang="en">
       <Head />
       <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{localStorage.setItem('chakra-ui-color-mode','light')}catch(e){}`,
+          }}
+        />
         <ColorModeScript
           initialColorMode={customTheme.config.initialColorMode}
         />

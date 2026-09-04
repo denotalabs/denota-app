@@ -98,12 +98,12 @@ const STATUS_TONE_STYLES: Record<
   pending: { icon: TimeIcon, color: t.primaryLight, bg: t.primaryDim },
   settled: {
     icon: CheckCircleIcon,
-    color: "green.200",
+    color: "green.600",
     bg: "rgba(72,187,120,0.14)",
   },
   expired: {
     icon: WarningIcon,
-    color: "orange.200",
+    color: "orange.600",
     bg: "rgba(237,137,54,0.14)",
   },
 };

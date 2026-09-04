@@ -72,6 +72,8 @@ function MyNotas() {
       gap={6}
       align="stretch"
       bg="brand.100"
+      border="1px solid"
+      borderColor="gray.200"
     >
       <HStack gap={2} justifyContent="space-between">
         <Select

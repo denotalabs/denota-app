@@ -21,6 +21,8 @@ function PublicNotas() {
       gap={3}
       align="stretch"
       bg="brand.100"
+      border="1px solid"
+      borderColor="gray.200"
     >
       <Heading size="md">Recent Payments</Heading>
       <NotaTable rows={notas} />

@@ -207,7 +207,7 @@ export function AttachmentField() {
             alignItems="center"
             justifyContent="center"
             borderRadius="6px"
-            color="green.200"
+            color="green.600"
             _hover={{ bg: "green.800", color: "white" }}
             icon={<X size={14} strokeWidth={2.5} />}
             onClick={handleRemove}

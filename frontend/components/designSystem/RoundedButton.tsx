@@ -17,14 +17,15 @@ function RoundedButton({
 }: Props) {
   return (
     <Button
-      bg="brand.300"
-      color="brand.200"
+      bg="brand.200"
+      color="brand.100"
       mt={4}
       w="100%"
       borderRadius={"10px"}
       onClick={onClick}
       type={type}
       isLoading={isLoading}
+      _hover={{ bg: "black" }}
       {...props}
     >
       {children}
