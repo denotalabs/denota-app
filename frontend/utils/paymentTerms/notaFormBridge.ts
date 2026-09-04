@@ -49,7 +49,7 @@ export function termsToNotaForm(
     resolvedAuditor: "",
     dripAmount: "",
     dripPeriodPreset: values.chunkPeriodPreset,
-    dripPeriodAmount: values.chunkPeriodAmount,
+    dripPeriodAmount: values.chunkPeriodAmount.trim(),
     dripPeriodUnit: values.chunkPeriodUnit,
     nftCollectionAddress: "",
     conditionType: values.conditionType,
@@ -77,7 +77,7 @@ export function termsToNotaForm(
     }
     case "cashBeforeDateDrip":
       slice.expirationDate = values.returnAfterDate;
-      slice.dripAmount = values.chunkAmount;
+      slice.dripAmount = values.chunkAmount.trim();
       break;
     case "balanceOfConditionalCash":
       slice.expirationDate = values.conditionExpiration;

@@ -1,19 +1,20 @@
 import { useToast } from "@chakra-ui/react";
-import { ModuleData } from "@denota-labs/denota-sdk";
+import { ethers } from "ethers";
 import { useCallback } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useNotaForm } from "../context/NotaFormProvider";
 import { useNotaContext } from "../context/NotasContext";
-// TODO need to switch to SDK for these
-import { getEffectiveAddress } from "../utils/ensAddress";
-import { resolveWriteModule } from "../utils/resolveWriteModule";
+import { ConditionType } from "../utils/balanceOfConditionalCash";
 import {
   defaultDripPeriodFormValues,
   DripPeriodPreset,
   DripPeriodUnit,
 } from "../utils/dripPeriod";
-import { ConditionType } from "../utils/balanceOfConditionalCash";
+import { getEffectiveAddress } from "../utils/ensAddress";
+import { normalizePaymentMetadataUris } from "../utils/metadataUri";
+import { buildOptimisticModuleData } from "../utils/notaActions/moduleDataFromTokenUri";
+import { resolveWriteModule } from "../utils/resolveWriteModule";
 import { useBalanceOfConditionalCash } from "./modules/useBalanceOfConditionalCash";
 import { useCashBeforeDate } from "./modules/useCashBeforeDate";
 import { useCashBeforeDateDrip } from "./modules/useCashBeforeDateDrip";
@@ -21,8 +22,9 @@ import { useDirectPay } from "./modules/useDirectPay";
 import { useReversibleByBeforeDate } from "./modules/useReversibleByBeforeDate";
 import { useReversibleRelease } from "./modules/useReversibleRelease";
 import { useSimpleCash } from "./modules/useSimpleCash";
-import { normalizePaymentMetadataUris } from "../utils/metadataUri";
 import { useEmail } from "./useEmail";
+import { useTokens } from "./useTokens";
+
 interface Props {
   onSuccess?: () => void;
 }
@@ -35,6 +37,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { blockchainState } = useBlockchainData();
 
   const { sendEmail } = useEmail();
+  const { getTokenUnits } = useTokens();
 
   const { createLocalNota } = useNotaContext();
 
@@ -55,28 +58,75 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         notaFormValues.address,
         notaFormValues.resolvedAddress
       );
+      if (!ethers.utils.isAddress(owner)) {
+        toast({
+          title: "Recipient address is not resolved",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
       const { externalURI, imageURI } = normalizePaymentMetadataUris(
         notaFormValues
       );
-      let receipt: { txHash: string; notaId: string };
+      let receipt: { txHash: string; notaId: string } | undefined;
 
-      // TODO need to add more modules
       const resolvedModule = resolveWriteModule(notaFormValues);
+      if (!resolvedModule) {
+        toast({
+          title: "Payment terms are not ready to write",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
 
-      // "Me" as reviewer resolves to the connected wallet. Never leave this
-      // undefined: the SDK would default the inspector to the recipient.
-      const inspector = notaFormValues.auditor?.trim()
+      const token = notaFormValues.token as NotaCurrency;
+      const amount = String(notaFormValues.amount ?? "").trim();
+      const amountWei = ethers.utils.parseUnits(amount, getTokenUnits(token));
+
+      const inspectorRaw = notaFormValues.auditor?.trim()
         ? getEffectiveAddress(
             notaFormValues.auditor,
             notaFormValues.resolvedAuditor
           )
         : blockchainState.account || undefined;
+      const inspector =
+        inspectorRaw && ethers.utils.isAddress(inspectorRaw)
+          ? inspectorRaw
+          : undefined;
+
+      if (
+        (resolvedModule === "reversibleRelease" ||
+          resolvedModule === "reversibleByBeforeDate") &&
+        !inspector
+      ) {
+        toast({
+          title: "Reviewer address is not resolved",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
+      const dripAmount = String(notaFormValues.dripAmount ?? "").trim();
+      let dripAmountWei: ReturnType<typeof ethers.utils.parseUnits> | undefined;
+      if (resolvedModule === "cashBeforeDateDrip") {
+        dripAmountWei = ethers.utils.parseUnits(
+          dripAmount,
+          getTokenUnits(token)
+        );
+      }
 
       switch (resolvedModule) {
         case "cashBeforeDate":
           receipt = await writeCashBeforeDate({
-            token: notaFormValues.token,
-            amount: notaFormValues.amount,
+            token,
+            amount,
             address: owner,
             expirationDate: notaFormValues.expirationDate,
             externalURI,
@@ -85,8 +135,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           break;
         case "directSend":
           receipt = await writeDirectPay({
-            token: notaFormValues.token,
-            amount: notaFormValues.amount,
+            token,
+            amount,
             address: owner,
             externalURI,
             imageURI,
@@ -94,8 +144,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           break;
         case "simpleCash":
           receipt = await writeSimpleCash({
-            token: notaFormValues.token,
-            amount: notaFormValues.amount,
+            token,
+            amount,
             address: owner,
             externalURI,
             imageURI,
@@ -103,8 +153,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           break;
         case "reversibleRelease":
           receipt = await writeReversibleRelease({
-            token: notaFormValues.token,
-            amount: notaFormValues.amount,
+            token,
+            amount,
             address: owner,
             inspector,
             externalURI,
@@ -113,8 +163,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           break;
         case "reversibleByBeforeDate":
           receipt = await writeReversibleByBeforeDate({
-            token: notaFormValues.token,
-            amount: notaFormValues.amount,
+            token,
+            amount,
             address: owner,
             inspector,
             inspectionEndDate: notaFormValues.inspectionEndDate,
@@ -124,8 +174,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           break;
         case "balanceOfConditionalCash":
           receipt = await writeBalanceOfConditionalCash({
-            token: notaFormValues.token,
-            amount: notaFormValues.amount,
+            token,
+            amount,
             address: owner,
             nftCollectionAddress: notaFormValues.nftCollectionAddress,
             conditionType: notaFormValues.conditionType as ConditionType,
@@ -137,16 +187,17 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           break;
         case "cashBeforeDateDrip":
           receipt = await writeCashBeforeDateDrip({
-            token: notaFormValues.token,
-            amount: notaFormValues.amount,
+            token,
+            amount,
             address: owner,
             expirationDate: notaFormValues.expirationDate,
-            dripAmount: notaFormValues.dripAmount,
+            dripAmount,
             dripPeriodPreset: (notaFormValues.dripPeriodPreset ??
               defaultDripPeriodFormValues.dripPeriodPreset) as DripPeriodPreset,
-            dripPeriodAmount:
+            dripPeriodAmount: String(
               notaFormValues.dripPeriodAmount ??
-              defaultDripPeriodFormValues.dripPeriodAmount,
+                defaultDripPeriodFormValues.dripPeriodAmount
+            ).trim(),
             dripPeriodUnit: (notaFormValues.dripPeriodUnit ??
               defaultDripPeriodFormValues.dripPeriodUnit) as DripPeriodUnit,
             externalURI,
@@ -154,22 +205,53 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
           });
           break;
         default:
+          toast({
+            title: "Payment terms are not ready to write",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
           return;
       }
 
-      // It takes a few seconds for the graph to pick up the new nota so go ahead and add it locally
+      if (!receipt?.notaId) {
+        toast({
+          title: "Transaction failed",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+
       createLocalNota({
         id: receipt.notaId,
-        token: notaFormValues.token as NotaCurrency,
-        escrowed: notaFormValues.amount,
+        token,
+        escrowed: amountWei.toString(),
         module: resolvedModule,
-        moduleData: notaFormValues.moduleData as ModuleData,
+        moduleData: buildOptimisticModuleData({
+          module: resolvedModule,
+          escrowWei: amountWei,
+          owner,
+          account: blockchainState.account,
+          inspector,
+          expirationDate: notaFormValues.expirationDate,
+          inspectionEndDate: notaFormValues.inspectionEndDate,
+          dripAmountWei,
+          nftCollectionAddress: notaFormValues.nftCollectionAddress,
+          conditionType: notaFormValues.conditionType,
+          nftBalanceThreshold: notaFormValues.nftBalanceThreshold,
+          sender: blockchainState.account,
+          externalURI,
+          imageURI,
+        }),
         sender: blockchainState.account,
         receiver: owner,
-        instant: 0, // TODO this needs dynamic setting based on hook used
-        owner: owner,
-        createdHash: "",
+        instant: 0,
+        owner,
+        createdHash: receipt.txHash ?? "",
         uri: externalURI,
+        inspector,
         isCrossChain: false,
       });
 
@@ -230,8 +312,8 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.nftCollectionAddress,
     notaFormValues.conditionType,
     notaFormValues.nftBalanceThreshold,
-    notaFormValues.moduleData,
     createLocalNota,
+    getTokenUnits,
     toast,
     onSuccess,
     writeDirectPay,

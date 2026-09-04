@@ -6,7 +6,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { Form, Formik, useFormikContext } from "formik";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useTokens } from "../../../hooks/useTokens";
@@ -21,6 +21,7 @@ import {
 } from "../../../utils/paymentTerms/resolveHook";
 import type {
   PaymentTermId,
+  PaymentTermsFormStatus,
   PaymentTermsValues,
 } from "../../../utils/paymentTerms/types";
 import { validatePaymentTerms } from "../../../utils/paymentTerms/validate";
@@ -44,6 +45,45 @@ import { promotedEntry, TERM_CATALOG } from "./termCatalog";
 interface AmountProps {
   amount: string | undefined;
   tokenLabel: string;
+}
+
+interface NftErc721Gate {
+  address: string;
+  isErc721: boolean | null;
+}
+
+function nftErc721ForValues(
+  values: PaymentTermsValues,
+  gate: NftErc721Gate
+): boolean | null {
+  const address = values.nftCollectionAddress.trim().toLowerCase();
+  if (!address || gate.address !== address) {
+    return null;
+  }
+  return gate.isErc721;
+}
+
+/** Copies Formik status into the validator ref and re-runs validate when the check settles. */
+function SyncNftErc721Gate({
+  gateRef,
+}: {
+  gateRef: MutableRefObject<NftErc721Gate>;
+}) {
+  const { status, validateForm } = useFormikContext<PaymentTermsValues>();
+  const formStatus = status as PaymentTermsFormStatus | undefined;
+  const address = formStatus?.erc721Address ?? "";
+  const isErc721 = formStatus?.erc721IsErc721 ?? null;
+
+  useEffect(() => {
+    const prev = gateRef.current;
+    if (prev.address === address && prev.isErc721 === isErc721) {
+      return;
+    }
+    gateRef.current = { address, isErc721 };
+    void validateForm();
+  }, [address, gateRef, isErc721, validateForm]);
+
+  return null;
 }
 
 function TermConfig({ amount, tokenLabel }: AmountProps) {
@@ -142,13 +182,19 @@ function TermsBody({ amount, tokenLabel }: AmountProps) {
 
   const promoted = promotedEntry(values.term, values.specialized);
   const resolved = resolveHook(values);
-  const erc721Checking =
-    (status as { erc721Checking?: boolean } | undefined)?.erc721Checking ===
-    true;
+  const formStatus = status as PaymentTermsFormStatus | undefined;
+  const nftAddress = values.nftCollectionAddress.trim();
+  const nftCheckPending =
+    values.term === "conditionMet" &&
+    values.conditionTrigger === "ownership" &&
+    !values.specialized &&
+    nftAddress.length > 0 &&
+    formStatus?.erc721IsErc721 !== true;
   const canContinue =
     resolved?.maturity === "live" &&
     Object.keys(errors).length === 0 &&
-    !erc721Checking;
+    !formStatus?.erc721Checking &&
+    !nftCheckPending;
 
   return (
     <Form>
@@ -215,6 +261,16 @@ const PaymentTermsScreen: React.FC<ScreenProps> = () => {
 
   // Captured once: the screen owns its state until Continue commits it.
   const [initialValues] = useState(() => initialTermsValues(notaFormValues));
+  const nftErc721Ref = useRef<NftErc721Gate>({ address: "", isErc721: null });
+
+  const termsContext = useCallback(
+    (values: PaymentTermsValues) => ({
+      amount,
+      tokenLabel,
+      nftCollectionIsErc721: nftErc721ForValues(values, nftErc721Ref.current),
+    }),
+    [amount, tokenLabel]
+  );
 
   return (
     <Box
@@ -240,18 +296,34 @@ const PaymentTermsScreen: React.FC<ScreenProps> = () => {
       </Text>
       <Formik
         initialValues={initialValues}
-        validate={(values) =>
-          validatePaymentTerms(values, { amount, tokenLabel })
-        }
+        validate={(values) => validatePaymentTerms(values, termsContext(values))}
         validateOnMount
         onSubmit={(values) => {
+          const resolved = resolveHook(values);
+          if (resolved?.maturity !== "live" || !resolved.module) {
+            return;
+          }
+          const errors = validatePaymentTerms(values, termsContext(values));
+          if (Object.keys(errors).length > 0) {
+            return;
+          }
+          if (
+            values.term === "conditionMet" &&
+            values.conditionTrigger === "ownership" &&
+            nftErc721ForValues(values, nftErc721Ref.current) !== true
+          ) {
+            return;
+          }
           updateNotaFormValues(
             termsToNotaForm(values, blockchainState.account ?? "")
           );
           next?.();
         }}
       >
-        <TermsBody amount={amount} tokenLabel={tokenLabel} />
+        <>
+          <SyncNftErc721Gate gateRef={nftErc721Ref} />
+          <TermsBody amount={amount} tokenLabel={tokenLabel} />
+        </>
       </Formik>
     </Box>
   );

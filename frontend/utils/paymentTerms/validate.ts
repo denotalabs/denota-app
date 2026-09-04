@@ -9,6 +9,11 @@ export interface ValidateTermsContext {
   amount: string | undefined;
   tokenLabel: string;
   now?: Date;
+  /**
+   * ERC-721 check for the typed collection, when it matches
+   * `nftCollectionAddress`. `null` means still checking or not yet run.
+   */
+  nftCollectionIsErc721?: boolean | null;
 }
 
 function dateMs(value: string): number | null {
@@ -71,9 +76,17 @@ export function validatePaymentTerms(
     case "someoneReviews": {
       if (values.reviewer === "other") {
         const input = values.reviewerAddress.trim();
+        const resolved = values.resolvedReviewerAddress.trim();
         if (!input) {
           errors.reviewerAddress = "Enter the reviewer's address or ENS name.";
-        } else if (!isAddressLike(input)) {
+        } else if (ethers.utils.isAddress(input)) {
+          // Direct 0x: ready to encode.
+        } else if (isEnsName(input)) {
+          if (!ethers.utils.isAddress(resolved)) {
+            errors.reviewerAddress =
+              "ENS name hasn't resolved to an address.";
+          }
+        } else {
           errors.reviewerAddress = "Not a valid ENS name or 0x address";
         }
       }
@@ -179,6 +192,9 @@ export function validatePaymentTerms(
               "Enter the collection's contract address.";
           } else if (!ethers.utils.isAddress(address)) {
             errors.nftCollectionAddress = "Not a valid 0x address.";
+          } else if (ctx.nftCollectionIsErc721 === false) {
+            errors.nftCollectionAddress =
+              "Contract does not implement ERC-721 (EIP-165)";
           }
           const threshold = Number(values.nftBalanceThreshold);
           if (

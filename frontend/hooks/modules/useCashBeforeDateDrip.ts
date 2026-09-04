@@ -47,10 +47,11 @@ export const useCashBeforeDateDrip = () => {
       }
 
       const currency = sdkCurrencyFor(token);
-      const amountWei = ethers.utils.parseUnits(amount, getTokenUnits(token));
+      const decimals = getTokenUnits(token);
+      const amountWei = ethers.utils.parseUnits(amount.trim(), decimals);
       const dripAmountWei = ethers.utils.parseUnits(
-        dripAmount,
-        getTokenUnits(token)
+        dripAmount.trim(),
+        decimals
       );
       const dripPeriod = resolveDripPeriodSeconds({
         dripPeriodPreset,

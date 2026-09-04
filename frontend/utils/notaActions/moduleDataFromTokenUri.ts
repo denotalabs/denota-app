@@ -1,7 +1,11 @@
 import { ModuleData, NotaStatuses } from "@denota-labs/denota-sdk";
 import { BigNumber } from "ethers";
-import { traitLabelToConditionType } from "../balanceOfConditionalCash";
+import {
+  ConditionType,
+  traitLabelToConditionType,
+} from "../balanceOfConditionalCash";
 import { onChainDripPeriodSeconds } from "../dripPeriod";
+import { expirationDateToCashBeforeDateMs } from "../expirationDate";
 import {
   getMetadataAttribute,
   getMetadataDateAttribute,
@@ -282,5 +286,136 @@ export function buildModuleDataFromTokenUri({
         imageURI,
       } as unknown as ModuleData;
     }
+  }
+}
+
+function dateFromForm(value: string | undefined): Date | null {
+  if (!value?.trim()) {
+    return null;
+  }
+  const ms = expirationDateToCashBeforeDateMs(value);
+  return Number.isFinite(ms) ? new Date(ms) : null;
+}
+
+/** Dashboard moduleData for a nota that was just written, before the subgraph indexes it. */
+export function buildOptimisticModuleData({
+  module,
+  escrowWei,
+  owner,
+  account,
+  inspector,
+  expirationDate,
+  inspectionEndDate,
+  dripAmountWei,
+  nftCollectionAddress,
+  conditionType,
+  nftBalanceThreshold,
+  sender,
+  externalURI,
+  imageURI,
+}: {
+  module: string;
+  escrowWei: BigNumber;
+  owner: string;
+  account: string;
+  inspector?: string;
+  expirationDate?: string;
+  inspectionEndDate?: string;
+  dripAmountWei?: BigNumber;
+  nftCollectionAddress?: string;
+  conditionType?: string;
+  nftBalanceThreshold?: string;
+  sender?: string;
+  externalURI: string;
+  imageURI: string;
+}): ModuleData {
+  const inspectorAddress = inspector?.trim().toLowerCase() || null;
+  const expiration = dateFromForm(expirationDate);
+  const inspectionEnd = dateFromForm(inspectionEndDate);
+  const meta = { externalURI, imageURI, writeBytes: "" };
+
+  switch (module) {
+    case "reversibleRelease":
+      return {
+        moduleName: "reversibleRelease",
+        status: reversibleInspectorStatus(escrowWei, inspectorAddress, account),
+        inspector: inspectorAddress ?? "",
+        ...meta,
+      } as ModuleData;
+    case "reversibleByBeforeDate":
+      return {
+        moduleName: "reversibleByBeforeDate",
+        status: reversibleByBeforeDateStatus(
+          escrowWei,
+          inspectorAddress,
+          account,
+          inspectionEnd
+        ),
+        inspector: inspectorAddress ?? "",
+        reversibleByBeforeDate: inspectionEnd ?? new Date(0),
+        ...meta,
+      } as ModuleData;
+    case "cashBeforeDate":
+      return {
+        moduleName: "cashBeforeDate",
+        status: cashBeforeDateStatus(escrowWei, owner, account, expiration),
+        cashBeforeDate: expiration ?? new Date(0),
+        ...meta,
+      } as ModuleData;
+    case "cashBeforeDateDrip":
+      return {
+        moduleName: "cashBeforeDateDrip",
+        status: cashBeforeDateDripStatus(
+          escrowWei,
+          owner,
+          account,
+          expiration,
+          null,
+          0
+        ),
+        expirationDate: expiration ?? new Date(0),
+        dripAmount: dripAmountWei ?? BigNumber.from(0),
+        dripPeriod: "",
+        ...meta,
+      } as unknown as ModuleData;
+    case "simpleCash":
+      return {
+        moduleName: "simpleCash",
+        status: escrowWei.isZero()
+          ? "claimed"
+          : owner.toLowerCase() === account.toLowerCase()
+            ? "claimable"
+            : "awaiting_claim",
+        ...meta,
+      } as ModuleData;
+    case "directSend":
+      return {
+        moduleName: "directSend",
+        status: "paid",
+        ...meta,
+      } as ModuleData;
+    case "balanceOfConditionalCash":
+      return {
+        moduleName: "balanceOfConditionalCash",
+        status: balanceOfConditionalCashStatus(
+          escrowWei,
+          owner,
+          account,
+          sender ?? null,
+          expiration
+        ),
+        nftCollectionAddress: nftCollectionAddress ?? "",
+        conditionType: (conditionType as ConditionType) ?? "",
+        nftBalanceThreshold: nftBalanceThreshold ?? "",
+        sender: sender ?? "",
+        expirationDate: expiration ?? new Date(0),
+        ...meta,
+      } as unknown as ModuleData;
+    default:
+      return {
+        moduleName: "unknown",
+        status: "?",
+        ...meta,
+      } as ModuleData;
   }
 }

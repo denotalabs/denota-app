@@ -106,3 +106,10 @@ export interface PaymentTermsValues {
 export type PaymentTermsErrors = Partial<
   Record<keyof PaymentTermsValues, string>
 >;
+
+/** Formik `status` for async checks the sync validator reads via a ref. */
+export interface PaymentTermsFormStatus {
+  erc721Checking?: boolean;
+  erc721Address?: string;
+  erc721IsErc721?: boolean | null;
+}
