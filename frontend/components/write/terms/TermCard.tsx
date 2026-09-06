@@ -1,5 +1,5 @@
-import { Box, Button, Flex, Tag, Text } from "@chakra-ui/react";
-import { Pencil, type LucideIcon } from "lucide-react";
+import { Box, Flex, Tag, Text } from "@chakra-ui/react";
+import { ArrowLeft, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { formTheme } from "../../designSystem/form/formTheme";
 import { termsTheme } from "./termsTheme";
@@ -77,14 +77,12 @@ export function TermCard({ title, subtitle, icon, onSelect }: FullCardProps) {
   );
 }
 
-interface SlimRowProps {
-  title: string;
-  icon: LucideIcon;
+interface ChooseDifferentTermsProps {
   onSelect: () => void;
 }
 
-/** Demoted outcome: a single slim line the person can switch to directly. */
-export function TermSlimRow({ title, icon: Icon, onSelect }: SlimRowProps) {
+/** Quiet back-to-list control; not styled as another term option. */
+export function ChooseDifferentTermsRow({ onSelect }: ChooseDifferentTermsProps) {
   return (
     <Box
       as="button"
@@ -110,9 +108,9 @@ export function TermSlimRow({ title, icon: Icon, onSelect }: SlimRowProps) {
       }}
       onClick={onSelect}
     >
-      <Icon size={16} strokeWidth={2.25} />
-      <Text fontSize="14px" fontWeight={600} noOfLines={1}>
-        {title}
+      <ArrowLeft size={16} strokeWidth={2.25} />
+      <Text fontSize="14px" fontWeight={600}>
+        See all terms
       </Text>
     </Box>
   );
@@ -123,7 +121,6 @@ interface PromotedCardProps {
   subtitle: string;
   icon: LucideIcon;
   tag?: string | null;
-  onChange: () => void;
   children: ReactNode;
 }
 
@@ -133,7 +130,6 @@ export function PromotedTermCard({
   subtitle,
   icon,
   tag,
-  onChange,
   children,
 }: PromotedCardProps) {
   return (
@@ -144,40 +140,27 @@ export function PromotedTermCard({
       px={{ base: 3.5, md: 4 }}
       py={4}
     >
-      <Flex align="flex-start" justify="space-between" gap={3}>
-        <Flex align="center" gap={3.5} minW={0}>
-          <TermIconTile icon={icon} active />
-          <Box minW={0}>
-            <Flex align="center" gap={2} flexWrap="wrap">
-              <Text fontSize="15px" fontWeight={700} color={formTheme.textDark}>
-                {title}
-              </Text>
-              {tag ? (
-                <Tag size="sm" colorScheme="gray" borderRadius="full">
-                  {tag}
-                </Tag>
-              ) : null}
-            </Flex>
-            <Text
-              fontSize="13px"
-              lineHeight={1.45}
-              color={formTheme.mutedLight}
-            >
-              {subtitle}
+      <Flex align="center" gap={3.5} minW={0}>
+        <TermIconTile icon={icon} active />
+        <Box minW={0}>
+          <Flex align="center" gap={2} flexWrap="wrap">
+            <Text fontSize="15px" fontWeight={700} color={formTheme.textDark}>
+              {title}
             </Text>
-          </Box>
-        </Flex>
-        <Button
-          flexShrink={0}
-          variant="ghost"
-          size="sm"
-          color="brand.200"
-          leftIcon={<Pencil size={14} />}
-          onClick={onChange}
-          _hover={{ bg: "brand.400" }}
-        >
-          Change
-        </Button>
+            {tag ? (
+              <Tag size="sm" colorScheme="gray" borderRadius="full">
+                {tag}
+              </Tag>
+            ) : null}
+          </Flex>
+          <Text
+            fontSize="13px"
+            lineHeight={1.45}
+            color={formTheme.mutedLight}
+          >
+            {subtitle}
+          </Text>
+        </Box>
       </Flex>
       <Box mt={4}>{children}</Box>
     </Box>

@@ -1,10 +1,4 @@
-import {
-  Box,
-  Collapse,
-  Flex,
-  Text,
-  useBreakpointValue,
-} from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { Form, Formik, useFormikContext } from "formik";
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
@@ -20,13 +14,11 @@ import {
   resolveHook,
 } from "../../../utils/paymentTerms/resolveHook";
 import type {
-  PaymentTermId,
   PaymentTermsFormStatus,
   PaymentTermsValues,
 } from "../../../utils/paymentTerms/types";
 import { validatePaymentTerms } from "../../../utils/paymentTerms/validate";
 import { NotaCurrency } from "../../designSystem/CurrencyIcon";
-import { DisclosureToggle } from "../../designSystem/form/DisclosureToggle";
 import { formTheme } from "../../designSystem/form/formTheme";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
@@ -39,7 +31,7 @@ import { ReleaseOverTimeConfig } from "./config/ReleaseOverTimeConfig";
 import { ReviewerConfig } from "./config/ReviewerConfig";
 import { SpecializedConfig } from "./config/SpecializedConfig";
 import { SpecializedOptions } from "./SpecializedOptions";
-import { PromotedTermCard, TermCard, TermSlimRow } from "./TermCard";
+import { ChooseDifferentTermsRow, PromotedTermCard, TermCard } from "./TermCard";
 import { promotedEntry, TERM_CATALOG } from "./termCatalog";
 
 interface AmountProps {
@@ -107,66 +99,6 @@ function TermConfig({ amount, tokenLabel }: AmountProps) {
   }
 }
 
-/** The demoted terms: slim rows on desktop, one "Switch term" line on mobile. */
-function SwitchList({
-  currentTerm,
-  onSwitch,
-}: {
-  currentTerm: PaymentTermId | "";
-  onSwitch: (term: PaymentTermId) => void;
-}) {
-  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
-  const [open, setOpen] = useState(false);
-
-  const rows = (
-    <Flex direction="column" gap={2}>
-      {TERM_CATALOG.filter((entry) => entry.id !== currentTerm).map((entry) => (
-        <TermSlimRow
-          key={entry.id}
-          title={entry.title}
-          icon={entry.icon}
-          onSelect={() => onSwitch(entry.id)}
-        />
-      ))}
-    </Flex>
-  );
-
-  if (isMobile) {
-    return (
-      <Box mt={4}>
-        <DisclosureToggle
-          label="Switch term"
-          open={open}
-          onToggle={() => setOpen((value) => !value)}
-          w="100%"
-          px={1}
-          py={2}
-        />
-        <Collapse in={open} animateOpacity>
-          <Box pt={1}>{rows}</Box>
-        </Collapse>
-      </Box>
-    );
-  }
-
-  return (
-    <Box mt={5}>
-      <Text
-        fontSize="12px"
-        fontWeight={600}
-        letterSpacing="0.3px"
-        textTransform="uppercase"
-        color={formTheme.mutedFaded}
-        mb={2}
-        px={1}
-      >
-        Switch to different terms
-      </Text>
-      {rows}
-    </Box>
-  );
-}
-
 function TermsBody({ amount, tokenLabel }: AmountProps) {
   const { values, errors, status, setValues, setTouched } =
     useFormikContext<PaymentTermsValues>();
@@ -209,14 +141,12 @@ function TermsBody({ amount, tokenLabel }: AmountProps) {
             subtitle={promoted.subtitle}
             icon={promoted.icon}
             tag={resolved ? maturityLabel(resolved.maturity) : null}
-            onChange={() => select({})}
           >
             <TermConfig amount={amount} tokenLabel={tokenLabel} />
           </PromotedTermCard>
-          <SwitchList
-            currentTerm={values.term}
-            onSwitch={(term) => select({ term })}
-          />
+          <Box mt={5}>
+            <ChooseDifferentTermsRow onSelect={() => select({})} />
+          </Box>
           <RoundedButton type="submit" isDisabled={!canContinue} mt={5}>
             Continue
           </RoundedButton>
