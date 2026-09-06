@@ -14,7 +14,7 @@ import { allowsZeroPaymentAmount } from "./paymentMetadata";
 import { TokenSelector } from "./TokenSelector";
 
 function PaymentFields() {
-  const { values, setFieldTouched, validateField, setFieldValue } =
+  const { values, validateField, setFieldValue } =
     useFormikContext<DetailsStepFormValues>();
   const { updateNotaFormValues } = useNotaForm();
   const { displayNameForCurrency, getTokenUnits } = useTokens();
@@ -30,11 +30,10 @@ function PaymentFields() {
     );
     const currentAllowsZero = allowsZeroPaymentAmount(values.paymentType);
     if (previousAllowsZero !== currentAllowsZero) {
-      setFieldTouched("amount", true, false);
       validateField("amount");
     }
     previousPaymentType.current = values.paymentType;
-  }, [setFieldTouched, validateField, values.paymentType]);
+  }, [validateField, values.paymentType]);
 
   // Switching to a token with fewer decimals must trim the typed amount, or
   // parseUnits will throw downstream when paying / approving.
@@ -84,6 +83,14 @@ function PaymentFields() {
       })
       : "0";
 
+  const amountValue = Number(values.amount);
+  const amountNeedsValue =
+    !allowZero &&
+    (values.amount === undefined ||
+      values.amount === "" ||
+      Number.isNaN(amountValue) ||
+      amountValue <= 0);
+
   return (
     <>
       <AccountField
@@ -117,12 +124,13 @@ function PaymentFields() {
           </Flex>
         }
       >
-        <Flex gap={2} align="stretch">
+        <Flex gap={2} align="flex-start">
           <Box flex={1} minW={0}>
             <AmountField
               allowZero={allowZero}
               decimals={tokenDecimals}
               onMax={handleMax}
+              invalid={amountNeedsValue}
             />
           </Box>
           <TokenSelector
@@ -130,6 +138,19 @@ function PaymentFields() {
             onChange={(token) => setFieldValue("token", token)}
           />
         </Flex>
+        {amountNeedsValue ? (
+          <Text
+            id="amount-hint"
+            role="alert"
+            mt={1.5}
+            mb={0}
+            fontSize="13px"
+            fontWeight={500}
+            color={formTheme.error}
+          >
+            Enter an amount greater than 0 to send
+          </Text>
+        ) : null}
       </FormSection>
     </>
   );
