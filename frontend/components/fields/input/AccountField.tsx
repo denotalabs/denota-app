@@ -2,22 +2,18 @@ import { Field, FieldProps, FormikProps } from "formik";
 
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import {
-  Box,
-  Button,
   FormControl,
   FormErrorMessage,
-  HStack,
   Input,
   Link,
   Text,
 } from "@chakra-ui/react";
 import { ethers } from "ethers";
-import { Check, Copy, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { blockExplorerAddressUrl } from "../../../context/config/chains";
 import { useEnsAddress } from "../../../hooks/useEnsAddress";
-import { truncateAddress } from "../../../utils/address";
 import {
   couldBeEnsInProgress,
   isEnsName,
@@ -95,12 +91,6 @@ function AccountFieldInner({
   const currentResolved = resolvedFieldName
     ? (values[resolvedFieldName] ?? "")
     : "";
-  const [copied, setCopied] = useState(false);
-  const copiedTimeout = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    return () => window.clearTimeout(copiedTimeout.current);
-  }, []);
 
   const { address: resolvedEnsAddress, isLoading: isEnsLoading } =
     useEnsAddress(
@@ -169,22 +159,14 @@ function AccountFieldInner({
 
   const showInteraction = touched || hasStarted;
 
-  const copyAddr = (addr: string) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(addr);
-    }
-    setCopied(true);
-    window.clearTimeout(copiedTimeout.current);
-    copiedTimeout.current = window.setTimeout(() => setCopied(false), 1400);
-  };
-
   const resolvedAddr =
     currentResolved || resolvedEnsAddress || (isDirectAddress ? trimmed : "");
-  const showResolveChip =
-    showInteraction &&
-    isValidValue &&
-    !!resolvedAddr &&
-    (ensFound || isDirectAddress);
+  const displayResolvedAddr =
+    resolvedAddr && ethers.utils.isAddress(resolvedAddr)
+      ? ethers.utils.getAddress(resolvedAddr)
+      : resolvedAddr;
+  const showResolvedHelper =
+    showInteraction && ensFound && !!displayResolvedAddr;
 
   const explorerUrl = blockExplorerAddressUrl(
     blockchainState.explorer,
@@ -218,12 +200,23 @@ function AccountFieldInner({
           }}
         />
         {showInteraction && isValidValue ? (
-          <Check
-            size={20}
-            strokeWidth={3}
-            color={formTheme.selectedBorder}
-            style={{ flexShrink: 0 }}
-          />
+          <Link
+            href={explorerUrl}
+            isExternal
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            minW="38px"
+            minH="38px"
+            borderRadius="10px"
+            bg={formTheme.selectedBgMuted}
+            color={formTheme.primary}
+            _hover={{ bg: formTheme.cardBgHover }}
+            flexShrink={0}
+            aria-label="View on block explorer"
+          >
+            <ExternalLinkIcon boxSize={3.5} />
+          </Link>
         ) : null}
         {showInteraction && isInvalidValue ? (
           <X
@@ -234,67 +227,38 @@ function AccountFieldInner({
           />
         ) : null}
       </FormInputWrap>
-      <Box mt={2.5}>
-        {showResolveChip ? (
-          <HStack spacing={2} align="center" flexWrap="wrap">
-            <Button
-              display="inline-flex"
-              alignItems="center"
-              gap={2}
-              px={3}
-              py={2}
-              h="auto"
-              minH="38px"
-              borderRadius="10px"
-              border="none"
-              bg={formTheme.selectedBgMuted}
-              color={formTheme.primary}
-              fontSize="13px"
-              fontWeight={600}
-              onClick={() => copyAddr(resolvedAddr)}
-            >
-              <span>{truncateAddress(resolvedAddr)}</span>
-              {copied ? <Check size={14} strokeWidth={3} /> : <Copy size={14} />}
-            </Button>
-            <Link
-              href={explorerUrl}
-              isExternal
-              display="inline-flex"
-              alignItems="center"
-              justifyContent="center"
-              minW="38px"
-              minH="38px"
-              borderRadius="10px"
-              bg={formTheme.selectedBgMuted}
-              color={formTheme.primary}
-              _hover={{ bg: formTheme.cardBgHover }}
-              aria-label="View on block explorer"
-            >
-              <ExternalLinkIcon boxSize={3.5} />
-            </Link>
-          </HStack>
-        ) : null}
-        {showInteraction && isInvalidValue ? (
-          <Text
-            display="block"
-            fontSize="13px"
-            color={formTheme.error}
-            fontWeight={500}
-          >
-            Not a valid ENS name or 0x address
-          </Text>
-        ) : null}
-        {form.errors[fieldName] &&
-          showInteraction &&
-          !ensFound &&
-          !isInvalidValue ? (
-          <FormControl isInvalid>
-            <FormErrorMessage>
-              {form.errors[fieldName] as string}
-            </FormErrorMessage>
-          </FormControl>
-        ) : null}
-      </Box>
+      {showResolvedHelper ? (
+        <Text
+          mt={1.5}
+          fontSize="13px"
+          lineHeight={1.45}
+          color={formTheme.muted}
+          wordBreak="break-all"
+        >
+          {displayResolvedAddr}
+        </Text>
+      ) : null}
+      {showInteraction && isInvalidValue ? (
+        <Text
+          display="block"
+          mt={1.5}
+          fontSize="13px"
+          color={formTheme.error}
+          fontWeight={500}
+        >
+          Not a valid ENS name or 0x address
+        </Text>
+      ) : null}
+      {form.errors[fieldName] &&
+        showInteraction &&
+        !ensFound &&
+        !isInvalidValue ? (
+        <FormControl isInvalid>
+          <FormErrorMessage>
+            {form.errors[fieldName] as string}
+          </FormErrorMessage>
+        </FormControl>
+      ) : null}
     </>
   );
 
