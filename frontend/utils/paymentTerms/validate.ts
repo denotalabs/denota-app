@@ -1,4 +1,8 @@
 import { ethers } from "ethers";
+import {
+  classifyAccountInput,
+  isPrivyIdentifierKind,
+} from "../accountIdentifier";
 import { resolveDripPeriodSeconds } from "../dripPeriod";
 import { couldBeEnsInProgress, isEnsName } from "../ensAddress";
 import { expirationDateToCashBeforeDateMs } from "../expirationDate";
@@ -49,9 +53,91 @@ export function validatePaymentTerms(
   const total = Number(ctx.amount);
   const totalLabel = `${ctx.amount?.trim() || "0"} ${ctx.tokenLabel}`.trim();
 
-  if (values.specialized === "customHook") {
-    if (!ethers.utils.isAddress(values.customHookAddress.trim())) {
-      errors.customHookAddress = "Paste a valid hook contract address.";
+  if (values.specialized) {
+    switch (values.specialized) {
+      case "customHook":
+        if (!ethers.utils.isAddress(values.customHookAddress.trim())) {
+          errors.customHookAddress = "Paste a valid hook contract address.";
+        }
+        break;
+      case "timelockPromise": {
+        const ms = dateMs(values.releaseDate);
+        if (ms === null) {
+          errors.releaseDate = "Pick an unlock date.";
+        } else if (ms <= nowMs) {
+          errors.releaseDate =
+            "That date is in the past. Pick a future date.";
+        }
+        const firstHalf = Number(values.firstHalfAmount);
+        if (
+          !values.firstHalfAmount.trim() ||
+          !Number.isFinite(firstHalf) ||
+          firstHalf < 0
+        ) {
+          errors.firstHalfAmount = "Locked pay must be 0 or more.";
+        } else if (Number.isFinite(total) && total > 0 && firstHalf > total) {
+          errors.firstHalfAmount = `That is more than the full ${totalLabel}.`;
+        }
+        break;
+      }
+      case "forwarderReverser": {
+        const input = values.reverserAddress.trim();
+        const resolved = values.resolvedReverserAddress.trim();
+        if (!input) {
+          errors.reverserAddress =
+            "Enter the reverser's address, ENS name, email, or phone.";
+        } else if (ethers.utils.isAddress(input)) {
+          // Direct 0x: ready to encode.
+        } else if (ethers.utils.isAddress(resolved)) {
+          // Email, phone, or ENS already resolved.
+        } else {
+          const classified = classifyAccountInput(input);
+          if (
+            classified.kind === "ens" ||
+            isPrivyIdentifierKind(classified.kind) ||
+            classified.kind === "incomplete"
+          ) {
+            errors.reverserAddress =
+              classified.message ||
+              "That hasn't resolved to an address yet.";
+          } else {
+            errors.reverserAddress =
+              classified.message ||
+              "Not a valid email, phone, ENS name, or 0x address";
+          }
+        }
+        break;
+      }
+      case "reversibleBeforeDelayable": {
+        const ms = dateMs(values.inspectionEndDate);
+        if (ms === null) {
+          errors.inspectionEndDate = "Pick a date.";
+        } else if (ms <= nowMs) {
+          errors.inspectionEndDate =
+            "That date is in the past. Pick a future date.";
+        }
+        const cost = Number(values.delayCostPerDay);
+        if (
+          !values.delayCostPerDay.trim() ||
+          !Number.isFinite(cost) ||
+          cost <= 0
+        ) {
+          errors.delayCostPerDay = "Cost to extend must be more than 0.";
+        }
+        break;
+      }
+      case "reversibleStartsLocked": {
+        const ms = dateMs(values.inspectionEndDate);
+        if (ms === null) {
+          errors.inspectionEndDate = "Pick a date.";
+        } else if (ms <= nowMs) {
+          errors.inspectionEndDate =
+            "That date is in the past. Pick a future date.";
+        }
+        break;
+      }
+      default:
+        break;
     }
     return errors;
   }
@@ -78,16 +164,27 @@ export function validatePaymentTerms(
         const input = values.reviewerAddress.trim();
         const resolved = values.resolvedReviewerAddress.trim();
         if (!input) {
-          errors.reviewerAddress = "Enter the reviewer's address or ENS name.";
+          errors.reviewerAddress =
+            "Enter the reviewer's address, ENS name, email, or phone.";
         } else if (ethers.utils.isAddress(input)) {
           // Direct 0x: ready to encode.
-        } else if (isEnsName(input)) {
-          if (!ethers.utils.isAddress(resolved)) {
-            errors.reviewerAddress =
-              "ENS name hasn't resolved to an address.";
-          }
+        } else if (ethers.utils.isAddress(resolved)) {
+          // Email, phone, or ENS already resolved.
         } else {
-          errors.reviewerAddress = "Not a valid ENS name or 0x address";
+          const classified = classifyAccountInput(input);
+          if (
+            classified.kind === "ens" ||
+            isPrivyIdentifierKind(classified.kind) ||
+            classified.kind === "incomplete"
+          ) {
+            errors.reviewerAddress =
+              classified.message ||
+              "That hasn't resolved to an address yet.";
+          } else {
+            errors.reviewerAddress =
+              classified.message ||
+              "Not a valid email, phone, ENS name, or 0x address";
+          }
         }
       }
       if (

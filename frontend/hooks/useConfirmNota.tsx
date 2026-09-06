@@ -22,7 +22,7 @@ import { useDirectPay } from "./modules/useDirectPay";
 import { useReversibleByBeforeDate } from "./modules/useReversibleByBeforeDate";
 import { useReversibleRelease } from "./modules/useReversibleRelease";
 import { useSimpleCash } from "./modules/useSimpleCash";
-import { useEmail } from "./useEmail";
+import { useNotifyRecipient } from "./useNotifyRecipient";
 import { useTokens } from "./useTokens";
 
 interface Props {
@@ -36,7 +36,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
   const { notaFormValues } = useNotaForm();
   const { blockchainState } = useBlockchainData();
 
-  const { sendEmail } = useEmail();
+  const { notifyRecipient } = useNotifyRecipient();
   const { getTokenUnits } = useTokens();
 
   const { createLocalNota } = useNotaContext();
@@ -255,9 +255,10 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
         isCrossChain: false,
       });
 
-      if (receipt.txHash && notaFormValues.email) {
-        await sendEmail({
+      if (receipt.txHash) {
+        await notifyRecipient({
           email: notaFormValues.email,
+          phone: notaFormValues.phone,
           txHash: receipt.txHash,
           network: blockchainState.chainId,
           token: notaFormValues.token,
@@ -297,6 +298,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     notaFormValues.amount,
     notaFormValues.token,
     notaFormValues.email,
+    notaFormValues.phone,
     notaFormValues.mode,
     notaFormValues.externalURI,
     notaFormValues.imageURI,
@@ -323,7 +325,7 @@ export const useConfirmNota = ({ onSuccess }: Props) => {
     writeReversibleByBeforeDate,
     writeSimpleCash,
     writeBalanceOfConditionalCash,
-    sendEmail,
+    notifyRecipient,
   ]);
 
   return { writeNota };

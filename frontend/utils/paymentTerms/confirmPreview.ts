@@ -1,4 +1,5 @@
 import { isAddress } from "ethers/lib/utils";
+import { classifyAccountInput } from "../accountIdentifier";
 import { truncateAddress } from "../address";
 import { isEnsName } from "../ensAddress";
 import {
@@ -43,7 +44,7 @@ export interface ConfirmPreviewContext {
   ensNames?: Map<string, string | null>;
 }
 
-/** ENS name if typed, reverse-resolved ENS, or a truncated address. */
+/** ENS name, email, or phone if typed; otherwise reverse-resolved ENS or a truncated address. */
 export function resolvePartyLabel(
   typed: string,
   resolved: string | undefined,
@@ -53,6 +54,10 @@ export function resolvePartyLabel(
   const input = typed.trim();
   if (isEnsName(input)) {
     return input.toLowerCase();
+  }
+  const contact = classifyAccountInput(input).contact;
+  if (contact) {
+    return contact.value;
   }
   const address = isAddress(resolved ?? "")
     ? (resolved as string)
@@ -249,6 +254,94 @@ function specializedPreview(
         termRows: [],
         legend: "Set by the onchain chat terms.",
       };
+    case "timelockPromise": {
+      const when = formatConfirmDate(values.releaseDate);
+      const pay = formatFundingAmount(values.firstHalfAmount, ctx.tokenLabel);
+      const total = Number(ctx.amount);
+      const first = Number(values.firstHalfAmount);
+      const deposit =
+        Number.isFinite(total) && Number.isFinite(first)
+          ? formatFundingAmount(String(total - first), ctx.tokenLabel)
+          : "your deposit";
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a locked payment plus a deposit to ",
+          ". Their pay unlocks on the date below. Your deposit comes back unless you approve it."
+        ),
+        termRows: [
+          { label: "Unlocks", value: when || "the chosen date" },
+          { label: "Their pay", value: pay },
+          { label: "Your deposit", value: deposit },
+        ],
+        legend: "Set by the promise terms.",
+      };
+    }
+    case "forwarderReverser":
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a reversible payment to ",
+          ". You can release it to them; the person you named can send it back to you."
+        ),
+        termRows: [
+          {
+            label: "Reverser",
+            value: resolvePartyLabel(
+              values.reverserAddress,
+              values.resolvedReverserAddress,
+              ctx.ensNames,
+              "Reverser"
+            ),
+          },
+        ],
+        legend: "Set by the reversible terms.",
+      };
+    case "reversibleBeforeDelayable": {
+      const until = formatConfirmDate(values.inspectionEndDate);
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a reversible payment to ",
+          ". You can take it back until the date below, and pay to push that date later."
+        ),
+        termRows: [
+          {
+            label: "Reversible until",
+            value: until || "the chosen date",
+          },
+          {
+            label: "Cost to extend",
+            value: `${formatFundingAmount(
+              values.delayCostPerDay,
+              ctx.tokenLabel
+            )} per day`,
+          },
+        ],
+        legend: "Set by the reversible terms.",
+      };
+    }
+    case "reversibleStartsLocked": {
+      const until = formatConfirmDate(values.inspectionEndDate);
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a reversible payment to ",
+          ". After a lock period you can take it back, until they can claim."
+        ),
+        termRows: [
+          {
+            label: "Recipient claims after",
+            value: until || "the chosen date",
+          },
+          {
+            label: "Refunds unlock",
+            value: "Halfway to that date",
+          },
+        ],
+        legend: "Set by the reversible terms.",
+      };
+    }
     case "customHook":
       return {
         narrative: toNarrative(

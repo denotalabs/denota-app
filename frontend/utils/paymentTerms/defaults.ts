@@ -13,6 +13,15 @@ export function seedChunkAmount(totalAmount: string | undefined): string {
   return "100";
 }
 
+/** Default locked pay for TimelockPromise: half the escrow, when the amount is known. */
+export function seedFirstHalfAmount(totalAmount: string | undefined): string {
+  const total = Number(totalAmount);
+  if (Number.isFinite(total) && total > 0) {
+    return String(Number((total / 2).toPrecision(6)));
+  }
+  return "";
+}
+
 /**
  * Seeds for every field, so no term opens to a wall of blanks. Selecting a
  * term resets to these plus the term, so configuration is editing, not
@@ -72,6 +81,10 @@ export function baseTermsValues(
     distribution: "fixedSplit",
     sharedPotKind: "fundraiser",
 
+    firstHalfAmount: seedFirstHalfAmount(totalAmount),
+    delayCostPerDay: "1",
+    reverserAddress: "",
+    resolvedReverserAddress: "",
     customHookAddress: "",
   };
 }

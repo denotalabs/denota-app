@@ -2,14 +2,11 @@ import { useToast } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { useCallback } from "react";
 import { NotaCurrency } from "../components/designSystem/CurrencyIcon";
-import {
-  hasPaymentMetadata,
-} from "../components/write/details/paymentMetadata";
 import { PaymentType } from "../components/write/details/PaymentTypeField";
 import { paymentButtonText } from "../utils/paymentButtonText";
 import { useBlockchainData } from "../context/BlockchainDataProvider";
 import { useDirectPay } from "./modules/useDirectPay";
-import { useEmail } from "./useEmail";
+import { useNotifyRecipient } from "./useNotifyRecipient";
 import { normalizePaymentMetadataUris } from "../utils/metadataUri";
 import { useTokens } from "./useTokens";
 
@@ -20,6 +17,7 @@ export interface QuickPaymentValues {
   paymentType: PaymentType;
   note?: string;
   email?: string;
+  phone?: string;
   file?: File;
   tags?: string;
   externalURI?: string;
@@ -36,7 +34,7 @@ export const useQuickPayment = ({ onSuccess }: Props) => {
   const { blockchainState } = useBlockchainData();
   const { getTokenContract, getTokenUnits } = useTokens();
   const { writeNota: writeDirectPay } = useDirectPay();
-  const { sendEmail } = useEmail();
+  const { notifyRecipient } = useNotifyRecipient();
 
   const executeQuickPayment = useCallback(
     async (values: QuickPaymentValues) => {
@@ -50,22 +48,19 @@ export const useQuickPayment = ({ onSuccess }: Props) => {
         getTokenUnits(token)
       );
       const recipient = values.address;
-      const hasMetadata = hasPaymentMetadata(values);
+      let txHash = "";
 
       try {
         switch (values.paymentType) {
           case "sendOnly":
-            // if (hasMetadata) {
-            // TODO: call registrar write(token, instant, owner, data) when deployed
-            //   return;
-            // }
             {
               const tokenContract = getTokenContract(token);
               if (!tokenContract) {
                 throw new Error("Token contract unavailable");
               }
               const tx = await tokenContract.transfer(recipient, amountWei);
-              await tx.wait();
+              const mined = await tx.wait();
+              txHash = mined.transactionHash ?? tx.hash ?? "";
             }
             break;
           case "withReceipt": {
@@ -83,20 +78,24 @@ export const useQuickPayment = ({ onSuccess }: Props) => {
             if (!receipt) {
               return;
             }
-            if (receipt.txHash && values.email) {
-              await sendEmail({
-                email: values.email,
-                txHash: receipt.txHash,
-                network: blockchainState.chainId,
-                token: values.token,
-                amount: values.amount,
-                module: "directSend",
-              });
-            }
+            txHash = receipt.txHash ?? "";
             break;
           }
           default:
             return;
+        }
+
+        if (txHash) {
+          await notifyRecipient({
+            email: values.email,
+            phone: values.phone,
+            txHash,
+            network: blockchainState.chainId,
+            token: values.token,
+            amount: values.amount,
+            module:
+              values.paymentType === "withReceipt" ? "directSend" : "sendOnly",
+          });
         }
 
         toast({
@@ -122,7 +121,7 @@ export const useQuickPayment = ({ onSuccess }: Props) => {
       getTokenContract,
       getTokenUnits,
       onSuccess,
-      sendEmail,
+      notifyRecipient,
       toast,
       writeDirectPay,
     ]
