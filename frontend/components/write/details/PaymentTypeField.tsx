@@ -3,6 +3,7 @@ import { Field, FieldProps, useFormikContext } from "formik";
 import { List, Receipt, Send } from "lucide-react";
 import { FormSection } from "../../designSystem/form/FormSection";
 import { formTheme } from "../../designSystem/form/formTheme";
+import { SegmentedControl } from "../../designSystem/form/SegmentedControl";
 import { SelectableCardRow } from "../../designSystem/form/SelectableCardRow";
 
 export type PaymentType = "sendOnly" | "withReceipt" | "withTerms";
@@ -52,48 +53,27 @@ export function PaymentTypeField() {
 
 function PaymentTypeSelector({ value }: { value: PaymentType }) {
   const { setFieldValue } = useFormikContext<{ paymentType: PaymentType }>();
-  const { getRootProps, getRadioProps } = useRadioGroup({
-    name: "paymentType",
-    value,
-    onChange: (val: PaymentType) => {
-      setFieldValue("paymentType", val, false);
-    },
-  });
-
-  const group = getRootProps();
+  const onChange = (val: PaymentType) => {
+    setFieldValue("paymentType", val, false);
+  };
   const selectedOption = PAYMENT_TYPE_OPTIONS.find(
     (option) => option.value === value
   );
 
   return (
     <Box>
-      <Flex gap={{ base: 2, md: 3 }} align="stretch" {...group}>
-        {PAYMENT_TYPE_OPTIONS.map(({ value: optionValue, label, icon: Icon }) => (
-          <SelectableCardRow
-            key={optionValue}
-            radioProps={getRadioProps({ value: optionValue })}
-            title={label}
-            flex={1}
-            px={{ base: 2.5, md: 3 }}
-            gap={{ base: 2, md: 2.5 }}
-            titleFontSize={{ base: "14px", md: "15px" }}
-            leading={(isChecked) => (
-              <Flex
-                w={{ base: "28px", md: "30px" }}
-                h={{ base: "28px", md: "30px" }}
-                borderRadius="10px"
-                align="center"
-                justify="center"
-                flexShrink={0}
-                bg={isChecked ? "brand.200" : formTheme.iconInactiveBg}
-                color={isChecked ? "brand.100" : formTheme.iconInactive}
-              >
-                <Icon size={17} strokeWidth={2.5} />
-              </Flex>
-            )}
-          />
-        ))}
-      </Flex>
+      <Box display={{ base: "block", md: "none" }}>
+        <SegmentedControl
+          name="paymentType"
+          value={value}
+          options={PAYMENT_TYPE_OPTIONS}
+          onChange={onChange}
+          aria-label="Payment type"
+        />
+      </Box>
+      <Box display={{ base: "none", md: "block" }}>
+        <PaymentTypeCards value={value} onChange={onChange} />
+      </Box>
       <Box minH={{ base: "2.5rem", md: "2rem" }} mt={{ base: 3, md: 2 }}>
         {selectedOption ? (
           <Text
@@ -107,5 +87,49 @@ function PaymentTypeSelector({ value }: { value: PaymentType }) {
         ) : null}
       </Box>
     </Box>
+  );
+}
+
+function PaymentTypeCards({
+  value,
+  onChange,
+}: {
+  value: PaymentType;
+  onChange: (val: PaymentType) => void;
+}) {
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name: "paymentType",
+    value,
+    onChange,
+  });
+
+  return (
+    <Flex gap={3} align="stretch" {...getRootProps()}>
+      {PAYMENT_TYPE_OPTIONS.map(({ value: optionValue, label, icon: Icon }) => (
+        <SelectableCardRow
+          key={optionValue}
+          radioProps={getRadioProps({ value: optionValue })}
+          title={label}
+          flex={1}
+          px={3}
+          gap={2.5}
+          titleFontSize="15px"
+          leading={(isChecked) => (
+            <Flex
+              w="30px"
+              h="30px"
+              borderRadius="10px"
+              align="center"
+              justify="center"
+              flexShrink={0}
+              bg={isChecked ? "brand.200" : formTheme.iconInactiveBg}
+              color={isChecked ? "brand.100" : formTheme.iconInactive}
+            >
+              <Icon size={17} strokeWidth={2.5} />
+            </Flex>
+          )}
+        />
+      ))}
+    </Flex>
   );
 }
