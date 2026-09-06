@@ -2,7 +2,11 @@ import {
   CalendarClock,
   Code,
   HandCoins,
+  Handshake,
+  Hourglass,
   KeyRound,
+  LockKeyhole,
+  Undo2,
   UserCheck,
   Users,
   type LucideIcon
@@ -60,12 +64,46 @@ export interface SpecializedCatalogEntry {
   icon: LucideIcon;
   /** Dimmed and non-selectable. */
   comingSoon?: boolean;
+  /** Selectable, tagged Coming soon. */
+  experimental?: boolean;
   /** Rendered with an "Advanced" tag. */
   advanced?: boolean;
 }
 
 /** Instrument-like and experimental options, kept out of the primary five. */
 export const SPECIALIZED_CATALOG: SpecializedCatalogEntry[] = [
+  {
+    id: "timelockPromise",
+    title: "Locked pay plus a deposit",
+    subtitle:
+      "Their pay unlocks on a date. Your deposit comes back unless you approve it.",
+    icon: Handshake,
+    experimental: true,
+  },
+  {
+    id: "forwarderReverser",
+    title: "You release, someone else reverses",
+    subtitle:
+      "You send the funds to the recipient. A person you name can send them back.",
+    icon: Undo2,
+    experimental: true,
+  },
+  {
+    id: "reversibleBeforeDelayable",
+    title: "Refund window you can extend",
+    subtitle:
+      "Take the funds back until a date, and pay to push that date later.",
+    icon: Hourglass,
+    experimental: true,
+  },
+  {
+    id: "reversibleStartsLocked",
+    title: "Refunds after a lock period",
+    subtitle:
+      "You can reverse only after a waiting period, until the recipient can claim.",
+    icon: LockKeyhole,
+    experimental: true,
+  },
   // {
   //   id: "bills",
   //   title: "Transferable bills",

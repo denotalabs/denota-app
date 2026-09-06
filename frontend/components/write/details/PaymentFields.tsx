@@ -5,6 +5,10 @@ import { useEffect, useRef } from "react";
 import { useNotaForm } from "../../../context/NotaFormProvider";
 import { useTokenBalance } from "../../../hooks/useTokenBalance";
 import { useTokens } from "../../../hooks/useTokens";
+import {
+  PEOPLE_ACCOUNT_PLACEHOLDER,
+  classifyAccountInput,
+} from "../../../utils/accountIdentifier";
 import { FormSection } from "../../designSystem/form/FormSection";
 import { formTheme } from "../../designSystem/form/formTheme";
 import AccountField from "../../fields/input/AccountField";
@@ -55,19 +59,33 @@ function PaymentFields() {
   }, [setFieldValue, tokenDecimals, values.amount]);
 
   useEffect(() => {
+    const contact = classifyAccountInput(values.address).contact;
+    const nextEmail = contact?.kind === "email" ? contact.value : "";
+    const nextPhone = contact?.kind === "phone" ? contact.value : "";
+    if (values.email !== nextEmail) {
+      setFieldValue("email", nextEmail, false);
+    }
+    if (values.phone !== nextPhone) {
+      setFieldValue("phone", nextPhone, false);
+    }
     updateNotaFormValues({
       token: values.token,
       amount: values.amount ? String(Number(values.amount)) : "",
       address: values.address,
       resolvedAddress: values.resolvedAddress,
       mode: values.mode,
+      email: nextEmail,
+      phone: nextPhone,
     });
   }, [
+    setFieldValue,
     updateNotaFormValues,
     values.token,
     values.amount,
     values.address,
     values.resolvedAddress,
+    values.email,
+    values.phone,
     values.mode,
   ]);
 
@@ -97,7 +115,8 @@ function PaymentFields() {
         fieldName="address"
         resolvedFieldName="resolvedAddress"
         allowEns
-        placeholder="almaraz.eth, 0x..."
+        allowPrivyIdentifier
+        placeholder={PEOPLE_ACCOUNT_PLACEHOLDER}
         label="Recipient"
       />
       <FormSection

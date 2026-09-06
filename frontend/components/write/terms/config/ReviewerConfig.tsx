@@ -1,6 +1,7 @@
 import { Box } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
 import type { PaymentTermsValues } from "../../../../utils/paymentTerms/types";
+import { PEOPLE_ACCOUNT_PLACEHOLDER } from "../../../../utils/accountIdentifier";
 import AccountField from "../../../fields/input/AccountField";
 import { ChoiceField } from "../fields/ChoiceField";
 import { FieldHelp, FieldLabel, FieldStack } from "../fields/FieldChrome";
@@ -53,10 +54,12 @@ export function ReviewerConfig() {
             fieldName="reviewerAddress"
             resolvedFieldName="resolvedReviewerAddress"
             allowEns
-            placeholder="almaraz.eth or 0x…"
+            allowPrivyIdentifier
+            placeholder={PEOPLE_ACCOUNT_PLACEHOLDER}
           />
           <FieldHelp>
-            This person can move the escrowed funds. Double-check the address.
+            This person can move the escrowed funds. Double-check the wallet,
+            email, or phone.
           </FieldHelp>
         </Box>
       ) : null}

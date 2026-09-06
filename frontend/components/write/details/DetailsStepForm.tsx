@@ -49,6 +49,7 @@ export type DetailsStepFormValues = {
   paymentType: PaymentType;
   note: string;
   email: string;
+  phone: string;
   file?: File;
   tags: string;
   externalURI: string;
@@ -101,6 +102,7 @@ export function DetailsStepForm() {
         (notaFormValues.paymentType as PaymentType) || "withTerms",
       note: notaFormValues.note ?? "",
       email: notaFormValues.email ?? "",
+      phone: notaFormValues.phone ?? "",
       file: file,
       tags: notaFormValues.tags ?? "",
       externalURI: notaFormValues.externalURI ?? "",
@@ -153,6 +155,7 @@ export function DetailsStepForm() {
       ctx.updateNotaFormValues({
         note: values.note,
         email: values.email,
+        phone: values.phone,
         tags: values.tags,
         externalURI,
         imageURI,
@@ -202,6 +205,7 @@ export function DetailsStepForm() {
         paymentType,
         note: values.note,
         email: values.email,
+        phone: values.phone,
         file: values.file,
         tags: values.tags,
         externalURI,
@@ -216,6 +220,7 @@ export function DetailsStepForm() {
       paymentType: formik.values.paymentType,
       note: formik.values.note,
       email: formik.values.email,
+      phone: formik.values.phone,
       tags: formik.values.tags,
       externalURI: formik.values.externalURI,
       imageURI: formik.values.imageURI,
@@ -224,6 +229,7 @@ export function DetailsStepForm() {
   }, [
     formik.values.attachmentStorage,
     formik.values.email,
+    formik.values.phone,
     formik.values.externalURI,
     formik.values.imageURI,
     formik.values.note,

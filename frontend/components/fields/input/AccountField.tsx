@@ -14,10 +14,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { blockExplorerAddressUrl } from "../../../context/config/chains";
 import { useEnsAddress } from "../../../hooks/useEnsAddress";
+import { usePrivyRecipient } from "../../../hooks/usePrivyRecipient";
 import {
-  couldBeEnsInProgress,
-  isEnsName,
-} from "../../../utils/ensAddress";
+  classifyAccountInput,
+  isPrivyIdentifierKind,
+} from "../../../utils/accountIdentifier";
+import { isEnsName } from "../../../utils/ensAddress";
 import { FormInputWrap } from "../../designSystem/form/FormInputWrap";
 import { FormSection } from "../../designSystem/form/FormSection";
 import { formTheme } from "../../designSystem/form/formTheme";
@@ -27,6 +29,7 @@ interface Props {
   placeholder: string;
   isRequired?: boolean;
   allowEns?: boolean;
+  allowPrivyIdentifier?: boolean;
   resolvedFieldName?: string;
   /** When set, wraps the field in a labeled FormSection. */
   label?: string;
@@ -41,33 +44,33 @@ interface InnerProps extends Props {
   onInputStarted: () => void;
 }
 
-function getEnsResolutionError(
-  value: string,
-  allowEns: boolean,
-  isEnsLoading: boolean,
-  resolvedEnsAddress: string | null | undefined
-): string | undefined {
-  if (!allowEns || !isEnsName(value)) {
-    return undefined;
+function invalidCopy(allowEns: boolean, allowPrivyIdentifier: boolean): string {
+  if (allowEns && allowPrivyIdentifier) {
+    return "Not a valid email, phone, ENS, or 0x address";
   }
-  if (isEnsLoading) {
-    return undefined;
+  if (allowPrivyIdentifier) {
+    return "Not a valid email, phone, or 0x address";
   }
-  if (resolvedEnsAddress === null) {
-    return "Invalid address";
+  if (allowEns) {
+    return "Not a valid ENS name or 0x address";
   }
-  return undefined;
+  return "Not a valid 0x address";
 }
 
 function getResolvedFieldValue(
   inputValue: string,
-  resolvedEnsAddress: string | null | undefined
+  resolvedEnsAddress: string | null | undefined,
+  resolvedPrivyAddress: string | null | undefined
 ): string {
   if (ethers.utils.isAddress(inputValue)) {
     return "";
   }
-  if (isEnsName(inputValue) && resolvedEnsAddress) {
+  const classified = classifyAccountInput(inputValue);
+  if (classified.kind === "ens" && resolvedEnsAddress) {
     return resolvedEnsAddress;
+  }
+  if (isPrivyIdentifierKind(classified.kind) && resolvedPrivyAddress) {
+    return resolvedPrivyAddress;
   }
   return "";
 }
@@ -82,6 +85,7 @@ function AccountFieldInner({
   placeholder,
   isRequired = true,
   allowEns = false,
+  allowPrivyIdentifier = false,
   resolvedFieldName,
   label,
   sectionMb,
@@ -92,86 +96,167 @@ function AccountFieldInner({
     ? (values[resolvedFieldName] ?? "")
     : "";
 
-  const { address: resolvedEnsAddress, isLoading: isEnsLoading } =
-    useEnsAddress(
-      allowEns && isEnsName(field.value) ? field.value : undefined
-    );
-
-  const ensResolutionError = useMemo(
-    () =>
-      getEnsResolutionError(
-        field.value,
-        allowEns,
-        isEnsLoading,
-        resolvedEnsAddress
-      ),
-    [allowEns, field.value, isEnsLoading, resolvedEnsAddress]
+  const classified = useMemo(
+    () => classifyAccountInput(field.value ?? ""),
+    [field.value]
   );
 
-  useEffect(() => {
-    if (!allowEns || !isEnsName(field.value)) {
-      return;
+  const { address: resolvedEnsAddress, isLoading: isEnsLoading } =
+    useEnsAddress(
+      allowEns && classified.kind === "ens" ? field.value : undefined
+    );
+
+  const {
+    address: resolvedPrivyAddress,
+    isLoading: isPrivyLoading,
+    needsAuth: privyNeedsAuth,
+  } = usePrivyRecipient(
+    allowPrivyIdentifier && isPrivyIdentifierKind(classified.kind)
+      ? field.value
+      : undefined
+  );
+
+  const isResolving = isEnsLoading || isPrivyLoading;
+
+  const resolutionError = useMemo(() => {
+    if (allowEns && classified.kind === "ens") {
+      if (isEnsLoading) {
+        return undefined;
+      }
+      if (resolvedEnsAddress === null) {
+        return "Invalid address";
+      }
     }
-    setFieldError(fieldName, ensResolutionError);
+    if (allowPrivyIdentifier && isPrivyIdentifierKind(classified.kind)) {
+      if (privyNeedsAuth) {
+        return "Log in to send to email or phone";
+      }
+      if (isPrivyLoading) {
+        return undefined;
+      }
+      if (resolvedPrivyAddress === null) {
+        return "Could not create a wallet for that email or phone";
+      }
+    }
+    return undefined;
   }, [
     allowEns,
-    ensResolutionError,
-    field.value,
+    allowPrivyIdentifier,
+    classified.kind,
+    isEnsLoading,
+    isPrivyLoading,
+    privyNeedsAuth,
+    resolvedEnsAddress,
+    resolvedPrivyAddress,
+  ]);
+
+  useEffect(() => {
+    if (
+      !(allowEns && classified.kind === "ens") &&
+      !(allowPrivyIdentifier && isPrivyIdentifierKind(classified.kind))
+    ) {
+      return;
+    }
+    setFieldError(fieldName, resolutionError);
+  }, [
+    allowEns,
+    allowPrivyIdentifier,
+    classified.kind,
     fieldName,
+    resolutionError,
     setFieldError,
   ]);
 
   useEffect(() => {
-    if (!allowEns || !resolvedFieldName) {
+    if (!resolvedFieldName) {
+      return;
+    }
+    if (!allowEns && !allowPrivyIdentifier) {
       return;
     }
 
-    const nextResolved = getResolvedFieldValue(field.value, resolvedEnsAddress);
+    const nextResolved = getResolvedFieldValue(
+      field.value,
+      allowEns ? resolvedEnsAddress : undefined,
+      allowPrivyIdentifier ? resolvedPrivyAddress : undefined
+    );
     if (currentResolved !== nextResolved) {
       setFieldValue(resolvedFieldName, nextResolved, false);
     }
   }, [
     allowEns,
+    allowPrivyIdentifier,
     currentResolved,
     field.value,
     resolvedEnsAddress,
     resolvedFieldName,
+    resolvedPrivyAddress,
     setFieldValue,
   ]);
 
   const ensFound =
     allowEns &&
-    isEnsName(field.value) &&
+    classified.kind === "ens" &&
     !isEnsLoading &&
     !!resolvedEnsAddress;
+  const privyFound =
+    allowPrivyIdentifier &&
+    isPrivyIdentifierKind(classified.kind) &&
+    !isPrivyLoading &&
+    !privyNeedsAuth &&
+    !!resolvedPrivyAddress;
 
   const trimmed = field.value?.trim() ?? "";
   const isDirectAddress = ethers.utils.isAddress(trimmed);
   const isEmpty = trimmed.length === 0;
+  const isIncomplete = classified.kind === "incomplete";
 
-  const isValidValue = !isEmpty && (isDirectAddress || ensFound);
+  const isValidValue =
+    !isEmpty && (isDirectAddress || ensFound || privyFound);
   const isInvalidValue =
     !isEmpty &&
     !isDirectAddress &&
     !ensFound &&
-    !isEnsLoading &&
-    !(allowEns && couldBeEnsInProgress(trimmed));
+    !privyFound &&
+    !isResolving &&
+    !privyNeedsAuth &&
+    !isIncomplete &&
+    classified.kind !== "ens" &&
+    !isPrivyIdentifierKind(classified.kind);
 
   const showInteraction = touched || hasStarted;
 
   const resolvedAddr =
-    currentResolved || resolvedEnsAddress || (isDirectAddress ? trimmed : "");
+    currentResolved ||
+    resolvedEnsAddress ||
+    resolvedPrivyAddress ||
+    (isDirectAddress ? trimmed : "");
   const displayResolvedAddr =
     resolvedAddr && ethers.utils.isAddress(resolvedAddr)
       ? ethers.utils.getAddress(resolvedAddr)
       : resolvedAddr;
   const showResolvedHelper =
-    showInteraction && ensFound && !!displayResolvedAddr;
+    showInteraction &&
+    (ensFound || privyFound) &&
+    !!displayResolvedAddr;
 
   const explorerUrl = blockExplorerAddressUrl(
     blockchainState.explorer,
     resolvedAddr
   );
+
+  const helperText = (() => {
+    if (!showInteraction) {
+      return null;
+    }
+    if (privyNeedsAuth && isPrivyIdentifierKind(classified.kind)) {
+      return "Log in to send to email or phone";
+    }
+    if (isInvalidValue) {
+      return classified.message || invalidCopy(allowEns, allowPrivyIdentifier);
+    }
+    return null;
+  })();
 
   const content = (
     <>
@@ -238,7 +323,7 @@ function AccountFieldInner({
           {displayResolvedAddr}
         </Text>
       ) : null}
-      {showInteraction && isInvalidValue ? (
+      {helperText ? (
         <Text
           display="block"
           mt={1.5}
@@ -246,13 +331,15 @@ function AccountFieldInner({
           color={formTheme.error}
           fontWeight={500}
         >
-          Not a valid ENS name or 0x address
+          {helperText}
         </Text>
       ) : null}
       {form.errors[fieldName] &&
-        showInteraction &&
-        !ensFound &&
-        !isInvalidValue ? (
+      showInteraction &&
+      !ensFound &&
+      !privyFound &&
+      !isInvalidValue &&
+      !helperText ? (
         <FormControl isInvalid>
           <FormErrorMessage>
             {form.errors[fieldName] as string}
@@ -278,6 +365,7 @@ function AccountField({
   placeholder,
   isRequired = true,
   allowEns = false,
+  allowPrivyIdentifier = false,
   resolvedFieldName,
   label,
   sectionMb,
@@ -293,17 +381,31 @@ function AccountField({
         return undefined;
       }
 
-      if (ethers.utils.isAddress(value)) {
+      const classified = classifyAccountInput(value);
+      if (classified.kind === "empty") {
+        return isRequired ? "Invalid address" : undefined;
+      }
+      if (classified.kind === "address") {
         return undefined;
       }
-
-      if (allowEns && (isEnsName(value) || couldBeEnsInProgress(value))) {
+      if (allowEns && (classified.kind === "ens" || isEnsName(value))) {
         return undefined;
       }
-
-      return "Invalid address";
+      if (
+        allowPrivyIdentifier &&
+        (isPrivyIdentifierKind(classified.kind) ||
+          classified.kind === "incomplete")
+      ) {
+        return classified.kind === "incomplete" && classified.message
+          ? classified.message
+          : undefined;
+      }
+      if (allowEns && classified.kind === "incomplete") {
+        return undefined;
+      }
+      return classified.message || invalidCopy(allowEns, allowPrivyIdentifier);
     },
-    [allowEns, isRequired]
+    [allowEns, allowPrivyIdentifier, isRequired]
   );
 
   return (
@@ -319,6 +421,7 @@ function AccountField({
           placeholder={placeholder}
           isRequired={isRequired}
           allowEns={allowEns}
+          allowPrivyIdentifier={allowPrivyIdentifier}
           resolvedFieldName={resolvedFieldName}
           label={label}
           sectionMb={sectionMb}

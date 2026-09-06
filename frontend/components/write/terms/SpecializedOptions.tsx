@@ -83,6 +83,17 @@ export function SpecializedOptions({ onSelect }: Props) {
                         Coming soon
                       </Tag>
                     ) : null}
+                    {option.experimental ? (
+                      <Tag
+                        size="sm"
+                        variant="subtle"
+                        colorScheme="gray"
+                        borderRadius="full"
+                        fontSize="10px"
+                      >
+                        Coming soon
+                      </Tag>
+                    ) : null}
                     {option.advanced ? (
                       <Tag
                         size="sm"
