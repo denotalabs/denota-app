@@ -1,5 +1,5 @@
 import { ButtonProps, IconButton, useToast } from "@chakra-ui/react";
-import { useField } from "formik";
+import { useField, useFormikContext } from "formik";
 import { Upload } from "lucide-react";
 import React, { ChangeEvent, useRef, useState } from "react";
 import { useUploadMetadata } from "../../../hooks/useUploadNote";
@@ -10,20 +10,25 @@ type UploadValueKey = "imageURI" | "ipfsHash";
 
 type FileUploadButtonProps = {
   name: string;
+  fileNameField?: string;
   accept?: string;
   multiple?: boolean;
   buttonProps?: ButtonProps;
   uploadValueKey?: UploadValueKey;
+  onUploadingChange?: (fileName: string | null) => void;
 };
 
 export function FileUploadButton({
   name,
+  fileNameField,
   buttonProps,
   multiple = false,
   accept = ".jpg,.jpeg,.png,.gif,.pdf,.docx,.csv",
   uploadValueKey = "imageURI",
+  onUploadingChange,
 }: FileUploadButtonProps) {
   const [, , { setValue, setTouched }] = useField(name);
+  const { setFieldValue } = useFormikContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const toast = useToast();
   const { upload } = useUploadMetadata();
@@ -34,29 +39,39 @@ export function FileUploadButton({
   };
 
   const handleChange = async (value: ChangeEvent<HTMLInputElement>) => {
-    if (value.target.files?.[0] && value.target.files?.[0].size < 5000000) {
+    const file = value.target.files?.[0];
+    value.target.value = "";
+    if (file && file.size < 5000000) {
       setIsLoading(true);
-      const { imageURI, ipfsHash } = await upload(
-        value.target.files?.[0],
-        undefined,
-        undefined
-      );
-      const uploadedValue = normalizeMetadataUri(
-        uploadValueKey === "ipfsHash" ? ipfsHash : imageURI
-      );
-      if (!uploadedValue) {
-        toast({
-          title: "Upload error",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-      } else {
-        setValue(uploadedValue);
-        setTouched(true, false);
+      onUploadingChange?.(file.name);
+      try {
+        const { imageURI, ipfsHash } = await upload(
+          file,
+          undefined,
+          undefined
+        );
+        const uploadedValue = normalizeMetadataUri(
+          uploadValueKey === "ipfsHash" ? ipfsHash : imageURI
+        );
+        if (!uploadedValue) {
+          toast({
+            title: "Upload error",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        } else {
+          setValue(uploadedValue);
+          setTouched(true, false);
+          if (fileNameField) {
+            setFieldValue(fileNameField, file.name, false);
+          }
+        }
+      } finally {
+        onUploadingChange?.(null);
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    } else {
+    } else if (file) {
       toast({
         title: "File too large (max size 5MB)",
         status: "error",
