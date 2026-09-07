@@ -23,7 +23,7 @@ import { formTheme } from "../../designSystem/form/formTheme";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import { PaymentFlowStepRow } from "../details/PaymentFlowStepRow";
-import { AmountChip } from "./AmountChip";
+import { TermsAmountHint } from "./TermsAmountHint";
 import { ConditionConfig } from "./config/ConditionConfig";
 import { MultiplePeopleConfig } from "./config/MultiplePeopleConfig";
 import { RecipientClaimsConfig } from "./config/RecipientClaimsConfig";
@@ -131,7 +131,7 @@ function TermsBody({ amount, tokenLabel }: AmountProps) {
   return (
     <Form>
       <Box mb={4}>
-        <AmountChip amount={amount} tokenLabel={tokenLabel} />
+        <TermsAmountHint amount={amount} tokenLabel={tokenLabel} />
       </Box>
 
       {promoted ? (
