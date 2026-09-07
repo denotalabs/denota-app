@@ -41,7 +41,13 @@ export function TermsDateField({ name, label, tooltip, help }: Props) {
               fontSize={{ base: "16px", md: "15px" }}
               color={formTheme.text}
               aria-invalid={Boolean(error)}
-              style={{ colorScheme: "dark" }}
+              style={{ colorScheme: "light" }}
+              sx={{
+                "&::-webkit-calendar-picker-indicator": {
+                  cursor: "pointer",
+                  opacity: 0.45,
+                },
+              }}
             />
           </FormInputWrap>
         )}

@@ -25,9 +25,19 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import AddressDisplay from "../../../components/designSystem/AddressDisplay";
+import { PaymentStatusChip } from "../../../components/designSystem/PaymentStatusChip";
+import {
+  NotaStatusExtras,
+  useNotaStatusExtras,
+} from "../../../hooks/fetchNotaStatusExtras";
 import { useEnsNames } from "../../../hooks/useEnsNames";
 import { NotaRow } from "../../../hooks/usePublicNotas";
 import { hookDisplayName } from "../../../utils/notaActions/hookRegistry";
+import {
+  NotaDisplayStatus,
+  needsRemoteStatusExtras,
+  notaDisplayStatus,
+} from "../../../utils/notaStatus";
 
 export type DataTableProps<Data extends object> = {
   data: Data[];
@@ -111,8 +121,42 @@ interface NotaTableProps {
   rows?: NotaRow[];
 }
 
+function rowNeedsExtras(row: NotaRow): boolean {
+  return needsRemoteStatusExtras({
+    hookAddress: row.hook,
+    escrowHeld: row.escrowHeld,
+    expiration: row.expiration,
+    hasInteractionHistory: row.hasInteractionHistory,
+  });
+}
+
+function statusForRow(
+  row: NotaRow,
+  extra: NotaStatusExtras | undefined,
+  extrasReady: boolean
+): NotaDisplayStatus | undefined {
+  if (rowNeedsExtras(row) && !extrasReady) {
+    return undefined;
+  }
+  return notaDisplayStatus({
+    hookAddress: row.hook,
+    metadata: extra?.metadata ?? null,
+    escrowHeld: row.escrowHeld,
+    interactions: [],
+    hasInteractionHistory:
+      row.hasInteractionHistory ?? extra?.hasInteractionHistory ?? false,
+    expiration: row.expiration,
+    wasCashed: row.wasCashed ?? extra?.wasCashed,
+  });
+}
+
 export function NotaTable({ rows }: NotaTableProps) {
   const router = useRouter();
+  const notaIds = useMemo(
+    () => (rows ?? []).filter(rowNeedsExtras).map((row) => row.notaId),
+    [rows]
+  );
+  const { extras, isLoaded: statusesLoaded } = useNotaStatusExtras(notaIds);
   const ensAddresses = useMemo(
     () => rows?.flatMap((row) => [row.owner, row.hook]) ?? [],
     [rows]
@@ -142,18 +186,30 @@ export function NotaTable({ rows }: NotaTableProps) {
           <Tr>
             <Th>ID</Th>
             <Th>Owner</Th>
-            <Th>Currency</Th>
-            <Th isNumeric>Escrow</Th>
+            <Th>Escrow</Th>
             <Th>Payment Terms</Th>
+            <Th>Status</Th>
           </Tr>
         </Thead>
         <Tbody>
           {rows.map((row) => {
             const hookName = hookDisplayName(row.hook);
+            const href = `/nota/${row.notaId}`;
+            const status = statusForRow(
+              row,
+              extras.get(row.notaId),
+              statusesLoaded
+            );
             return (
               <Tr
                 key={row.notaId}
-                onClick={() => router.push(`/nota/${row.notaId}`)}
+                onClick={(event) => {
+                  if (event.metaKey || event.ctrlKey) {
+                    window.open(href, "_blank", "noopener,noreferrer");
+                    return;
+                  }
+                  router.push(href);
+                }}
                 cursor="pointer"
                 _hover={{ bg: "gray.50" }}
               >
@@ -162,7 +218,7 @@ export function NotaTable({ rows }: NotaTableProps) {
                       work even though the whole row is clickable. */}
                   <Link
                     as={NextLink}
-                    href={`/nota/${row.notaId}`}
+                    href={href}
                     onClick={(event) => event.stopPropagation()}
                     aria-label={`Open nota ${row.notaId}`}
                     color="inherit"
@@ -178,8 +234,9 @@ export function NotaTable({ rows }: NotaTableProps) {
                     fontSize="sm"
                   />
                 </Td>
-                <Td>{row.currency}</Td>
-                <Td isNumeric>{row.escrow}</Td>
+                <Td whiteSpace="nowrap">
+                  {row.escrow} {row.currency}
+                </Td>
                 <Td>
                   {hookName ?? (
                     <AddressDisplay
@@ -188,6 +245,9 @@ export function NotaTable({ rows }: NotaTableProps) {
                       fontSize="sm"
                     />
                   )}
+                </Td>
+                <Td>
+                  <PaymentStatusChip status={status} />
                 </Td>
               </Tr>
             );

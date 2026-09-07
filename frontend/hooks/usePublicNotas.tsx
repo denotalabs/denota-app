@@ -1,39 +1,12 @@
 import { ethers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
-import { polygon } from "viem/chains";
 
 import { getChainConfig, POLYGON_CHAIN_ID } from "../context/config/chains";
 import { TokenInfo } from "../context/config/tokenList";
-import NotaRegistrar from "../frontend-abi/NotaRegistrar.json";
-
-// Deployed NotaRegistrar (Polygon). Reads are wallet-free via a public RPC.
-export const POLYGON_REGISTRAR_ADDRESS =
-  "0x000000003C9C54B98C17F5A8B05ADca5B3B041eD";
+import { getRegistrarReadContract } from "./notaRegistrarRead";
 
 const PAGE_SIZE = 10;
 const DEFAULT_DECIMALS = 18;
-
-const rpcUrl = () =>
-  process.env.NEXT_PUBLIC_POLYGON_RPC_URL?.trim() ||
-  polygon.rpcUrls.default.http[0];
-
-// Singleton read-only contract so we don't spin up a provider per render.
-let readContract: ethers.Contract | null = null;
-const getRegistrarReadContract = (): ethers.Contract => {
-  if (!readContract) {
-    const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl());
-    readContract = new ethers.Contract(
-      POLYGON_REGISTRAR_ADDRESS,
-      NotaRegistrar.abi,
-      provider
-    );
-  }
-  return readContract;
-};
-
-/** Fetch a nota's tokenURI over RPC (no wallet required). */
-export const fetchNotaTokenUri = async (notaId: string): Promise<string> =>
-  await getRegistrarReadContract().tokenURI(notaId);
 
 /** How many ERC721 notas `account` currently holds (via registrar.balanceOf). */
 export const useAccountNotaBalance = (account: string) => {
@@ -105,6 +78,11 @@ export interface NotaRow {
   currency: string;
   escrow: string;
   hook: string;
+  escrowHeld: boolean;
+  /** Present when the row already has subgraph cash/history. */
+  wasCashed?: boolean;
+  hasInteractionHistory?: boolean;
+  expiration?: Date | null;
 }
 
 export const usePublicNotas = () => {
@@ -163,12 +141,14 @@ export const usePublicNotas = () => {
           ownerResult.status === "fulfilled" ? String(ownerResult.value) : "";
         const token = tokens.get(String(info.currency).toLowerCase());
         const decimals = token?.decimals ?? DEFAULT_DECIMALS;
+        const escrowed = ethers.BigNumber.from(info.escrowed);
         rows.push({
           notaId: String(ids[index]),
           owner,
           currency: token?.symbol ?? "Unknown",
-          escrow: ethers.utils.formatUnits(info.escrowed, decimals),
+          escrow: ethers.utils.formatUnits(escrowed, decimals),
           hook: info.module,
+          escrowHeld: !escrowed.isZero(),
         });
       });
 
