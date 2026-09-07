@@ -69,12 +69,13 @@ export function PaymentFlowStepRow({ paymentType, activeIndex }: Props) {
         return (
           <Fragment key={step.screenKey}>
             <Box
-              as={canGoBack ? "button" : "div"}
-              type={canGoBack ? "button" : undefined}
+              as="button"
+              type="button"
               onClick={
                 canGoBack ? () => goToStep?.(step.screenKey) : undefined
               }
               aria-label={canGoBack ? `Edit ${step.title}` : undefined}
+              tabIndex={canGoBack ? 0 : -1}
               cursor={canGoBack ? "pointer" : "default"}
               bg="transparent"
               border="none"
@@ -88,11 +89,11 @@ export function PaymentFlowStepRow({ paymentType, activeIndex }: Props) {
               _focusVisible={
                 canGoBack
                   ? {
-                      outline: "2px solid",
-                      outlineColor: "brand.200",
-                      outlineOffset: "2px",
-                      borderRadius: "4px",
-                    }
+                    outline: "2px solid",
+                    outlineColor: "brand.200",
+                    outlineOffset: "2px",
+                    borderRadius: "4px",
+                  }
                   : undefined
               }
             >
