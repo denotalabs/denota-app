@@ -1,6 +1,5 @@
 import {
   Box,
-  Text,
   useBreakpointValue,
   useToast,
 } from "@chakra-ui/react";
@@ -340,17 +339,6 @@ export function DetailsStepForm() {
           color={formTheme.text}
         >
           <PaymentFlowStepRow paymentType={paymentType} activeIndex={0} />
-          <Text
-            fontSize={{ base: "28px", md: "xl" }}
-            fontWeight={700}
-            textAlign="center"
-            mb={5}
-            letterSpacing="-0.5px"
-            color={formTheme.textDark}
-            display={{ base: "block", md: "none" }}
-          >
-            Payment Details
-          </Text>
           <PaymentDetails showAttachments={showMetadataForm} />
           {isMobile && keyboardOpen ? (
             <Box mt={2} mb={2}>

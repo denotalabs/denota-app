@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import { Form, Formik, useFormikContext } from "formik";
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
@@ -213,17 +213,6 @@ const PaymentTermsScreen: React.FC<ScreenProps> = () => {
       color={formTheme.text}
     >
       <PaymentFlowStepRow paymentType="withTerms" activeIndex={1} />
-      <Text
-        fontSize={{ base: "28px", md: "xl" }}
-        fontWeight={700}
-        textAlign="center"
-        mb={4}
-        letterSpacing="-0.5px"
-        color={formTheme.textDark}
-        display={{ base: "block", md: "none" }}
-      >
-        Payment Terms
-      </Text>
       <Formik
         initialValues={initialValues}
         validate={(values) => validatePaymentTerms(values, termsContext(values))}

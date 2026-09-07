@@ -20,9 +20,15 @@ function StepperHeader({ onClose, back, currentIndex, title, hideBack }: Props) 
         justify="center"
         align="center"
         pt={1}
-        display={{ base: "none", md: "flex" }}
+        pb={{ base: 3, md: 1 }}
       >
-        <Text fontWeight={600} fontSize="lg" textAlign="center" mb={0}>
+        <Text
+          fontWeight={700}
+          fontSize={{ base: "28px", md: "lg" }}
+          textAlign="center"
+          mb={0}
+          letterSpacing={{ base: "-0.5px", md: "normal" }}
+        >
           {title}
         </Text>
       </Flex>
