@@ -334,7 +334,7 @@ export function DetailsStepForm() {
           w="100%"
           maxW={{ base: "380px", md: "100%" }}
           mx="auto"
-          mt={3}
+          mt={0}
           px={{ base: 4, md: 1 }}
           pb={scrollBottomPadding}
           color={formTheme.text}

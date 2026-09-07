@@ -15,6 +15,8 @@ import StepperHeader from "./StepperHeader";
 interface StepperProps {
   children: ReactNode;
   onClose?: () => void;
+  /** Hides the header back arrow so screens can navigate via their own stepper. */
+  hideBack?: boolean;
 }
 
 enum StepperActionKind {
@@ -63,7 +65,7 @@ function reducer(state: StepperReducerInterface, action: StepperAction) {
   }
 }
 
-function Stepper({ children, onClose }: StepperProps) {
+function Stepper({ children, onClose, hideBack }: StepperProps) {
   const allScreens: ReactNode[] = Children.toArray(children);
   const currentScreen: ReactNode =
     allScreens.length > 0 ? allScreens[0] : undefined;
@@ -109,7 +111,7 @@ function Stepper({ children, onClose }: StepperProps) {
         onClose={onClose}
         currentIndex={state.currentIndex}
         title={screenTitle}
-        hideBack={backHidden}
+        hideBack={hideBack || backHidden}
       />
       <Box w="100%">{state.currentScreen}</Box>
     </StepperContext.Provider>
