@@ -44,6 +44,10 @@ export type SpecializedOption =
   | "compliance"
   | "probabilistic"
   | "onchainChat"
+  | "timelockPromise"
+  | "forwarderReverser"
+  | "reversibleBeforeDelayable"
+  | "reversibleStartsLocked"
   | "customHook";
 
 /**

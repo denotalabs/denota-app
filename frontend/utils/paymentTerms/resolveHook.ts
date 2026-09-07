@@ -60,6 +60,14 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
         return soon("PayMaybe");
       case "onchainChat":
         return soon("OnchainChat");
+      case "timelockPromise":
+        return soon("TimelockPromise");
+      case "forwarderReverser":
+        return soon("ForwarderReverser");
+      case "reversibleBeforeDelayable":
+        return soon("ReversibleByBeforeDelayable");
+      case "reversibleStartsLocked":
+        return soon("ReversibleStartsLocked");
       case "customHook":
         return experimental("AdminSignedActions");
     }

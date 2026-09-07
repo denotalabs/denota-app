@@ -14,6 +14,14 @@ const BLURBS: Record<Exclude<PaymentTermsValues["specialized"], "">, string> = {
     "Instead of a fixed amount, the payment pays out with a set probability.",
   onchainChat:
     "The payment is attached to an onchain message thread shared with the recipient.",
+  timelockPromise:
+    "Their pay is locked until a date you choose. The rest is your deposit: it comes back to you after that date unless you approve it for them.",
+  forwarderReverser:
+    "You can release the escrow to the recipient at any time. A person you name can send it back to you instead.",
+  reversibleBeforeDelayable:
+    "You can take the funds back until a date. Paying later pushes that date out.",
+  reversibleStartsLocked:
+    "You cannot reverse immediately. After a waiting period you can take the funds back, until the recipient can claim.",
   customHook:
     "Bring your own hook contract. The rules it enforces are entirely up to that contract, so only use hooks you have reviewed.",
 };

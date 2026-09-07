@@ -31,7 +31,6 @@ export function SpecializedOptions({ onSelect }: Props) {
         <Flex direction="column" gap={2} pt={1}>
           {SPECIALIZED_CATALOG.map((option) => {
             const Icon = option.icon;
-            const disabled = Boolean(option.comingSoon);
             return (
               <Box
                 key={option.id}
@@ -47,12 +46,8 @@ export function SpecializedOptions({ onSelect }: Props) {
                 bg="transparent"
                 border={termsTheme.hairline}
                 borderRadius="12px"
-                opacity={disabled ? 0.5 : 1}
-                cursor={disabled ? "not-allowed" : "pointer"}
-                disabled={disabled}
-                _hover={
-                  disabled ? undefined : { borderColor: "notaPurple.100" }
-                }
+                cursor="pointer"
+                _hover={{ borderColor: "notaPurple.100" }}
                 _focusVisible={{
                   outline: "2px solid",
                   outlineColor: "brand.200",
@@ -95,7 +90,7 @@ export function SpecializedOptions({ onSelect }: Props) {
                       </Tag>
                     ) : null}
                   </Flex>
-                  <Text fontSize="12px" color={formTheme.muted} noOfLines={1}>
+                  <Text fontSize="12px" color={formTheme.muted} noOfLines={2}>
                     {option.subtitle}
                   </Text>
                 </Box>

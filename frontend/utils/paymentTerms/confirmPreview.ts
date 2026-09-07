@@ -249,6 +249,46 @@ function specializedPreview(
         termRows: [],
         legend: "Set by the onchain chat terms.",
       };
+    case "timelockPromise":
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a locked payment plus a deposit to ",
+          ". Their pay unlocks on a date. Your deposit comes back unless you approve it."
+        ),
+        termRows: [],
+        legend: "Set by the promise terms.",
+      };
+    case "forwarderReverser":
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a reversible payment to ",
+          ". You can release it to them; a person you name can send it back."
+        ),
+        termRows: [],
+        legend: "Set by the reversible terms.",
+      };
+    case "reversibleBeforeDelayable":
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a reversible payment to ",
+          ". You can take it back until a date, and pay to push that date later."
+        ),
+        termRows: [],
+        legend: "Set by the reversible terms.",
+      };
+    case "reversibleStartsLocked":
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a reversible payment to ",
+          ". After a lock period you can take it back, until they can claim."
+        ),
+        termRows: [],
+        legend: "Set by the reversible terms.",
+      };
     case "customHook":
       return {
         narrative: toNarrative(

@@ -49,9 +49,11 @@ export function validatePaymentTerms(
   const total = Number(ctx.amount);
   const totalLabel = `${ctx.amount?.trim() || "0"} ${ctx.tokenLabel}`.trim();
 
-  if (values.specialized === "customHook") {
-    if (!ethers.utils.isAddress(values.customHookAddress.trim())) {
-      errors.customHookAddress = "Paste a valid hook contract address.";
+  if (values.specialized) {
+    if (values.specialized === "customHook") {
+      if (!ethers.utils.isAddress(values.customHookAddress.trim())) {
+        errors.customHookAddress = "Paste a valid hook contract address.";
+      }
     }
     return errors;
   }
