@@ -44,6 +44,10 @@ export type SpecializedOption =
   | "compliance"
   | "probabilistic"
   | "onchainChat"
+  | "timelockPromise"
+  | "forwarderReverser"
+  | "reversibleBeforeDelayable"
+  | "reversibleStartsLocked"
   | "customHook";
 
 /**
@@ -103,6 +107,10 @@ export interface PaymentTermsValues {
   sharedPotKind: SharedPotKind;
 
   // More specialized options
+  firstHalfAmount: string;
+  delayCostPerDay: string;
+  reverserAddress: string;
+  resolvedReverserAddress: string;
   customHookAddress: string;
 }
 

@@ -16,11 +16,11 @@ import {
   setProvider,
 } from "@denota-labs/denota-sdk";
 
+import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
   createSponsoredEthersSigner,
   isGasSponsoredForWallet,
 } from "../lib/sponsoredEthersSigner";
-import MultiDisperse from "../frontend-abi/MultiDisperse.sol/MultiDisperse.json";
 import {
   batchContractMappingForChainId,
   blockExplorerTxBasesFor,
@@ -183,9 +183,9 @@ export const BlockchainDataProvider = memo(
 
           const signer = useSponsoredGas
             ? createSponsoredEthersSigner(baseSigner, privySendTransaction, {
-                sponsor: true,
-                walletAddress: account,
-              })
+              sponsor: true,
+              walletAddress: account,
+            })
             : baseSigner;
 
           await applySignerToState(

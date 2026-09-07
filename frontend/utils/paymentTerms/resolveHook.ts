@@ -60,6 +60,14 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
         return soon("PayMaybe");
       case "onchainChat":
         return soon("OnchainChat");
+      case "timelockPromise":
+        return soon("TimelockPromise");
+      case "forwarderReverser":
+        return soon("ForwarderReverser");
+      case "reversibleBeforeDelayable":
+        return soon("ReversibleByBeforeDelayable");
+      case "reversibleStartsLocked":
+        return soon("ReversibleStartsLocked");
       case "customHook":
         return experimental("AdminSignedActions");
     }
@@ -90,12 +98,11 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
           return values.arbitrationProvider === "kleros"
             ? soon("Kleros")
             : experimental(
-                values.arbitrationProvider === "ai"
-                  ? "LLMArbitrator"
-                  : "PrivateVoting"
-              );
+              values.arbitrationProvider === "ai"
+                ? "LLMArbitrator"
+                : "PrivateVoting"
+            );
       }
-      return null;
 
     case "releaseOverTime":
       switch (values.releaseSchedule) {
@@ -112,7 +119,6 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
         case "customVesting":
           return soon("VestingTranches");
       }
-      return null;
 
     case "conditionMet":
       switch (values.conditionTrigger) {
@@ -137,9 +143,7 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
             case "zk":
               return experimental("ZKProof");
           }
-          return null;
       }
-      return null;
 
     case "payMultiple":
       switch (values.distribution) {
@@ -156,11 +160,8 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
             case "roundRobin":
               return soon("RoundRobin");
           }
-          return null;
       }
-      return null;
   }
-  return null;
 }
 
 /** Human label for a maturity tag. */

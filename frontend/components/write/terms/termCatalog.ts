@@ -2,7 +2,11 @@ import {
   CalendarClock,
   Code,
   HandCoins,
+  Handshake,
+  Hourglass,
   KeyRound,
+  LockKeyhole,
+  Undo2,
   UserCheck,
   Users,
   type LucideIcon
@@ -22,12 +26,6 @@ export interface TermCatalogEntry {
 /** The five common outcomes, phrased as results, in the specified order. */
 export const TERM_CATALOG: TermCatalogEntry[] = [
   {
-    id: "recipientClaims",
-    title: "Recipient claims it",
-    subtitle: "Funds wait in escrow until the recipient takes them.",
-    icon: HandCoins,
-  },
-  {
     id: "someoneReviews",
     title: "Someone reviews it",
     subtitle: "A reviewer can release the funds or refund them to you.",
@@ -46,6 +44,12 @@ export const TERM_CATALOG: TermCatalogEntry[] = [
     icon: KeyRound,
   },
   {
+    id: "recipientClaims",
+    title: "Recipient claims it",
+    subtitle: "Funds wait in escrow until the recipient takes them.",
+    icon: HandCoins,
+  },
+  {
     id: "payMultiple",
     title: "Pay multiple people",
     subtitle: "Split it, pay in order, or fund a shared pot.",
@@ -58,7 +62,7 @@ export interface SpecializedCatalogEntry {
   title: string;
   subtitle: string;
   icon: LucideIcon;
-  /** Dimmed and non-selectable. */
+  /** Tagged Coming soon; still selectable so the person can read the blurb. */
   comingSoon?: boolean;
   /** Rendered with an "Advanced" tag. */
   advanced?: boolean;
@@ -66,6 +70,38 @@ export interface SpecializedCatalogEntry {
 
 /** Instrument-like and experimental options, kept out of the primary five. */
 export const SPECIALIZED_CATALOG: SpecializedCatalogEntry[] = [
+  {
+    id: "timelockPromise",
+    title: "Locked pay plus a deposit",
+    subtitle:
+      "Their pay unlocks on a date. Your deposit comes back unless you approve it.",
+    icon: Handshake,
+    comingSoon: true,
+  },
+  {
+    id: "forwarderReverser",
+    title: "You release, someone else reverses",
+    subtitle:
+      "You send the funds to the recipient. A person you name can send them back.",
+    icon: Undo2,
+    comingSoon: true,
+  },
+  {
+    id: "reversibleBeforeDelayable",
+    title: "Refund window you can extend",
+    subtitle:
+      "Take the funds back until a date, and pay to push that date later.",
+    icon: Hourglass,
+    comingSoon: true,
+  },
+  {
+    id: "reversibleStartsLocked",
+    title: "Refunds after a lock period",
+    subtitle:
+      "You can reverse only after a waiting period, until the recipient can claim.",
+    icon: LockKeyhole,
+    comingSoon: true,
+  },
   // {
   //   id: "bills",
   //   title: "Transferable bills",
