@@ -81,7 +81,7 @@ function SyncNftErc721Gate({
 function TermConfig({ amount, tokenLabel }: AmountProps) {
   const { values } = useFormikContext<PaymentTermsValues>();
   if (values.specialized) {
-    return <SpecializedConfig />;
+    return <SpecializedConfig amount={amount} tokenLabel={tokenLabel} />;
   }
   switch (values.term) {
     case "recipientClaims":

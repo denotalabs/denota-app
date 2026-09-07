@@ -26,12 +26,6 @@ export interface TermCatalogEntry {
 /** The five common outcomes, phrased as results, in the specified order. */
 export const TERM_CATALOG: TermCatalogEntry[] = [
   {
-    id: "recipientClaims",
-    title: "Recipient claims it",
-    subtitle: "Funds wait in escrow until the recipient takes them.",
-    icon: HandCoins,
-  },
-  {
     id: "someoneReviews",
     title: "Someone reviews it",
     subtitle: "A reviewer can release the funds or refund them to you.",
@@ -48,6 +42,12 @@ export const TERM_CATALOG: TermCatalogEntry[] = [
     title: "Release when a condition is met",
     subtitle: "Ownership, price, or another onchain fact unlocks it.",
     icon: KeyRound,
+  },
+  {
+    id: "recipientClaims",
+    title: "Recipient claims it",
+    subtitle: "Funds wait in escrow until the recipient takes them.",
+    icon: HandCoins,
   },
   {
     id: "payMultiple",
