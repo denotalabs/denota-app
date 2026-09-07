@@ -1,13 +1,11 @@
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { BigNumber, ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { polygon } from "viem/chains";
 
 import {
   DEFAULT_CHAIN_ID,
   getChainConfig,
 } from "../context/config/chains";
-import NotaRegistrar from "../frontend-abi/NotaRegistrar.json";
 import {
   buildInteractionsFromSubgraph,
   dedupeInteractions,
@@ -25,32 +23,12 @@ import {
 } from "../components/designSystem/CurrencyIcon";
 import { normalizeSymbol } from "../context/TokenListProvider";
 import { TokenInfo } from "../context/config/tokenList";
-import {
-  fetchNotaTokenUri,
-  loadPolygonTokens,
-  POLYGON_REGISTRAR_ADDRESS,
-} from "./usePublicNotas";
+import { fetchNotaTokenUri, getRegistrarReadContract } from "./notaRegistrarRead";
+import { loadPolygonTokens } from "./usePublicNotas";
 
 const DEFAULT_DECIMALS = 18;
 
 const GRAPH_QUERY_TIMEOUT_MS = 8_000;
-
-const rpcUrl = () =>
-  process.env.NEXT_PUBLIC_POLYGON_RPC_URL?.trim() ||
-  polygon.rpcUrls.default.http[0];
-
-let readContract: ethers.Contract | null = null;
-const getRegistrarReadContract = (): ethers.Contract => {
-  if (!readContract) {
-    const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl());
-    readContract = new ethers.Contract(
-      POLYGON_REGISTRAR_ADDRESS,
-      NotaRegistrar.abi,
-      provider
-    );
-  }
-  return readContract;
-};
 
 const queryWithTimeout = <T,>(
   promise: Promise<T>,

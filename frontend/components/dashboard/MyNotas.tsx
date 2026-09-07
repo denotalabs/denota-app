@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { useNotaContext } from "../../context/NotasContext";
 import { NotaRow } from "../../hooks/usePublicNotas";
 import { useTokens } from "../../hooks/useTokens";
+import { expirationFromModuleData } from "../../utils/notaStatus";
 import PublicNotas from "./PublicNotas";
 import { NotaTable } from "./table/NotaTable";
 
@@ -42,6 +43,10 @@ function MyNotas() {
       currency: displayNameForCurrency(currencyForTokenId(nota.token)),
       escrow: weiAddressToDisplay(nota.escrowed, nota.token),
       hook: nota.module,
+      escrowHeld: !nota.escrowed.isZero(),
+      wasCashed: (nota.cashes?.length ?? 0) > 0,
+      hasInteractionHistory: true,
+      expiration: expirationFromModuleData(nota.moduleData),
     }));
   }, [
     notas,

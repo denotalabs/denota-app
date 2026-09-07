@@ -1,12 +1,9 @@
 import {
   ArrowBackIcon,
-  CheckCircleIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   CopyIcon,
   ExternalLinkIcon,
-  TimeIcon,
-  WarningIcon,
 } from "@chakra-ui/icons";
 import {
   Box,
@@ -19,7 +16,6 @@ import {
   Image,
   Link,
   Stack,
-  Tag,
   Text,
   Tooltip,
   useBreakpointValue,
@@ -36,7 +32,7 @@ import {
 } from "../../context/config/chains";
 import { useEnsNames } from "../../hooks/useEnsNames";
 import { NotaInfoData } from "../../hooks/useNotaInfo";
-import { POLYGON_REGISTRAR_ADDRESS } from "../../hooks/usePublicNotas";
+import { POLYGON_REGISTRAR_ADDRESS } from "../../hooks/notaRegistrarRead";
 import { ipfsToHttpUrl } from "../../utils/ipfsGateway";
 import { hookDisplayName } from "../../utils/notaActions/hookRegistry";
 import {
@@ -50,12 +46,9 @@ import {
   resolveMetadataImageUrl,
   TokenMetadataAttribute,
 } from "../../utils/notaTokenUri";
-import {
-  NotaDisplayStatus,
-  notaDisplayStatus,
-  NotaStatusTone,
-} from "../../utils/notaStatus";
+import { notaDisplayStatus } from "../../utils/notaStatus";
 import AddressDisplay from "../designSystem/AddressDisplay";
+import { PaymentStatusChip } from "../designSystem/PaymentStatusChip";
 import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
 import NotaActions from "../nota-actions/NotaActions";
 import EscrowAgreementCard from "./EscrowAgreementCard";
@@ -88,43 +81,6 @@ function SectionHeading({ children }: { children: ReactNode }) {
     >
       {children}
     </Heading>
-  );
-}
-
-const STATUS_TONE_STYLES: Record<
-  NotaStatusTone,
-  { icon: typeof TimeIcon; color: string; bg: string }
-> = {
-  pending: { icon: TimeIcon, color: t.primaryLight, bg: t.primaryDim },
-  settled: {
-    icon: CheckCircleIcon,
-    color: "green.600",
-    bg: "rgba(72,187,120,0.14)",
-  },
-  expired: {
-    icon: WarningIcon,
-    color: "orange.600",
-    bg: "rgba(237,137,54,0.14)",
-  },
-};
-
-function StatusTag({ status }: { status: NotaDisplayStatus }) {
-  const { icon: Icon, color, bg } = STATUS_TONE_STYLES[status.tone];
-
-  return (
-    <Tag
-      fontSize="11.5px"
-      px="11px"
-      py={1}
-      borderRadius="full"
-      bg={bg}
-      color={color}
-      border="0.5px solid"
-      borderColor={t.line}
-    >
-      <Icon boxSize={3} mr={1} />
-      {status.label}
-    </Tag>
   );
 }
 
@@ -433,7 +389,7 @@ function NotaInfoScreen({ notaId, data, onRefresh }: Props) {
               Payment #{notaId}
             </Heading>
             {onChainState && !onChainStateLoading && (
-              <StatusTag status={status} />
+              <PaymentStatusChip status={status} />
             )}
           </Flex>
           <Text mt="7px" fontSize="13.5px" color={t.muted}>
