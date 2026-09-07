@@ -34,7 +34,7 @@ export function WriteNotaFlow({ onClose }: Props) {
 /** Basic information → Choose and configure payment terms → Confirm. */
 export function WriteStepper({ onClose }: Props) {
   return (
-    <Stepper onClose={onClose}>
+    <Stepper onClose={onClose} hideBack>
       <DetailsStep screenKey="write" screenTitle="Payment Details" />
       <PaymentTermsScreen screenKey="terms" screenTitle="Payment Terms" />
       <ConfirmNotaStep screenKey="confirm" screenTitle="Confirm" />

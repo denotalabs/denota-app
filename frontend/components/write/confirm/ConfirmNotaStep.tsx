@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useWallets } from "@privy-io/react-auth";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
@@ -91,7 +91,7 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
       w="100%"
       maxW={{ base: "380px", md: "100%" }}
       mx="auto"
-      mt={3}
+      mt={0}
       px={{ base: 4, md: 1 }}
       pb={4}
       color={formTheme.text}
@@ -126,17 +126,6 @@ const ConfirmNotaStep: React.FC<ScreenProps> = () => {
         {(props) => (
           <Form>
             <PaymentFlowStepRow paymentType="withTerms" activeIndex={2} />
-            <Text
-              fontSize={{ base: "28px", md: "xl" }}
-              fontWeight={700}
-              textAlign="center"
-              mb={4}
-              letterSpacing="-0.5px"
-              color={formTheme.textDark}
-              display={{ base: "block", md: "none" }}
-            >
-              Confirm
-            </Text>
             <ConfirmCard
               signatureCount={signatureCount}
               gasLabel={gasLabel}

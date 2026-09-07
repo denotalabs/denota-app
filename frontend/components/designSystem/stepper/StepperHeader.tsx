@@ -10,16 +10,41 @@ interface Props {
 }
 
 function StepperHeader({ onClose, back, currentIndex, title, hideBack }: Props) {
+  const showBack = currentIndex != 0 && !hideBack;
+  const showChrome = showBack || Boolean(onClose);
+
+  if (!showChrome) {
+    return (
+      <Flex
+        width="100%"
+        justify="center"
+        align="center"
+        pt={1}
+        pb={{ base: 3, md: 1 }}
+      >
+        <Text
+          fontWeight={700}
+          fontSize={{ base: "28px", md: "lg" }}
+          textAlign="center"
+          mb={0}
+          letterSpacing={{ base: "-0.5px", md: "normal" }}
+        >
+          {title}
+        </Text>
+      </Flex>
+    );
+  }
+
   return (
     <Flex
       direction="row"
       width="100%"
       justify="space-between"
       align="center"
-      pt={{ base: 4, md: 3 }}
+      pt={hideBack ? 1 : { base: 4, md: 3 }}
       minH="40px"
     >
-      {currentIndex != 0 && !hideBack ? (
+      {showBack ? (
         <IconButton
           aria-label="Back"
           size="sm"
