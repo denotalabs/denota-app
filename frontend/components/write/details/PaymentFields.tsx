@@ -99,6 +99,7 @@ function PaymentFields() {
         allowEns
         placeholder="almaraz.eth, 0x..."
         label="Recipient"
+        sectionMb={2.5}
       />
       <FormSection
         label={

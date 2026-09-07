@@ -52,6 +52,8 @@ export type DetailsStepFormValues = {
   tags: string;
   externalURI: string;
   imageURI: string;
+  documentFileName: string;
+  imageFileName: string;
   attachmentStorage: AttachmentStorageSettings;
 };
 
@@ -104,6 +106,8 @@ export function DetailsStepForm() {
       tags: notaFormValues.tags ?? "",
       externalURI: notaFormValues.externalURI ?? "",
       imageURI: notaFormValues.imageURI ?? "",
+      documentFileName: notaFormValues.documentFileName ?? "",
+      imageFileName: notaFormValues.imageFileName ?? "",
       attachmentStorage: normalizeStorageSettings(
         notaFormValues.attachmentStorage
       ),
@@ -155,6 +159,8 @@ export function DetailsStepForm() {
         tags: values.tags,
         externalURI,
         imageURI,
+        documentFileName: values.documentFileName,
+        imageFileName: values.imageFileName,
         ipfsHash,
         paymentType,
         token: values.token,
@@ -218,12 +224,16 @@ export function DetailsStepForm() {
       tags: formik.values.tags,
       externalURI: formik.values.externalURI,
       imageURI: formik.values.imageURI,
+      documentFileName: formik.values.documentFileName,
+      imageFileName: formik.values.imageFileName,
       attachmentStorage: formik.values.attachmentStorage,
     });
   }, [
     formik.values.attachmentStorage,
+    formik.values.documentFileName,
     formik.values.email,
     formik.values.externalURI,
+    formik.values.imageFileName,
     formik.values.imageURI,
     formik.values.note,
     formik.values.paymentType,

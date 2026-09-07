@@ -1,13 +1,7 @@
 import { Field, FieldProps, FormikProps } from "formik";
 
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import {
-  FormControl,
-  FormErrorMessage,
-  Input,
-  Link,
-  Text,
-} from "@chakra-ui/react";
+import { Input, Link, Text } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -167,6 +161,16 @@ function AccountFieldInner({
       : resolvedAddr;
   const showResolvedHelper =
     showInteraction && ensFound && !!displayResolvedAddr;
+  const formError =
+    showInteraction && !ensFound && !isInvalidValue
+      ? (form.errors[fieldName] as string | undefined)
+      : undefined;
+  const helperMessage = showResolvedHelper
+    ? displayResolvedAddr
+    : showInteraction && isInvalidValue
+      ? "Not a valid ENS name or 0x address"
+      : formError || "";
+  const helperIsError = Boolean(helperMessage) && !showResolvedHelper;
 
   const explorerUrl = blockExplorerAddressUrl(
     blockchainState.explorer,
@@ -227,38 +231,18 @@ function AccountFieldInner({
           />
         ) : null}
       </FormInputWrap>
-      {showResolvedHelper ? (
-        <Text
-          mt={1.5}
-          fontSize="13px"
-          lineHeight={1.45}
-          color={formTheme.muted}
-          wordBreak="break-all"
-        >
-          {displayResolvedAddr}
-        </Text>
-      ) : null}
-      {showInteraction && isInvalidValue ? (
-        <Text
-          display="block"
-          mt={1.5}
-          fontSize="13px"
-          color={formTheme.error}
-          fontWeight={500}
-        >
-          Not a valid ENS name or 0x address
-        </Text>
-      ) : null}
-      {form.errors[fieldName] &&
-        showInteraction &&
-        !ensFound &&
-        !isInvalidValue ? (
-        <FormControl isInvalid>
-          <FormErrorMessage>
-            {form.errors[fieldName] as string}
-          </FormErrorMessage>
-        </FormControl>
-      ) : null}
+      <Text
+        mt={1.5}
+        minH="1.45em"
+        fontSize="13px"
+        lineHeight={1.45}
+        color={helperIsError ? formTheme.error : formTheme.muted}
+        fontWeight={helperIsError ? 500 : undefined}
+        wordBreak="break-all"
+        aria-live="polite"
+      >
+        {helperMessage || "\u00a0"}
+      </Text>
     </>
   );
 

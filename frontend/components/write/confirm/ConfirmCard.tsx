@@ -200,10 +200,15 @@ function usePreview(): ConfirmPreview {
     tokenLabel,
     documentUrl,
     documentLabel: externalURI
-      ? attachmentFileName(externalURI, file?.name)
+      ? attachmentFileName(
+          externalURI,
+          notaFormValues.documentFileName || file?.name
+        )
       : undefined,
     imageUrl,
-    imageLabel: imageURI ? attachmentFileName(imageURI) : undefined,
+    imageLabel: imageURI
+      ? attachmentFileName(imageURI, notaFormValues.imageFileName)
+      : undefined,
     ensNames,
   });
 }

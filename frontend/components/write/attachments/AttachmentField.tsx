@@ -3,7 +3,7 @@ import { useFormikContext } from "formik";
 import { CircleAlert, CircleCheck, X } from "lucide-react";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import {
-  attachmentDisplayName,
+  attachmentFileName,
   validateAttachmentLink,
 } from "../../../utils/attachmentLink";
 import {
@@ -21,6 +21,8 @@ export type AttachmentKind = "document" | "image";
 type AttachmentFormValues = {
   externalURI: string;
   imageURI: string;
+  documentFileName: string;
+  imageFileName: string;
   attachmentStorage?: AttachmentStorageSettings;
 };
 
@@ -34,6 +36,14 @@ const KIND_FIELD: Record<AttachmentKind, keyof AttachmentFormValues> = {
 const KIND_UPLOAD_KEY: Record<AttachmentKind, "ipfsHash" | "imageURI"> = {
   document: "ipfsHash",
   image: "imageURI",
+};
+
+const KIND_FILE_NAME_FIELD: Record<
+  AttachmentKind,
+  keyof AttachmentFormValues
+> = {
+  document: "documentFileName",
+  image: "imageFileName",
 };
 
 const KIND_OPTIONS: { value: AttachmentKind; label: string }[] = [
@@ -79,12 +89,24 @@ export function AttachmentField() {
     document: null,
     image: null,
   });
+  const [uploadingNames, setUploadingNames] = useState<PerKind<string | null>>({
+    document: null,
+    image: null,
+  });
   const inputRef = useRef<HTMLInputElement | null>(null);
   const focusAfterRemove = useRef(false);
 
   const attachedValue = attached[kind];
+  const uploadedName =
+    kind === "document"
+      ? values.documentFileName?.trim() ?? ""
+      : values.imageFileName?.trim() ?? "";
+  const displayName = attachedValue
+    ? attachmentFileName(attachedValue, uploadedName)
+    : "";
   const draft = drafts[kind];
   const error = errors[kind];
+  const uploadingName = uploadingNames[kind];
 
   useEffect(() => {
     if (!attachedValue && focusAfterRemove.current) {
@@ -110,6 +132,7 @@ export function AttachmentField() {
     setError(null);
     setDraft("");
     setFieldValue(KIND_FIELD[kind], value);
+    setFieldValue(KIND_FILE_NAME_FIELD[kind], "");
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -122,6 +145,7 @@ export function AttachmentField() {
   const handleRemove = () => {
     focusAfterRemove.current = true;
     setFieldValue(KIND_FIELD[kind], "");
+    setFieldValue(KIND_FILE_NAME_FIELD[kind], "");
   };
 
   const openStorageModal = () => setIsStorageModalOpen(true);
@@ -171,19 +195,19 @@ export function AttachmentField() {
         <Flex
           align="center"
           gap={2}
-          bg="green.900"
+          bg="gray.100"
           border="1px solid"
-          borderColor="green.700"
+          borderColor="gray.200"
           borderRadius="12px"
           pl={3}
           pr={1.5}
           py={1.5}
-          color="green.100"
+          color={formTheme.text}
           fontSize="14px"
           fontWeight={600}
           minW={0}
         >
-          <Box color="green.300" flexShrink={0} display="flex">
+          <Box color={formTheme.muted} flexShrink={0} display="flex">
             <CircleCheck size={16} strokeWidth={2.25} />
           </Box>
           <Text
@@ -193,9 +217,9 @@ export function AttachmentField() {
             whiteSpace="nowrap"
             overflow="hidden"
             textOverflow="ellipsis"
-            title={attachedValue}
+            title={uploadedName || attachedValue}
           >
-            {attachmentDisplayName(attachedValue)}
+            {displayName}
           </Text>
           <IconButton
             aria-label="Remove attachment"
@@ -207,8 +231,8 @@ export function AttachmentField() {
             alignItems="center"
             justifyContent="center"
             borderRadius="6px"
-            color="green.600"
-            _hover={{ bg: "green.800", color: "white" }}
+            color={formTheme.muted}
+            _hover={{ bg: "gray.200", color: formTheme.text }}
             icon={<X size={14} strokeWidth={2.5} />}
             onClick={handleRemove}
           />
@@ -233,34 +257,54 @@ export function AttachmentField() {
               pr={{ base: 2, md: 1.5 }}
               minH={ROW_MIN_HEIGHT}
             >
-              <Input
-                ref={inputRef}
-                flex={1}
-                minW={0}
-                variant="unstyled"
-                h={{ base: "54px", md: "48px" }}
-                fontSize={{ base: "17px", md: "15px" }}
-                color={formTheme.text}
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                inputMode="url"
-                name={KIND_FIELD[kind]}
-                placeholder={PLACEHOLDER[kind]}
-                value={draft}
-                aria-invalid={!!error}
-                onChange={(event) => {
-                  setDraft(event.target.value);
-                  if (error) {
-                    setError(null);
-                  }
-                }}
-                onKeyDown={handleKeyDown}
-                onBlur={attach}
-              />
+              {uploadingName ? (
+                <Text
+                  flex={1}
+                  minW={0}
+                  fontSize={{ base: "17px", md: "15px" }}
+                  color={formTheme.muted}
+                  whiteSpace="nowrap"
+                  overflow="hidden"
+                  textOverflow="ellipsis"
+                  title={uploadingName}
+                >
+                  Uploading {uploadingName}…
+                </Text>
+              ) : (
+                <Input
+                  ref={inputRef}
+                  flex={1}
+                  minW={0}
+                  variant="unstyled"
+                  h={{ base: "54px", md: "48px" }}
+                  fontSize={{ base: "17px", md: "15px" }}
+                  color={formTheme.text}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  inputMode="url"
+                  name={KIND_FIELD[kind]}
+                  placeholder={PLACEHOLDER[kind]}
+                  value={draft}
+                  aria-invalid={!!error}
+                  onChange={(event) => {
+                    setDraft(event.target.value);
+                    if (error) {
+                      setError(null);
+                    }
+                  }}
+                  onKeyDown={handleKeyDown}
+                  onBlur={attach}
+                />
+              )}
               <FileUploadButton
+                key={kind}
                 name={KIND_FIELD[kind]}
+                fileNameField={KIND_FILE_NAME_FIELD[kind]}
                 uploadValueKey={KIND_UPLOAD_KEY[kind]}
+                onUploadingChange={(fileName) =>
+                  setUploadingNames((prev) => ({ ...prev, [kind]: fileName }))
+                }
                 buttonProps={{
                   w: UPLOAD_SIZE,
                   h: UPLOAD_SIZE,

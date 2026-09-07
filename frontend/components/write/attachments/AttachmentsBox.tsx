@@ -54,10 +54,8 @@ function AttachmentsBox() {
               px={2}
               py={1}
               borderRadius="full"
-              bg="green.900"
-              border="1px solid"
-              borderColor="green.700"
-              color="green.600"
+              bg="gray.100"
+              color={formTheme.mutedLight}
               whiteSpace="nowrap"
             >
               {attachedCount} attached
