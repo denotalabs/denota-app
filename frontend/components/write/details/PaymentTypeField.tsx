@@ -113,7 +113,7 @@ function PaymentTypeCards({
           flex={1}
           px={3}
           gap={2.5}
-          titleFontSize="15px"
+          titleFontSize="14px"
           leading={(isChecked) => (
             <Flex
               w="30px"
