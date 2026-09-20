@@ -20,7 +20,7 @@ export const ACTION_DEFS: Record<string, ActionDef> = {
         name: "to",
         label: "Recipient address",
         type: "address",
-        placeholder: "0x… or name.eth",
+        placeholder: "email, phone, name.eth, or 0x…",
       },
     ],
   },
@@ -69,7 +69,7 @@ export const ACTION_DEFS: Record<string, ActionDef> = {
         name: "to",
         label: "Send to",
         type: "address",
-        placeholder: "0x…",
+        placeholder: "email, phone, name.eth, or 0x…",
       },
     ],
     isAvailable: (ctx) =>

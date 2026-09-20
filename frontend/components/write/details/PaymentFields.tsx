@@ -97,7 +97,7 @@ function PaymentFields() {
         fieldName="address"
         resolvedFieldName="resolvedAddress"
         allowEns
-        placeholder="almaraz.eth, 0x..."
+        placeholder="email, phone, name.eth, or 0x..."
         label="Recipient"
         sectionMb={2.5}
       />

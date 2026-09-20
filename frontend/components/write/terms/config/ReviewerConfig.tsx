@@ -53,7 +53,7 @@ export function ReviewerConfig() {
             fieldName="reviewerAddress"
             resolvedFieldName="resolvedReviewerAddress"
             allowEns
-            placeholder="almaraz.eth or 0x…"
+            placeholder="email, phone, name.eth, or 0x…"
           />
           <FieldHelp>
             This person can move the escrowed funds. Double-check the address.
@@ -68,7 +68,7 @@ export function ReviewerConfig() {
             label="Signers"
             multiline
             placeholder={"0x…\n0x…\nname.eth"}
-            help="One address or ENS name per line."
+            help="One address, ENS name, email, or phone per line."
           />
           <TermsTextField
             name="groupThreshold"

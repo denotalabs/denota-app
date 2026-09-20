@@ -13,9 +13,9 @@ import {
 } from "@chakra-ui/react";
 import { ethers } from "ethers";
 import { useCallback, useState } from "react";
-import { useEnsAddress } from "../../hooks/useEnsAddress";
 import { useFundReadiness } from "../../hooks/useFundReadiness";
-import { isEnsName } from "../../utils/ensAddress";
+import { useResolvedAccount } from "../../hooks/useResolvedAccount";
+import { isLookupAccountKind } from "../../utils/accountIdentity";
 import {
   ActionFormValues,
   NotaActionContext,
@@ -121,7 +121,12 @@ function NotaActionPanel({
   );
 
   const toValue = values.to ?? "";
-  const { address: resolvedTo, isLoading: ensLoading } = useEnsAddress(toValue);
+  const {
+    address: resolvedTo,
+    isLoading: destinationLoading,
+    kind: destinationKind,
+    didFail: destinationFailed,
+  } = useResolvedAccount(toValue);
 
   const fundReadiness = useFundReadiness({
     tokenAddress: context.currency,
@@ -186,10 +191,12 @@ function NotaActionPanel({
     return action.label;
   };
 
-  const transferValid =
+  const destinationValid =
     toValue &&
-    (ethers.utils.isAddress(toValue) ||
-      (isEnsName(toValue) && resolvedTo && !ensLoading));
+    (destinationKind === "address" ||
+      (isLookupAccountKind(destinationKind) &&
+        !!resolvedTo &&
+        !destinationLoading));
 
   const previewBlocked = isPreviewing || !canExecute;
 
@@ -219,7 +226,8 @@ function NotaActionPanel({
         mt={0}
         isDisabled={
           needsConfirm ||
-          (action.id === "transfer" && !transferValid) ||
+          ((action.id === "transfer" || action.id === "cash") &&
+            !destinationValid) ||
           isSubmitting
         }
         isLoading={isSubmitting}
@@ -360,10 +368,12 @@ function NotaActionPanel({
                 }
               />
             ))}
-            {action.id === "transfer" && toValue && isEnsName(toValue) && (
+            {toValue && isLookupAccountKind(destinationKind) ? (
               <Text fontSize="xs" color="gray.400">
-                {ensLoading
-                  ? "Resolving ENS…"
+                {destinationLoading
+                  ? destinationKind === "ens"
+                    ? "Resolving ENS…"
+                    : "Looking up wallet…"
                   : resolvedTo
                     ? (
                       <>
@@ -371,9 +381,17 @@ function NotaActionPanel({
                         <AddressDisplay address={resolvedTo} shorten />
                       </>
                     )
-                    : "ENS name could not be resolved"}
+                    : destinationKind === "ens"
+                      ? "ENS name could not be resolved"
+                      : destinationFailed
+                        ? destinationKind === "email"
+                          ? "Couldn't look up this email"
+                          : "Couldn't look up this phone number"
+                        : destinationKind === "email"
+                          ? "No wallet found for this email"
+                          : "No wallet found for this phone number"}
               </Text>
-            )}
+            ) : null}
           </VStack>
         )}
 

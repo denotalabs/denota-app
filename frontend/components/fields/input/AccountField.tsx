@@ -7,11 +7,13 @@ import { X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlockchainData } from "../../../context/BlockchainDataProvider";
 import { blockExplorerAddressUrl } from "../../../context/config/chains";
-import { useEnsAddress } from "../../../hooks/useEnsAddress";
+import { useResolvedAccount } from "../../../hooks/useResolvedAccount";
 import {
-  couldBeEnsInProgress,
-  isEnsName,
-} from "../../../utils/ensAddress";
+  classifyAccountInput,
+  isAccountInputInProgress,
+  isLookupAccountKind,
+  type AccountInputKind,
+} from "../../../utils/accountIdentity";
 import { FormInputWrap } from "../../designSystem/form/FormInputWrap";
 import { FormSection } from "../../designSystem/form/FormSection";
 import { formTheme } from "../../designSystem/form/formTheme";
@@ -35,35 +37,65 @@ interface InnerProps extends Props {
   onInputStarted: () => void;
 }
 
-function getEnsResolutionError(
-  value: string,
-  allowEns: boolean,
-  isEnsLoading: boolean,
-  resolvedEnsAddress: string | null | undefined
+function getResolutionError(
+  kind: AccountInputKind,
+  isLoading: boolean,
+  resolvedAddress: string | null | undefined,
+  didFail: boolean
 ): string | undefined {
-  if (!allowEns || !isEnsName(value)) {
+  if (!isLookupAccountKind(kind) || isLoading) {
     return undefined;
   }
-  if (isEnsLoading) {
+  if (resolvedAddress) {
     return undefined;
   }
-  if (resolvedEnsAddress === null) {
+  if (didFail) {
+    return kind === "email"
+      ? "Couldn't look up this email"
+      : "Couldn't look up this phone number";
+  }
+  if (resolvedAddress === undefined) {
+    return undefined;
+  }
+  if (kind === "ens") {
     return "Invalid address";
   }
-  return undefined;
+  if (kind === "email") {
+    return "No wallet found for this email";
+  }
+  return "No wallet found for this phone number";
 }
 
 function getResolvedFieldValue(
   inputValue: string,
-  resolvedEnsAddress: string | null | undefined
+  resolvedAddress: string | null | undefined
 ): string {
   if (ethers.utils.isAddress(inputValue)) {
     return "";
   }
-  if (isEnsName(inputValue) && resolvedEnsAddress) {
-    return resolvedEnsAddress;
+  if (resolvedAddress && ethers.utils.isAddress(resolvedAddress)) {
+    return resolvedAddress;
   }
   return "";
+}
+
+function invalidMessage(kind: AccountInputKind, didFail: boolean): string {
+  if (didFail && kind === "email") {
+    return "Couldn't look up this email";
+  }
+  if (didFail && kind === "phone") {
+    return "Couldn't look up this phone number";
+  }
+  if (kind === "email") {
+    return "No wallet found for this email";
+  }
+  if (kind === "phone") {
+    return "No wallet found for this phone number";
+  }
+  if (kind === "ens") {
+    return "Invalid address";
+  }
+  return "Not a valid email, phone, ENS name, or 0x address";
 }
 
 function AccountFieldInner({
@@ -86,89 +118,81 @@ function AccountFieldInner({
     ? (values[resolvedFieldName] ?? "")
     : "";
 
-  const { address: resolvedEnsAddress, isLoading: isEnsLoading } =
-    useEnsAddress(
-      allowEns && isEnsName(field.value) ? field.value : undefined
-    );
+  const {
+    address: resolvedAddress,
+    isLoading,
+    kind,
+    didFail,
+  } = useResolvedAccount(field.value, { allowEns });
 
-  const ensResolutionError = useMemo(
-    () =>
-      getEnsResolutionError(
-        field.value,
-        allowEns,
-        isEnsLoading,
-        resolvedEnsAddress
-      ),
-    [allowEns, field.value, isEnsLoading, resolvedEnsAddress]
+  const resolutionError = useMemo(
+    () => getResolutionError(kind, isLoading, resolvedAddress, didFail),
+    [didFail, kind, isLoading, resolvedAddress]
   );
 
   useEffect(() => {
-    if (!allowEns || !isEnsName(field.value)) {
+    if (!isLookupAccountKind(kind)) {
       return;
     }
-    setFieldError(fieldName, ensResolutionError);
-  }, [
-    allowEns,
-    ensResolutionError,
-    field.value,
-    fieldName,
-    setFieldError,
-  ]);
+    setFieldError(fieldName, resolutionError);
+  }, [fieldName, kind, resolutionError, setFieldError]);
 
   useEffect(() => {
-    if (!allowEns || !resolvedFieldName) {
+    if (!resolvedFieldName) {
       return;
     }
 
-    const nextResolved = getResolvedFieldValue(field.value, resolvedEnsAddress);
+    const nextResolved = getResolvedFieldValue(field.value, resolvedAddress);
     if (currentResolved !== nextResolved) {
       setFieldValue(resolvedFieldName, nextResolved, false);
     }
   }, [
-    allowEns,
     currentResolved,
     field.value,
-    resolvedEnsAddress,
+    resolvedAddress,
     resolvedFieldName,
     setFieldValue,
   ]);
 
-  const ensFound =
-    allowEns &&
-    isEnsName(field.value) &&
-    !isEnsLoading &&
-    !!resolvedEnsAddress;
+  const lookupFound =
+    isLookupAccountKind(kind) && !isLoading && !!resolvedAddress;
 
   const trimmed = field.value?.trim() ?? "";
   const isDirectAddress = ethers.utils.isAddress(trimmed);
   const isEmpty = trimmed.length === 0;
 
-  const isValidValue = !isEmpty && (isDirectAddress || ensFound);
+  const lookupPending =
+    isLookupAccountKind(kind) &&
+    (isLoading || (resolvedAddress === undefined && !didFail));
+
+  const isValidValue = !isEmpty && (isDirectAddress || lookupFound);
   const isInvalidValue =
     !isEmpty &&
     !isDirectAddress &&
-    !ensFound &&
-    !isEnsLoading &&
-    !(allowEns && couldBeEnsInProgress(trimmed));
+    !lookupFound &&
+    !lookupPending &&
+    !isAccountInputInProgress(kind);
 
   const showInteraction = touched || hasStarted;
 
   const resolvedAddr =
-    currentResolved || resolvedEnsAddress || (isDirectAddress ? trimmed : "");
+    currentResolved ||
+    resolvedAddress ||
+    (isDirectAddress ? trimmed : "");
   const displayResolvedAddr =
     resolvedAddr && ethers.utils.isAddress(resolvedAddr)
       ? ethers.utils.getAddress(resolvedAddr)
       : resolvedAddr;
   const showResolvedHelper =
-    showInteraction && ensFound && !!displayResolvedAddr;
+    showInteraction && lookupFound && !!displayResolvedAddr;
   const formError =
-    showInteraction && !ensFound && !isInvalidValue
+    showInteraction && !lookupFound && !isInvalidValue
       ? (form.errors[fieldName] as string | undefined)
       : undefined;
   const helperMessage = showResolvedHelper
     ? displayResolvedAddr
     : showInteraction && isInvalidValue
-      ? "Not a valid ENS name or 0x address"
+      ? invalidMessage(kind, didFail)
       : formError || "";
   const helperIsError = Boolean(helperMessage) && !showResolvedHelper;
 
@@ -277,11 +301,14 @@ function AccountField({
         return undefined;
       }
 
-      if (ethers.utils.isAddress(value)) {
+      const kind = classifyAccountInput(value);
+      if (kind === "address") {
         return undefined;
       }
-
-      if (allowEns && (isEnsName(value) || couldBeEnsInProgress(value))) {
+      if (kind === "email" || kind === "phone" || kind === "emailInProgress" || kind === "phoneInProgress") {
+        return undefined;
+      }
+      if (allowEns && (kind === "ens" || kind === "ensInProgress")) {
         return undefined;
       }
 
