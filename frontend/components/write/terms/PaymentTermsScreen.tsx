@@ -25,7 +25,7 @@ import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import { PaymentFlowStepRow } from "../details/PaymentFlowStepRow";
 import { TermsAmountHint } from "./TermsAmountHint";
 import { ConditionConfig } from "./config/ConditionConfig";
-import { MultiplePeopleConfig } from "./config/MultiplePeopleConfig";
+import { GiftCardConfig } from "./config/GiftCardConfig";
 import { RecipientClaimsConfig } from "./config/RecipientClaimsConfig";
 import { ReleaseOverTimeConfig } from "./config/ReleaseOverTimeConfig";
 import { ReviewerConfig } from "./config/ReviewerConfig";
@@ -92,8 +92,8 @@ function TermConfig({ amount, tokenLabel }: AmountProps) {
       return <ReleaseOverTimeConfig amount={amount} tokenLabel={tokenLabel} />;
     case "conditionMet":
       return <ConditionConfig />;
-    case "payMultiple":
-      return <MultiplePeopleConfig amount={amount} tokenLabel={tokenLabel} />;
+    case "giftCard":
+      return <GiftCardConfig tokenLabel={tokenLabel} />;
     default:
       return null;
   }
@@ -160,6 +160,7 @@ function TermsBody({ amount, tokenLabel }: AmountProps) {
                 title={entry.title}
                 subtitle={entry.subtitle}
                 icon={entry.icon}
+                tag={entry.comingSoon ? "Coming soon" : null}
                 onSelect={() => select({ term: entry.id })}
               />
             ))}

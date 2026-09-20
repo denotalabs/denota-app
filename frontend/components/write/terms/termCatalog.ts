@@ -1,6 +1,7 @@
 import {
   CalendarClock,
   Code,
+  Gift,
   HandCoins,
   Handshake,
   Hourglass,
@@ -8,8 +9,7 @@ import {
   LockKeyhole,
   Undo2,
   UserCheck,
-  Users,
-  type LucideIcon
+  type LucideIcon,
 } from "lucide-react";
 import type {
   PaymentTermId,
@@ -21,6 +21,7 @@ export interface TermCatalogEntry {
   title: string;
   subtitle: string;
   icon: LucideIcon;
+  comingSoon?: boolean;
 }
 
 /** The five common outcomes, phrased as results, in the specified order. */
@@ -50,10 +51,12 @@ export const TERM_CATALOG: TermCatalogEntry[] = [
     icon: HandCoins,
   },
   {
-    id: "payMultiple",
-    title: "Pay multiple people",
-    subtitle: "Split it, pay in order, or fund a shared pot.",
-    icon: Users,
+    id: "giftCard",
+    title: "Gift card",
+    subtitle:
+      "Whoever holds it can cash the escrow. Anyone can fund it or leave a signed message.",
+    icon: Gift,
+    comingSoon: true,
   },
 ];
 
@@ -68,7 +71,7 @@ export interface SpecializedCatalogEntry {
   advanced?: boolean;
 }
 
-/** Instrument-like and experimental options, kept out of the primary five. */
+/** Instrument-like and experimental options, kept out of the common outcomes. */
 export const SPECIALIZED_CATALOG: SpecializedCatalogEntry[] = [
   {
     id: "timelockPromise",

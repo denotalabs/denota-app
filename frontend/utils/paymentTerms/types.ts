@@ -7,7 +7,7 @@ export const PAYMENT_TERM_IDS = [
   "someoneReviews",
   "releaseOverTime",
   "conditionMet",
-  "payMultiple",
+  "giftCard",
 ] as const;
 export type PaymentTermId = (typeof PAYMENT_TERM_IDS)[number];
 
@@ -35,8 +35,12 @@ export type PriceDirection = "above" | "below";
 export type OnchainUnlock = "succeeds" | "returnValue";
 export type AttestationKind = "eas" | "coinbaseKyc" | "hats" | "zk";
 
-export type Distribution = "fixedSplit" | "inOrder" | "sharedPot";
-export type SharedPotKind = "fundraiser" | "rotatingSavings" | "roundRobin";
+export type GiftFundWho = "anyone" | "allowlist";
+export type GiftSignWho = "anyone" | "onlyFunders" | "allowlist" | "nobody";
+export type GiftSignCost = "free" | "minEscrow";
+export type GiftMetadataControl = "issuer" | "highestFunder" | "anyFunder";
+export type GiftTransferable = "yes" | "afterCash" | "no";
+export type GiftUnclaimed = "stay" | "return";
 
 export type SpecializedOption =
   | ""
@@ -102,9 +106,21 @@ export interface PaymentTermsValues {
   onchainExpected: string;
   attestationKind: AttestationKind;
 
-  // Pay multiple people
-  distribution: Distribution;
-  sharedPotKind: SharedPotKind;
+  // Gift card
+  giftName: string;
+  giftNote: string;
+  giftFundWho: GiftFundWho;
+  giftFundAllowlist: string;
+  giftSignWho: GiftSignWho;
+  giftSignAllowlist: string;
+  giftSignCost: GiftSignCost;
+  giftMinSignAmount: string;
+  giftMetadataControl: GiftMetadataControl;
+  giftTransferable: GiftTransferable;
+  giftUnclaimed: GiftUnclaimed;
+  giftReturnDate: string;
+  /** Wallet signature over the note, shown read-only as a preview. */
+  giftSignature: string;
 
   // More specialized options
   firstHalfAmount: string;

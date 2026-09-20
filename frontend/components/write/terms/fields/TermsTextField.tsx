@@ -23,6 +23,10 @@ interface Props {
   multiline?: boolean;
   /** Rendered under the input; use for derived readouts. */
   readout?: ReactNode;
+  /** Value is filled in for the person, not typed. */
+  isReadOnly?: boolean;
+  /** Overrides the textarea height when multiline. */
+  rows?: number;
 }
 
 /** Text / number input with inline error and optional derived readout. */
@@ -36,6 +40,8 @@ export function TermsTextField({
   inputMode = "text",
   multiline = false,
   readout,
+  isReadOnly = false,
+  rows = 3,
 }: Props) {
   const error = useTermsFieldError(name);
   const id = `terms-${name}`;
@@ -59,14 +65,16 @@ export function TermsTextField({
                 id={id}
                 variant="unstyled"
                 placeholder={placeholder}
-                rows={3}
+                rows={rows}
                 fontSize={{ base: "16px", md: "15px" }}
                 fontFamily="mono"
-                color={formTheme.text}
+                color={isReadOnly ? formTheme.mutedLight : formTheme.text}
                 resize="vertical"
                 spellCheck={false}
+                isReadOnly={isReadOnly}
                 aria-invalid={Boolean(error)}
                 _placeholder={{ color: formTheme.placeholder }}
+                _readOnly={{ cursor: "default" }}
               />
             </FormInputWrap>
           ) : (
@@ -79,12 +87,14 @@ export function TermsTextField({
                 minW={0}
                 h={{ base: "54px", md: "48px" }}
                 fontSize={{ base: "16px", md: "15px" }}
-                color={formTheme.text}
+                color={isReadOnly ? formTheme.mutedLight : formTheme.text}
                 placeholder={placeholder}
                 inputMode={inputMode}
                 autoComplete="off"
                 spellCheck={false}
+                isReadOnly={isReadOnly}
                 aria-invalid={Boolean(error)}
+                _readOnly={{ cursor: "default" }}
               />
               {suffix ? (
                 <Text

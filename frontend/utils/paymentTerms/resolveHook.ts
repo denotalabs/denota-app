@@ -145,22 +145,32 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
           }
       }
 
-    case "payMultiple":
-      switch (values.distribution) {
-        case "fixedSplit":
-          return soon("Split");
-        case "inOrder":
-          return soon("Waterfall");
-        case "sharedPot":
-          switch (values.sharedPotKind) {
-            case "fundraiser":
-              return soon("CrowdRaise");
-            case "rotatingSavings":
-              return soon("ROSCA");
-            case "roundRobin":
-              return soon("RoundRobin");
-          }
+    case "giftCard":
+      if (values.giftMetadataControl === "highestFunder") {
+        return soon("GiftCardHighestSetter");
       }
+      if (
+        values.giftFundWho === "allowlist" ||
+        values.giftSignWho === "allowlist"
+      ) {
+        return soon("GiftCardAllowlist");
+      }
+      if (values.giftSignWho !== "nobody" && values.giftSignCost === "minEscrow") {
+        return soon("GiftCardMinSign");
+      }
+      if (values.giftTransferable === "afterCash") {
+        return soon("GiftCardCashThenTransfer");
+      }
+      if (values.giftTransferable === "no") {
+        return soon("GiftCardBound");
+      }
+      if (values.giftUnclaimed === "return") {
+        return soon("GiftCardExpiring");
+      }
+      if (values.giftMetadataControl === "anyFunder") {
+        return soon("GiftCardOpenMetadata");
+      }
+      return soon("GiftCard");
   }
 }
 
