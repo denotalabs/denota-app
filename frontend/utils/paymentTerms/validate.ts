@@ -34,6 +34,24 @@ function isAddressLike(value: string): boolean {
   );
 }
 
+function listEntries(value: string): string[] {
+  return value
+    .split(/[\n,]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function allowlistError(value: string, emptyMessage: string): string | undefined {
+  const entries = listEntries(value);
+  if (entries.length < 1) {
+    return emptyMessage;
+  }
+  if (entries.some((entry) => !isAddressLike(entry))) {
+    return "One of the entries is not a valid address.";
+  }
+  return undefined;
+}
+
 /**
  * Relational validation for the Payment Terms screen. Presence checks alone
  * are not enough: a date in the past or an end before a start encodes into
@@ -312,8 +330,49 @@ export function validatePaymentTerms(
       break;
     }
 
-    case "payMultiple":
+    case "giftCard": {
+      if (values.giftFundWho === "allowlist") {
+        const error = allowlistError(
+          values.giftFundAllowlist,
+          "Add at least one person who can fund it."
+        );
+        if (error) {
+          errors.giftFundAllowlist = error;
+        }
+      }
+      if (values.giftSignWho === "allowlist") {
+        const error = allowlistError(
+          values.giftSignAllowlist,
+          "Add at least one person who can sign."
+        );
+        if (error) {
+          errors.giftSignAllowlist = error;
+        }
+      }
+      if (
+        values.giftSignWho !== "nobody" &&
+        values.giftSignCost === "minEscrow"
+      ) {
+        const min = Number(values.giftMinSignAmount);
+        if (
+          !values.giftMinSignAmount.trim() ||
+          !Number.isFinite(min) ||
+          min <= 0
+        ) {
+          errors.giftMinSignAmount = "Minimum must be more than 0.";
+        }
+      }
+      if (values.giftUnclaimed === "return") {
+        const ms = dateMs(values.giftReturnDate);
+        if (ms === null) {
+          errors.giftReturnDate = "Pick a return date.";
+        } else if (ms <= nowMs) {
+          errors.giftReturnDate =
+            "That date is in the past. Pick a future date.";
+        }
+      }
       break;
+    }
   }
 
   return errors;

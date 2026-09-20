@@ -31,11 +31,12 @@ interface FullCardProps {
   title: string;
   subtitle: string;
   icon: LucideIcon;
+  tag?: string | null;
   onSelect: () => void;
 }
 
 /** Unselected outcome: icon tile, title, one-line subtitle. */
-export function TermCard({ title, subtitle, icon, onSelect }: FullCardProps) {
+export function TermCard({ title, subtitle, icon, tag, onSelect }: FullCardProps) {
   return (
     <Box
       as="button"
@@ -61,9 +62,22 @@ export function TermCard({ title, subtitle, icon, onSelect }: FullCardProps) {
     >
       <TermIconTile icon={icon} active={false} />
       <Box minW={0}>
-        <Text fontSize="15px" fontWeight={700} color={formTheme.textDark}>
-          {title}
-        </Text>
+        <Flex align="center" gap={2} flexWrap="wrap">
+          <Text fontSize="15px" fontWeight={700} color={formTheme.textDark}>
+            {title}
+          </Text>
+          {tag ? (
+            <Tag
+              size="sm"
+              variant="subtle"
+              colorScheme="gray"
+              borderRadius="full"
+              fontSize="10px"
+            >
+              {tag}
+            </Tag>
+          ) : null}
+        </Flex>
         <Text
           fontSize="13px"
           lineHeight={1.45}

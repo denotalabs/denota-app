@@ -203,6 +203,100 @@ function sharedRows(ctx: ConfirmPreviewContext): ConfirmDetailRow[] {
   return rows;
 }
 
+function listCount(value: string): number {
+  return value
+    .split(/[\n,]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean).length;
+}
+
+function giftCardPreview(
+  values: PaymentTermsValues,
+  ctx: ConfirmPreviewContext
+): Pick<ConfirmPreview, "narrative" | "termRows" | "legend"> {
+  const name = ctx.recipientLabel;
+  const transferable = values.giftTransferable;
+  const canSign = values.giftSignWho !== "nobody";
+  const fundCount = listCount(values.giftFundAllowlist);
+  const signCount = listCount(values.giftSignAllowlist);
+
+  const fundsValue =
+    values.giftFundWho === "allowlist"
+      ? fundCount > 0
+        ? `${fundCount} ${fundCount === 1 ? "person" : "people"}`
+        : "Allowlist"
+      : "Anyone";
+
+  const messagesValue =
+    values.giftSignWho === "nobody"
+      ? "Off"
+      : values.giftSignWho === "onlyFunders"
+        ? "Same as funders"
+        : values.giftSignWho === "allowlist"
+          ? signCount > 0
+            ? `${signCount} ${signCount === 1 ? "person" : "people"}`
+            : "Allowlist"
+          : "Anyone";
+
+  const lookValue =
+    values.giftMetadataControl === "highestFunder"
+      ? "Highest funder"
+      : values.giftMetadataControl === "anyFunder"
+        ? "Anyone who funds"
+        : "You, at creation";
+
+  const termRows: ConfirmDetailRow[] = [];
+  if (values.giftName.trim()) {
+    termRows.push({ label: "Name", value: values.giftName.trim() });
+  }
+  if (values.giftNote.trim()) {
+    termRows.push({ label: "Note", value: values.giftNote.trim() });
+  }
+  termRows.push({ label: "Funds from", value: fundsValue });
+  termRows.push({ label: "Signed messages", value: messagesValue });
+  if (canSign && values.giftSignCost === "minEscrow") {
+    termRows.push({
+      label: "To sign",
+      value: `Escrow ${formatFundingAmount(
+        values.giftMinSignAmount,
+        ctx.tokenLabel
+      )}`,
+    });
+  }
+  termRows.push({ label: "Look set by", value: lookValue });
+  termRows.push({
+    label: "Transferable",
+    value:
+      transferable === "yes"
+        ? "Yes"
+        : transferable === "afterCash"
+          ? "Once cashed"
+          : "No",
+  });
+  if (values.giftUnclaimed === "return") {
+    termRows.push({
+      label: "Returns",
+      value: formatConfirmDate(values.giftReturnDate) || "the chosen date",
+    });
+  }
+
+  return {
+    narrative: toNarrative(
+      name,
+      transferable === "yes"
+        ? "You're sending a transferable gift card to "
+        : "You're sending a gift card to ",
+      transferable === "yes"
+        ? ". Whoever holds it can cash the escrow."
+        : transferable === "afterCash"
+          ? ". They can cash the escrow, then give the card away."
+          : ". Only they can cash the escrow."
+    ),
+    termRows,
+    legend: "Set by the gift card terms.",
+  };
+}
+
 function specializedPreview(
   values: PaymentTermsValues,
   ctx: ConfirmPreviewContext
@@ -346,13 +440,13 @@ function specializedPreview(
         ),
         termRows: values.customHookAddress.trim()
           ? [
-              {
-                label: "Hook",
-                value: isAddress(values.customHookAddress.trim())
-                  ? truncateAddress(values.customHookAddress.trim())
-                  : values.customHookAddress.trim(),
-              },
-            ]
+            {
+              label: "Hook",
+              value: isAddress(values.customHookAddress.trim())
+                ? truncateAddress(values.customHookAddress.trim())
+                : values.customHookAddress.trim(),
+            },
+          ]
           : [],
         legend: "Set by the custom hook.",
       };
@@ -697,31 +791,8 @@ export function buildConfirmPreview(
       }
     }
 
-    case "payMultiple":
-      return {
-        ...base,
-        narrative: toNarrative(
-          name,
-          "You're sending a split payment involving ",
-          " and the other recipients you named."
-        ),
-        termRows: [
-          {
-            label: "Distribution",
-            value:
-              values.distribution === "fixedSplit"
-                ? "Fixed split"
-                : values.distribution === "inOrder"
-                  ? "In order"
-                  : values.sharedPotKind === "fundraiser"
-                    ? "Shared pot"
-                    : values.sharedPotKind === "rotatingSavings"
-                      ? "Rotating savings"
-                      : "Round-robin",
-          },
-        ],
-        legend: "Set by the split terms.",
-      };
+    case "giftCard":
+      return { ...base, ...giftCardPreview(values, ctx) };
 
     default:
       return {

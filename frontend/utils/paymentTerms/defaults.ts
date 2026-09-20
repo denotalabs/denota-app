@@ -78,8 +78,19 @@ export function baseTermsValues(
     onchainExpected: "",
     attestationKind: "eas",
 
-    distribution: "fixedSplit",
-    sharedPotKind: "fundraiser",
+    giftName: "",
+    giftNote: "",
+    giftFundWho: "anyone",
+    giftFundAllowlist: "",
+    giftSignWho: "anyone",
+    giftSignAllowlist: "",
+    giftSignCost: "free",
+    giftMinSignAmount: "1",
+    giftMetadataControl: "issuer",
+    giftTransferable: "yes",
+    giftUnclaimed: "stay",
+    giftReturnDate: inOneMonth,
+    giftSignature: "",
 
     firstHalfAmount: seedFirstHalfAmount(totalAmount),
     delayCostPerDay: "1",
@@ -91,7 +102,7 @@ export function baseTermsValues(
 
 /**
  * Initial values for the screen: a prior configuration when returning from
- * Confirm, otherwise the unselected state so the five cards render.
+ * Confirm, otherwise the unselected state so the common term cards render.
  */
 export function initialTermsValues(notaFormValues: {
   terms?: unknown;
