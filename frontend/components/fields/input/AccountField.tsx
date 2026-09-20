@@ -95,7 +95,7 @@ function invalidMessage(kind: AccountInputKind, didFail: boolean): string {
   if (kind === "ens") {
     return "Invalid address";
   }
-  return "Not a valid email, phone, ENS name, or 0x address";
+  return "Not a valid Email, phone, ENS name, or 0x address";
 }
 
 function AccountFieldInner({

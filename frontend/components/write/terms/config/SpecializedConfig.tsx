@@ -80,7 +80,7 @@ export function SpecializedConfig({ amount, tokenLabel }: Props) {
             fieldName="reverserAddress"
             resolvedFieldName="resolvedReverserAddress"
             allowEns
-            placeholder="email, phone, name.eth, or 0x…"
+            placeholder="Email, phone, name.eth, or 0x…"
           />
           <FieldHelp>
             This person can send the escrow back to you. You still release it to

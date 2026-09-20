@@ -79,7 +79,7 @@ function accountFieldError(
   if (isAccountInputInProgress(kind)) {
     return undefined;
   }
-  return "Not a valid email, phone, ENS name, or 0x address";
+  return "Not a valid Email, phone, ENS name, or 0x address";
 }
 
 /**
@@ -128,7 +128,7 @@ export function validatePaymentTerms(
         const error = accountFieldError(
           values.reverserAddress,
           values.resolvedReverserAddress,
-          "Enter the reverser's email, phone, ENS name, or address."
+          "Enter the reverser's Email, phone, ENS name, or address."
         );
         if (error) {
           errors.reverserAddress = error;
@@ -191,7 +191,7 @@ export function validatePaymentTerms(
         const error = accountFieldError(
           values.reviewerAddress,
           values.resolvedReviewerAddress,
-          "Enter the reviewer's email, phone, ENS name, or address."
+          "Enter the reviewer's Email, phone, ENS name, or address."
         );
         if (error) {
           errors.reviewerAddress = error;

@@ -53,7 +53,7 @@ export function ReviewerConfig() {
             fieldName="reviewerAddress"
             resolvedFieldName="resolvedReviewerAddress"
             allowEns
-            placeholder="email, phone, name.eth, or 0x…"
+            placeholder="Email, phone, name.eth, or 0x…"
           />
           <FieldHelp>
             This person can move the escrowed funds. Double-check the address.
