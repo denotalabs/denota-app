@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
+import { classifyAccountInput, isAccountInputInProgress } from "../accountIdentity";
 import { resolveDripPeriodSeconds } from "../dripPeriod";
-import { couldBeEnsInProgress, isEnsName } from "../ensAddress";
 import { expirationDateToCashBeforeDateMs } from "../expirationDate";
 import type { PaymentTermsErrors, PaymentTermsValues } from "./types";
 
@@ -26,12 +26,42 @@ function dateMs(value: string): number | null {
 }
 
 function isAddressLike(value: string): boolean {
-  const trimmed = value.trim();
-  return (
-    ethers.utils.isAddress(trimmed) ||
-    isEnsName(trimmed) ||
-    couldBeEnsInProgress(trimmed)
-  );
+  const kind = classifyAccountInput(value);
+  return kind !== "empty" && kind !== "invalid";
+}
+
+function accountFieldError(
+  input: string,
+  resolved: string,
+  emptyMessage: string
+): string | undefined {
+  const trimmed = input.trim();
+  if (!trimmed) {
+    return emptyMessage;
+  }
+  if (ethers.utils.isAddress(trimmed)) {
+    return undefined;
+  }
+  const kind = classifyAccountInput(trimmed);
+  if (kind === "ens") {
+    return ethers.utils.isAddress(resolved)
+      ? undefined
+      : "ENS name hasn't resolved to an address.";
+  }
+  if (kind === "email") {
+    return ethers.utils.isAddress(resolved)
+      ? undefined
+      : "No wallet found for this email.";
+  }
+  if (kind === "phone") {
+    return ethers.utils.isAddress(resolved)
+      ? undefined
+      : "No wallet found for this phone number.";
+  }
+  if (isAccountInputInProgress(kind)) {
+    return undefined;
+  }
+  return "Not a valid email, phone, ENS name, or 0x address";
 }
 
 function listEntries(value: string): string[] {
@@ -95,20 +125,13 @@ export function validatePaymentTerms(
         break;
       }
       case "forwarderReverser": {
-        const input = values.reverserAddress.trim();
-        const resolved = values.resolvedReverserAddress.trim();
-        if (!input) {
-          errors.reverserAddress =
-            "Enter the reverser's address or ENS name.";
-        } else if (ethers.utils.isAddress(input)) {
-          // Direct 0x: ready to encode.
-        } else if (isEnsName(input)) {
-          if (!ethers.utils.isAddress(resolved)) {
-            errors.reverserAddress =
-              "ENS name hasn't resolved to an address.";
-          }
-        } else {
-          errors.reverserAddress = "Not a valid ENS name or 0x address";
+        const error = accountFieldError(
+          values.reverserAddress,
+          values.resolvedReverserAddress,
+          "Enter the reverser's email, phone, ENS name, or address."
+        );
+        if (error) {
+          errors.reverserAddress = error;
         }
         break;
       }
@@ -165,19 +188,13 @@ export function validatePaymentTerms(
 
     case "someoneReviews": {
       if (values.reviewer === "other") {
-        const input = values.reviewerAddress.trim();
-        const resolved = values.resolvedReviewerAddress.trim();
-        if (!input) {
-          errors.reviewerAddress = "Enter the reviewer's address or ENS name.";
-        } else if (ethers.utils.isAddress(input)) {
-          // Direct 0x: ready to encode.
-        } else if (isEnsName(input)) {
-          if (!ethers.utils.isAddress(resolved)) {
-            errors.reviewerAddress =
-              "ENS name hasn't resolved to an address.";
-          }
-        } else {
-          errors.reviewerAddress = "Not a valid ENS name or 0x address";
+        const error = accountFieldError(
+          values.reviewerAddress,
+          values.resolvedReviewerAddress,
+          "Enter the reviewer's email, phone, ENS name, or address."
+        );
+        if (error) {
+          errors.reviewerAddress = error;
         }
       }
       if (

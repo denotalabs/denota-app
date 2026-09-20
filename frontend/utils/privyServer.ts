@@ -1,7 +1,8 @@
+import https from "https";
 import { getAddress, isAddress } from "viem";
 import { classifyAccountInput, normalizeEmail, normalizePhone } from "./accountIdentity";
 
-const PRIVY_API_URL = "https://api.privy.io";
+const PRIVY_HOSTNAME = "api.privy.io";
 
 type PrivyLinkedAccount = {
   type?: string;
@@ -23,7 +24,7 @@ function getPrivyCredentials(): { appId: string; appSecret: string } | null {
   return { appId, appSecret };
 }
 
-function privyHeaders(appId: string, appSecret: string): HeadersInit {
+function privyHeaders(appId: string, appSecret: string): Record<string, string> {
   const basic = Buffer.from(`${appId}:${appSecret}`).toString("base64");
   return {
     Authorization: `Basic ${basic}`,
@@ -32,8 +33,44 @@ function privyHeaders(appId: string, appSecret: string): HeadersInit {
   };
 }
 
+function postPrivy(
+  path: string,
+  headers: Record<string, string>,
+  payload: string
+): Promise<{ status: number; text: string }> {
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname: PRIVY_HOSTNAME,
+        path,
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Length": String(Buffer.byteLength(payload)),
+        },
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk: Buffer) => chunks.push(chunk));
+        res.on("end", () => {
+          resolve({
+            status: res.statusCode ?? 0,
+            text: Buffer.concat(chunks).toString("utf8"),
+          });
+        });
+      }
+    );
+    req.on("error", reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
 function isEthereumAddressAccount(account: PrivyLinkedAccount): boolean {
-  if (typeof account.address !== "string" || !isAddress(account.address)) {
+  if (
+    typeof account.address !== "string" ||
+    !isAddress(account.address, { strict: false })
+  ) {
     return false;
   }
   if (account.chain_type && account.chain_type !== "ethereum") {
@@ -60,7 +97,7 @@ function ethereumWalletFromUser(user: PrivyUser): string | null {
     embedded ??
     ethereum.find((account) => account.type === "wallet") ??
     ethereum[0];
-  if (!chosen.address || !isAddress(chosen.address)) {
+  if (!chosen.address || !isAddress(chosen.address, { strict: false })) {
     return null;
   }
   return getAddress(chosen.address);
@@ -75,26 +112,26 @@ async function privyLookup(
     throw new Error("Privy is not configured");
   }
 
-  const response = await fetch(`${PRIVY_API_URL}${path}`, {
-    method: "POST",
-    headers: privyHeaders(credentials.appId, credentials.appSecret),
-    body: JSON.stringify(body),
-  });
+  const payload = JSON.stringify(body);
+  const { status, text } = await postPrivy(
+    path,
+    privyHeaders(credentials.appId, credentials.appSecret),
+    payload
+  );
 
-  if (response.status === 404) {
+  if (status === 404) {
     return null;
   }
-  if (response.status === 401 || response.status === 403) {
+  if (status === 401 || status === 403) {
     throw new Error(
-      `Privy lookup unauthorized (${response.status}). Check PRIVY_APP_SECRET.`
+      `Privy lookup unauthorized (${status}). Check PRIVY_APP_SECRET.`
     );
   }
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Privy lookup failed (${response.status}): ${text}`);
+  if (status < 200 || status >= 300) {
+    throw new Error(`Privy lookup failed (${status}): ${text}`);
   }
 
-  return (await response.json()) as PrivyUser;
+  return JSON.parse(text) as PrivyUser;
 }
 
 export async function lookupPrivyWalletServer(
