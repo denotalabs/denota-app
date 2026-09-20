@@ -1,8 +1,7 @@
 import { Box, Heading, useToast, VStack } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { notaInfoTheme as t } from "../designSystem/notaInfoTheme";
-import { lookupEnsAddress } from "../../utils/ensClient";
-import { isEnsName } from "../../utils/ensAddress";
+import { lookupAccountAddress } from "../../utils/accountLookup";
 import { useCashNotaAction } from "../../hooks/useCashNotaAction";
 import { useFundNota } from "../../hooks/useFundNota";
 import { useNotaActions } from "../../hooks/useNotaActions";
@@ -69,15 +68,18 @@ function NotaActions({ notaId, data, onRefresh }: Props) {
 
       try {
         switch (actionId) {
-          case "cash":
+          case "cash": {
             if (!values.escrow || !values.to) {
               throw new Error("Amount and destination are required");
             }
+            const cashTo =
+              (await lookupAccountAddress(values.to)) ?? values.to;
             await cashNota(context, {
               escrow: values.escrow,
-              to: values.to,
+              to: cashTo,
             });
             break;
+          }
           case "fund":
             await fundNota(context, {
               escrow: values.escrow ?? "0",
@@ -85,13 +87,11 @@ function NotaActions({ notaId, data, onRefresh }: Props) {
             });
             break;
           case "transfer": {
-            let resolvedTo: string | undefined;
-            if (values.to && isEnsName(values.to)) {
-              resolvedTo = (await lookupEnsAddress(values.to)) ?? undefined;
-            }
             if (!values.to) {
               throw new Error("Recipient address is required");
             }
+            const resolvedTo =
+              (await lookupAccountAddress(values.to)) ?? undefined;
             await transferNota(context, {
               to: values.to,
               resolvedTo,
