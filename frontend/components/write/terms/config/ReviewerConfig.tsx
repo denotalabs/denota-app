@@ -1,6 +1,5 @@
 import { Box } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
-import { useEffect } from "react";
 import type { PaymentTermsValues } from "../../../../utils/paymentTerms/types";
 import AccountField from "../../../fields/input/AccountField";
 import { ChoiceField } from "../fields/ChoiceField";
@@ -9,28 +8,15 @@ import { TermsDateField } from "../fields/TermsDateField";
 import { TermsTextField } from "../fields/TermsTextField";
 
 export function ReviewerConfig() {
-  const { values, setFieldError, validateForm } =
-    useFormikContext<PaymentTermsValues>();
+  const { values } = useFormikContext<PaymentTermsValues>();
   const singleReviewer =
     values.reviewer === "me" || values.reviewer === "other";
-
-  // AccountField unmounts when leaving "Another reviewer". Formik may have
-  // already baked that field's error into `errors` on the same tick; drop it
-  // and re-run form validate after the field is gone.
-  useEffect(() => {
-    if (values.reviewer === "other") {
-      return;
-    }
-    setFieldError("reviewerAddress", undefined);
-    void validateForm();
-  }, [setFieldError, validateForm, values.reviewer]);
 
   return (
     <FieldStack>
       <ChoiceField
         name="reviewer"
         label="Who decides?"
-        layout="segments"
         options={[
           {
             value: "me",
@@ -48,14 +34,12 @@ export function ReviewerConfig() {
             value: "group",
             label: "A group",
             tag: "Coming soon",
-            disabled: false,
             description: "Several signers must agree before funds move.",
           },
           {
             value: "arbitration",
             label: "Arbitration",
             tag: "Coming soon",
-            disabled: false,
             description:
               "A neutral arbitration service settles disputes over the funds.",
           },

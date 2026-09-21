@@ -3,7 +3,10 @@ import { useFormikContext } from "formik";
 import { useLayoutEffect, useRef, useState } from "react";
 import type { PaymentTermsValues } from "../../../../utils/paymentTerms/types";
 import { FormInputWrap } from "../../../designSystem/form/FormInputWrap";
-import { SegmentedControl } from "../../../designSystem/form/SegmentedControl";
+import {
+  SegmentedControl,
+  segmentedControlLabelsOverflow,
+} from "../../../designSystem/form/SegmentedControl";
 import { formTheme } from "../../../designSystem/form/formTheme";
 import { FieldLabel } from "./FieldChrome";
 
@@ -24,7 +27,7 @@ interface Props<K extends keyof PaymentTermsValues, V extends string> {
   tooltip?: string;
   options: ChoiceOption<V>[];
   /**
-   * `auto` becomes a dropdown when the bar cannot fit on one row.
+   * `auto` becomes a dropdown when equal-width segments would clip a label.
    * `segments` always uses a segmented control.
    */
   layout?: "auto" | "segments";
@@ -34,7 +37,12 @@ interface Props<K extends keyof PaymentTermsValues, V extends string> {
 
 function optionSignature<V extends string>(options: ChoiceOption<V>[]): string {
   return options
-    .map((option) => `${option.value}:${option.label}:${option.tag ?? ""}`)
+    .map(
+      (option) =>
+        `${option.value}:${option.label}:${option.tag ?? ""}:${
+          option.disabled ? "1" : "0"
+        }`
+    )
     .join("|");
 }
 
@@ -43,9 +51,9 @@ function optionSelectLabel<V extends string>(option: ChoiceOption<V>): string {
 }
 
 /**
- * A question with segmented answers. By default, if the bar cannot fit on one
- * row it becomes a dropdown. Pass `layout="segments"` to keep a segmented
- * control. Only the selected answer's description shows.
+ * A question with segmented answers. By default, if equal-width segments would
+ * clip a label, the control becomes a dropdown. Pass `layout="segments"` to
+ * keep a segmented control. Only the selected answer's description shows.
  */
 export function ChoiceField<
   K extends keyof PaymentTermsValues,
@@ -76,7 +84,11 @@ export function ChoiceField<
       if (container.clientWidth === 0) {
         return;
       }
-      setFits(measure.scrollWidth <= container.clientWidth + 1);
+      const overflows = segmentedControlLabelsOverflow(measure);
+      if (overflows === null) {
+        return;
+      }
+      setFits(!overflows);
     };
 
     update();
@@ -107,19 +119,19 @@ export function ChoiceField<
         {alwaysSegments ? null : (
           <Box
             position="absolute"
-            overflow="hidden"
-            w={0}
-            h={0}
+            visibility="hidden"
+            w="100%"
+            top={0}
+            left={0}
             pointerEvents="none"
             aria-hidden
           >
-            <Box ref={measureRef} w="max-content">
+            <Box ref={measureRef} w="100%">
               <SegmentedControl
                 name={`${String(name)}-measure`}
                 value={current}
                 options={options}
                 onChange={() => undefined}
-                layout="intrinsic"
                 inert
               />
             </Box>

@@ -23,6 +23,7 @@ import { formTheme } from "../../designSystem/form/formTheme";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import { PaymentFlowStepRow } from "../details/PaymentFlowStepRow";
+import { TermsAmountHint } from "./TermsAmountHint";
 import { ConditionConfig } from "./config/ConditionConfig";
 import { GiftCardConfig } from "./config/GiftCardConfig";
 import { RecipientClaimsConfig } from "./config/RecipientClaimsConfig";
@@ -32,7 +33,6 @@ import { SpecializedConfig } from "./config/SpecializedConfig";
 import { SpecializedOptions } from "./SpecializedOptions";
 import { ChooseDifferentTermsRow, PromotedTermCard, TermCard } from "./TermCard";
 import { promotedEntry, TERM_CATALOG } from "./termCatalog";
-import { TermsAmountHint } from "./TermsAmountHint";
 
 interface AmountProps {
   amount: string | undefined;

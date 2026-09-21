@@ -117,6 +117,7 @@ function AccountFieldInner({
   resolvedFieldName,
   label,
   sectionMb,
+  useFieldValidate = true,
 }: InnerProps) {
   const { setFieldValue, setFieldError, values } = form;
   const { blockchainState } = useBlockchainData();
@@ -144,10 +145,13 @@ function AccountFieldInner({
   }, [fieldName, kind, resolutionError, setFieldError]);
 
   useEffect(() => {
+    if (useFieldValidate) {
+      return;
+    }
     return () => {
       setFieldError(fieldName, undefined);
     };
-  }, [fieldName, setFieldError]);
+  }, [fieldName, setFieldError, useFieldValidate]);
 
   useEffect(() => {
     if (!resolvedFieldName) {
@@ -218,6 +222,7 @@ function AccountFieldInner({
       <FormInputWrap>
         <Input
           {...field}
+          id={fieldName}
           variant="unstyled"
           flex={1}
           minW={0}
@@ -349,6 +354,7 @@ function AccountField({
           resolvedFieldName={resolvedFieldName}
           label={label}
           sectionMb={sectionMb}
+          useFieldValidate={useFieldValidate}
         />
       )}
     </Field>

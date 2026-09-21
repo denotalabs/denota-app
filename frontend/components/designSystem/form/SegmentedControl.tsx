@@ -16,22 +16,17 @@ interface Props<T extends string> {
   options: SegmentedControlOption<T>[];
   onChange: (value: T) => void;
   "aria-label"?: string;
-  /**
-   * `fill` stretches equal-width segments across the track.
-   * `intrinsic` sizes to content so callers can measure overflow.
-   */
-  layout?: "fill" | "intrinsic";
-  /** Non-interactive clone used to measure intrinsic width. */
+  /** Non-interactive clone used to measure whether labels fit. */
   inert?: boolean;
 }
 
-function segmentShellProps(isIntrinsic: boolean): BoxProps {
+function segmentShellProps(): BoxProps {
   return {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    flex: isIntrinsic ? "none" : 1,
-    minW: isIntrinsic ? "max-content" : 0,
+    flex: 1,
+    minW: 0,
     minH: "40px",
     py: "6px",
     px: 1.5,
@@ -41,8 +36,8 @@ function segmentShellProps(isIntrinsic: boolean): BoxProps {
     fontSize: "13px",
     letterSpacing: "-0.2px",
     whiteSpace: "nowrap",
-    overflow: isIntrinsic ? "visible" : "hidden",
-    textOverflow: isIntrinsic ? undefined : "ellipsis",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     transition: "background 0.15s, color 0.15s, box-shadow 0.15s",
     sx: { WebkitTapHighlightColor: "transparent" },
   };
@@ -56,7 +51,14 @@ function SegmentLabel({
   tag?: string | null;
 }) {
   return (
-    <Flex direction="column" align="center" justify="center" gap="1px">
+    <Flex
+      data-segment-label=""
+      direction="column"
+      align="center"
+      justify="center"
+      gap="1px"
+      w="max-content"
+    >
       <Box as="span">{label}</Box>
       {tag ? (
         <Text
@@ -74,6 +76,28 @@ function SegmentLabel({
   );
 }
 
+/**
+ * True when any equal-width segment would clip its label. `null` if layout
+ * is not ready to measure yet.
+ */
+export function segmentedControlLabelsOverflow(
+  root: HTMLElement
+): boolean | null {
+  const segments = Array.from(
+    root.querySelectorAll<HTMLElement>("[data-segment]")
+  );
+  if (
+    segments.length === 0 ||
+    segments.some((segment) => segment.clientWidth === 0)
+  ) {
+    return null;
+  }
+  return segments.some((segment) => {
+    const label = segment.querySelector<HTMLElement>("[data-segment-label]");
+    return Boolean(label && label.scrollWidth > segment.clientWidth + 1);
+  });
+}
+
 /** iOS-style equal-width segments in a single track. */
 export function SegmentedControl<T extends string>({
   name,
@@ -81,18 +105,16 @@ export function SegmentedControl<T extends string>({
   options,
   onChange,
   "aria-label": ariaLabel,
-  layout = "fill",
   inert = false,
 }: Props<T>) {
-  const isIntrinsic = layout === "intrinsic";
-  const shell = segmentShellProps(isIntrinsic);
+  const shell = segmentShellProps();
 
   return (
     <Flex
       role={inert ? undefined : "radiogroup"}
       aria-hidden={inert || undefined}
       aria-label={inert ? undefined : ariaLabel}
-      w={isIntrinsic ? "max-content" : "100%"}
+      w="100%"
       p="3px"
       bg="brand.300"
       border="1px solid"
@@ -103,8 +125,10 @@ export function SegmentedControl<T extends string>({
       {options.map((option) => {
         const isSelected = option.value === value;
         const isDisabled = Boolean(option.disabled);
+        // Measure clones use the selected (bold) weight so fit does not
+        // depend on which option is current.
         const selectedProps: BoxProps = {
-          fontWeight: isSelected ? 700 : 600,
+          fontWeight: inert || isSelected ? 700 : 600,
           color: isDisabled
             ? formTheme.placeholder
             : isSelected
@@ -120,7 +144,7 @@ export function SegmentedControl<T extends string>({
 
         if (inert) {
           return (
-            <Box key={option.value} {...shell} {...selectedProps}>
+            <Box key={option.value} data-segment="" {...shell} {...selectedProps}>
               <SegmentLabel label={option.label} tag={option.tag} />
             </Box>
           );
@@ -133,6 +157,7 @@ export function SegmentedControl<T extends string>({
             type="button"
             role="radio"
             name={name}
+            data-segment=""
             aria-checked={isSelected}
             aria-disabled={isDisabled || undefined}
             disabled={isDisabled}
