@@ -39,6 +39,12 @@ export type GiftFundWho = "anyone" | "allowlist";
 export type GiftSignWho = "anyone" | "onlyFunders" | "allowlist" | "nobody";
 export type GiftSignCost = "free" | "minEscrow";
 export type GiftMetadataControl = "issuer" | "highestFunder" | "anyFunder";
+
+/** Sign-cost and metadata-control options only apply for restricted signers. */
+export function giftSignSettingsApply(who: GiftSignWho): boolean {
+  return who === "onlyFunders" || who === "allowlist";
+}
+
 export type GiftTransferable = "yes" | "afterCash" | "no";
 export type GiftUnclaimed = "stay" | "return";
 

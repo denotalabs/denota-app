@@ -69,47 +69,29 @@ export function ReleaseOverTimeConfig({ amount, tokenLabel }: Props) {
       <ChoiceField
         name="releaseSchedule"
         label="How should it release?"
+        layout="segments"
         options={[
           {
-            value: "specificDate",
-            label: "On a specific date",
-            tag: "Coming soon",
-            description: "Everything unlocks at once on the date you choose.",
-          },
-          {
             value: "recurring",
-            label: "In recurring chunks",
+            label: "Chunks",
             description:
               "A fixed amount becomes claimable each period until the escrow runs out.",
           },
           {
             value: "stream",
-            label: "As a continuous stream",
+            label: "Linear",
             tag: "Coming soon",
             description:
               "Funds unlock second by second between a start and end date.",
           },
           {
-            value: "milestones",
-            label: "At milestones",
-            tag: "Proposed",
-            description:
-              "Each tranche releases when its milestone is approved.",
-          },
-          {
             value: "customVesting",
-            label: "Custom vesting",
+            label: "Custom",
             tag: "Coming soon",
             description: "Define your own unlock dates and amounts.",
           },
         ]}
       />
-
-      {values.releaseSchedule === "specificDate" ? (
-        <>
-          <TermsDateField name="releaseDate" label="Release date" />
-        </>
-      ) : null}
 
       {values.releaseSchedule === "recurring" ? (
         <>
@@ -165,13 +147,6 @@ export function ReleaseOverTimeConfig({ amount, tokenLabel }: Props) {
           <TermsDateField name="streamStart" label="Stream starts" />
           <TermsDateField name="streamEnd" label="Stream ends" />
         </>
-      ) : null}
-
-      {values.releaseSchedule === "milestones" ? (
-        <PlaceholderEditor>
-          Milestone rows (title, amount, due date, approver) are coming in the
-          next iteration.
-        </PlaceholderEditor>
       ) : null}
 
       {values.releaseSchedule === "customVesting" ? (

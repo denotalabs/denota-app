@@ -2,7 +2,11 @@ import { ethers } from "ethers";
 import { classifyAccountInput, isAccountInputInProgress } from "../accountIdentity";
 import { resolveDripPeriodSeconds } from "../dripPeriod";
 import { expirationDateToCashBeforeDateMs } from "../expirationDate";
-import type { PaymentTermsErrors, PaymentTermsValues } from "./types";
+import {
+  giftSignSettingsApply,
+  type PaymentTermsErrors,
+  type PaymentTermsValues,
+} from "./types";
 
 export interface ValidateTermsContext {
   /** Escrow amount from the Basic information step. */
@@ -367,7 +371,7 @@ export function validatePaymentTerms(
         }
       }
       if (
-        values.giftSignWho !== "nobody" &&
+        giftSignSettingsApply(values.giftSignWho) &&
         values.giftSignCost === "minEscrow"
       ) {
         const min = Number(values.giftMinSignAmount);

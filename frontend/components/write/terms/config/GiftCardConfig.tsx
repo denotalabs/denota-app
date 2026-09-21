@@ -6,7 +6,10 @@ import {
   PREVIEW_NOTA_ID,
   signGiftCardMessage,
 } from "../../../../utils/paymentTerms/giftCardSignature";
-import type { PaymentTermsValues } from "../../../../utils/paymentTerms/types";
+import {
+  giftSignSettingsApply,
+  type PaymentTermsValues,
+} from "../../../../utils/paymentTerms/types";
 import { formTheme } from "../../../designSystem/form/formTheme";
 import { ChoiceField } from "../fields/ChoiceField";
 import { FieldHelp, FieldStack } from "../fields/FieldChrome";
@@ -107,7 +110,7 @@ function GiftSignaturePreview() {
 
 export function GiftCardConfig({ tokenLabel }: Props) {
   const { values } = useFormikContext<PaymentTermsValues>();
-  const canSign = values.giftSignWho !== "nobody";
+  const showSignSettings = giftSignSettingsApply(values.giftSignWho);
 
   return (
     <FieldStack>
@@ -158,6 +161,12 @@ export function GiftCardConfig({ tokenLabel }: Props) {
         label="Who else can leave a signed message?"
         options={[
           {
+            value: "nobody",
+            label: "Nobody",
+            description:
+              "No guest book. The card keeps the name and note you set.",
+          },
+          {
             value: "anyone",
             label: "Anyone",
             description:
@@ -175,12 +184,6 @@ export function GiftCardConfig({ tokenLabel }: Props) {
             description:
               "Only the people you list can attach a signed message.",
           },
-          {
-            value: "nobody",
-            label: "Nobody",
-            description:
-              "No guest book. The card keeps the name and note you set.",
-          },
         ]}
       />
       {values.giftSignWho === "allowlist" ? (
@@ -193,7 +196,7 @@ export function GiftCardConfig({ tokenLabel }: Props) {
         />
       ) : null}
 
-      {canSign ? (
+      {showSignSettings ? (
         <ChoiceField
           name="giftSignCost"
           label="To leave a message they must"
@@ -213,7 +216,7 @@ export function GiftCardConfig({ tokenLabel }: Props) {
           ]}
         />
       ) : null}
-      {canSign && values.giftSignCost === "minEscrow" ? (
+      {showSignSettings && values.giftSignCost === "minEscrow" ? (
         <TermsTextField
           name="giftMinSignAmount"
           label="Minimum to attach a message"
@@ -223,33 +226,36 @@ export function GiftCardConfig({ tokenLabel }: Props) {
         />
       ) : null}
 
-      <ChoiceField
-        name="giftMetadataControl"
-        label="Who sets the name, image, and description?"
-        options={[
-          {
-            value: "issuer",
-            label: "You, at creation",
-            description:
-              "The look you set here stays, even as others fund or sign.",
-          },
-          {
-            value: "highestFunder",
-            label: "The highest funder",
-            description:
-              "Whoever has added the most can replace the name, image, and note.",
-          },
-          {
-            value: "anyFunder",
-            label: "Anyone who funds",
-            description: "Each top-up can update the card's look.",
-          },
-        ]}
-      />
+      {showSignSettings ? (
+        <ChoiceField
+          name="giftMetadataControl"
+          label="Who sets the name, image, and description?"
+          options={[
+            {
+              value: "issuer",
+              label: "You, at creation",
+              description:
+                "The look you set here stays, even as others fund or sign.",
+            },
+            {
+              value: "highestFunder",
+              label: "The highest funder",
+              description:
+                "Whoever has added the most can replace the name, image, and note.",
+            },
+            {
+              value: "anyFunder",
+              label: "Anyone who funds",
+              description: "Each top-up can update the card's look.",
+            },
+          ]}
+        />
+      ) : null}
 
       <ChoiceField
         name="giftTransferable"
         label="Can the holder give it away?"
+        layout="segments"
         options={[
           {
             value: "yes",
@@ -258,13 +264,13 @@ export function GiftCardConfig({ tokenLabel }: Props) {
           },
           {
             value: "afterCash",
-            label: "Yes, once cashed",
+            label: "Once cashed",
             description:
               "They can pass the card on only after the funds have been claimed.",
           },
           {
             value: "no",
-            label: "No, only they can cash it",
+            label: "No",
             description:
               "The card stays with the original recipient. They are the only one who can cash it.",
           },

@@ -35,7 +35,7 @@ export const TERM_CATALOG: TermCatalogEntry[] = [
   {
     id: "releaseOverTime",
     title: "Release it over time",
-    subtitle: "On a date, in chunks, or as a continuous stream.",
+    subtitle: "In chunks, linearly, or on a custom schedule.",
     icon: CalendarClock,
   },
   {

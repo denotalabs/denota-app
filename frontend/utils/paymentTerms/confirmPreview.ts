@@ -11,7 +11,10 @@ import {
 import { resolveDripPeriodSeconds } from "../dripPeriod";
 import { formatConfirmDate } from "../expirationDate";
 import { chunkPeriodPhrase, estimatedReleaseCount } from "./summary";
-import type { PaymentTermsValues } from "./types";
+import {
+  giftSignSettingsApply,
+  type PaymentTermsValues,
+} from "./types";
 
 export type NarrativeSegment =
   | { kind: "text"; text: string }
@@ -216,7 +219,7 @@ function giftCardPreview(
 ): Pick<ConfirmPreview, "narrative" | "termRows" | "legend"> {
   const name = ctx.recipientLabel;
   const transferable = values.giftTransferable;
-  const canSign = values.giftSignWho !== "nobody";
+  const showSignSettings = giftSignSettingsApply(values.giftSignWho);
   const fundCount = listCount(values.giftFundAllowlist);
   const signCount = listCount(values.giftSignAllowlist);
 
@@ -254,7 +257,7 @@ function giftCardPreview(
   }
   termRows.push({ label: "Funds from", value: fundsValue });
   termRows.push({ label: "Signed messages", value: messagesValue });
-  if (canSign && values.giftSignCost === "minEscrow") {
+  if (showSignSettings && values.giftSignCost === "minEscrow") {
     termRows.push({
       label: "To sign",
       value: `Escrow ${formatFundingAmount(
@@ -263,7 +266,9 @@ function giftCardPreview(
       )}`,
     });
   }
-  termRows.push({ label: "Look set by", value: lookValue });
+  if (showSignSettings) {
+    termRows.push({ label: "Look set by", value: lookValue });
+  }
   termRows.push({
     label: "Transferable",
     value:
