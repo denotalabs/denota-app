@@ -23,7 +23,6 @@ import { formTheme } from "../../designSystem/form/formTheme";
 import RoundedButton from "../../designSystem/RoundedButton";
 import { ScreenProps, useStep } from "../../designSystem/stepper/Stepper";
 import { PaymentFlowStepRow } from "../details/PaymentFlowStepRow";
-import { TermsAmountHint } from "./TermsAmountHint";
 import { ConditionConfig } from "./config/ConditionConfig";
 import { GiftCardConfig } from "./config/GiftCardConfig";
 import { RecipientClaimsConfig } from "./config/RecipientClaimsConfig";
@@ -33,6 +32,7 @@ import { SpecializedConfig } from "./config/SpecializedConfig";
 import { SpecializedOptions } from "./SpecializedOptions";
 import { ChooseDifferentTermsRow, PromotedTermCard, TermCard } from "./TermCard";
 import { promotedEntry, TERM_CATALOG } from "./termCatalog";
+import { TermsAmountHint } from "./TermsAmountHint";
 
 interface AmountProps {
   amount: string | undefined;
@@ -100,7 +100,7 @@ function TermConfig({ amount, tokenLabel }: AmountProps) {
 }
 
 function TermsBody({ amount, tokenLabel }: AmountProps) {
-  const { values, errors, status, setValues, setTouched } =
+  const { values, status, setValues, setTouched } =
     useFormikContext<PaymentTermsValues>();
 
   /** Select (or clear) an option, resetting every field to its seed. */
@@ -122,9 +122,19 @@ function TermsBody({ amount, tokenLabel }: AmountProps) {
     !values.specialized &&
     nftAddress.length > 0 &&
     formStatus?.erc721IsErc721 !== true;
+  // Gate on the screen validator, not Formik's error bag: a conditionally
+  // mounted field can leave a stale error after it unmounts.
+  const termsErrors = validatePaymentTerms(values, {
+    amount,
+    tokenLabel,
+    nftCollectionIsErc721: nftErc721ForValues(values, {
+      address: formStatus?.erc721Address ?? "",
+      isErc721: formStatus?.erc721IsErc721 ?? null,
+    }),
+  });
   const canContinue =
     resolved?.maturity === "live" &&
-    Object.keys(errors).length === 0 &&
+    Object.keys(termsErrors).length === 0 &&
     !formStatus?.erc721Checking &&
     !nftCheckPending;
 

@@ -1,8 +1,10 @@
-import { Box, Flex, Tag, Text } from "@chakra-ui/react";
+import { Box, Select, Text } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { PaymentTermsValues } from "../../../../utils/paymentTerms/types";
+import { FormInputWrap } from "../../../designSystem/form/FormInputWrap";
+import { SegmentedControl } from "../../../designSystem/form/SegmentedControl";
 import { formTheme } from "../../../designSystem/form/formTheme";
-import { termsTheme } from "../termsTheme";
 import { FieldLabel } from "./FieldChrome";
 
 export interface ChoiceOption<V extends string> {
@@ -12,6 +14,8 @@ export interface ChoiceOption<V extends string> {
   description?: string;
   /** Maturity label, e.g. "Coming soon". Selectable, but marks a dead end. */
   tag?: string | null;
+  /** Greyed out and not selectable. */
+  disabled?: boolean;
 }
 
 interface Props<K extends keyof PaymentTermsValues, V extends string> {
@@ -19,89 +23,146 @@ interface Props<K extends keyof PaymentTermsValues, V extends string> {
   label: string;
   tooltip?: string;
   options: ChoiceOption<V>[];
+  /**
+   * `auto` becomes a dropdown when the bar cannot fit on one row.
+   * `segments` always uses a segmented control.
+   */
+  layout?: "auto" | "segments";
   /** Called after the value changes, for dependent-field resets. */
   onChange?: (value: V) => void;
 }
 
+function optionSignature<V extends string>(options: ChoiceOption<V>[]): string {
+  return options
+    .map((option) => `${option.value}:${option.label}:${option.tag ?? ""}`)
+    .join("|");
+}
+
+function optionSelectLabel<V extends string>(option: ChoiceOption<V>): string {
+  return option.tag ? `${option.label} (${option.tag})` : option.label;
+}
+
 /**
- * A question with pill answers. Only the selected answer's description shows,
- * so the group stays compact while still explaining the choice.
+ * A question with segmented answers. By default, if the bar cannot fit on one
+ * row it becomes a dropdown. Pass `layout="segments"` to keep a segmented
+ * control. Only the selected answer's description shows.
  */
 export function ChoiceField<
   K extends keyof PaymentTermsValues,
   V extends PaymentTermsValues[K] & string
->({ name, label, tooltip, options, onChange }: Props<K, V>) {
+>({ name, label, tooltip, options, layout = "auto", onChange }: Props<K, V>) {
   const { values, setFieldValue } = useFormikContext<PaymentTermsValues>();
   const current = values[name] as V;
   const selected = options.find((option) => option.value === current);
+  const id = `terms-${String(name)}`;
+  const alwaysSegments = layout === "segments";
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [fits, setFits] = useState(true);
+  const signature = optionSignature(options);
+
+  useLayoutEffect(() => {
+    if (alwaysSegments) {
+      return;
+    }
+    const container = containerRef.current;
+    const measure = measureRef.current;
+    if (!container || !measure) {
+      return;
+    }
+
+    const update = () => {
+      if (container.clientWidth === 0) {
+        return;
+      }
+      setFits(measure.scrollWidth <= container.clientWidth + 1);
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [alwaysSegments, signature]);
+
+  const handleChange = (value: V) => {
+    if (value === current) {
+      return;
+    }
+    if (options.find((option) => option.value === value)?.disabled) {
+      return;
+    }
+    setFieldValue(name, value);
+    onChange?.(value);
+  };
+
+  const showSegments = alwaysSegments || fits;
 
   return (
-    <Box role="radiogroup" aria-label={label}>
-      <FieldLabel tooltip={tooltip}>{label}</FieldLabel>
-      <Flex gap={2} flexWrap="wrap">
-        {options.map((option) => {
-          const isSelected = option.value === current;
-          return (
-            <Box
-              key={option.value}
-              as="button"
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              display="inline-flex"
-              alignItems="center"
-              gap={1.5}
-              px={3}
-              py={1.5}
-              minH="34px"
-              borderRadius="full"
-              fontSize="13px"
-              fontWeight={isSelected ? 700 : 600}
-              color={isSelected ? formTheme.textDark : formTheme.mutedLight}
-              bg={isSelected ? "brand.300" : "brand.400"}
-              border={isSelected ? "1px solid" : termsTheme.hairline}
-              borderColor={isSelected ? "brand.200" : undefined}
-              boxShadow={
-                isSelected
-                  ? "0 0 0 1px var(--chakra-colors-brand-200) inset"
-                  : undefined
-              }
-              transition="border-color 0.15s, background 0.15s, color 0.15s"
-              _hover={{
-                borderColor: isSelected ? "brand.200" : "notaPurple.100",
-                color: formTheme.textDark,
-              }}
-              _focusVisible={{
-                outline: "2px solid",
-                outlineColor: "brand.200",
-                outlineOffset: "2px",
-              }}
-              onClick={() => {
-                if (isSelected) {
-                  return;
-                }
-                setFieldValue(name, option.value);
-                onChange?.(option.value);
-              }}
-            >
-              {option.label}
-              {option.tag ? (
-                <Tag
-                  size="sm"
-                  variant="subtle"
-                  colorScheme="gray"
-                  borderRadius="full"
-                  fontSize="10px"
-                  px={1.5}
-                  minH="18px"
-                >
-                  {option.tag}
-                </Tag>
-              ) : null}
+    <Box>
+      <FieldLabel htmlFor={showSegments ? undefined : id} tooltip={tooltip}>
+        {label}
+      </FieldLabel>
+      <Box ref={containerRef} position="relative" w="100%">
+        {alwaysSegments ? null : (
+          <Box
+            position="absolute"
+            overflow="hidden"
+            w={0}
+            h={0}
+            pointerEvents="none"
+            aria-hidden
+          >
+            <Box ref={measureRef} w="max-content">
+              <SegmentedControl
+                name={`${String(name)}-measure`}
+                value={current}
+                options={options}
+                onChange={() => undefined}
+                layout="intrinsic"
+                inert
+              />
             </Box>
-          );
-        })}
-      </Flex>
+          </Box>
+        )}
+        {showSegments ? (
+          <SegmentedControl
+            name={String(name)}
+            value={current}
+            options={options}
+            onChange={handleChange}
+            aria-label={label}
+          />
+        ) : (
+          <FormInputWrap>
+            <Select
+              id={id}
+              value={current}
+              aria-label={label}
+              variant="unstyled"
+              flex={1}
+              minW={0}
+              w="100%"
+              h={{ base: "54px", md: "48px" }}
+              fontSize={{ base: "16px", md: "15px" }}
+              fontWeight={600}
+              color={formTheme.text}
+              iconSize="16px"
+              onChange={(event) => handleChange(event.target.value as V)}
+            >
+              {options.map((option) => (
+                <option
+                  key={option.value}
+                  value={option.value}
+                  disabled={option.disabled}
+                >
+                  {optionSelectLabel(option)}
+                </option>
+              ))}
+            </Select>
+          </FormInputWrap>
+        )}
+      </Box>
       {selected?.description ? (
         <Text
           mt={2}

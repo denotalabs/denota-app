@@ -27,6 +27,12 @@ interface Props {
   /** When set, wraps the field in a labeled FormSection. */
   label?: string;
   sectionMb?: number | string;
+  /**
+   * Field-level validate. Disable when this input is mounted only for some
+   * answers: Formik still runs it on the switch away, then leaves the error
+   * after unmount. Parent form validate should cover the field instead.
+   */
+  useFieldValidate?: boolean;
 }
 
 interface InnerProps extends Props {
@@ -136,6 +142,12 @@ function AccountFieldInner({
     }
     setFieldError(fieldName, resolutionError);
   }, [fieldName, kind, resolutionError, setFieldError]);
+
+  useEffect(() => {
+    return () => {
+      setFieldError(fieldName, undefined);
+    };
+  }, [fieldName, setFieldError]);
 
   useEffect(() => {
     if (!resolvedFieldName) {
@@ -289,6 +301,7 @@ function AccountField({
   resolvedFieldName,
   label,
   sectionMb,
+  useFieldValidate = true,
 }: Props) {
   const [hasStarted, setHasStarted] = useState(false);
   const onInputStarted = useCallback(() => {
@@ -318,7 +331,10 @@ function AccountField({
   );
 
   return (
-    <Field name={fieldName} validate={validateAddress}>
+    <Field
+      name={fieldName}
+      validate={useFieldValidate ? validateAddress : undefined}
+    >
       {({ field, form }: FieldProps) => (
         <AccountFieldInner
           fieldName={fieldName}
