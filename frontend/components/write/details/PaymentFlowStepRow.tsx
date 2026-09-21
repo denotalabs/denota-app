@@ -40,9 +40,15 @@ function stepAlign(
 interface Props {
   paymentType: PaymentType;
   activeIndex: number;
+  /** When set, the active step also shows Edit; click runs this instead of jumping pages. */
+  onEditActive?: () => void;
 }
 
-export function PaymentFlowStepRow({ paymentType, activeIndex }: Props) {
+export function PaymentFlowStepRow({
+  paymentType,
+  activeIndex,
+  onEditActive,
+}: Props) {
   const { goToStep } = useStep();
   const steps = stepsForPaymentType(paymentType);
   const last = steps.length - 1;
@@ -52,7 +58,10 @@ export function PaymentFlowStepRow({ paymentType, activeIndex }: Props) {
       {steps.map((step, index) => {
         const isActive = index === activeIndex;
         const isPast = index < activeIndex;
-        const canGoBack = isPast && Boolean(goToStep);
+        const canEditActive = isActive && Boolean(onEditActive);
+        const canClick =
+          (isPast && Boolean(goToStep)) || canEditActive;
+        const showEdit = isPast || canEditActive;
         const align = stepAlign(index, last);
         const editAlign = index === 0 ? "center" : align;
         const labelColor = isPast
@@ -72,11 +81,16 @@ export function PaymentFlowStepRow({ paymentType, activeIndex }: Props) {
               as="button"
               type="button"
               onClick={
-                canGoBack ? () => goToStep?.(step.screenKey) : undefined
+                canClick
+                  ? () =>
+                      isPast
+                        ? goToStep?.(step.screenKey)
+                        : onEditActive?.()
+                  : undefined
               }
-              aria-label={canGoBack ? `Edit ${step.title}` : undefined}
-              tabIndex={canGoBack ? 0 : -1}
-              cursor={canGoBack ? "pointer" : "default"}
+              aria-label={canClick ? `Edit ${step.title}` : undefined}
+              tabIndex={canClick ? 0 : -1}
+              cursor={canClick ? "pointer" : "default"}
               bg="transparent"
               border="none"
               p={0}
@@ -85,9 +99,9 @@ export function PaymentFlowStepRow({ paymentType, activeIndex }: Props) {
               display="flex"
               flexDirection="column"
               alignItems="stretch"
-              _hover={canGoBack ? { opacity: 0.75 } : undefined}
+              _hover={canClick ? { opacity: 0.75 } : undefined}
               _focusVisible={
-                canGoBack
+                canClick
                   ? {
                     outline: "2px solid",
                     outlineColor: "brand.200",
@@ -135,9 +149,9 @@ export function PaymentFlowStepRow({ paymentType, activeIndex }: Props) {
                 h="13px"
                 color={formTheme.termsAccent}
                 fontWeight={600}
-                visibility={isPast ? "visible" : "hidden"}
+                visibility={showEdit ? "visible" : "hidden"}
                 pointerEvents="none"
-                aria-hidden={!isPast}
+                aria-hidden={!showEdit}
               >
                 <Pencil size={10} strokeWidth={2.5} />
                 <Text

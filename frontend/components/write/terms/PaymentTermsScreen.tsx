@@ -138,49 +138,58 @@ function TermsBody({ amount, tokenLabel }: AmountProps) {
     !formStatus?.erc721Checking &&
     !nftCheckPending;
 
-  return (
-    <Form>
-      <Box mb={4}>
-        <TermsAmountHint amount={amount} tokenLabel={tokenLabel} />
-      </Box>
+  const showAllTerms = useCallback(() => select({}), [select]);
 
-      {promoted ? (
-        <>
-          <PromotedTermCard
-            title={promoted.title}
-            subtitle={promoted.subtitle}
-            icon={promoted.icon}
-            tag={resolved ? maturityLabel(resolved.maturity) : null}
-          >
-            <TermConfig amount={amount} tokenLabel={tokenLabel} />
-          </PromotedTermCard>
-          <Box mt={5}>
-            <ChooseDifferentTermsRow onSelect={() => select({})} />
-          </Box>
-          <RoundedButton type="submit" isDisabled={!canContinue} mt={5}>
-            Continue
-          </RoundedButton>
-        </>
-      ) : (
-        <>
-          <Flex direction="column" gap={2.5}>
-            {TERM_CATALOG.map((entry) => (
-              <TermCard
-                key={entry.id}
-                title={entry.title}
-                subtitle={entry.subtitle}
-                icon={entry.icon}
-                tag={entry.comingSoon ? "Coming soon" : null}
-                onSelect={() => select({ term: entry.id })}
-              />
-            ))}
-          </Flex>
-          <SpecializedOptions
-            onSelect={(specialized) => select({ specialized })}
-          />
-        </>
-      )}
-    </Form>
+  return (
+    <>
+      <PaymentFlowStepRow
+        paymentType="withTerms"
+        activeIndex={1}
+        onEditActive={promoted ? showAllTerms : undefined}
+      />
+      <Form>
+        <Box mb={4}>
+          <TermsAmountHint amount={amount} tokenLabel={tokenLabel} />
+        </Box>
+
+        {promoted ? (
+          <>
+            <PromotedTermCard
+              title={promoted.title}
+              subtitle={promoted.subtitle}
+              icon={promoted.icon}
+              tag={resolved ? maturityLabel(resolved.maturity) : null}
+            >
+              <TermConfig amount={amount} tokenLabel={tokenLabel} />
+            </PromotedTermCard>
+            <Box mt={5}>
+              <ChooseDifferentTermsRow onSelect={showAllTerms} />
+            </Box>
+            <RoundedButton type="submit" isDisabled={!canContinue} mt={5}>
+              Continue
+            </RoundedButton>
+          </>
+        ) : (
+          <>
+            <Flex direction="column" gap={2.5}>
+              {TERM_CATALOG.map((entry) => (
+                <TermCard
+                  key={entry.id}
+                  title={entry.title}
+                  subtitle={entry.subtitle}
+                  icon={entry.icon}
+                  tag={entry.comingSoon ? "Coming soon" : null}
+                  onSelect={() => select({ term: entry.id })}
+                />
+              ))}
+            </Flex>
+            <SpecializedOptions
+              onSelect={(specialized) => select({ specialized })}
+            />
+          </>
+        )}
+      </Form>
+    </>
   );
 }
 
@@ -223,7 +232,6 @@ const PaymentTermsScreen: React.FC<ScreenProps> = () => {
       pb={4}
       color={formTheme.text}
     >
-      <PaymentFlowStepRow paymentType="withTerms" activeIndex={1} />
       <Formik
         initialValues={initialValues}
         validate={(values) => validatePaymentTerms(values, termsContext(values))}
