@@ -34,9 +34,9 @@ export function FormInputWrap({
           : "0 0 0 1px var(--chakra-colors-brand-200) inset",
       }}
       sx={{
-        "& input": { color: formTheme.text, bg: "transparent" },
+        "& input, & select": { color: formTheme.text, bg: "transparent" },
         "& input::placeholder": { color: formTheme.placeholder },
-        "& input:focus": { outline: "none", boxShadow: "none" },
+        "& input:focus, & select:focus": { outline: "none", boxShadow: "none" },
         "& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus, & input:-webkit-autofill:active":
           {
             WebkitBoxShadow:

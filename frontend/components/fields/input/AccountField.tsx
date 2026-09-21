@@ -27,6 +27,12 @@ interface Props {
   /** When set, wraps the field in a labeled FormSection. */
   label?: string;
   sectionMb?: number | string;
+  /**
+   * Field-level validate. Disable when this input is mounted only for some
+   * answers: Formik still runs it on the switch away, then leaves the error
+   * after unmount. Parent form validate should cover the field instead.
+   */
+  useFieldValidate?: boolean;
 }
 
 interface InnerProps extends Props {
@@ -111,6 +117,7 @@ function AccountFieldInner({
   resolvedFieldName,
   label,
   sectionMb,
+  useFieldValidate = true,
 }: InnerProps) {
   const { setFieldValue, setFieldError, values } = form;
   const { blockchainState } = useBlockchainData();
@@ -136,6 +143,15 @@ function AccountFieldInner({
     }
     setFieldError(fieldName, resolutionError);
   }, [fieldName, kind, resolutionError, setFieldError]);
+
+  useEffect(() => {
+    if (useFieldValidate) {
+      return;
+    }
+    return () => {
+      setFieldError(fieldName, undefined);
+    };
+  }, [fieldName, setFieldError, useFieldValidate]);
 
   useEffect(() => {
     if (!resolvedFieldName) {
@@ -206,6 +222,7 @@ function AccountFieldInner({
       <FormInputWrap>
         <Input
           {...field}
+          id={fieldName}
           variant="unstyled"
           flex={1}
           minW={0}
@@ -289,6 +306,7 @@ function AccountField({
   resolvedFieldName,
   label,
   sectionMb,
+  useFieldValidate = true,
 }: Props) {
   const [hasStarted, setHasStarted] = useState(false);
   const onInputStarted = useCallback(() => {
@@ -318,7 +336,10 @@ function AccountField({
   );
 
   return (
-    <Field name={fieldName} validate={validateAddress}>
+    <Field
+      name={fieldName}
+      validate={useFieldValidate ? validateAddress : undefined}
+    >
       {({ field, form }: FieldProps) => (
         <AccountFieldInner
           fieldName={fieldName}
@@ -333,6 +354,7 @@ function AccountField({
           resolvedFieldName={resolvedFieldName}
           label={label}
           sectionMb={sectionMb}
+          useFieldValidate={useFieldValidate}
         />
       )}
     </Field>

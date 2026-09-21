@@ -26,7 +26,7 @@ export function ReviewerConfig() {
           },
           {
             value: "other",
-            label: "Another reviewer",
+            label: "A reviewer",
             description:
               "A third party you trust can release the funds to the recipient or refund them to you.",
           },
@@ -53,6 +53,7 @@ export function ReviewerConfig() {
             fieldName="reviewerAddress"
             resolvedFieldName="resolvedReviewerAddress"
             allowEns
+            useFieldValidate={false}
             placeholder="Email, phone, name.eth, or 0x…"
           />
           <FieldHelp>

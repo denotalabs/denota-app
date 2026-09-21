@@ -100,7 +100,7 @@ function TermConfig({ amount, tokenLabel }: AmountProps) {
 }
 
 function TermsBody({ amount, tokenLabel }: AmountProps) {
-  const { values, errors, status, setValues, setTouched } =
+  const { values, status, setValues, setTouched } =
     useFormikContext<PaymentTermsValues>();
 
   /** Select (or clear) an option, resetting every field to its seed. */
@@ -122,9 +122,19 @@ function TermsBody({ amount, tokenLabel }: AmountProps) {
     !values.specialized &&
     nftAddress.length > 0 &&
     formStatus?.erc721IsErc721 !== true;
+  // Gate on the screen validator, not Formik's error bag: a conditionally
+  // mounted field can leave a stale error after it unmounts.
+  const termsErrors = validatePaymentTerms(values, {
+    amount,
+    tokenLabel,
+    nftCollectionIsErc721: nftErc721ForValues(values, {
+      address: formStatus?.erc721Address ?? "",
+      isErc721: formStatus?.erc721IsErc721 ?? null,
+    }),
+  });
   const canContinue =
     resolved?.maturity === "live" &&
-    Object.keys(errors).length === 0 &&
+    Object.keys(termsErrors).length === 0 &&
     !formStatus?.erc721Checking &&
     !nftCheckPending;
 

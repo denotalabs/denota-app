@@ -80,6 +80,7 @@ export function SpecializedConfig({ amount, tokenLabel }: Props) {
             fieldName="reverserAddress"
             resolvedFieldName="resolvedReverserAddress"
             allowEns
+            useFieldValidate={false}
             placeholder="Email, phone, name.eth, or 0x…"
           />
           <FieldHelp>
