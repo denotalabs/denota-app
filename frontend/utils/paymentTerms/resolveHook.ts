@@ -1,4 +1,7 @@
-import type { PaymentTermsValues } from "./types";
+import {
+  giftSignSettingsApply,
+  type PaymentTermsValues,
+} from "./types";
 
 /**
  * How far along a hook is. Only `live` hooks can be written from this app;
@@ -146,7 +149,10 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
       }
 
     case "giftCard":
-      if (values.giftMetadataControl === "highestFunder") {
+      if (
+        giftSignSettingsApply(values.giftSignWho) &&
+        values.giftMetadataControl === "highestFunder"
+      ) {
         return soon("GiftCardHighestSetter");
       }
       if (
@@ -155,7 +161,10 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
       ) {
         return soon("GiftCardAllowlist");
       }
-      if (values.giftSignWho !== "nobody" && values.giftSignCost === "minEscrow") {
+      if (
+        giftSignSettingsApply(values.giftSignWho) &&
+        values.giftSignCost === "minEscrow"
+      ) {
         return soon("GiftCardMinSign");
       }
       if (values.giftTransferable === "afterCash") {
@@ -167,7 +176,10 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
       if (values.giftUnclaimed === "return") {
         return soon("GiftCardExpiring");
       }
-      if (values.giftMetadataControl === "anyFunder") {
+      if (
+        giftSignSettingsApply(values.giftSignWho) &&
+        values.giftMetadataControl === "anyFunder"
+      ) {
         return soon("GiftCardOpenMetadata");
       }
       return soon("GiftCard");
