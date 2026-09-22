@@ -168,6 +168,31 @@ function reviewerValue(
   );
 }
 
+function pauseByValue(
+  values: PaymentTermsValues,
+  ensNames?: Map<string, string | null>
+): string {
+  if (values.pauseBy === "reviewer") {
+    return resolvePartyLabel(
+      values.pauseReviewerAddress,
+      values.resolvedPauseReviewerAddress,
+      ensNames,
+      "Reviewer"
+    );
+  }
+  return "You";
+}
+
+function pauseRows(
+  values: PaymentTermsValues,
+  ensNames?: Map<string, string | null>
+): ConfirmDetailRow[] {
+  if (values.releasePausable !== "yes") {
+    return [];
+  }
+  return [{ label: "Can be paused by", value: pauseByValue(values, ensNames) }];
+}
+
 function collectionLabel(
   address: string,
   ensNames?: Map<string, string | null>
@@ -602,6 +627,7 @@ export function buildConfirmPreview(
               value: "Stay claimable",
             });
           }
+          termRows.push(...pauseRows(values, ctx.ensNames));
           const dripAfter =
             values.unclaimedBehavior === "return"
               ? ". Chunks unlock on a fixed schedule. Unclaimed chunks are forfeited, and whatever remains returns to you after the window closes."
@@ -648,6 +674,7 @@ export function buildConfirmPreview(
             termRows: [
               { label: "Stream starts", value: start || "the start date" },
               { label: "Stream ends", value: end || "the end date" },
+              ...pauseRows(values, ctx.ensNames),
             ],
             legend: "Set by the stream terms.",
           };

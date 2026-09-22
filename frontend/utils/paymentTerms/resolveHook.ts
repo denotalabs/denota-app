@@ -112,11 +112,16 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
         case "specificDate":
           return soon(values.allowEarlyRelease ? "OneofM" : "TimelockSimple");
         case "recurring":
+          if (values.releasePausable === "yes") {
+            return soon("DripPausable");
+          }
           return values.unclaimedBehavior === "stay"
             ? soon("DripSimple")
             : live("CashBeforeDateDrip", "cashBeforeDateDrip");
         case "stream":
-          return soon("LinearStream");
+          return values.releasePausable === "yes"
+            ? soon("LinearStreamPausable")
+            : soon("LinearStream");
         case "milestones":
           return proposed("MilestoneTranches");
         case "customVesting":

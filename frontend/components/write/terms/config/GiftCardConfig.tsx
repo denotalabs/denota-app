@@ -272,7 +272,7 @@ export function GiftCardConfig({ tokenLabel }: Props) {
             value: "no",
             label: "No",
             description:
-              "The card stays with the original recipient. They are the only one who can cash it.",
+              "The card stays with the original recipient.",
           },
         ]}
       />

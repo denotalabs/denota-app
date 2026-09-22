@@ -161,6 +161,13 @@ function usePreview(): ConfirmPreview {
     if (isAddress(reviewer)) {
       addresses.push(reviewer);
     }
+    const pauseReviewer = getEffectiveAddress(
+      terms?.pauseReviewerAddress ?? "",
+      terms?.resolvedPauseReviewerAddress
+    );
+    if (isAddress(pauseReviewer)) {
+      addresses.push(pauseReviewer);
+    }
     const collection = terms?.nftCollectionAddress?.trim() ?? "";
     if (isAddress(collection)) {
       addresses.push(collection);
@@ -170,6 +177,8 @@ function usePreview(): ConfirmPreview {
     recipientResolved,
     recipientTyped,
     terms?.nftCollectionAddress,
+    terms?.pauseReviewerAddress,
+    terms?.resolvedPauseReviewerAddress,
     terms?.resolvedReviewerAddress,
     terms?.reviewerAddress,
   ]);

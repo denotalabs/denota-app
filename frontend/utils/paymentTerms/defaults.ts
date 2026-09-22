@@ -62,6 +62,10 @@ export function baseTermsValues(
     returnAfterDate: inOneMonth,
     streamStart: formatDateTimeLocal(now),
     streamEnd: inOneMonth,
+    releasePausable: "no",
+    pauseBy: "me",
+    pauseReviewerAddress: "",
+    resolvedPauseReviewerAddress: "",
 
     conditionTrigger: "ownership",
     nftCollectionAddress: "",

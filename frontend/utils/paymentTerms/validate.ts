@@ -4,6 +4,7 @@ import { resolveDripPeriodSeconds } from "../dripPeriod";
 import { expirationDateToCashBeforeDateMs } from "../expirationDate";
 import {
   giftSignSettingsApply,
+  releaseCanBePaused,
   type PaymentTermsErrors,
   type PaymentTermsValues,
 } from "./types";
@@ -290,6 +291,20 @@ export function validatePaymentTerms(
         }
         default:
           break;
+      }
+      if (
+        releaseCanBePaused(values.releaseSchedule) &&
+        values.releasePausable === "yes" &&
+        values.pauseBy === "reviewer"
+      ) {
+        const error = accountFieldError(
+          values.pauseReviewerAddress,
+          values.resolvedPauseReviewerAddress,
+          "Enter the reviewer's email, phone, ENS name, or address."
+        );
+        if (error) {
+          errors.pauseReviewerAddress = error;
+        }
       }
       break;
     }
