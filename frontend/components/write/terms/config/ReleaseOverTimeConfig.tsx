@@ -75,6 +75,7 @@ function ReleasePausableFields() {
           {
             value: "yes",
             label: "Yes",
+            tag: "Coming soon",
             description: "Someone can pause and resume unlocking.",
           },
         ]}

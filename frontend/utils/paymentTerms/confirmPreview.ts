@@ -10,6 +10,7 @@ import {
 } from "../balanceOfConditionalCash";
 import { resolveDripPeriodSeconds } from "../dripPeriod";
 import { formatConfirmDate } from "../expirationDate";
+import { parseGroupSigners } from "./groupRelease";
 import { chunkPeriodPhrase, estimatedReleaseCount } from "./summary";
 import {
   giftSignSettingsApply,
@@ -142,10 +143,14 @@ function reviewerValue(
     return "You";
   }
   if (values.reviewer === "group") {
-    const signers = values.groupSigners
-      .split(/[\n,]/)
-      .map((s) => s.trim())
-      .filter(Boolean).length;
+    const signers = parseGroupSigners(values.groupSigners).length;
+    if (values.groupReleaseTrigger === "proportional") {
+      const order =
+        values.groupSigningOrder === "sequential" ? "in order" : "any order";
+      return signers > 0
+        ? `${signers} signers, by share (${order})`
+        : `Signers, by share (${order})`;
+    }
     const threshold = Number(values.groupThreshold) || 0;
     return signers > 0
       ? `${threshold} of ${signers} signers`

@@ -3,6 +3,13 @@ import { classifyAccountInput, isAccountInputInProgress } from "../accountIdenti
 import { resolveDripPeriodSeconds } from "../dripPeriod";
 import { expirationDateToCashBeforeDateMs } from "../expirationDate";
 import {
+  amountsNearlyEqual,
+  groupAmountTotal,
+  parseGroupAmounts,
+  parseGroupSigners,
+  sumGroupAmounts,
+} from "./groupRelease";
+import {
   giftSignSettingsApply,
   releaseCanBePaused,
   type PaymentTermsErrors,
@@ -215,21 +222,50 @@ export function validatePaymentTerms(
         }
       }
       if (values.reviewer === "group") {
-        const signers = values.groupSigners
-          .split(/[\n,]/)
-          .map((s) => s.trim())
-          .filter(Boolean);
+        const signers = parseGroupSigners(values.groupSigners);
         if (signers.length < 2) {
           errors.groupSigners = "Add at least two signers, one per line.";
         } else if (signers.some((s) => !isAddressLike(s))) {
           errors.groupSigners = "One of the signers is not a valid address.";
         }
-        const threshold = Number(values.groupThreshold);
-        if (!Number.isInteger(threshold) || threshold < 1) {
-          errors.groupThreshold =
-            "Threshold must be a whole number of 1 or more.";
-        } else if (signers.length >= 2 && threshold > signers.length) {
-          errors.groupThreshold = `Threshold can't exceed the ${signers.length} signers.`;
+        if (values.groupReleaseTrigger === "threshold") {
+          const threshold = Number(values.groupThreshold);
+          if (!Number.isInteger(threshold) || threshold < 1) {
+            errors.groupThreshold =
+              "Threshold must be a whole number of 1 or more.";
+          } else if (signers.length >= 2 && threshold > signers.length) {
+            errors.groupThreshold = `Threshold can't exceed the ${signers.length} signers.`;
+          }
+        } else if (signers.length >= 2) {
+          const amounts = parseGroupAmounts(values.groupSignerAmounts);
+          if (amounts.length !== signers.length) {
+            errors.groupSignerAmounts =
+              "Set a release amount for each signer.";
+          } else if (
+            amounts.some((value) => {
+              const n = Number(value);
+              return !value.trim() || !Number.isFinite(n) || n <= 0;
+            })
+          ) {
+            errors.groupSignerAmounts =
+              "Each signer needs a release amount more than 0.";
+          } else {
+            const sum = sumGroupAmounts(amounts);
+            const target = groupAmountTotal(
+              values.groupAmountMode,
+              ctx.amount
+            );
+            if (sum === null) {
+              errors.groupSignerAmounts =
+                "Each signer needs a release amount more than 0.";
+            } else if (values.groupAmountMode === "percent") {
+              if (!amountsNearlyEqual(sum, 100)) {
+                errors.groupSignerAmounts = "Shares must add up to 100%.";
+              }
+            } else if (target > 0 && !amountsNearlyEqual(sum, target)) {
+              errors.groupSignerAmounts = `Shares must add up to the full ${totalLabel}.`;
+            }
+          }
         }
       }
       break;
