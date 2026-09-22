@@ -47,6 +47,10 @@ export function baseTermsValues(
     inspectionEndDate: inOneMonth,
     groupSigners: "",
     groupThreshold: "2",
+    groupReleaseTrigger: "threshold",
+    groupSigningOrder: "fixed",
+    groupAmountMode: "absolute",
+    groupSignerAmounts: "",
     arbitrationProvider: "kleros",
 
     releaseSchedule: "recurring",

@@ -87,7 +87,7 @@ function TermConfig({ amount, tokenLabel }: AmountProps) {
     case "recipientClaims":
       return <RecipientClaimsConfig />;
     case "someoneReviews":
-      return <ReviewerConfig />;
+      return <ReviewerConfig amount={amount} tokenLabel={tokenLabel} />;
     case "releaseOverTime":
       return <ReleaseOverTimeConfig amount={amount} tokenLabel={tokenLabel} />;
     case "conditionMet":

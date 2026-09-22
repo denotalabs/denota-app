@@ -17,6 +17,10 @@ export type ClaimDestination = "recipient" | "anyAddress";
 export type Reviewer = "me" | "other" | "group" | "arbitration";
 export type RefundWindow = "untilDecide" | "untilDate";
 export type ArbitrationProvider = "kleros" | "ai" | "privateVoting";
+export type GroupReleaseTrigger = "threshold" | "proportional";
+export type GroupSigningOrder = "fixed" | "sequential";
+/** Percent of escrow vs an absolute token amount. */
+export type GroupAmountMode = "percent" | "absolute";
 
 export type ReleaseSchedule =
   | "specificDate"
@@ -88,6 +92,11 @@ export interface PaymentTermsValues {
   inspectionEndDate: string;
   groupSigners: string;
   groupThreshold: string;
+  groupReleaseTrigger: GroupReleaseTrigger;
+  groupSigningOrder: GroupSigningOrder;
+  groupAmountMode: GroupAmountMode;
+  /** One amount per signer, newline-separated, in `groupAmountMode` units. */
+  groupSignerAmounts: string;
   arbitrationProvider: ArbitrationProvider;
 
   // Release it over time

@@ -96,6 +96,13 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
             ? live("ReversibleByBeforeDate", "reversibleByBeforeDate")
             : live("ReversibleRelease", "reversibleRelease");
         case "group":
+          if (values.groupReleaseTrigger === "proportional") {
+            return soon(
+              values.groupSigningOrder === "sequential"
+                ? "SequentialRelease"
+                : "ProportionalRelease"
+            );
+          }
           return soon("Multisig");
         case "arbitration":
           return values.arbitrationProvider === "kleros"
