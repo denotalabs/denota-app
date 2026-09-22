@@ -1,4 +1,4 @@
-import { Box, Flex, Input, Text } from "@chakra-ui/react";
+import { Box, Checkbox, Flex, Input, Text } from "@chakra-ui/react";
 import { useFormikContext } from "formik";
 import { useEffect, useMemo } from "react";
 import {
@@ -162,6 +162,13 @@ function SignerAmountRows({
     void setFieldValue("groupSignerAmounts", joinGroupAmounts(next));
   };
 
+  const setSequential = (checked: boolean) => {
+    void setFieldValue(
+      "groupSigningOrder",
+      checked ? "sequential" : "fixed"
+    );
+  };
+
   const readout =
     !error && sum !== null && signers.length > 0
       ? values.groupAmountMode === "percent"
@@ -186,10 +193,28 @@ function SignerAmountRows({
         >
           How much does each signer release?
         </Text>
-        <AmountUnitToggle
-          value={values.groupAmountMode}
-          onChange={setMode}
-        />
+        <Flex align="center" gap={2.5} flexShrink={0}>
+          <Checkbox
+            isChecked={sequential}
+            onChange={(event) => setSequential(event.target.checked)}
+            size="sm"
+            spacing="6px"
+            color={formTheme.mutedLight}
+            sx={{
+              ".chakra-checkbox__label": {
+                fontSize: "13px",
+                fontWeight: 600,
+                lineHeight: 1.2,
+              },
+            }}
+          >
+            In order
+          </Checkbox>
+          <AmountUnitToggle
+            value={values.groupAmountMode}
+            onChange={setMode}
+          />
+        </Flex>
       </Flex>
       {signers.length === 0 ? (
         <FieldHelp>
@@ -260,6 +285,11 @@ function SignerAmountRows({
         <Text mt={1.5} fontSize="13px" color="brand.200" fontWeight={600}>
           {readout}
         </Text>
+      ) : null}
+      {!error && sequential && signers.length > 0 ? (
+        <FieldHelp>
+          Signers must release in the listed order, each unlocking their share.
+        </FieldHelp>
       ) : null}
     </Box>
   );
@@ -363,28 +393,7 @@ export function ReviewerConfig({ amount, tokenLabel }: Props) {
               help="How many of the signers must agree before funds move."
             />
           ) : (
-            <>
-              <ChoiceField
-                name="groupSigningOrder"
-                label="Does signing order matter?"
-                layout="segments"
-                options={[
-                  {
-                    value: "fixed",
-                    label: "Fixed",
-                    description:
-                      "Any signer can release their share whenever they choose.",
-                  },
-                  {
-                    value: "sequential",
-                    label: "Sequential",
-                    description:
-                      "Signers must release in the listed order, each unlocking their share.",
-                  },
-                ]}
-              />
-              <SignerAmountRows amount={amount} tokenLabel={tokenLabel} />
-            </>
+            <SignerAmountRows amount={amount} tokenLabel={tokenLabel} />
           )}
         </>
       ) : null}

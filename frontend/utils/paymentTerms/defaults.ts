@@ -49,7 +49,7 @@ export function baseTermsValues(
     groupThreshold: "2",
     groupReleaseTrigger: "threshold",
     groupSigningOrder: "fixed",
-    groupAmountMode: "absolute",
+    groupAmountMode: "percent",
     groupSignerAmounts: "",
     arbitrationProvider: "kleros",
 
