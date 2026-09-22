@@ -2,9 +2,13 @@ import { Box, Flex, Select } from "@chakra-ui/react";
 import { Field, FieldProps, useFormikContext } from "formik";
 import { DRIP_PERIOD_UNITS } from "../../../../utils/dripPeriod";
 import { estimatedReleaseCount } from "../../../../utils/paymentTerms/summary";
-import type { PaymentTermsValues } from "../../../../utils/paymentTerms/types";
+import {
+  releaseCanBePaused,
+  type PaymentTermsValues,
+} from "../../../../utils/paymentTerms/types";
+import AccountField from "../../../fields/input/AccountField";
 import { ChoiceField } from "../fields/ChoiceField";
-import { FieldLabel, FieldStack } from "../fields/FieldChrome";
+import { FieldHelp, FieldLabel, FieldStack } from "../fields/FieldChrome";
 import { PlaceholderEditor } from "../fields/PlaceholderEditor";
 import { TermsDateField } from "../fields/TermsDateField";
 import { TermsTextField } from "../fields/TermsTextField";
@@ -53,8 +57,73 @@ function CustomFrequency() {
   );
 }
 
+function ReleasePausableFields() {
+  const { values } = useFormikContext<PaymentTermsValues>();
+
+  return (
+    <>
+      <ChoiceField
+        name="releasePausable"
+        label="Can it be paused?"
+        layout="segments"
+        options={[
+          {
+            value: "no",
+            label: "No",
+            description: "Unlocking runs on the schedule until it is done.",
+          },
+          {
+            value: "yes",
+            label: "Yes",
+            description: "Someone can pause and resume unlocking.",
+          },
+        ]}
+      />
+      {values.releasePausable === "yes" ? (
+        <>
+          <ChoiceField
+            name="pauseBy"
+            label="By who"
+            layout="segments"
+            options={[
+              {
+                value: "me",
+                label: "Me",
+                description:
+                  "You can pause and resume from your connected wallet.",
+              },
+              {
+                value: "reviewer",
+                label: "A reviewer",
+                description:
+                  "A third party you trust can pause and resume unlocking.",
+              },
+            ]}
+          />
+          {values.pauseBy === "reviewer" ? (
+            <Box>
+              <FieldLabel htmlFor="pauseReviewerAddress">Reviewer</FieldLabel>
+              <AccountField
+                fieldName="pauseReviewerAddress"
+                resolvedFieldName="resolvedPauseReviewerAddress"
+                allowEns
+                useFieldValidate={false}
+                placeholder="Email, phone, name.eth, or 0x…"
+              />
+              <FieldHelp>
+                This person can pause and resume unlocking. Double-check the
+                address.
+              </FieldHelp>
+            </Box>
+          ) : null}
+        </>
+      ) : null}
+    </>
+  );
+}
+
 export function ReleaseOverTimeConfig({ amount, tokenLabel }: Props) {
-  const { values, setFieldValue } = useFormikContext<PaymentTermsValues>();
+  const { values } = useFormikContext<PaymentTermsValues>();
 
   const releases = estimatedReleaseCount(amount, values.chunkAmount);
   const chunkReadout =
@@ -154,6 +223,10 @@ export function ReleaseOverTimeConfig({ amount, tokenLabel }: Props) {
           Tranche rows (unlock date and amount) are coming in the next
           iteration.
         </PlaceholderEditor>
+      ) : null}
+
+      {releaseCanBePaused(values.releaseSchedule) ? (
+        <ReleasePausableFields />
       ) : null}
     </FieldStack>
   );

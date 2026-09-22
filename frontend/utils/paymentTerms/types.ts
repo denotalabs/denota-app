@@ -25,6 +25,13 @@ export type ReleaseSchedule =
   | "milestones"
   | "customVesting";
 export type UnclaimedBehavior = "stay" | "return";
+export type ReleasePausable = "no" | "yes";
+export type PauseBy = "me" | "reviewer";
+
+/** Pause controls only apply to chunk and linear schedules. */
+export function releaseCanBePaused(schedule: ReleaseSchedule): boolean {
+  return schedule === "recurring" || schedule === "stream";
+}
 
 export type ConditionTrigger =
   | "ownership"
@@ -95,6 +102,10 @@ export interface PaymentTermsValues {
   returnAfterDate: string;
   streamStart: string;
   streamEnd: string;
+  releasePausable: ReleasePausable;
+  pauseBy: PauseBy;
+  pauseReviewerAddress: string;
+  resolvedPauseReviewerAddress: string;
 
   // Release when a condition is met
   conditionTrigger: ConditionTrigger;
