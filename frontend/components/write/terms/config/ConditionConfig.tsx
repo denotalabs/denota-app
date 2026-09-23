@@ -50,6 +50,86 @@ function OwnershipFields() {
   );
 }
 
+function EasFields() {
+  const { values } = useFormikContext<PaymentTermsValues>();
+
+  return (
+    <>
+      <TermsTextField
+        name="easSchemaUid"
+        label="Schema"
+        placeholder="0x…"
+        help="The schema UID from the EAS registry. It identifies which claim must be attested — for example a KYC check or a completed milestone."
+      />
+      <ChoiceField
+        name="easAttesterRule"
+        label="Who must have attested?"
+        options={[
+          {
+            value: "specific",
+            label: "A specific attester",
+            description:
+              "Only an attestation from this address counts. Use this when you trust one issuer.",
+          },
+          {
+            value: "any",
+            label: "Anyone on this schema",
+            description:
+              "Any attester who used this schema is enough. The attestation still has to be unrevoked and unexpired.",
+          },
+        ]}
+      />
+      {values.easAttesterRule === "specific" ? (
+        <TermsTextField
+          name="easAttester"
+          label="Attester"
+          placeholder="0x…"
+          help="The address that must have created the attestation."
+        />
+      ) : null}
+      <ChoiceField
+        name="easSubject"
+        label="Who must the attestation be about?"
+        options={[
+          {
+            value: "claimer",
+            label: "The payment recipient",
+            description:
+              "The attestation's recipient must be the person claiming the funds.",
+          },
+          {
+            value: "anyone",
+            label: "Anyone",
+            description:
+              "The attestation can name any recipient. Only the schema (and attester, if set) are checked.",
+          },
+        ]}
+      />
+    </>
+  );
+}
+
+function ZkProofFields() {
+  return (
+    <>
+      <TermsTextField
+        name="zkVerifier"
+        label="Verifier contract"
+        placeholder="0x…"
+        help="Called when the recipient claims. It must expose a verifyProof function that returns true for a valid proof."
+      />
+      <TermsTextField
+        name="zkPublicInputs"
+        label="Public inputs"
+        placeholder="0x… or 1, 2, 3"
+        multiline
+        rows={3}
+        help="Signals the proof must satisfy, as hex bytes or a comma-separated list of numbers. Leave blank if any valid proof from this verifier is enough. The proof itself is supplied at claim time."
+      />
+    </>
+  );
+}
+
 function OnchainStateFields() {
   const { values } = useFormikContext<PaymentTermsValues>();
   const compareReturn = values.onchainUnlock === "returnValue";
@@ -142,10 +222,17 @@ export function ConditionConfig() {
           },
           {
             value: "attestation",
-            label: "Attestation or proof",
+            label: "Attestation",
             tag: "Coming soon",
             description:
-              "Release when the recipient holds a valid credential or proof.",
+              "Release when the recipient holds a valid credential, such as an EAS attestation.",
+          },
+          {
+            value: "zkProof",
+            label: "ZK proof",
+            tag: "Experimental",
+            description:
+              "Release when the recipient presents a valid zero-knowledge proof.",
           },
         ]}
       />
@@ -178,21 +265,33 @@ export function ConditionConfig() {
       ) : null}
 
       {values.conditionTrigger === "attestation" ? (
-        <ChoiceField
-          name="attestationKind"
-          label="Which kind?"
-          options={[
-            { value: "eas", label: "EAS attestation", tag: "Coming soon" },
-            {
-              value: "coinbaseKyc",
-              label: "Coinbase verification",
-              tag: "Coming soon",
-            },
-            { value: "hats", label: "Hats Protocol role", tag: "Coming soon" },
-            { value: "zk", label: "Zero-knowledge proof", tag: "Experimental" },
-          ]}
-        />
+        <>
+          <ChoiceField
+            name="attestationKind"
+            label="Which kind?"
+            options={[
+              {
+                value: "eas",
+                label: "Ethereum Attestation Service",
+                tag: "Coming soon",
+              },
+              {
+                value: "coinbaseKyc",
+                label: "Coinbase verification",
+                tag: "Coming soon",
+              },
+              {
+                value: "hats",
+                label: "Hats Protocol role",
+                tag: "Coming soon",
+              },
+            ]}
+          />
+          {values.attestationKind === "eas" ? <EasFields /> : null}
+        </>
       ) : null}
+
+      {values.conditionTrigger === "zkProof" ? <ZkProofFields /> : null}
     </FieldStack>
   );
 }

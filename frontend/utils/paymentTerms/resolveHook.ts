@@ -71,6 +71,8 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
         return soon("ReversibleByBeforeDelayable");
       case "reversibleStartsLocked":
         return soon("ReversibleStartsLocked");
+      case "reviewerDecreasing":
+        return soon("ReverseLinearUnlock");
       case "customHook":
         return experimental("AdminSignedActions");
     }
@@ -155,9 +157,9 @@ export function resolveHook(values: PaymentTermsValues): ResolvedHook | null {
               return soon("CoinbaseKYC");
             case "hats":
               return soon("HatsManaged");
-            case "zk":
-              return experimental("ZKProof");
           }
+        case "zkProof":
+          return experimental("ZKProof");
       }
 
     case "giftCard":
