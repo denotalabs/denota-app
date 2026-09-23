@@ -9,9 +9,17 @@ import {
   type ConditionType,
 } from "../balanceOfConditionalCash";
 import { resolveDripPeriodSeconds } from "../dripPeriod";
-import { formatConfirmDate } from "../expirationDate";
+import {
+  expirationDateToCashBeforeDateMs,
+  formatConfirmDate,
+  formatDateTimeLocal,
+} from "../expirationDate";
 import { parseGroupSigners } from "./groupRelease";
-import { chunkPeriodPhrase, estimatedReleaseCount } from "./summary";
+import {
+  chunkPeriodPhrase,
+  estimatedReleaseCount,
+  lockUnlockMs,
+} from "./summary";
 import {
   giftSignSettingsApply,
   type PaymentTermsValues,
@@ -94,7 +102,10 @@ function toNarrative(
   ];
 }
 
-function durationHint(totalSeconds: number): string | undefined {
+function durationHint(
+  totalSeconds: number,
+  suffix = "to fully vest"
+): string | undefined {
   if (!(totalSeconds > 0)) {
     return undefined;
   }
@@ -104,18 +115,18 @@ function durationHint(totalSeconds: number): string | undefined {
   const hours = totalSeconds / 3600;
   if (months >= 1.5) {
     const n = Math.round(months);
-    return `~${n} ${n === 1 ? "month" : "months"} to fully vest`;
+    return `~${n} ${n === 1 ? "month" : "months"} ${suffix}`;
   }
   if (weeks >= 1.5) {
     const n = Math.round(weeks);
-    return `~${n} ${n === 1 ? "week" : "weeks"} to fully vest`;
+    return `~${n} ${n === 1 ? "week" : "weeks"} ${suffix}`;
   }
   if (days >= 1) {
     const n = Math.round(days);
-    return `~${n} ${n === 1 ? "day" : "days"} to fully vest`;
+    return `~${n} ${n === 1 ? "day" : "days"} ${suffix}`;
   }
   const n = Math.max(1, Math.round(hours));
-  return `~${n} ${n === 1 ? "hour" : "hours"} to fully vest`;
+  return `~${n} ${n === 1 ? "hour" : "hours"} ${suffix}`;
 }
 
 function dripDurationHint(
@@ -447,6 +458,15 @@ function specializedPreview(
     }
     case "reversibleStartsLocked": {
       const until = formatConfirmDate(values.inspectionEndDate);
+      const pct = values.lockPeriodPercent.trim() || "50";
+      const unlockMs = lockUnlockMs(
+        values.inspectionEndDate,
+        values.lockPeriodPercent
+      );
+      const unlock =
+        unlockMs !== null
+          ? formatConfirmDate(formatDateTimeLocal(new Date(unlockMs)))
+          : "";
       return {
         narrative: toNarrative(
           name,
@@ -459,11 +479,65 @@ function specializedPreview(
             value: until || "the chosen date",
           },
           {
+            label: "Lock period",
+            value: `${pct}% of the time until they can claim`,
+          },
+          {
             label: "Refunds unlock",
-            value: "Halfway to that date",
+            value: unlock || "after the lock period",
           },
         ],
         legend: "Set by the reversible terms.",
+      };
+    }
+    case "reviewerDecreasing": {
+      const start = formatConfirmDate(values.decreaseStart);
+      const end = formatConfirmDate(values.decreaseEnd);
+      const startMs = expirationDateToCashBeforeDateMs(values.decreaseStart);
+      const endMs = expirationDateToCashBeforeDateMs(values.decreaseEnd);
+      const decayHint =
+        Number.isFinite(startMs) && Number.isFinite(endMs) && endMs > startMs
+          ? durationHint((endMs - startMs) / 1000, "to reach the floor")
+          : undefined;
+      const total = Number(ctx.amount);
+      const floor = Number(values.reviewerFloorAmount);
+      const remainder =
+        Number.isFinite(total) && Number.isFinite(floor)
+          ? formatFundingAmount(String(total - floor), ctx.tokenLabel)
+          : "the remainder";
+      return {
+        narrative: toNarrative(
+          name,
+          "You're sending a decaying payment to ",
+          ". The reviewer can release the full amount from the start, or the set amount plus whatever reverse-linear extra is still left after it begins decaying."
+        ),
+        termRows: [
+          {
+            label: "Reviewer",
+            value: reviewerValue(values, ctx.ensNames),
+          },
+          {
+            label: "Set amount",
+            value: formatFundingAmount(
+              values.reviewerFloorAmount,
+              ctx.tokenLabel
+            ),
+          },
+          {
+            label: "Reverse linear extra",
+            value: remainder,
+          },
+          {
+            label: "Reverse linear starts decaying",
+            value: start || "the start date",
+          },
+          {
+            label: "Only the set amount is left",
+            value: end || "the end date",
+            hint: decayHint,
+          },
+        ],
+        legend: "Set by the decreasing terms.",
       };
     }
     case "customHook":
@@ -804,9 +878,38 @@ export function buildConfirmPreview(
               ? "EAS attestation"
               : values.attestationKind === "coinbaseKyc"
                 ? "Coinbase verification"
-                : values.attestationKind === "hats"
-                  ? "Hats Protocol role"
-                  : "zero-knowledge proof";
+                : "Hats Protocol role";
+          const termRows: ConfirmDetailRow[] = [
+            { label: "Requires", value: kind },
+          ];
+          if (values.attestationKind === "eas") {
+            const schema = values.easSchemaUid.trim();
+            if (schema) {
+              termRows.push({
+                label: "Schema",
+                value: truncateAddress(schema),
+              });
+            }
+            termRows.push({
+              label: "Attester",
+              value:
+                values.easAttesterRule === "specific"
+                  ? resolvePartyLabel(
+                      values.easAttester,
+                      undefined,
+                      ctx.ensNames,
+                      "a specific attester"
+                    )
+                  : "Anyone on this schema",
+            });
+            termRows.push({
+              label: "About",
+              value:
+                values.easSubject === "claimer"
+                  ? "The payment recipient"
+                  : "Anyone",
+            });
+          }
           return {
             ...base,
             narrative: toNarrative(
@@ -814,7 +917,38 @@ export function buildConfirmPreview(
               "You're sending a payment to ",
               `. They can claim it once they hold a valid ${kind}.`
             ),
-            termRows: [{ label: "Requires", value: kind }],
+            termRows,
+            legend: "Set by the condition terms.",
+          };
+        }
+        case "zkProof": {
+          const verifier = resolvePartyLabel(
+            values.zkVerifier,
+            undefined,
+            ctx.ensNames,
+            "the verifier contract"
+          );
+          const inputs = values.zkPublicInputs.trim();
+          return {
+            ...base,
+            narrative: toNarrative(
+              name,
+              "You're sending a payment to ",
+              ". They can claim it once they present a valid zero-knowledge proof."
+            ),
+            termRows: [
+              { label: "Verifier", value: verifier || "the verifier contract" },
+              ...(inputs
+                ? [
+                    {
+                      label: "Public inputs",
+                      value: inputs.startsWith("0x")
+                        ? truncateAddress(inputs)
+                        : inputs,
+                    },
+                  ]
+                : []),
+            ],
             legend: "Set by the condition terms.",
           };
         }

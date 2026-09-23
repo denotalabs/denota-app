@@ -7,6 +7,7 @@ import {
   Hourglass,
   KeyRound,
   LockKeyhole,
+  TrendingDown,
   Undo2,
   UserCheck,
   type LucideIcon,
@@ -103,6 +104,14 @@ export const SPECIALIZED_CATALOG: SpecializedCatalogEntry[] = [
     subtitle:
       "You can reverse only after a waiting period, until the recipient can claim.",
     icon: LockKeyhole,
+    comingSoon: true,
+  },
+  {
+    id: "reviewerDecreasing",
+    title: "A set amount, the rest shrinks",
+    subtitle:
+      "The reviewer can release everything from the start. After a date they release the set amount plus leftover reverse linear.",
+    icon: TrendingDown,
     comingSoon: true,
   },
   // {

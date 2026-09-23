@@ -32,6 +32,9 @@ export function baseTermsValues(
   now: Date = new Date()
 ): PaymentTermsValues {
   const inOneMonth = dateTimeLocalOneMonthFromNow(now);
+  const inTwoMonthsDate = new Date(now);
+  inTwoMonthsDate.setMonth(inTwoMonthsDate.getMonth() + 2);
+  const inTwoMonths = formatDateTimeLocal(inTwoMonthsDate);
   return {
     term: "",
     specialized: "",
@@ -66,6 +69,9 @@ export function baseTermsValues(
     returnAfterDate: inOneMonth,
     streamStart: formatDateTimeLocal(now),
     streamEnd: inOneMonth,
+    // Remainder above the set amount decays from one month out to zero a month later.
+    decreaseStart: inOneMonth,
+    decreaseEnd: inTwoMonths,
     releasePausable: "no",
     pauseBy: "me",
     pauseReviewerAddress: "",
@@ -85,6 +91,12 @@ export function baseTermsValues(
     onchainCondition: "EQ",
     onchainExpected: "",
     attestationKind: "eas",
+    easSchemaUid: "",
+    easAttesterRule: "specific",
+    easAttester: "",
+    easSubject: "claimer",
+    zkVerifier: "",
+    zkPublicInputs: "",
 
     giftName: "",
     giftNote: "",
@@ -101,7 +113,9 @@ export function baseTermsValues(
     giftSignature: "",
 
     firstHalfAmount: seedFirstHalfAmount(totalAmount),
+    reviewerFloorAmount: seedFirstHalfAmount(totalAmount),
     delayCostPerDay: "1",
+    lockPeriodPercent: "50",
     reverserAddress: "",
     resolvedReverserAddress: "",
     customHookAddress: "",
@@ -118,7 +132,20 @@ export function initialTermsValues(notaFormValues: {
 }): PaymentTermsValues {
   const base = baseTermsValues(notaFormValues.amount);
   const saved = notaFormValues.terms;
-  return saved && typeof saved === "object"
-    ? { ...base, ...(saved as Partial<PaymentTermsValues>) }
-    : base;
+  if (!saved || typeof saved !== "object") {
+    return base;
+  }
+  const merged: PaymentTermsValues = {
+    ...base,
+    ...(saved as Partial<PaymentTermsValues>),
+  };
+  // ZK proof used to sit under attestation; restore it as its own trigger.
+  if (
+    merged.conditionTrigger === "attestation" &&
+    (saved as { attestationKind?: string }).attestationKind === "zk"
+  ) {
+    merged.conditionTrigger = "zkProof";
+    merged.attestationKind = "eas";
+  }
+  return merged;
 }

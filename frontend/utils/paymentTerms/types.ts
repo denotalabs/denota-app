@@ -41,10 +41,15 @@ export type ConditionTrigger =
   | "ownership"
   | "price"
   | "onchainState"
-  | "attestation";
+  | "attestation"
+  | "zkProof";
 export type PriceDirection = "above" | "below";
 export type OnchainUnlock = "succeeds" | "returnValue";
-export type AttestationKind = "eas" | "coinbaseKyc" | "hats" | "zk";
+export type AttestationKind = "eas" | "coinbaseKyc" | "hats";
+/** Whether any attester of the schema is enough, or a named one. */
+export type EasAttesterRule = "any" | "specific";
+/** Who the EAS attestation must name as its recipient. */
+export type EasSubject = "claimer" | "anyone";
 
 export type GiftFundWho = "anyone" | "allowlist";
 export type GiftSignWho = "anyone" | "onlyFunders" | "allowlist" | "nobody";
@@ -69,6 +74,7 @@ export type SpecializedOption =
   | "forwarderReverser"
   | "reversibleBeforeDelayable"
   | "reversibleStartsLocked"
+  | "reviewerDecreasing"
   | "customHook";
 
 /**
@@ -111,6 +117,10 @@ export interface PaymentTermsValues {
   returnAfterDate: string;
   streamStart: string;
   streamEnd: string;
+  /** When reverse-linear extra starts shrinking. */
+  decreaseStart: string;
+  /** When reverse-linear extra is gone and only the set amount is left. */
+  decreaseEnd: string;
   releasePausable: ReleasePausable;
   pauseBy: PauseBy;
   pauseReviewerAddress: string;
@@ -131,6 +141,12 @@ export interface PaymentTermsValues {
   onchainCondition: ConditionType;
   onchainExpected: string;
   attestationKind: AttestationKind;
+  easSchemaUid: string;
+  easAttesterRule: EasAttesterRule;
+  easAttester: string;
+  easSubject: EasSubject;
+  zkVerifier: string;
+  zkPublicInputs: string;
 
   // Gift card
   giftName: string;
@@ -150,7 +166,14 @@ export interface PaymentTermsValues {
 
   // More specialized options
   firstHalfAmount: string;
+  /** Set amount the reviewer can still release after reverse linear decays. */
+  reviewerFloorAmount: string;
   delayCostPerDay: string;
+  /**
+   * Share of the time from write until `inspectionEndDate` that stays locked.
+   * 50 means refunds unlock halfway to the claim date.
+   */
+  lockPeriodPercent: string;
   reverserAddress: string;
   resolvedReverserAddress: string;
   customHookAddress: string;

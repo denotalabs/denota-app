@@ -1,4 +1,5 @@
 import type { DripPeriodUnit } from "../dripPeriod";
+import { expirationDateToCashBeforeDateMs } from "../expirationDate";
 import type { PaymentTermsValues } from "./types";
 
 const UNIT_WORDS: Record<DripPeriodUnit, [string, string]> = {
@@ -40,4 +41,32 @@ export function estimatedReleaseCount(
     return null;
   }
   return Math.ceil(total / chunk);
+}
+
+/**
+ * When refunds unlock for "Refunds after a lock period": `percent` of the
+ * time from `now` until `endDate`. Matches the hook's
+ * `now + (inspectionEnd - now) * percent / 100` formula.
+ */
+export function lockUnlockMs(
+  endDate: string,
+  percent: string,
+  nowMs: number = Date.now()
+): number | null {
+  const trimmed = endDate.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const end = expirationDateToCashBeforeDateMs(trimmed);
+  const pct = Number(percent);
+  if (
+    !Number.isFinite(end) ||
+    !(end > nowMs) ||
+    !Number.isFinite(pct) ||
+    pct <= 0 ||
+    pct >= 100
+  ) {
+    return null;
+  }
+  return nowMs + ((end - nowMs) * pct) / 100;
 }

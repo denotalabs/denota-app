@@ -76,6 +76,30 @@ function accountFieldError(
   return "Not a valid email, phone, ENS name, or 0x address";
 }
 
+function zkPublicInputsError(value: string): string | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  if (trimmed.startsWith("0x")) {
+    return ethers.utils.isHexString(trimmed)
+      ? undefined
+      : "Public inputs must be valid hex.";
+  }
+  const parts = trimmed.split(/[\s,]+/).filter(Boolean);
+  if (parts.length === 0) {
+    return undefined;
+  }
+  for (const part of parts) {
+    try {
+      ethers.BigNumber.from(part);
+    } catch {
+      return "Public inputs must be hex bytes or a list of numbers.";
+    }
+  }
+  return undefined;
+}
+
 function listEntries(value: string): string[] {
   return value
     .split(/[\n,]/)
@@ -172,6 +196,59 @@ export function validatePaymentTerms(
         } else if (ms <= nowMs) {
           errors.inspectionEndDate =
             "That date is in the past. Pick a future date.";
+        }
+        const pct = Number(values.lockPeriodPercent);
+        if (
+          !values.lockPeriodPercent.trim() ||
+          !Number.isFinite(pct) ||
+          pct <= 0 ||
+          pct >= 100
+        ) {
+          errors.lockPeriodPercent =
+            "Lock period must be more than 0% and less than 100%.";
+        }
+        break;
+      }
+      case "reviewerDecreasing": {
+        if (values.reviewer === "other") {
+          const error = accountFieldError(
+            values.reviewerAddress,
+            values.resolvedReviewerAddress,
+            "Enter the reviewer's email, phone, ENS name, or address."
+          );
+          if (error) {
+            errors.reviewerAddress = error;
+          }
+        }
+        const floor = Number(values.reviewerFloorAmount);
+        if (
+          !values.reviewerFloorAmount.trim() ||
+          !Number.isFinite(floor) ||
+          floor < 0
+        ) {
+          errors.reviewerFloorAmount = "Must be 0 or more.";
+        } else if (Number.isFinite(total) && total > 0) {
+          if (floor > total) {
+            errors.reviewerFloorAmount = `That is more than the full ${totalLabel}.`;
+          } else if (floor === total) {
+            errors.reviewerFloorAmount =
+              "Leave some amount above this to decay.";
+          }
+        }
+        const start = dateMs(values.decreaseStart);
+        const end = dateMs(values.decreaseEnd);
+        if (start === null) {
+          errors.decreaseStart =
+            "Pick a date when reverse linear starts decaying.";
+        } else if (start <= nowMs) {
+          errors.decreaseStart =
+            "That date is in the past. Pick a future date.";
+        }
+        if (end === null) {
+          errors.decreaseEnd = "Pick a date when only the set amount is left.";
+        } else if (start !== null && end <= start) {
+          errors.decreaseEnd =
+            "Must be after reverse linear starts decaying.";
         }
         break;
       }
@@ -393,6 +470,35 @@ export function validatePaymentTerms(
         case "onchainState": {
           if (!ethers.utils.isAddress(values.onchainContract.trim())) {
             errors.onchainContract = "Not a valid 0x address.";
+          }
+          break;
+        }
+        case "attestation": {
+          if (values.attestationKind === "eas") {
+            const schema = values.easSchemaUid.trim();
+            if (!schema) {
+              errors.easSchemaUid = "Enter the EAS schema UID.";
+            } else if (!ethers.utils.isHexString(schema, 32)) {
+              errors.easSchemaUid =
+                "Schema UID must be a 32-byte hex value (0x plus 64 hex characters).";
+            }
+            if (values.easAttesterRule === "specific") {
+              if (!ethers.utils.isAddress(values.easAttester.trim())) {
+                errors.easAttester = "Not a valid 0x address.";
+              }
+            }
+          }
+          break;
+        }
+        case "zkProof": {
+          if (!ethers.utils.isAddress(values.zkVerifier.trim())) {
+            errors.zkVerifier = "Not a valid 0x address.";
+          }
+          const publicInputsError = zkPublicInputsError(
+            values.zkPublicInputs
+          );
+          if (publicInputsError) {
+            errors.zkPublicInputs = publicInputsError;
           }
           break;
         }
